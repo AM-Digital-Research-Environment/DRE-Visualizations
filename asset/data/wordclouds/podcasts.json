@@ -1,6 +1,6 @@
 {
   "corpus": "podcasts",
-  "generated_utc": "2026-07-03T09:52:37Z",
+  "generated_utc": "2026-07-03T09:56:07Z",
   "source": "https://data.africamultiple.uni-bayreuth.de",
   "models": {
     "en": "en_core_web_sm",
@@ -1063,19 +1063,11 @@
         "value": 10
       },
       {
-        "name": "hmm",
-        "value": 10
-      },
-      {
         "name": "étude",
         "value": 10
       },
       {
         "name": "théâtral",
-        "value": 10
-      },
-      {
-        "name": "euh",
         "value": 10
       },
       {
@@ -1255,10 +1247,6 @@
         "value": 6
       },
       {
-        "name": "hein",
-        "value": 6
-      },
-      {
         "name": "sentiment",
         "value": 6
       },
@@ -1312,10 +1300,6 @@
       },
       {
         "name": "workshop",
-        "value": 5
-      },
-      {
-        "name": "ben",
         "value": 5
       },
       {
@@ -1620,6 +1604,22 @@
       },
       {
         "name": "particulier",
+        "value": 3
+      },
+      {
+        "name": "marché",
+        "value": 3
+      },
+      {
+        "name": "mémoire",
+        "value": 3
+      },
+      {
+        "name": "réparation",
+        "value": 3
+      },
+      {
+        "name": "suite",
         "value": 3
       }
     ]

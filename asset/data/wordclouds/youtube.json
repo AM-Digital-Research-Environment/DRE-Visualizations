@@ -1,6 +1,6 @@
 {
   "corpus": "youtube",
-  "generated_utc": "2026-07-03T09:53:38Z",
+  "generated_utc": "2026-07-03T09:57:06Z",
   "source": "https://data.africamultiple.uni-bayreuth.de",
   "models": {
     "en": "en_core_web_sm",
@@ -831,10 +831,6 @@
         "value": 437
       },
       {
-        "name": "euh",
-        "value": 361
-      },
-      {
         "name": "question",
         "value": 237
       },
@@ -1116,10 +1112,6 @@
       },
       {
         "name": "brésil",
-        "value": 40
-      },
-      {
-        "name": "hein",
         "value": 40
       },
       {
@@ -1625,15 +1617,19 @@
       {
         "name": "musique",
         "value": 21
+      },
+      {
+        "name": "royaume",
+        "value": 21
+      },
+      {
+        "name": "violence",
+        "value": 21
       }
     ],
     "de": [
       {
         "name": "film",
-        "value": 219
-      },
-      {
-        "name": "ähm",
         "value": 219
       },
       {
@@ -2427,24 +2423,16 @@
       {
         "name": "forschung",
         "value": 11
+      },
+      {
+        "name": "diversität",
+        "value": 11
       }
     ],
     "pt": [
       {
-        "name": "gente",
-        "value": 71
-      },
-      {
-        "name": "you",
-        "value": 68
-      },
-      {
         "name": "música",
         "value": 45
-      },
-      {
-        "name": "like",
-        "value": 32
       },
       {
         "name": "moçambique",
@@ -2457,10 +2445,6 @@
       {
         "name": "pessoa",
         "value": 26
-      },
-      {
-        "name": "know",
-        "value": 25
       },
       {
         "name": "there",
@@ -3228,6 +3212,22 @@
       },
       {
         "name": "interessante",
+        "value": 4
+      },
+      {
+        "name": "been",
+        "value": 4
+      },
+      {
+        "name": "cre",
+        "value": 4
+      },
+      {
+        "name": "working",
+        "value": 4
+      },
+      {
+        "name": "journey",
         "value": 4
       }
     ]
