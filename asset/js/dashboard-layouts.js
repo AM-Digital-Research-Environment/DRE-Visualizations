@@ -194,27 +194,29 @@
         },
         // Half-width charts are paired consecutively (types+languages,
         // topVenues+topAuthors) so neither sits alone on a row; every other key is
-        // full-width. `templates` and the (empty) `locations`/`timeline` are
-        // intentionally omitted — `types` already breaks publications down by type,
-        // and publications carry no geography.
+        // full-width. `templates` and the (empty) `timeline` are intentionally
+        // omitted — `types` already breaks publications down by type. `locations`
+        // here is the places-of-publication map (marcrel:pup → geocoded
+        // Locations), retitled by the dashboard's own labels override.
         publications: {
-            order: ['types', 'languages', 'stackedTimeline',
-                    'topVenues', 'topAuthors', 'coAuthorNetwork',
+            order: ['types', 'languages', 'stackedTimeline', 'locations',
+                    'topVenues', 'topAuthors', 'funders', 'coAuthorNetwork',
                     'chord', 'subjects', 'subjectTrends', 'abstractWordcloud'],
-            wide:  ['stackedTimeline', 'coAuthorNetwork', 'chord',
-                    'subjects', 'subjectTrends', 'abstractWordcloud'],
-            tall:  ['coAuthorNetwork', 'chord', 'subjects', 'subjectTrends',
-                    'abstractWordcloud']
+            wide:  ['stackedTimeline', 'locations', 'funders', 'coAuthorNetwork',
+                    'chord', 'subjects', 'subjectTrends', 'abstractWordcloud'],
+            tall:  ['locations', 'coAuthorNetwork', 'chord', 'subjects',
+                    'subjectTrends', 'abstractWordcloud']
         },
         // Cluster YouTube channel (youtube.json). Videos carry no resource type
         // or geography, so the layout shows uploads over time, the language mix,
         // the playlists, and any credited speakers (contributors, auto-hidden
         // until speakers are curated). timeline + languages pair on one row.
         youtube: {
-            order: ['playlists', 'timeline', 'languages', 'languageTimeline',
-                    'contributors'],
-            wide:  ['playlists', 'languageTimeline'],
-            tall:  ['playlists']
+            order: ['transcriptWordcloud', 'playlists', 'timeline', 'languages',
+                    'languageTimeline', 'speakerNetwork', 'contributors'],
+            wide:  ['transcriptWordcloud', 'playlists', 'languageTimeline',
+                    'speakerNetwork'],
+            tall:  ['transcriptWordcloud', 'playlists', 'speakerNetwork']
         },
         // Cluster podcast episodes (podcasts.json). The headline is a word cloud
         // built from the AI-generated transcripts; then the most frequent

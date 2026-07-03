@@ -69,6 +69,7 @@ OUT_DIR = Path(__file__).resolve().parents[2] / "asset" / "data" / "wordclouds"
 CORPORA = [
     {"id": "podcasts", "item_set": 39095, "field": "bibo:content"},      # transcripts
     {"id": "publications", "item_set": 29918, "field": "bibo:abstract"},
+    {"id": "youtube", "item_set": 39192, "field": "bibo:content"},       # video captions
 ]
 
 # Supported languages: code -> spaCy model (each downloaded in the CI workflow).

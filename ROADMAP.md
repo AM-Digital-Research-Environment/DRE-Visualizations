@@ -25,8 +25,8 @@ All entity types now have knowledge graphs + dashboards using shared chart build
 **Phase 2 — Advanced Visualizations** ✓
 Gantt, Heatmap, Chord Diagram, and Collaboration Network for relevant entity types.
 
-**Phase 3 — Complex Data Flows** (partial) ✓
-Sankey, Sunburst, and Stacked Timeline implemented. Beeswarm and Compare View remain.
+**Phase 3 — Complex Data Flows** ✓
+Sankey, Sunburst, and Stacked Timeline implemented; Beeswarm and Compare View followed in Tier 1.
 
 ---
 
@@ -86,7 +86,7 @@ Implemented. Subject Trends on 6 sections + 21 projects. Language Timeline on 6 
 
 ## Tier 4 — Polish & Exploration
 
-Lower-priority items that add analytical depth. Several shipped via the parity initiative — **Radar Chart**, **Cross-entity Comparison** (the generalized Compare block), and **Box Plot** are done; **Alluvial/Bump** and **Scatter** remain.
+Lower-priority items that add analytical depth. Several shipped via the parity initiative — **Radar Chart**, **Cross-entity Comparison** (the generalized Compare block), and **Box Plot** are done; **Alluvial/Bump** and **Scatter** are now tracked in [Tier 5](#tier-5--2026-audit-programme) below.
 
 | Visualization | Entity Types | Description |
 |---|---|---|
@@ -95,6 +95,79 @@ Lower-priority items that add analytical depth. Several shipped via the parity i
 | **Scatter Plot** | Sections | X = contributors, Y = items per project, bubble = year span. Reveals collaborative vs. solo projects. |
 | **Cross-entity Comparison** | Any entity type | Generalize Compare View beyond projects: compare two people, two institutions, two subjects side-by-side. |
 | **Box Plot / Violin** | Sections | Distribution of items-per-project within a section. Shows spread, not just totals. |
+
+---
+
+## Tier 5 — 2026 audit programme
+
+Outcome of the July 2026 full-repo audit (PHP precompute, JS front end, templates/CSS, and a
+data-coverage sweep against the Omeka model). Everything small-to-medium **shipped in
+v2.20.0**; the larger visualizations are queued below with their data grounding; a few audit
+suggestions were examined and **declined** with reasons, so they don't resurface.
+
+### Shipped in v2.20.0
+
+**New visualizations & cards** (Publications / YouTube blocks; regenerate once after updating):
+
+| Change | Data | Where |
+|---|---|---|
+| Places-of-publication map | `marcrel:pup` → geocoded Locations (Bayreuth 41, Berlin 9, London 8, …) | Publications; reuses the shared `locations` map via `Aggregators::buildLinkedPlacesMap()` |
+| Funders bar | `frapo:isFundedBy` (DFG 193, EXC 2052 grant 166, BMBF, SNSF, …) | Publications; generic `buildTopLinked()` |
+| Peer-reviewed / Full texts / Venues / Publishers / Places stat cards | `bibo:status` (179/33), attached EPub PDFs (53), `dcterms:isPartOf` (~202), `dcterms:publisher` (~46) | Publications stat grid |
+| Transcript word cloud | `bibo:content` captions; `youtube` corpus added to the wordclouds Action | YouTube (headline chart, mirrors Podcasts) |
+| Who Appears Together | `marcrel:spk` co-appearance (auto-hidden until curated) | YouTube; reuses `buildPersonCollaborationNetwork()` |
+
+**Refactors:** dead discursive-communities chain removed end-to-end (`generateCommunities()`,
+`CommunityTrait`, `dashboard-communities.js`, the `communities` controller wiring — the
+subject-only `discursive.json` had no consumer; the force-graph *builder* lives on as the
+co-author/speaker network); `marcrelTerms()` caches the role-term discovery that was scanned
+4× per run; `loadValueRows()` unifies the scoped literal loaders; `countItemsWithMedia()`;
+peak-memory logging on the precompute job; `ns.initMap()` shared MapLibre bootstrap (4 map
+builders); `ns.formatNumber()` one grouping style ("1,234") across stat cards, spatial counts
+and map popups; local `escapeHtml` copies collapsed onto `ns.escapeHtml` (6 files); the five
+dashboard block templates now delegate to one `partials/dashboard-async.phtml`.
+
+**Fixes / accessibility / robustness:** escaped the affiliation-map popup fields, choropleth
+country names and map-popup item titles (XSS hygiene); `prefers-reduced-motion` now disables
+the force/word-cloud layout animations **and** the hover lift transforms; Home/End keys on the
+Compare combobox (Arrow/Enter/Escape already existed); `aria-live`/`aria-busy` on the Project
+Explorer swap; a `<noscript>` fallback in the shared dashboard partial; a print stylesheet;
+the z-index scale documented; README sections for Network Explorer and Compare Genres.
+
+### Queued — new visualizations (data verified present)
+
+| Priority | Visualization | Data / approach |
+|---|---|---|
+| 1 | **Metadata-completeness dashboard** — per-project % of items with subject / spatial / language / date / description / media | All in DataLoader already; heatmap (projects × fields) + summary bars. Audience: DRE team + AMRC curation partners |
+| 2 | **Global institution collaboration map** — arcs between geocoded institutions that co-occur on projects | `geo:lat/long` on institutions + project membership; buildGeoFlows-style arcs on the Collection Dashboard |
+| 3 | **Cross-corpus person activity timeline** — research items + publications + podcast/video appearances, stacked per year | All four link types loaded; person dashboards |
+| 4 | **Alluvial/bump chart** — subject/language rank drift over time (Tier 4 leftover) | subjectTrends pipeline already computes most of it |
+| 5 | **Scatter** — contributors × items-per-project (Tier 4 leftover) | profileFromItems data |
+| 6 | **Publication cadence heatmap** — year × month | EP3 month/day precision on `dcterms:date` (currently collapsed to year) |
+| 7 | **Transcript themes over time** | Extend the wordclouds Action to emit per-year buckets |
+| 8 | **AI-provenance panel** — transcripts/abstracts by generating model | `dre:generatedBy` annotations |
+| 9 | **Podcast subjects/locations** | Tracked in [#5](https://github.com/AM-Digital-Research-Environment/ResourceVisualizations/issues/5) |
+| — | **Events chart** (`bibo:presentedAt`) | *Deferred*: 34 events, every count = 1 today — a flat bar; revisit when the bibliography deepens |
+
+### Queued — process & tooling
+
+- Extend `scripts/check-registry-contracts.mjs` to verify `data-embed-slug` values ↔ `EmbedController::BLOCKS` keys.
+- `ns.loadJSON()` fetch wrapper (shared error UI, optional retry) — adopt opportunistically when a controller is next touched.
+- Consolidate the responsive breakpoints (420/600/680/720px) onto the DRE theme's scale — needs a theme-side audit first.
+- Rename the repo to DRE-Visualizations ([#2](https://github.com/AM-Digital-Research-Environment/ResourceVisualizations/issues/2)); `module.ini` already points at the new name.
+
+### Examined and declined
+
+| Suggestion | Why not |
+|---|---|
+| BlockLayout factory/config class (14 classes → 1) | One-class-per-block is the Omeka idiom and keeps `invokables` discoverable; the real duplication was the *templates*, now one shared partial |
+| `generateCategoryOverviews()` config-array loop | The call list is already declarative; the rows vary in closures (`filterFn`, extras), so a config array adds indirection without removing variance |
+| Photo-gallery first-spatial pre-index | The per-photo scan is bounded by that item's own links with an early break; a global index costs more memory than it saves |
+| Removing the standalone `escapeHtml` in `sibling-sparkline.js` | That file is loaded *without* dashboard-core by design (its template appends it directly), so the local copy is load-bearing |
+| "Combobox lacks keyboard support" (audit finding) | Verified wrong — Arrow/Enter/Escape + `aria-activedescendant` were already implemented; only Home/End were missing (added) |
+| Replacing the lightbox `#000`/`#fff` | Sanctioned imagery exception in `check-design-tokens.mjs` (frosted controls over unknown photos) |
+| Lowering the fullscreen `z-index: 9999` | Fullscreen must beat unknown theme chrome; the scale is now documented in the CSS instead |
+| Admin maintenance page inline styles → `--rv-*` tokens | The admin runs under Omeka's admin theme where the module tokens don't exist; a dedicated admin stylesheet is possible but low-value |
 
 ---
 
@@ -132,26 +205,10 @@ until then the front-end falls back to a lighter live REST-API graph.
 
 ## Module architecture
 
-JavaScript is modular — one file per concern:
-
-```
-asset/js/
-├── dashboard-core.js               # THEME, COLORS, helpers (window.RV namespace)
-├── dashboard-layouts.js             # Per-resource-type layout configs
-├── dashboard-charts-basic.js        # Timeline, pie, bar, word cloud
-├── dashboard-charts-advanced.js     # Gantt, heatmap, chord, sankey, sunburst, stacked
-├── dashboard-charts-beeswarm.js     # Beeswarm scatter (Tier 1)
-├── dashboard-charts-map.js          # Geographic maps + mini map
-├── dashboard-collab-network.js      # Institution collaboration force graph
-├── dashboard-charts-contributor-network.js  # Bipartite: contributor + affiliation networks (Tier 2)
-├── dashboard-charts-stacked-area.js # Subject trends + language timeline (Tier 3)
-├── dashboard-charts-treemap.js      # Hierarchical treemap (Tier 3)
-├── dashboard-charts-geo-flows.js    # Origin → current location flow map (Tier 3)
-├── dashboard-compare.js             # Compare View (Tier 1)
-├── dashboard-registry.js            # CHART_MAP, CHART_LABELS, CHART_DESCRIPTIONS
-├── dashboard.js                     # Orchestrator (async + inline rendering)
-└── knowledge-graph.js               # Graph + item map rendering
-```
+JavaScript is modular — one vanilla-JS IIFE per concern (chart builders,
+controllers, the `window.RV` core, registry, and layouts). The authoritative
+per-file tree lives in the README's **Architecture** section; the shared
+helper chain is injected by `DashboardAssets` (single source of truth).
 
 ## Adding a new visualization — recipes & guardrails
 

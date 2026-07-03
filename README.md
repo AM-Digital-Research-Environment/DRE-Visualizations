@@ -33,7 +33,7 @@ For a research item that belongs to a project, a compact sparkline of the projec
 
 ### Visualizations Dashboard (Item Pages)
 
-Contextual charts adapted per entity type. All chart elements are clickable, linking to the corresponding Omeka S item page. 2,551 dashboards pre-computed across all entity types. The whole dashboard sits in a collapsible `<details>` header (matching the Knowledge Graph and the theme's *Linked resources* accordion); charts re-fit when a collapsed section is re-opened.
+Contextual charts adapted per entity type. All chart elements are clickable, linking to the corresponding Omeka S item page. ~2,500 dashboards pre-computed across all entity types. The whole dashboard sits in a collapsible `<details>` header (matching the Knowledge Graph and the theme's *Linked resources* accordion); charts re-fit when a collapsed section is re-opened.
 
 #### Charts by Entity Type
 
@@ -110,13 +110,21 @@ A single project selector that retunes a full project dashboard (~12 charts) ben
 
 ### Compare
 
-Side-by-side comparison of two entities of the **same type** — paired charts, an overlaid A/B **radar** profile, and overlap statistics (shared-item percentage + shared badges). Added as the **Compare (any entity)** site-page block (Admin > Sites > [site] > Pages): an in-page type switcher across **projects, people, institutions, subjects, languages** (opens on projects by default), each with its own paired-chart set + overlap key (e.g. co-occurring subjects when comparing subjects). Loads the matching `{type}-index.json`.
+Side-by-side comparison of two entities of the **same type** — paired charts, an overlaid A/B **radar** profile, and overlap statistics (shared-item percentage + shared badges). Added as the **Compare (any entity)** site-page block (Admin > Sites > [site] > Pages): an in-page type switcher across **projects, people, institutions, subjects, languages, genres** (opens on projects by default), each with its own paired-chart set + overlap key (e.g. co-occurring subjects when comparing subjects). Loads the matching `{type}-index.json`.
+
+### Compare Genres
+
+A single-purpose variant of Compare: the same paired-chart comparison **locked to genres**, so page authors can offer a genre-vs-genre view without exposing the type switcher. Added as the **Compare Genres** site-page block (Admin > Sites > [site] > Pages); it reuses the generic compare controller and loads `genres-index.json`.
 
 ### Discursive Communities — Entity Network
 
 A collection-wide **entity network**: people, organisations, places, subjects and tags that co-occur across the research items, drawn as an explorable force-directed graph with **MapLibre GL** (WebGL). Positions are **precomputed** (ForceAtlas2 in PHP, projected onto a pseudo-Mercator plane), so the client renders ~15k edges with zero layout cost and the network looks identical on every load. Nodes are coloured by entity type and sized by connectivity; an optional toggle re-colours by Louvain co-occurrence cluster. Added as a **site-page block** (Admin > Sites > [site] > Pages), it loads `asset/data/communities/entity-graph.json`. Hover a node to isolate its links, scroll to zoom, search or filter by entity type, raise the minimum link weight, and click an entity for its details and page. Organisations are surfaced through their authors' affiliations (`person → dcterms:isPartOf → foaf:Organization`); subjects split into LCSH **Subjects** vs free **Tags**.
 
-> The graph renders on the **MapLibre GL** the module already vendors for its maps — no extra front-end dependency and no build step. Node positions are baked by `src/Precompute/ForceLayout.php` (a pure-PHP ForceAtlas2 port of graphology's, projected to pseudo lng/lat). The earlier ECharts subject-only `discursive.json` graph is still generated but no longer used by this block.
+> The graph renders on the **MapLibre GL** the module already vendors for its maps — no extra front-end dependency and no build step. Node positions are baked by `src/Precompute/ForceLayout.php` (a pure-PHP ForceAtlas2 port of graphology's, projected to pseudo lng/lat). (The earlier ECharts subject-only `discursive.json` pipeline was removed in v2.20.0; its force-graph builder lives on as the Publications/Podcasts network chart.)
+
+### Network Explorer
+
+Collection-wide relationship networks in one tabbed block — **Contributors ↔ Projects** (who contributed items to which project), **Co-authorship** (people who worked on the same items), **People ↔ Institutions** (affiliations), and **Institution collaborations** (organisations connected through shared people) — each with its own summary stats. Added as a **site-page block** (Admin > Sites > [site] > Pages), it loads `asset/data/network-explorer.json` (rebuilt by "Regenerate now") and renders through the shared network chart builders.
 
 ### Spatial Exploration
 
@@ -128,9 +136,11 @@ A collection-wide **places map**: every geocoded location the research items ref
 
 A bibliographic analytics view over the cluster **Publications** item set (articles, books, chapters, working papers, …). Added as a **site-page block** (Admin > Sites > [site] > Pages), it loads `asset/data/item-dashboards/publications.json` and shows:
 
-- **summary stat cards** — publications, publication types, languages, and the people credited as **authors or editors** (distinct Person records across `bibo:authorList` + `bibo:editorList`) — the same reusable component as the Collection Overview;
+- **summary stat cards** — publications, how many are **peer-reviewed** (`bibo:status`), how many carry a **full text** (EPub's open-access PDFs attached as media), publication types, languages, the people credited as **authors or editors** (distinct Person records across `bibo:authorList` + `bibo:editorList`), the distinct **venues** (journals & book series, `dcterms:isPartOf`) and **publishers** (`dcterms:publisher`), and the **places of publication** on the map — the same reusable component as the Collection Overview;
 - a **publication-type** breakdown (`dcterms:type`: Article vs. Book vs. Chapter …) and publications per year;
+- a **places-of-publication map** — the cities the publications were issued in (`marcrel:pup`, linked to geocoded Location items), as clustered MapLibre bubbles sized by publication count; click a bubble to list the publications issued there. Places the sync couldn't reconcile to a Location item (literal-only values) stay off the map;
 - **top venues** (`dcterms:isPartOf`) and **top authors** (`bibo:authorList`, unifying literal names with linked Person records);
+- **funders** (`frapo:isFundedBy` — the DFG, the EXC 2052 grant, partner foundations), clickable through to each funder's page;
 - a **collaboration network** — authors and editors who appear together on a publication, with each edge coloured by the relationship (**co-authorship**, **author–editor**, or **co-editorship**) and people matched to a Person record drawn solid (click-through) versus external names muted;
 - a **keyword** word cloud and **keyword co-occurrence** chord over `dcterms:subject`, plus Languages as a pie;
 - an **abstract word cloud** — the most frequent words across the publication abstracts (`bibo:abstract`), lemmatised (see [Word clouds](#word-clouds-lemmatised) below).
@@ -142,6 +152,8 @@ Authors/editors matched to Person records and subjects matched to Authority/LCSH
 Analytics for the cluster **YouTube channel** — the synced **YouTube videos** item set (39192; `bibo:AudioVisualDocument`). Added as a **site-page block** (Admin > Sites > [site] > Pages), it loads `asset/data/item-dashboards/youtube.json` and shows:
 
 - **summary stat cards** — videos, playlists, languages, and the people credited as **speakers** (`marcrel:spk`, manually curated so often empty) — the same reusable component as the Collection Overview;
+- **transcript word cloud** — the headline chart, from the videos' captions (`bibo:content`), lemmatised when the [Word clouds](#word-clouds-lemmatised) Action has run (in-PHP tokeniser fallback otherwise) — the YouTube counterpart of the Podcasts cloud;
+- **who appears together** — speakers (`marcrel:spk`) featuring on the same video, as the shared community force graph; auto-hidden until speaker credits are curated;
 - **videos by playlist** — each video's `dcterms:isPartOf` links to a playlist authority item (item set 39193 *YouTube playlists*), so this ranks the channel's playlists by video count;
 - **videos by year** (upload date, `dcterms:date`) and the **language mix** (`dcterms:language`) plus **languages over time**;
 - **speakers**, when credited.
@@ -160,12 +172,12 @@ Podcasts carry no `dcterms:type` of their own, so (like YouTube videos) they don
 
 ### Word clouds (lemmatised)
 
-The text word clouds (Podcasts transcripts, Publications abstracts) are **lemmatised** so word forms collapse to their base (knowledge/knowledges, study/studies). Proper lemmatisation needs spaCy, which PHP can't do, so it runs as a small **CI step** rather than in-Omeka:
+The text word clouds (Podcasts transcripts, Publications abstracts, YouTube captions) are **lemmatised** so word forms collapse to their base (knowledge/knowledges, study/studies). Proper lemmatisation needs spaCy, which PHP can't do, so it runs as a small **CI step** rather than in-Omeka:
 
-- `tools/wordclouds/build_wordclouds.py` reads each corpus's text from the **public REST API** (no VPN/auth), lemmatises it with spaCy (`en_core_web_sm` + `fr_core_news_sm`; content-word POS only, plus EN/FR + domain stop-words), and writes per-corpus, per-language frequencies to `asset/data/wordclouds/<corpus>.json`.
+- `tools/wordclouds/build_wordclouds.py` reads each corpus's text from the **public REST API** (no VPN/auth), lemmatises it with spaCy (EN / FR / DE / PT models; content-word POS only, plus per-language + domain stop-words), and writes per-corpus, per-language frequencies to `asset/data/wordclouds/<corpus>.json`.
 - The **Build word clouds** GitHub Action (`.github/workflows/wordclouds.yml`, **manual** `workflow_dispatch`) runs the script and commits the regenerated inputs.
 - These are committed **static inputs** — like `geo/countries.geojson`, *not* the git-ignored generated dashboards. The precompute reads them via `Runner::wordCloudInput()` and folds the combined (`all`) frequencies into the dashboard; when a file is absent it **falls back** to the in-PHP tokeniser, so the clouds always render — just unlemmatised until the Action has run.
-- **Reusable:** add a corpus to `CORPORA` in the script (item-set id + text property) and read it on the PHP side. The per-language `en` / `fr` buckets are already emitted, ready for a future language toggle ([#5](https://github.com/AM-Digital-Research-Environment/ResourceVisualizations/issues/5)).
+- **Reusable:** add a corpus to `CORPORA` in the script (item-set id + text property) and read it on the PHP side — that's exactly how the YouTube captions corpus was added. The per-language buckets feed the word cloud's **language toggle** (shipped in v2.16.0).
 
 ### What's New
 
@@ -312,20 +324,29 @@ DreVisualizations/
 │   │   ├── dashboard-charts-sunburst.js          # Sunburst hierarchy
 │   │   ├── dashboard-charts-stacked-timeline.js  # Stacked bar by year and type
 │   │   ├── dashboard-charts-beeswarm.js          # Beeswarm scatter (projects by year)
+│   │   ├── dashboard-charts-histogram.js         # Histogram (episode-length bands)
+│   │   ├── dashboard-charts-boxplot.js           # Box plot (items-per-project spread)
 │   │   ├── dashboard-charts-map.js               # Geographic origins map, mini map
+│   │   ├── dashboard-charts-cluster-map.js       # AMRCs & partners map (category legend)
+│   │   ├── dashboard-charts-affiliation-map.js   # Geocoded affiliation markers
 │   │   ├── dashboard-charts-stacked-area.js      # Subject trends, language timeline
 │   │   ├── dashboard-charts-treemap.js           # Hierarchical treemap
 │   │   ├── dashboard-charts-geo-flows.js         # Origin → current location flow map
 │   │   ├── dashboard-charts-choropleth.js        # Country choropleth (MapLibre fill)
 │   │   ├── dashboard-charts-radar.js             # Entity breadth-profile radar (ECharts)
-│   │   ├── dashboard-charts-communities.js       # Subject co-occurrence force graph (ECharts; legacy)
-│   │   ├── dashboard-communities.js              # Old Discursive Communities controller (legacy)
-│   │   ├── entity-graph.js                       # Entity Network — sigma.js renderer + controller
+│   │   ├── dashboard-charts-time-chord.js        # Subject co-occurrence with a year slider
+│   │   ├── dashboard-charts-communities.js       # Community force graph (co-author / speaker networks)
+│   │   ├── entity-graph.js                       # Entity Network — MapLibre renderer + controller
+│   │   ├── spatial-exploration.js                # Spatial Exploration — places map controller
 │   │   ├── dashboard-charts-contributor-network.js # Contributor + affiliation networks
 │   │   ├── dashboard-collab-network.js           # Institution collaboration network
 │   │   ├── dashboard-compare.js                  # Compare controller (any entity type)
+│   │   ├── dashboard-compare-unify.js            # Compare: shared category → colour mapping
 │   │   ├── dashboard-explorer.js                 # Project Explorer controller
+│   │   ├── dashboard-network-explorer.js         # Network Explorer controller (tabbed graphs)
+│   │   ├── dashboard-whats-new.js                # What's New controller (window selector)
 │   │   ├── item-set-photo-views.js               # Photo Browsing: masonry / map / timeline + lightbox
+│   │   ├── sibling-sparkline.js                  # Sibling-items sparkline (standalone; no RV core)
 │   │   ├── dashboard-stat-cards.js               # Reusable summary stat cards (lucide icon + value); renders any dashboard's `stats`
 │   │   ├── dashboard-registry.js                 # CHART_MAP, labels, descriptions
 │   │   └── dashboard.js                          # Orchestrator: render + async/inline init
@@ -335,13 +356,14 @@ DreVisualizations/
 │   │   └── echarts.min.js, maplibre-gl.js, …   # ECharts + MapLibre (self-hosted)
 │   └── data/
 │       ├── geo/
-│       │   └── countries.geojson       # Natural Earth 110m boundaries (choropleth)
+│       │   └── countries.geojson       # Natural Earth 110m boundaries (choropleth) — committed INPUT
+│       ├── wordclouds/                 # Lemmatised frequencies from the CI Action — committed INPUT
 │       ├── communities/
-│       │   ├── discursive.json         # Subject co-occurrence + Louvain communities (legacy)
 │       │   └── entity-graph.json       # Multi-entity co-occurrence network (MapLibre; baked positions)
 │       ├── knowledge-graphs/           # Per-item graph JSON — gitignored, regenerated in-Omeka
 │       ├── photo-galleries/            # Per-item-set gallery JSON — gitignored, regenerated in-Omeka
-│       └── item-dashboards/            # Dashboard JSON + {type}-index.json (projects/people/…)
+│       └── item-dashboards/            # Dashboard JSON + {type}-index.json + publications/podcasts/
+│                                       #   youtube/whats-new/spatial-exploration artifacts
 ├── src/Precompute/                     # PHP precompute engine (admin "Regenerate now")
 │   ├── DataLoader.php                  # Items/links/literals/geo via Omeka\Connection
 │   ├── Aggregators.php                 # Facade: composes the trait builders + shared constants (unit-tested)
@@ -352,7 +374,6 @@ DreVisualizations/
 │   │   ├── NetworkChartsTrait.php      # chord, sankey, contributor/affiliation/collab/co-author networks
 │   │   ├── GeoChartsTrait.php          # choropleth, geo-flows, country index
 │   │   ├── HierarchyChartsTrait.php    # sunburst, treemap
-│   │   ├── CommunityTrait.php          # discursive communities (subject-only, legacy)
 │   │   ├── EntityGraphTrait.php        # global multi-entity co-occurrence graph (MapLibre block)
 │   │   ├── PublicationChartsTrait.php  # top venues, top authors
 │   │   └── OverviewChartsTrait.php     # radar, stat cards, sections/section×university, cluster map

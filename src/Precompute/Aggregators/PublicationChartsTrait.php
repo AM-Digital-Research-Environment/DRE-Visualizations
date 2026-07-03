@@ -41,6 +41,56 @@ trait PublicationChartsTrait
     }
 
     /**
+     * Top linked entities of a property across items (e.g. frapo:isFundedBy
+     * funders), resolved to their titles with click-through itemIds. A value
+     * repeated on the same item counts once. Feeds buildBarChart.
+     *
+     * @return list<array{name:string,value:int,itemId:int}>|null
+     */
+    public static function buildTopLinked(array $itemIds, array $links, array $items, string $term, int $topN = 20): ?array
+    {
+        $counts = [];
+        foreach ($itemIds as $iid) {
+            $seen = [];
+            foreach ($links[$iid] ?? [] as [$t, , $vrid]) {
+                if ($t !== $term || isset($seen[$vrid])) {
+                    continue;
+                }
+                $seen[$vrid] = true;
+                $title = trim((string) ($items[$vrid]['title'] ?? ''));
+                if ($title === '') {
+                    continue;
+                }
+                $counts[$vrid] ??= ['name' => $title, 'value' => 0, 'itemId' => $vrid];
+                $counts[$vrid]['value']++;
+            }
+        }
+        if (!$counts) {
+            return null;
+        }
+        return array_slice(self::sortByValueDesc(array_values($counts)), 0, $topN);
+    }
+
+    /**
+     * Distinct literal values of a property across items (same trim
+     * normalisation as buildTopLiteral) — e.g. how many different venues or
+     * publishers a bibliography spans. Feeds stat cards.
+     */
+    public static function countDistinctLiterals(array $itemIds, array $literals, string $term): int
+    {
+        $seen = [];
+        foreach ($itemIds as $iid) {
+            foreach ($literals[$iid][$term] ?? [] as $val) {
+                $val = trim((string) $val);
+                if ($val !== '') {
+                    $seen[$val] = true;
+                }
+            }
+        }
+        return count($seen);
+    }
+
+    /**
      * Top authors across publications, unioning literal bibo:authorList names
      * with Person-linked authors (resolved to their titles). Each row carries a
      * `matched` flag (true = a linked Person entity) and, when matched, an

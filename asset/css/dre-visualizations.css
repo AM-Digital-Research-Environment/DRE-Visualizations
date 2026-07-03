@@ -263,7 +263,11 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     background: var(--rv-bg);
 }
 
-/* Fullscreen mode */
+/* Fullscreen mode.
+   z-index scale used across the module: 1–2 in-panel layering; 10/20/30
+   toolbars → filter panels → combobox lists; 1000 modals (photo lightbox,
+   issue TOC); 9999 fullscreen — deliberately above everything, including any
+   sticky theme chrome, since fullscreen must own the whole viewport. */
 .knowledge-graph-block.rv-fullscreen {
     position: fixed;
     inset: 0;
@@ -3150,4 +3154,54 @@ body.photo-lightbox-open {
     .rv-spatial-sidebar { max-height: 320px; order: 2; }
     .rv-spatial-main { order: 1; }
     .rv-spatial-canvas { height: 60vh; }
+}
+
+/* ==================================================================
+   Reduced motion — hover lifts and grows
+   The per-feature reduced-motion blocks above stop the animations;
+   this stops the remaining hover transforms so pointing at a card
+   never moves content for users with a reduced-motion preference.
+   ================================================================== */
+@media (prefers-reduced-motion: reduce) {
+    .rv-stat-card:hover,
+    .photo-card:hover,
+    .photo-card:focus-visible,
+    .photo-timeline-thumb:hover,
+    .photo-timeline-thumb:focus-visible,
+    .collection-card:hover,
+    .whats-new-card:hover,
+    .rv-cluster-marker:hover {
+        transform: none;
+    }
+    .photo-card:hover .photo-card-img.is-loaded { transform: none; }
+    .photo-lightbox-nav:hover { scale: none; }
+}
+
+/* ==================================================================
+   Print — dashboards on paper
+   Keep each panel/card on one page and drop the interactive chrome
+   (toolbars, embed buttons, window switchers, lightbox overlays)
+   that means nothing in print. Charts and maps print at their last
+   rendered frame.
+   ================================================================== */
+@media print {
+    .chart-panel,
+    .rv-stat-card,
+    .whats-new-card,
+    .collection-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    .rv-chart-toolbar,
+    .rv-toolbar-btn,
+    .rv-embed-btn,
+    .rv-embed-block-toolbar,
+    .knowledge-graph-toolbar,
+    .photo-lightbox,
+    .photo-toc,
+    .compare-type-switcher,
+    .whats-new-windows,
+    .rv-combobox-list {
+        display: none !important;
+    }
 }

@@ -9,23 +9,9 @@
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SitePageBlockRepresentation $block
  */
-
-// Site-page block (Module.php does not run on page controllers), so request the
-// CDN + core prelude too. Single source of truth: DashboardAssets view helper.
-$this->dashboardAssets(['cdn' => true]);
-
-$siteSlug = $this->currentSite()->slug();
 ?>
-
-<div class="resource-vis-block dashboard-block">
-    <div class="dashboard-async-container"
-         data-item-id="youtube"
-         data-embed-slug="youtube"
-         data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"
-         data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $siteSlug) ?>">
-        <div class="rv-loading">
-            <div class="rv-spinner"></div>
-            <span><?= $this->translate('Loading YouTube analytics…') ?></span>
-        </div>
-    </div>
-</div>
+<?= $this->partial('common/block-layout/partials/dashboard-async', [
+    'itemId'  => 'youtube',
+    'slug'    => 'youtube',
+    'loading' => $this->translate('Loading YouTube analytics…'),
+]) ?>

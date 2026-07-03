@@ -126,6 +126,9 @@ final class Runner
     private array $primaryMedia = [];
     private array $countryIndex = [];
 
+    /** Lazily-discovered marcrel:* role terms — see marcrelTerms(). */
+    private ?array $marcrelTerms = null;
+
     /**
      * Extra literals (dcterms:identifier, dcterms:description, bibo:doi) for the
      * items of the featured-collections item sets only — used to split Museu
@@ -235,7 +238,6 @@ final class Runner
         $this->generateByItemSet(self::ITEM_SET_GENRE, 'dcterms:format', 'Genres', 'genre', [], 'genres-index.json');
         $this->generateCategoryOverviews();
         $this->generateCollectionOverview();
-        $this->generateCommunities();
         $this->generateEntityGraph();
         $this->generateNetworkExplorer();
         $this->generateSpatialExploration();
@@ -247,7 +249,11 @@ final class Runner
         $this->generateFeaturedCollections();
         $this->generateKnowledgeGraphs();
 
-        $this->log('Done. ' . $this->fileCount . ' files written.');
+        $this->log(sprintf(
+            'Done. %d files written. Peak memory: %.0f MB.',
+            $this->fileCount,
+            memory_get_peak_usage(true) / 1048576
+        ));
         return ['files' => $this->fileCount];
     }
 
@@ -398,20 +404,39 @@ final class Runner
         $this->statCounts['projects'] = count($projectIndex);
     }
 
+    /**
+     * Every marcrel:* contributor-role term actually present in the data,
+     * discovered once from the reverse-link index and cached. The credit
+     * vocabularies (people / institutions / category overviews / spatial
+     * exploration) merge these into their fixed base term lists.
+     *
+     * @return list<string>
+     */
+    private function marcrelTerms(): array
+    {
+        if ($this->marcrelTerms !== null) {
+            return $this->marcrelTerms;
+        }
+        $terms = [];
+        foreach ($this->reverseLinks as $rev) {
+            foreach ($rev as $t => $_) {
+                if (str_starts_with($t, 'marcrel:')) {
+                    $terms[$t] = $t;
+                }
+            }
+        }
+        return $this->marcrelTerms = array_values($terms);
+    }
+
     private function generatePeople(): void
     {
         $people = $this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === self::TEMPLATE_PERSONS);
         $this->log('=== People (' . count($people) . ') ===');
 
-        $personTerms = ['dcterms:creator', 'dcterms:contributor', 'foaf:member', 'bibo:authorList', 'bibo:editorList'];
-        foreach ($this->reverseLinks as $revTerms) {
-            foreach ($revTerms as $t => $_) {
-                if (str_starts_with($t, 'marcrel:')) {
-                    $personTerms[$t] = $t;
-                }
-            }
-        }
-        $personTerms = array_values(array_unique($personTerms));
+        $personTerms = array_merge(
+            ['dcterms:creator', 'dcterms:contributor', 'foaf:member', 'bibo:authorList', 'bibo:editorList'],
+            $this->marcrelTerms()
+        );
 
         $radarProfiles = [];
         foreach ($people as $pid => $_) {
@@ -478,15 +503,7 @@ final class Runner
         foreach ($institutions as $iid => $_) {
             $instSet[$iid] = true;
         }
-        $instTerms = ['frapo:isFundedBy', 'dcterms:provenance'];
-        foreach ($this->reverseLinks as $rev) {
-            foreach ($rev as $t => $_) {
-                if (str_starts_with($t, 'marcrel:')) {
-                    $instTerms[$t] = $t;
-                }
-            }
-        }
-        $instTerms = array_values(array_unique($instTerms));
+        $instTerms = array_merge(['frapo:isFundedBy', 'dcterms:provenance'], $this->marcrelTerms());
 
         $radarProfiles = [];
         foreach ($institutions as $iid => $_) {
@@ -676,18 +693,13 @@ final class Runner
     private function generateCategoryOverviews(): void
     {
         $this->log('=== Category Overviews ===');
-        $personTerms = ['dcterms:creator', 'dcterms:contributor', 'bibo:authorList', 'bibo:editorList'];
-        $instTerms = ['frapo:isFundedBy', 'dcterms:provenance'];
-        foreach ($this->reverseLinks as $rev) {
-            foreach ($rev as $t => $_) {
-                if (str_starts_with($t, 'marcrel:')) {
-                    $personTerms[$t] = $t;
-                    $instTerms[$t] = $t;
-                }
-            }
-        }
-        $personTerms = array_values(array_unique($personTerms));
-        $instTerms = array_values(array_unique($instTerms));
+        // Note: unlike generatePeople(), the person overview intentionally
+        // leaves out foaf:member (membership is not an item credit).
+        $personTerms = array_merge(
+            ['dcterms:creator', 'dcterms:contributor', 'bibo:authorList', 'bibo:editorList'],
+            $this->marcrelTerms()
+        );
+        $instTerms = array_merge(['frapo:isFundedBy', 'dcterms:provenance'], $this->marcrelTerms());
 
         $isLcsh = function (int $sid): bool {
             foreach ($this->links[$sid] ?? [] as [$term, $label, $vrid]) {
@@ -934,26 +946,6 @@ final class Runner
         ]);
     }
 
-    private function generateCommunities(): void
-    {
-        $this->log('=== Discursive Communities ===');
-        $lcshIds = [];
-        foreach ($this->links as $sid => $slinks) {
-            foreach ($slinks as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:type' && $vrid === self::OVERVIEW_LCSH) {
-                    $lcshIds[] = $sid;
-                    break;
-                }
-            }
-        }
-        $researchItems = array_keys($this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === self::TEMPLATE_RESEARCH_ITEMS));
-        $communities = Aggregators::buildDiscursiveCommunities($researchItems, $this->links, $this->items, $lcshIds ?: null);
-        if ($communities) {
-            $this->writeJson($this->communitiesDir . '/discursive.json', $communities);
-            $this->log('  ' . count($communities['nodes']) . ' subjects, ' . count($communities['communities']) . ' communities');
-        }
-    }
-
     /**
      * Global Entity Network: the collection-wide co-occurrence graph linking
      * people, organizations, locations, subjects and tags, rendered by the
@@ -1072,18 +1064,11 @@ final class Runner
         // Person / organisation contributor-role terms, assembled exactly as in
         // generatePeople() / generateInstitutions() (the fixed credits plus every
         // marcrel:* role actually present in the data).
-        $personTerms = ['dcterms:creator', 'dcterms:contributor', 'foaf:member', 'bibo:authorList', 'bibo:editorList'];
-        $instTerms = ['frapo:isFundedBy', 'dcterms:provenance'];
-        foreach ($this->reverseLinks as $rev) {
-            foreach ($rev as $t => $_) {
-                if (str_starts_with($t, 'marcrel:')) {
-                    $personTerms[$t] = $t;
-                    $instTerms[$t] = $t;
-                }
-            }
-        }
-        $personTerms = array_values(array_unique($personTerms));
-        $instTerms = array_values(array_unique($instTerms));
+        $personTerms = array_merge(
+            ['dcterms:creator', 'dcterms:contributor', 'foaf:member', 'bibo:authorList', 'bibo:editorList'],
+            $this->marcrelTerms()
+        );
+        $instTerms = array_merge(['frapo:isFundedBy', 'dcterms:provenance'], $this->marcrelTerms());
 
         $entityPlaces = [];
 
@@ -1227,11 +1212,25 @@ final class Runner
             return;
         }
         $dashboard = Aggregators::aggregateItems($pubs, $this->items, $this->links, $this->itemYear, $this->geo);
+        // Places of publication (marcrel:pup → geocoded Location items) as the
+        // standard locations map. Publications carry no dcterms:spatial, so
+        // aggregateItems left `locations` empty; overriding it here reuses the
+        // shared map builder — bubbles sized by publication count, per-place
+        // popup lists — with the labels retitled below. Literal-only places
+        // (unreconciled, e.g. "München") stay off the map by design.
+        if ($v = Aggregators::buildLinkedPlacesMap($pubs, $this->links, $this->items, $this->geo, 'marcrel:pup')) {
+            $dashboard['locations'] = $v;
+        }
         if ($v = Aggregators::buildTopLiteral($pubs, $this->literals, 'dcterms:isPartOf')) {
             $dashboard['topVenues'] = $v;
         }
         if ($v = Aggregators::buildTopAuthors($pubs, $this->links, $this->literals, $this->items)) {
             $dashboard['topAuthors'] = $v;
+        }
+        // Funding bodies (frapo:isFundedBy → linked Institution / grant
+        // authority items — the DFG, the EXC 2052 grant, partner foundations).
+        if ($v = Aggregators::buildTopLinked($pubs, $this->links, $this->items, 'frapo:isFundedBy')) {
+            $dashboard['funders'] = $v;
         }
         if ($v = Aggregators::buildCoAuthorNetwork($pubs, $this->links, $this->literals, $this->items)) {
             $dashboard['coAuthorNetwork'] = $v;
@@ -1265,11 +1264,36 @@ final class Runner
                 }
             }
         }
+        // Bibliographic breadth cards: distinct venues (journals & book series,
+        // dcterms:isPartOf) and publishers (dcterms:publisher) are literal EP3
+        // fields; places of publication counts what the map above renders; the
+        // peer-review split comes from bibo:status (ERef), matched exactly so
+        // "Not peer reviewed" doesn't count as a substring hit.
+        $venueCount = Aggregators::countDistinctLiterals($pubs, $this->literals, 'dcterms:isPartOf');
+        $publisherCount = Aggregators::countDistinctLiterals($pubs, $this->literals, 'dcterms:publisher');
+        $peerReviewed = 0;
+        foreach ($this->loadTextValues($pubs, 'bibo:status') as $status) {
+            if (strcasecmp(trim($status), 'Peer reviewed') === 0) {
+                $peerReviewed++;
+            }
+        }
+        // EPub deposits carry their open-access PDF as attached media (ERef
+        // records are metadata-only), so "has media" = full text available.
+        $fullTexts = $this->countItemsWithMedia($pubs);
         $dashboard['stats'] = Aggregators::buildStatCards([
             ['key' => 'publications', 'label' => 'Publications', 'value' => count($pubs)],
+            ['key' => 'peerReviewed', 'label' => 'Peer-reviewed', 'value' => $peerReviewed,
+                'subtitle' => 'of ' . count($pubs) . ' publications'],
+            ['key' => 'fullText', 'label' => 'Full texts', 'value' => $fullTexts,
+                'subtitle' => 'open-access PDFs attached'],
             ['key' => 'types', 'label' => 'Types', 'value' => count($dashboard['types'] ?? [])],
             ['key' => 'languages', 'label' => 'Languages', 'value' => count($dashboard['languages'] ?? [])],
             ['key' => 'people', 'label' => 'Authors & Editors', 'value' => count($peopleIds)],
+            ['key' => 'venues', 'label' => 'Venues', 'value' => $venueCount,
+                'subtitle' => 'journals & book series'],
+            ['key' => 'publishers', 'label' => 'Publishers', 'value' => $publisherCount],
+            ['key' => 'places', 'label' => 'Places of Publication', 'value' => count($dashboard['locations'] ?? []),
+                'subtitle' => 'on the map'],
         ]);
 
         // Publications-specific chart wording, plus the Languages pie. The shared
@@ -1280,6 +1304,8 @@ final class Runner
         $dashboard['labels'] = [
             'types' => 'Publication Types',
             'stackedTimeline' => 'Publications by Year and Type',
+            'locations' => 'Places of Publication',
+            'funders' => 'Funders',
             'coAuthorNetwork' => 'Collaboration Network',
             'chord' => 'Keyword Co-occurrence',
             'subjects' => 'Keywords',
@@ -1290,6 +1316,8 @@ final class Runner
             'types' => 'Breakdown of publications by type (article, book, chapter, thesis, …).',
             'languages' => 'Languages the publications are written in.',
             'stackedTimeline' => 'Publications per year, broken down by type.',
+            'locations' => 'Cities where these publications appeared, sized by the number of publications issued there. Click a bubble to list them.',
+            'funders' => 'Funding bodies credited on these publications. Click a bar to open the funder\'s page.',
             'topVenues' => 'Journals and book series in which these publications most often appear.',
             'topAuthors' => 'Authors credited on the most publications.',
             'coAuthorNetwork' => 'Authors and editors linked when they appear together on a publication. Edge colour marks the relationship: co-authorship, author–editor, or co-editorship.',
@@ -1326,6 +1354,21 @@ final class Runner
         if ($v = Aggregators::buildLanguageTimeline($videos, $this->links, $this->items, $this->itemYear)) {
             $dashboard['languageTimeline'] = $v;
         }
+        // Transcript word cloud — lemmatised frequencies from the wordclouds
+        // Action (asset/data/wordclouds/youtube.json) when present, else the
+        // in-PHP tokeniser over the raw bibo:content captions. Mirrors the
+        // Podcasts headline chart.
+        $wc = $this->wordCloudInput('youtube')
+            ?? Aggregators::buildTranscriptWordCloud($this->loadTextValues($videos, 'bibo:content'));
+        if ($wc) {
+            $dashboard['transcriptWordcloud'] = $wc;
+        }
+        // Who appears together — speakers (marcrel:spk) featuring on the same
+        // video. Speaker credits are manually curated and often sparse, so the
+        // panel auto-hides until curation catches up (empty = hidden).
+        if ($v = Aggregators::buildPersonCollaborationNetwork($videos, $this->items, $this->links, 1)) {
+            $dashboard['speakerNetwork'] = $v;
+        }
 
         // Summary stat cards: videos, playlists, languages, and the people
         // credited as speakers (marcrel:spk — manually curated, so often empty).
@@ -1356,6 +1399,8 @@ final class Runner
             'languages' => 'Languages spoken across the channel\'s videos.',
             'languageTimeline' => 'How the language mix of the uploads shifts over time.',
             'contributors' => 'People credited as speakers in the videos.',
+            'transcriptWordcloud' => 'Most frequent words across the videos\' transcripts (captions; common stop-words and filler removed).',
+            'speakerNetwork' => 'People who appear in the same video, clustered into groups. Grows as speaker credits are curated.',
         ];
 
         $dashboard['resourceType'] = 'youtube';
@@ -1500,11 +1545,58 @@ final class Runner
     }
 
     /**
-     * Load episode durations and transcripts for the given podcast items in one
-     * query (neither is loaded by DataLoader). Returns `[durations, transcripts]`
-     * where durations are seconds parsed from dcterms:extent (ISO-8601) and
-     * transcripts are the raw bibo:content strings. Integer-joined IN list, so
+     * How many of the given items carry at least one attached media file.
+     * Queried directly (not via DataLoader's primaryMedia map, which keeps only
+     * media with thumbnails) so text-only PDFs count too.
+     *
+     * @param list<int> $ids
+     */
+    private function countItemsWithMedia(array $ids): int
+    {
+        if (!$ids) {
+            return 0;
+        }
+        $idList = implode(',', array_map('intval', $ids));
+        return (int) $this->connection->executeQuery(
+            "SELECT COUNT(DISTINCT item_id) FROM media WHERE item_id IN ($idList)"
+        )->fetchOne();
+    }
+
+    /**
+     * Raw literal rows `[resource id, term, value]` for the given items across
+     * one or more properties, in one query — the shared base for the scoped
+     * loaders below (per-corpus text and durations are not in DataLoader's
+     * global literal map). Integer-joined IN list + bound terms, so
      * injection-safe (mirrors loadFeaturedLiterals()).
+     *
+     * @param list<int> $ids
+     * @param list<string> $terms
+     * @return list<array{0:int|string,1:string,2:string}>
+     */
+    private function loadValueRows(array $ids, array $terms): array
+    {
+        if (!$ids || !$terms) {
+            return [];
+        }
+        $idList = implode(',', array_map('intval', $ids));
+        $placeholders = implode(',', array_fill(0, count($terms), '?'));
+        return $this->connection->executeQuery(
+            "SELECT v.resource_id, CONCAT(vo.prefix, ':', p.local_name), v.value"
+            . ' FROM value v'
+            . ' JOIN property p ON v.property_id = p.id'
+            . ' JOIN vocabulary vo ON p.vocabulary_id = vo.id'
+            . " WHERE v.resource_id IN ($idList)"
+            . "   AND CONCAT(vo.prefix, ':', p.local_name) IN ($placeholders)"
+            . "   AND v.value IS NOT NULL AND v.value <> ''",
+            $terms
+        )->fetchAllNumeric();
+    }
+
+    /**
+     * Load episode durations and transcripts for the given podcast items in one
+     * query. Returns `[durations, transcripts]` where durations are seconds
+     * parsed from dcterms:extent (ISO-8601) and transcripts are the raw
+     * bibo:content strings.
      *
      * @param list<int> $ids
      * @return array{0:list<int>,1:list<string>}
@@ -1513,20 +1605,7 @@ final class Runner
     {
         $durations = [];
         $transcripts = [];
-        if (!$ids) {
-            return [$durations, $transcripts];
-        }
-        $idList = implode(',', array_map('intval', $ids));
-        $rows = $this->connection->executeQuery(
-            "SELECT v.resource_id, CONCAT(vo.prefix, ':', p.local_name), v.value"
-            . ' FROM value v'
-            . ' JOIN property p ON v.property_id = p.id'
-            . ' JOIN vocabulary vo ON p.vocabulary_id = vo.id'
-            . " WHERE v.resource_id IN ($idList)"
-            . "   AND CONCAT(vo.prefix, ':', p.local_name) IN ('dcterms:extent', 'bibo:content')"
-            . "   AND v.value IS NOT NULL AND v.value <> ''"
-        )->fetchAllNumeric();
-        foreach ($rows as $r) {
+        foreach ($this->loadValueRows($ids, ['dcterms:extent', 'bibo:content']) as $r) {
             $term = (string) $r[1];
             $value = (string) $r[2];
             if ($term === 'dcterms:extent') {
@@ -1581,29 +1660,20 @@ final class Runner
 
     /**
      * Literal values of one property across the given items (e.g. bibo:content,
-     * dcterms:abstract), as a list of strings. Integer-joined IN list + a bound
-     * term, so injection-safe. Used as the word-cloud fallback corpus when the
-     * lemmatised input file is absent.
+     * dcterms:abstract), as a list of strings. Used as the word-cloud fallback
+     * corpus when the lemmatised input file is absent, and for one-off scoped
+     * fields like bibo:status.
      *
      * @param list<int> $ids
      * @return list<string>
      */
     private function loadTextValues(array $ids, string $term): array
     {
-        if (!$ids) {
-            return [];
+        $values = [];
+        foreach ($this->loadValueRows($ids, [$term]) as $r) {
+            $values[] = (string) $r[2];
         }
-        $idList = implode(',', array_map('intval', $ids));
-        $rows = $this->connection->executeQuery(
-            'SELECT v.value FROM value v'
-            . ' JOIN property p ON v.property_id = p.id'
-            . ' JOIN vocabulary vo ON p.vocabulary_id = vo.id'
-            . " WHERE v.resource_id IN ($idList)"
-            . "   AND CONCAT(vo.prefix, ':', p.local_name) = ?"
-            . "   AND v.value IS NOT NULL AND v.value <> ''",
-            [$term]
-        )->fetchFirstColumn();
-        return array_map('strval', $rows);
+        return $values;
     }
 
     /**

@@ -93,11 +93,7 @@
         }, 0);
     }
 
-    function esc(s) {
-        return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) {
-            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
-        });
-    }
+    var esc = ns.escapeHtml;
 
     function tabById(id) {
         for (var i = 0; i < TABS.length; i++) {

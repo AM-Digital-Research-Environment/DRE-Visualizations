@@ -41,7 +41,11 @@
         playlists: '<path d="M12 12H3"/><path d="M16 6H3"/><path d="M12 18H3"/><path d="m16 12 5 3-5 3v-6Z"/>',
         duration: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
         items: '<path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><polyline points="3.29 7 12 12 20.71 7"/><path d="m7.5 4.27 9 5.15"/>',
-        countries: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>'
+        countries: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+        venues: '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+        publishers: '<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/>',
+        peerReviewed: '<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76"/><path d="m9 12 2 2 4-4"/>',
+        fullText: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m9 15 2 2 4-4"/>'
     };
     ns.STAT_ICONS = ICONS;
 
@@ -59,7 +63,8 @@
         types: 'resourceTypes',
         genres: 'resourceTypes',
         sections: 'projects',
-        series: 'playlists'
+        series: 'playlists',
+        places: 'locations'
     };
     ns.STAT_ICON_ALIAS = ALIAS;
 
@@ -75,18 +80,14 @@
         + ' viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"'
         + ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">';
 
-    function esc(s) {
-        return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) {
-            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
-        });
-    }
+    var esc = ns.escapeHtml;
 
     // Group digits for legibility (3,975). Falls back to the raw value if it is
     // not a finite number (e.g. an unexpected string).
     function fmt(n) {
         var v = Number(n);
         if (!isFinite(v)) return esc(n);
-        try { return v.toLocaleString('en-US'); } catch (e) { return String(v); }
+        return ns.formatNumber ? ns.formatNumber(v) : String(v);
     }
 
     function cardHtml(s) {

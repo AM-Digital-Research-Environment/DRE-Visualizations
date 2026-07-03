@@ -81,7 +81,8 @@
                     },
                     sizeRange: [minFont, maxFont],
                     rotationRange: [-45, 45], rotationStep: 15, gridSize: grid,
-                    drawOutOfBound: false, shrinkToFit: true, layoutAnimation: count <= 100,
+                    drawOutOfBound: false, shrinkToFit: true,
+                    layoutAnimation: count <= 100 && !ns.prefersReducedMotion(),
                     left: 'center', top: 'center', width: '100%', height: '100%',
                     textStyle: {
                         fontFamily: 'sans-serif',

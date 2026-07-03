@@ -21,15 +21,15 @@
         var pageItems = locItems.slice(start, start + perPage);
 
         var h = '<div class="rv-popup-content">';
-        h += '<strong>' + (props.name || '') + '</strong>';
-        h += ' <span class="rv-popup-count">' + props.value + ' items</span>';
+        h += '<strong>' + ns.escapeHtml(props.name || '') + '</strong>';
+        h += ' <span class="rv-popup-count">' + ns.formatNumber(props.value) + ' items</span>';
 
         if (pageItems.length) {
             h += '<ul class="rv-popup-items">';
             pageItems.forEach(function (it) {
                 var url = siteBase ? siteBase + '/item/' + it.id : '#';
                 var title = truncateLabel(it.title, 55);
-                h += '<li><a href="' + url + '">' + title + '</a></li>';
+                h += '<li><a href="' + url + '">' + ns.escapeHtml(title) + '</a></li>';
             });
             h += '</ul>';
         }
@@ -63,18 +63,8 @@
         // Wrapped so the theme engine can rebuild the map (new basemap + theme
         // colours) on a live light/dark toggle — see dashboard-core ns.refresh().
         function create() {
-        var map = new maplibregl.Map({
-            container: el,
-            style: getBasemapStyle(),
-            center: [0, 15],
-            zoom: 1.5,
-            attributionControl: false,
-            cooperativeGestures: true,
-        });
-        map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
-        map.addControl(new maplibregl.FullscreenControl(), 'top-right');
-        if (maplibregl.GlobeControl) map.addControl(new maplibregl.GlobeControl(), 'top-right');
         // Attribution hidden — source info in map tiles. Users can inspect via browser.
+        var map = ns.initMap(el, { center: [0, 15], zoom: 1.5 });
 
         map.on('load', function () {
 

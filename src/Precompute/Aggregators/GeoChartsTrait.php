@@ -65,6 +65,40 @@ trait GeoChartsTrait
     }
 
     /**
+     * Geocoded places linked from the items through an arbitrary property, in
+     * the same shape aggregateItems builds `locations` from dcterms:spatial —
+     * {name, lat, lon, itemId, value, items[]}, sorted by count — so the shared
+     * map builder (bubbles, clustering, per-place popup item lists) renders it
+     * unchanged. First consumer: the Publications dashboard's places of
+     * publication (marcrel:pup → geocoded Location items). Non-geocoded and
+     * literal-only values are skipped; null when nothing is mappable.
+     *
+     * @param list<int> $itemIds
+     * @return list<array{name:string,lat:float,lon:float,itemId:int,value:int,items:list<array{id:int,title:string}>}>|null
+     */
+    public static function buildLinkedPlacesMap(array $itemIds, array $links, array $items, array $geo, string $term): ?array
+    {
+        $places = [];
+        foreach ($itemIds as $iid) {
+            foreach ($links[$iid] ?? [] as [$t, , $vrid]) {
+                if ($t !== $term || !isset($geo[$vrid])) {
+                    continue;
+                }
+                if (!isset($places[$vrid])) {
+                    $g = $geo[$vrid];
+                    $places[$vrid] = [
+                        'name' => $g['name'], 'lat' => $g['lat'], 'lon' => $g['lon'],
+                        'itemId' => $g['itemId'], 'value' => 0, 'items' => [],
+                    ];
+                }
+                $places[$vrid]['value']++;
+                $places[$vrid]['items'][] = ['id' => $iid, 'title' => $items[$iid]['title'] ?? ('Item ' . $iid)];
+            }
+        }
+        return $places ? self::sortByValueDesc(array_values($places)) : null;
+    }
+
+    /**
      * A person's affiliated organisations (dcterms:isPartOf → foaf:Organization)
      * that carry coordinates, as map markers. Returns null when no affiliation is
      * geocoded, so the orchestrator hides the panel.

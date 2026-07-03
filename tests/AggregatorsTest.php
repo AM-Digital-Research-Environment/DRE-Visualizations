@@ -253,26 +253,6 @@ check($pA === ['items' => 2, 'languages' => 2, 'subjects' => 1, 'contributors' =
 $radar = A::buildRadar($pA, A::profileMaxima([$pA, ['items' => 1, 'languages' => 1, 'subjects' => 1, 'contributors' => 1, 'types' => 1, 'span' => 0]]));
 check(count($radar['indicator']) === 6 && $radar['series'][0]['value'] === [2, 2, 1, 1, 1, 8], 'buildRadar values');
 
-// --- discursive communities (Louvain 2-cluster) ---
-$citems = [];
-for ($i = 1; $i <= 6; $i++) { $citems[$i] = ['title' => "Subject $i"]; }
-$clinks = [];
-$iid = 100;
-$add = function (array $subs) use (&$clinks, &$iid) {
-    $clinks[$iid++] = array_map(fn ($s) => ['dcterms:subject', 'Subject', $s], $subs);
-};
-for ($k = 0; $k < 5; $k++) { $add([1, 2, 3]); }
-for ($k = 0; $k < 5; $k++) { $add([4, 5, 6]); }
-for ($k = 0; $k < 2; $k++) { $add([3, 4]); }
-$comm = A::buildDiscursiveCommunities(array_keys($clinks), $clinks, $citems, null, 2);
-check($comm !== null && count($comm['nodes']) === 6, 'communities: 6 nodes');
-check(count($comm['communities']) === 2, 'communities: 2 clusters');
-$byName = [];
-foreach ($comm['nodes'] as $nd) { $byName[$nd['name']] = $nd['community']; }
-$c123 = [$byName['Subject 1'], $byName['Subject 2'], $byName['Subject 3']];
-$c456 = [$byName['Subject 4'], $byName['Subject 5'], $byName['Subject 6']];
-check(count(array_unique($c123)) === 1 && count(array_unique($c456)) === 1 && $c123[0] !== $c456[0], 'communities: {1,2,3} vs {4,5,6} split');
-
 // --- buildTemplates (resource-template breakdown) ---
 $tplItems = [
     1 => ['title' => 'A', 'template_id' => 10],
@@ -291,6 +271,49 @@ $pubLits = [
 ];
 check(A::buildTopLiteral([1, 2, 3], $pubLits, 'dcterms:isPartOf') === [['name' => 'Antipode', 'value' => 2], ['name' => 'Society', 'value' => 1]], 'buildTopLiteral counts venue literals');
 check(A::buildTopLiteral([1, 2, 3], $pubLits, 'dcterms:publisher') === null, 'buildTopLiteral null when term absent');
+
+// --- buildTopLinked (funders with click-through, per-item dedupe) ---
+$fundItems = [900 => ['title' => 'DFG'], 901 => ['title' => 'EXC 2052'], 902 => ['title' => '']];
+$fundLinks = [
+    1 => [['frapo:isFundedBy', 'F', 900], ['frapo:isFundedBy', 'F', 901]],
+    2 => [['frapo:isFundedBy', 'F', 900], ['frapo:isFundedBy', 'F', 900]],  // repeat on one item counts once
+    3 => [['frapo:isFundedBy', 'F', 902], ['dcterms:publisher', 'P', 900]], // untitled + other term skipped
+];
+check(A::buildTopLinked([1, 2, 3], $fundLinks, $fundItems, 'frapo:isFundedBy') === [
+    ['name' => 'DFG', 'value' => 2, 'itemId' => 900],
+    ['name' => 'EXC 2052', 'value' => 1, 'itemId' => 901],
+], 'buildTopLinked counts linked funders (deduped per item, untitled skipped)');
+check(A::buildTopLinked([3], $fundLinks, $fundItems, 'marcrel:pup') === null, 'buildTopLinked null when term absent');
+
+// --- countDistinctLiterals (distinct venues/publishers for stat cards) ---
+$distinctLits = [
+    1 => ['dcterms:publisher' => ['Brill', ' Brill ']],   // trims to one publisher
+    2 => ['dcterms:publisher' => ['Routledge', '']],       // empty value ignored
+    3 => ['dcterms:isPartOf' => ['Antipode']],             // other term ignored
+];
+check(A::countDistinctLiterals([1, 2, 3], $distinctLits, 'dcterms:publisher') === 2, 'countDistinctLiterals trims + dedupes publishers');
+check(A::countDistinctLiterals([1, 2, 3], $distinctLits, 'marcrel:pup') === 0, 'countDistinctLiterals 0 when term absent');
+
+// --- buildLinkedPlacesMap (places of publication via marcrel:pup) ---
+$pupItems = [
+    1 => ['title' => 'Border Markets'], 2 => ['title' => 'Imaginaries'], 3 => ['title' => 'Untitled Pub'],
+    500 => ['title' => 'London'], 501 => ['title' => 'New York'], 502 => ['title' => 'Ungeocoded Town'],
+];
+$pupLinks = [
+    1 => [['marcrel:pup', 'Place of publication', 500]],
+    2 => [['marcrel:pup', 'Place of publication', 500], ['marcrel:pup', 'Place of publication', 501]],
+    3 => [['marcrel:pup', 'Place of publication', 502], ['dcterms:spatial', 'Spatial', 501]],
+];
+$pupGeo = [
+    500 => ['name' => 'London', 'lat' => 51.5, 'lon' => -0.13, 'itemId' => 500],
+    501 => ['name' => 'New York', 'lat' => 40.7, 'lon' => -74.0, 'itemId' => 501],
+];
+$pupMap = A::buildLinkedPlacesMap([1, 2, 3], $pupLinks, $pupItems, $pupGeo, 'marcrel:pup');
+check(count($pupMap) === 2, 'buildLinkedPlacesMap keeps only geocoded places (ungeocoded town dropped)');
+check($pupMap[0]['name'] === 'London' && $pupMap[0]['value'] === 2, 'buildLinkedPlacesMap sorts by publication count');
+check($pupMap[0]['items'] === [['id' => 1, 'title' => 'Border Markets'], ['id' => 2, 'title' => 'Imaginaries']], 'buildLinkedPlacesMap carries per-place publication lists');
+check($pupMap[1]['lat'] === 40.7 && $pupMap[1]['lon'] === -74.0 && $pupMap[1]['itemId'] === 501, 'buildLinkedPlacesMap keeps coordinates + location itemId');
+check(A::buildLinkedPlacesMap([3], $pupLinks, $pupItems, $pupGeo, 'marcrel:pup') === null, 'buildLinkedPlacesMap null when nothing mappable (dcterms:spatial not counted)');
 
 // --- buildTopAuthors (literal + matched person union) ---
 $authItems = [100 => ['title' => 'Daley, Patricia', 'template_id' => 4]];

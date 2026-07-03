@@ -59,9 +59,8 @@
         return s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s;
     }
 
-    function fmtNum(n) {
-        return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-    }
+    // Shared grouping style ("1,234") — see ns.formatNumber in dashboard-core.
+    var fmtNum = ns.formatNumber || function (n) { return String(n); };
 
     /* ------------------------------------------------------------------ */
     /*  Theme bridge (dashboard-core.js)                                   */

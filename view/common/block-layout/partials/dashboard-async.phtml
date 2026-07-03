@@ -1,0 +1,51 @@
+<?php
+/**
+ * Shared async-dashboard container — the single markup source for the
+ * dashboard site-page blocks (Collection Overview / Collection Dashboard /
+ * Publications / Podcasts / YouTube). Injects the dashboard asset chain and
+ * emits the container the orchestrator (dashboard.js) hydrates from the
+ * precomputed JSON named by data-item-id.
+ *
+ * Params:
+ *   string  $itemId   Precomputed artifact id under item-dashboards/
+ *                     (e.g. 'publications', 'collection-overview').
+ *   string  $slug     Embed slug (data-embed-slug — must match the
+ *                     EmbedController BLOCKS key so copy-embed buttons work).
+ *   string  $loading  Loading message (already translated by the caller).
+ *   ?string $layout   Optional layout override (data-layout), e.g.
+ *                     'collectionOverview' — otherwise the JSON's resourceType
+ *                     picks the layout.
+ *   ?string $title    Optional embed title override (data-title).
+ *
+ * Zero-config: no $block access, so the bare embed route renders it too.
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ */
+
+// Site-page block (Module.php does not run on page controllers), so request the
+// CDN + core prelude too. Single source of truth: DashboardAssets view helper.
+$this->dashboardAssets(['cdn' => true]);
+
+$siteSlug = $this->currentSite()->slug();
+$layout = $layout ?? null;
+$title = $title ?? null;
+?>
+
+<div class="resource-vis-block dashboard-block">
+    <div class="dashboard-async-container"
+         data-item-id="<?= $this->escapeHtmlAttr($itemId) ?>"
+         <?php if ($layout !== null): ?>data-layout="<?= $this->escapeHtmlAttr($layout) ?>"<?php endif; ?>
+         data-embed-slug="<?= $this->escapeHtmlAttr($slug) ?>"
+         <?php if ($title !== null): ?>data-title="<?= $this->escapeHtmlAttr($title) ?>"<?php endif; ?>
+         data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"
+         data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $siteSlug) ?>">
+        <noscript>
+            <style>.dashboard-async-container .rv-loading { display: none; }</style>
+            <div class="rv-no-data"><?= $this->translate('These interactive visualisations require JavaScript.') ?></div>
+        </noscript>
+        <div class="rv-loading">
+            <div class="rv-spinner"></div>
+            <span><?= $this->escapeHtml($loading) ?></span>
+        </div>
+    </div>
+</div>

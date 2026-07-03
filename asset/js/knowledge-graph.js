@@ -485,7 +485,7 @@
                     data: data.categories.map(function (c) { return c.name; }),
                     bottom: 10, textStyle: { fontSize: THEME.fontSize }, type: 'scroll'
                 },
-                animationDuration: 300,
+                animationDuration: ns.prefersReducedMotion && ns.prefersReducedMotion() ? 0 : 300,
                 animationEasingUpdate: 'cubicOut',
                 series: [{
                     type: 'graph', layout: 'force',

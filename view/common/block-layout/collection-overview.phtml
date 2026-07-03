@@ -9,32 +9,17 @@
  * language, languages, resource types, subjects, and items by country.
  *
  * The curated selection/order lives in the `collectionOverview` layout
- * (dashboard-layouts.js); `data-layout` below tells the orchestrator to use it
+ * (dashboard-layouts.js); `data-layout` tells the orchestrator to use it
  * instead of the JSON's `resourceType` (which is "section", the full layout).
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SitePageBlockRepresentation $block
  */
-
-// Dashboard front-end assets. This is a site-page block (Module.php does not
-// run on page controllers), so request the CDN + core prelude too. Single
-// source of truth: DreVisualizations\View\Helper\DashboardAssets.
-$this->dashboardAssets(['cdn' => true]);
-
-$siteSlug = $this->currentSite()->slug();
 ?>
-
-<div class="resource-vis-block dashboard-block">
-    <div class="dashboard-async-container"
-         data-item-id="collection-overview"
-         data-layout="collectionOverview"
-         data-embed-slug="collection-overview"
-         data-title="<?= $this->escapeHtmlAttr($this->translate('Collection overview')) ?>"
-         data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"
-         data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $siteSlug) ?>">
-        <div class="rv-loading">
-            <div class="rv-spinner"></div>
-            <span><?= $this->translate('Loading collection overview…') ?></span>
-        </div>
-    </div>
-</div>
+<?= $this->partial('common/block-layout/partials/dashboard-async', [
+    'itemId'  => 'collection-overview',
+    'layout'  => 'collectionOverview',
+    'slug'    => 'collection-overview',
+    'title'   => $this->translate('Collection overview'),
+    'loading' => $this->translate('Loading collection overview…'),
+]) ?>

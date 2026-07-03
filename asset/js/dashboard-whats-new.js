@@ -10,11 +10,7 @@
     var ns = window.RV;
     if (!ns) return;
 
-    function escapeHtml(str) {
-        var div = document.createElement('div');
-        div.appendChild(document.createTextNode(str == null ? '' : String(str)));
-        return div.innerHTML;
-    }
+    var escapeHtml = ns.escapeHtml;
 
     function render(container, data, siteBase) {
         container.innerHTML = '';

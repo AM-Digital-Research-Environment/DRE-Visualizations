@@ -146,7 +146,12 @@ function checkEmbeds(rv) {
       continue;
     }
     const template = read(templatePath);
-    if (!template.includes(`data-embed-slug="${entry.slug}"`)) {
+    // The slug is either stamped directly on the container, or passed as the
+    // 'slug' param to the shared partials/dashboard-async.phtml partial (which
+    // emits the data-embed-slug attribute for the five dashboard blocks).
+    const stampsSlug = template.includes(`data-embed-slug="${entry.slug}"`)
+      || new RegExp(`'slug'\\s*=>\\s*'${entry.slug}'`).test(template);
+    if (!stampsSlug) {
       fail(`Embed block ${entry.slug} template lacks matching data-embed-slug`);
     }
     if (entry.kind === 'dashboard' && !layouts[entry.layout]) {

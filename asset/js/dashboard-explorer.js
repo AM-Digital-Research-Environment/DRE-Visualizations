@@ -20,11 +20,7 @@
         return str && str.length > max ? str.substring(0, max) + '…' : (str || '');
     }
 
-    function esc(s) {
-        return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) {
-            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
-        });
-    }
+    var esc = ns.escapeHtml;
 
     // Render a project's dcterms:abstract as escaped paragraphs, preserving the
     // blank-line breaks curators entered. Treated as plain text (project
@@ -155,6 +151,9 @@
 
             var content = document.createElement('div');
             content.className = 'explorer-content';
+            // Announce dashboard swaps to assistive tech without re-reading
+            // every chart: polite live region + aria-busy while loading.
+            content.setAttribute('aria-live', 'polite');
             container.appendChild(content);
 
             // Fetch the selected project's dcterms:abstract from the public REST
@@ -173,6 +172,7 @@
 
             function load(id) {
                 if (!id) return;
+                content.setAttribute('aria-busy', 'true');
                 content.innerHTML = '<div class="rv-loading"><div class="rv-spinner"></div>'
                     + '<span>Loading…</span></div>';
                 fetch(moduleBase + id + '.json').then(function (r) {
@@ -180,12 +180,14 @@
                     return r.json();
                 }).then(function (data) {
                     content.innerHTML = '';
+                    content.setAttribute('aria-busy', 'false');
                     if (!data || !data.totalItems) {
                         content.innerHTML = '<div class="rv-no-data">No data for this project.</div>';
                         return;
                     }
                     ns.renderInto(content, data, siteBase);
                 }).catch(function () {
+                    content.setAttribute('aria-busy', 'false');
                     content.innerHTML = '<div class="rv-error">Could not load this project.</div>';
                 });
             }

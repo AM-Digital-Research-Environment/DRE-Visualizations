@@ -80,7 +80,6 @@ class DashboardAssets extends AbstractHelper
         'explorer'    => ['js/dashboard.js', 'js/dashboard-explorer.js'],
         'compare'     => ['js/dashboard-compare-unify.js', 'js/dashboard-compare.js'],
         'network'     => ['js/dashboard-network-explorer.js'],
-        'communities' => ['js/dashboard-communities.js'],
         'whatsNew'    => ['js/dashboard-whats-new.js'],
     ];
 

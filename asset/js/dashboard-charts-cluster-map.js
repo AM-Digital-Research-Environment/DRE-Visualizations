@@ -19,7 +19,6 @@
 
     var ns = window.RV;
     var THEME = ns.THEME;
-    var getBasemapStyle = ns.getBasemapStyle;
 
     ns.charts = ns.charts || {};
 
@@ -28,11 +27,7 @@
     // categories distinct ones; wraps if there are more categories than entries.
     var PALETTE = [0, 3, 7, 5, 2, 8, 1, 6];
 
-    function esc(s) {
-        return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) {
-            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
-        });
-    }
+    var esc = ns.escapeHtml;
 
     ns.charts.buildClusterMap = function (el, data, siteBase) {
         // Accept the data-driven { categories, points } shape; tolerate a bare
@@ -76,17 +71,7 @@
             var staleLegend = panel.querySelector('.rv-cluster-legend');
             if (staleLegend) staleLegend.remove();
 
-            var map = new maplibregl.Map({
-                container: el,
-                style: getBasemapStyle(),
-                center: [12, 8],
-                zoom: 1.3,
-                attributionControl: false,
-                cooperativeGestures: true
-            });
-            map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
-            map.addControl(new maplibregl.FullscreenControl(), 'top-right');
-            if (maplibregl.GlobeControl) map.addControl(new maplibregl.GlobeControl(), 'top-right');
+            var map = ns.initMap(el, { center: [12, 8], zoom: 1.3 });
 
             var markers = [];
 

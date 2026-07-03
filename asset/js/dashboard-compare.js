@@ -331,6 +331,12 @@
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
                 setActive(Math.max(activeIndex - 1, 0));
+            } else if (e.key === 'Home' && !list.hidden && activeOptions.length) {
+                e.preventDefault();
+                setActive(0);
+            } else if (e.key === 'End' && !list.hidden && activeOptions.length) {
+                e.preventDefault();
+                setActive(activeOptions.length - 1);
             } else if (e.key === 'Enter') {
                 if (!list.hidden && activeIndex >= 0 && activeOptions[activeIndex]) {
                     e.preventDefault();
@@ -479,11 +485,7 @@
         return str && str.length > max ? str.substring(0, max) + '…' : (str || '');
     }
 
-    function escapeHtml(str) {
-        var div = document.createElement('div');
-        div.appendChild(document.createTextNode(str));
-        return div.innerHTML;
-    }
+    var escapeHtml = ns.escapeHtml;
 
     /* ------------------------------------------------------------------ */
     /*  Main controller                                                    */

@@ -499,6 +499,37 @@
             : 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
     };
 
+    /**
+     * Standard MapLibre map bootstrap shared by the map chart builders: themed
+     * basemap, no attribution chrome, cooperative gestures, and the common
+     * control set. Options:
+     *   center, zoom  — initial camera (default [0, 15] / 1.5);
+     *   nav           — NavigationControl options ({ visualizePitch: true } by
+     *                   default; e.g. { showCompass: false }) or false to skip;
+     *   globe         — false to skip the GlobeControl (default on when the
+     *                   vendored MapLibre provides it).
+     * Callers still wire theme rebuilds themselves via ns.trackMap(map, rebuild).
+     */
+    ns.initMap = function (el, opts) {
+        opts = opts || {};
+        var map = new maplibregl.Map({
+            container: el,
+            style: ns.getBasemapStyle(),
+            center: opts.center || [0, 15],
+            zoom: opts.zoom != null ? opts.zoom : 1.5,
+            attributionControl: false,
+            cooperativeGestures: true
+        });
+        if (opts.nav !== false) {
+            map.addControl(new maplibregl.NavigationControl(opts.nav || { visualizePitch: true }), 'top-right');
+        }
+        map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+        if (opts.globe !== false && maplibregl.GlobeControl) {
+            map.addControl(new maplibregl.GlobeControl(), 'top-right');
+        }
+        return map;
+    };
+
     /** Remove disposed charts from the tracking array. */
     ns.pruneCharts = function () {
         ns._allCharts = ns._allCharts.filter(function (c) { return !c.isDisposed(); });
@@ -597,6 +628,21 @@
         return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
             return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
         });
+    };
+
+    /**
+     * Locale-consistent integer formatting ("1,234") for counts in stat cards,
+     * popups and tooltips — one grouping style everywhere instead of the mix of
+     * toLocaleString() and hand-rolled separators.
+     */
+    ns.formatNumber = function (n) {
+        var v = Number(n);
+        return isFinite(v) ? v.toLocaleString('en-US') : String(n == null ? '' : n);
+    };
+
+    /** Live check of the user's reduced-motion preference (vestibular safety). */
+    ns.prefersReducedMotion = function () {
+        return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     };
 
     /** Create a DOM element with optional class and text content. */

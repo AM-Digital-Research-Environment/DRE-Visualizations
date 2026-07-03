@@ -15,7 +15,6 @@
 
     var ns = window.RV;
     var THEME = ns.THEME;
-    var getBasemapStyle = ns.getBasemapStyle;
 
     ns.charts = ns.charts || {};
 
@@ -129,17 +128,7 @@
 
         // Wrapped so the theme engine can rebuild the map on a light/dark toggle.
         function create() {
-            var map = new maplibregl.Map({
-                container: el,
-                style: getBasemapStyle(),
-                center: [10, 18],
-                zoom: 1.3,
-                attributionControl: false,
-                cooperativeGestures: true
-            });
-            map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-            map.addControl(new maplibregl.FullscreenControl(), 'top-right');
-            if (maplibregl.GlobeControl) map.addControl(new maplibregl.GlobeControl(), 'top-right');
+            var map = ns.initMap(el, { center: [10, 18], zoom: 1.3, nav: { showCompass: false } });
 
             map.on('load', function () {
                 loadCountries().then(function (geo) {
@@ -182,9 +171,9 @@
                         var count = Number(props.count || 0);
                         map.getCanvas().style.cursor = count > 0 ? 'pointer' : '';
                         var share = total > 0 ? (count / total * 100) : 0;
-                        var html = '<div class="rv-popup-content"><strong>' + countryName(props) + '</strong>'
+                        var html = '<div class="rv-popup-content"><strong>' + ns.escapeHtml(countryName(props)) + '</strong>'
                             + (count > 0
-                                ? '<br/><span class="rv-popup-count">' + count + ' item' + (count === 1 ? '' : 's')
+                                ? '<br/><span class="rv-popup-count">' + ns.formatNumber(count) + ' item' + (count === 1 ? '' : 's')
                                   + ' · ' + share.toFixed(1) + '%</span>'
                                 : '<br/><em>No items</em>')
                             + '</div>';

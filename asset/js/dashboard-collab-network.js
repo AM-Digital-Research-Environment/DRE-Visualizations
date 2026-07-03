@@ -65,7 +65,7 @@
                     gravity: n > 15 ? 0.06 : 0.1,
                     edgeLength: [60, 200],
                     friction: 0.85,
-                    layoutAnimation: true
+                    layoutAnimation: !ns.prefersReducedMotion()
                 },
                 roam: true, draggable: true,
                 emphasis: { focus: 'adjacency', lineStyle: { width: 4, opacity: 0.9 } },

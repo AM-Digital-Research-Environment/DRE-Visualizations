@@ -1,13 +1,14 @@
 /**
- * Discursive Communities builder: subject co-occurrence force graph, nodes
- * coloured by Louvain community and sized by PageRank.
+ * Community force-graph builder: a co-occurrence network with nodes coloured
+ * by Louvain community and sized by PageRank. Shared by the Publications
+ * collaboration network (coAuthorNetwork) and the Podcasts speaker network
+ * (speakerNetwork) through the registry.
  *
  * Data: { nodes: [{ name, value, itemId, community, rank }],
  *         links: [{ source, target, value }],
  *         communities: [{ id, size, anchor }] }
  *
- * Registers into window.RV.charts; rendered by the Discursive Communities
- * site-page block via dashboard-communities.js.
+ * Registers into window.RV.charts.
  */
 (function () {
     'use strict';
