@@ -113,7 +113,7 @@ EXTRA_STOP = {
     # the FR/DE YouTube buckets). Aggressive by design, like the in-PHP
     # tokeniser: these carry no topical signal in a word cloud.
     "uh", "um", "uhm", "hmm", "gonna", "wanna", "know", "like", "mean",   # EN
-    "euh", "hein", "bah", "ben",                                          # FR
+    "euh", "hein", "bah", "ben", "oui",                                   # FR
     "ähm", "äh", "hm", "mhm", "genau", "halt", "quasi", "sozusagen",      # DE
     "ja", "ne",
     "né", "tá", "aí", "pra", "gente", "coisa", "cara", "hum",             # PT
