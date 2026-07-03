@@ -104,8 +104,19 @@ EXTRA_STOP = {
     # Common English words that leak into the other-language buckets via
     # mixed-language academic abstracts (already stopped by the EN model).
     "the", "and", "for", "with", "from", "this", "that", "also", "into", "such", "within",
+    # ... and via code-switched video captions (English "you" topped the PT
+    # bucket before this).
+    "you", "your",
     # French fillers / meta the FR model keeps as content.
     "épisode", "merci", "bonjour", "voilà", "bon", "chose", "vrai", "ouais", "truc", "exemple",
+    # Spoken fillers the caption corpora surfaced ("euh" and "ähm" ranked #2 in
+    # the FR/DE YouTube buckets). Aggressive by design, like the in-PHP
+    # tokeniser: these carry no topical signal in a word cloud.
+    "uh", "um", "uhm", "hmm", "gonna", "wanna", "know", "like", "mean",   # EN
+    "euh", "hein", "bah", "ben",                                          # FR
+    "ähm", "äh", "hm", "mhm", "genau", "halt", "quasi", "sozusagen",      # DE
+    "ja", "ne",
+    "né", "tá", "aí", "pra", "gente", "coisa", "cara",                    # PT
 }
 
 CUE_RE = re.compile(r"\[[^\]]*\]")                          # [music], [applause]
