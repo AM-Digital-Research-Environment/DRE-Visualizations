@@ -1,6 +1,6 @@
 {
   "corpus": "publications",
-  "generated_utc": "2026-06-30T17:20:23Z",
+  "generated_utc": "2026-07-03T09:52:50Z",
   "source": "https://data.africamultiple.uni-bayreuth.de",
   "models": {
     "en": "en_core_web_sm",
@@ -15,81 +15,137 @@
     "pt"
   ],
   "items": {
-    "total": 247,
-    "skipped": 80,
-    "en": 142,
+    "total": 277,
+    "skipped": 95,
+    "en": 158,
     "de": 12,
-    "fr": 8,
-    "pt": 5
+    "fr": 9,
+    "pt": 3
   },
   "byLang": {
     "en": [
       {
         "name": "africa",
-        "value": 114
-      },
-      {
-        "name": "research",
-        "value": 103
+        "value": 141
       },
       {
         "name": "african",
-        "value": 92
+        "value": 125
+      },
+      {
+        "name": "research",
+        "value": 117
+      },
+      {
+        "name": "der",
+        "value": 101
       },
       {
         "name": "social",
-        "value": 86
-      },
-      {
-        "name": "study",
-        "value": 74
+        "value": 92
       },
       {
         "name": "political",
-        "value": 72
+        "value": 81
       },
       {
         "name": "knowledge",
-        "value": 69
+        "value": 80
+      },
+      {
+        "name": "study",
+        "value": 79
       },
       {
         "name": "article",
-        "value": 57
+        "value": 78
+      },
+      {
+        "name": "des",
+        "value": 72
       },
       {
         "name": "paper",
-        "value": 54
-      },
-      {
-        "name": "community",
-        "value": 53
-      },
-      {
-        "name": "economic",
-        "value": 51
+        "value": 58
       },
       {
         "name": "datum",
-        "value": 50
+        "value": 58
+      },
+      {
+        "name": "und",
+        "value": 57
+      },
+      {
+        "name": "community",
+        "value": 56
+      },
+      {
+        "name": "child",
+        "value": 54
+      },
+      {
+        "name": "economic",
+        "value": 53
       },
       {
         "name": "process",
-        "value": 50
+        "value": 52
       },
       {
         "name": "system",
-        "value": 47
+        "value": 51
+      },
+      {
+        "name": "human",
+        "value": 51
+      },
+      {
+        "name": "country",
+        "value": 49
       },
       {
         "name": "woman",
         "value": 47
       },
       {
+        "name": "les",
+        "value": 47
+      },
+      {
+        "name": "new",
+        "value": 46
+      },
+      {
+        "name": "approach",
+        "value": 46
+      },
+      {
+        "name": "practice",
+        "value": 46
+      },
+      {
+        "name": "multiple",
+        "value": 45
+      },
+      {
         "name": "group",
+        "value": 43
+      },
+      {
+        "name": "cultural",
+        "value": 43
+      },
+      {
+        "name": "history",
+        "value": 43
+      },
+      {
+        "name": "production",
         "value": 42
       },
       {
-        "name": "country",
+        "name": "people",
         "value": 42
       },
       {
@@ -97,59 +153,67 @@
         "value": 41
       },
       {
-        "name": "approach",
-        "value": 41
+        "name": "education",
+        "value": 40
       },
       {
-        "name": "practice",
-        "value": 41
+        "name": "chapter",
+        "value": 40
       },
       {
-        "name": "new",
+        "name": "south",
         "value": 39
       },
       {
-        "name": "people",
+        "name": "relation",
         "value": 39
       },
       {
-        "name": "child",
-        "value": 39
-      },
-      {
-        "name": "production",
+        "name": "development",
         "value": 38
       },
       {
-        "name": "education",
+        "name": "digital",
+        "value": 38
+      },
+      {
+        "name": "international",
         "value": 38
       },
       {
         "name": "way",
-        "value": 36
+        "value": 37
       },
       {
-        "name": "cultural",
-        "value": 36
+        "name": "different",
+        "value": 37
       },
       {
-        "name": "international",
+        "name": "state",
         "value": 36
       },
       {
         "name": "medium",
+        "value": 36
+      },
+      {
+        "name": "global",
         "value": 35
       },
       {
-        "name": "human",
+        "name": "world",
         "value": 35
       },
       {
-        "name": "history",
-        "value": 35
+        "name": "framework",
+        "value": 34
       },
       {
-        "name": "relation",
+        "name": "project",
+        "value": 34
+      },
+      {
+        "name": "policy",
         "value": 34
       },
       {
@@ -157,23 +221,31 @@
         "value": 34
       },
       {
-        "name": "development",
+        "name": "von",
+        "value": 34
+      },
+      {
+        "name": "concept",
         "value": 33
       },
       {
-        "name": "south",
-        "value": 33
-      },
-      {
-        "name": "different",
+        "name": "power",
         "value": 33
       },
       {
         "name": "change",
+        "value": 33
+      },
+      {
+        "name": "role",
+        "value": 33
+      },
+      {
+        "name": "experience",
         "value": 32
       },
       {
-        "name": "world",
+        "name": "language",
         "value": 32
       },
       {
@@ -181,15 +253,15 @@
         "value": 31
       },
       {
-        "name": "project",
+        "name": "analysis",
         "value": 31
       },
       {
-        "name": "digital",
+        "name": "legal",
         "value": 31
       },
       {
-        "name": "global",
+        "name": "challenge",
         "value": 31
       },
       {
@@ -197,151 +269,203 @@
         "value": 31
       },
       {
-        "name": "concept",
-        "value": 30
-      },
-      {
-        "name": "state",
-        "value": 30
-      },
-      {
-        "name": "power",
-        "value": 30
-      },
-      {
-        "name": "multiple",
-        "value": 30
-      },
-      {
-        "name": "role",
-        "value": 30
-      },
-      {
         "name": "academic",
-        "value": 30
+        "value": 31
       },
       {
         "name": "court",
+        "value": 31
+      },
+      {
+        "name": "actor",
         "value": 30
       },
       {
-        "name": "experience",
-        "value": 29
+        "name": "society",
+        "value": 30
+      },
+      {
+        "name": "space",
+        "value": 30
       },
       {
         "name": "border",
         "value": 29
       },
       {
-        "name": "policy",
+        "name": "model",
         "value": 29
       },
       {
-        "name": "actor",
+        "name": "colonial",
         "value": 29
+      },
+      {
+        "name": "life",
+        "value": 29
+      },
+      {
+        "name": "researcher",
+        "value": 29
+      },
+      {
+        "name": "migration",
+        "value": 28
       },
       {
         "name": "effect",
         "value": 28
       },
       {
-        "name": "life",
+        "name": "potential",
         "value": 28
       },
       {
-        "name": "space",
+        "name": "transformation",
         "value": 28
-      },
-      {
-        "name": "migration",
-        "value": 27
-      },
-      {
-        "name": "society",
-        "value": 27
-      },
-      {
-        "name": "framework",
-        "value": 26
       },
       {
         "name": "network",
-        "value": 26
+        "value": 27
       },
       {
-        "name": "language",
-        "value": 26
+        "name": "collection",
+        "value": 27
       },
       {
-        "name": "potential",
-        "value": 26
-      },
-      {
-        "name": "result",
-        "value": 26
-      },
-      {
-        "name": "researcher",
-        "value": 26
-      },
-      {
-        "name": "analysis",
-        "value": 25
-      },
-      {
-        "name": "insight",
-        "value": 25
-      },
-      {
-        "name": "european",
-        "value": 24
-      },
-      {
-        "name": "work",
-        "value": 24
-      },
-      {
-        "name": "perspective",
-        "value": 24
-      },
-      {
-        "name": "strategy",
-        "value": 24
-      },
-      {
-        "name": "colonial",
-        "value": 24
-      },
-      {
-        "name": "legal",
-        "value": 24
+        "name": "labour",
+        "value": 27
       },
       {
         "name": "case",
-        "value": 24
-      },
-      {
-        "name": "chapter",
-        "value": 24
+        "value": 27
       },
       {
         "name": "regional",
-        "value": 24
+        "value": 27
+      },
+      {
+        "name": "ghana",
+        "value": 27
+      },
+      {
+        "name": "result",
+        "value": 27
+      },
+      {
+        "name": "que",
+        "value": 27
+      },
+      {
+        "name": "european",
+        "value": 26
+      },
+      {
+        "name": "work",
+        "value": 26
+      },
+      {
+        "name": "insight",
+        "value": 26
+      },
+      {
+        "name": "recent",
+        "value": 26
       },
       {
         "name": "islamic",
-        "value": 24
+        "value": 26
+      },
+      {
+        "name": "par",
+        "value": 26
       },
       {
         "name": "key",
+        "value": 25
+      },
+      {
+        "name": "perspective",
+        "value": 25
+      },
+      {
+        "name": "strategy",
+        "value": 25
+      },
+      {
+        "name": "public",
+        "value": 25
+      },
+      {
+        "name": "individual",
+        "value": 25
+      },
+      {
+        "name": "right",
+        "value": 25
+      },
+      {
+        "name": "art",
+        "value": 24
+      },
+      {
+        "name": "subject",
+        "value": 24
+      },
+      {
+        "name": "war",
+        "value": 24
+      },
+      {
+        "name": "government",
         "value": 23
       },
       {
-        "name": "model",
+        "name": "issue",
         "value": 23
       },
       {
-        "name": "challenge",
+        "name": "term",
+        "value": 23
+      },
+      {
+        "name": "level",
+        "value": 23
+      },
+      {
+        "name": "future",
+        "value": 23
+      },
+      {
+        "name": "non",
+        "value": 23
+      },
+      {
+        "name": "memory",
+        "value": 23
+      },
+      {
+        "name": "historical",
+        "value": 23
+      },
+      {
+        "name": "context",
+        "value": 23
+      },
+      {
+        "name": "question",
+        "value": 23
+      },
+      {
+        "name": "university",
+        "value": 23
+      },
+      {
+        "name": "culture",
+        "value": 23
+      },
+      {
+        "name": "colombia",
         "value": 23
       },
       {
@@ -349,7 +473,7 @@
         "value": 23
       },
       {
-        "name": "issue",
+        "name": "form",
         "value": 22
       },
       {
@@ -357,19 +481,51 @@
         "value": 22
       },
       {
-        "name": "level",
+        "name": "finding",
         "value": 22
       },
       {
-        "name": "individual",
+        "name": "region",
         "value": 22
       },
       {
-        "name": "context",
+        "name": "source",
         "value": 22
       },
       {
-        "name": "form",
+        "name": "access",
+        "value": 22
+      },
+      {
+        "name": "contribution",
+        "value": 22
+      },
+      {
+        "name": "moral",
+        "value": 22
+      },
+      {
+        "name": "literacy",
+        "value": 22
+      },
+      {
+        "name": "eine",
+        "value": 22
+      },
+      {
+        "name": "auf",
+        "value": 22
+      },
+      {
+        "name": "migrant",
+        "value": 21
+      },
+      {
+        "name": "identity",
+        "value": 21
+      },
+      {
+        "name": "american",
         "value": 21
       },
       {
@@ -377,39 +533,27 @@
         "value": 21
       },
       {
-        "name": "region",
+        "name": "dynamic",
         "value": 21
       },
       {
-        "name": "future",
+        "name": "large",
         "value": 21
       },
       {
-        "name": "contribution",
+        "name": "order",
         "value": 21
       },
       {
-        "name": "transformation",
+        "name": "discourse",
         "value": 21
       },
       {
-        "name": "art",
+        "name": "sur",
         "value": 21
       },
       {
-        "name": "moral",
-        "value": 21
-      },
-      {
-        "name": "literacy",
-        "value": 21
-      },
-      {
-        "name": "migrant",
-        "value": 20
-      },
-      {
-        "name": "government",
+        "name": "nigeria",
         "value": 20
       },
       {
@@ -417,11 +561,15 @@
         "value": 20
       },
       {
-        "name": "finding",
+        "name": "field",
         "value": 20
       },
       {
-        "name": "labour",
+        "name": "black",
+        "value": 20
+      },
+      {
+        "name": "communication",
         "value": 20
       },
       {
@@ -429,71 +577,35 @@
         "value": 20
       },
       {
-        "name": "dynamic",
-        "value": 20
-      },
-      {
         "name": "rural",
         "value": 20
       },
       {
-        "name": "discourse",
+        "name": "studies",
         "value": 20
       },
       {
-        "name": "war",
+        "name": "time",
         "value": 20
       },
       {
-        "name": "memory",
+        "name": "film",
         "value": 20
       },
       {
-        "name": "question",
+        "name": "dans",
         "value": 20
-      },
-      {
-        "name": "field",
-        "value": 19
       },
       {
         "name": "climate",
         "value": 19
       },
       {
-        "name": "term",
+        "name": "institution",
         "value": 19
       },
       {
-        "name": "public",
-        "value": 19
-      },
-      {
-        "name": "communication",
-        "value": 19
-      },
-      {
-        "name": "order",
-        "value": 19
-      },
-      {
-        "name": "subject",
-        "value": 19
-      },
-      {
-        "name": "historical",
-        "value": 19
-      },
-      {
-        "name": "recent",
-        "value": 19
-      },
-      {
-        "name": "film",
-        "value": 19
-      },
-      {
-        "name": "colombia",
+        "name": "year",
         "value": 19
       },
       {
@@ -501,11 +613,27 @@
         "value": 19
       },
       {
-        "name": "nigeria",
+        "name": "west",
         "value": 18
       },
       {
-        "name": "non",
+        "name": "document",
+        "value": 18
+      },
+      {
+        "name": "discussion",
+        "value": 18
+      },
+      {
+        "name": "significant",
+        "value": 18
+      },
+      {
+        "name": "continent",
+        "value": 18
+      },
+      {
+        "name": "method",
         "value": 18
       },
       {
@@ -513,15 +641,51 @@
         "value": 18
       },
       {
+        "name": "action",
+        "value": 18
+      },
+      {
+        "name": "collaboration",
+        "value": 18
+      },
+      {
+        "name": "text",
+        "value": 18
+      },
+      {
+        "name": "das",
+        "value": 18
+      },
+      {
+        "name": "afro",
+        "value": 18
+      },
+      {
+        "name": "theory",
+        "value": 18
+      },
+      {
+        "name": "aux",
+        "value": 18
+      },
+      {
+        "name": "geography",
+        "value": 17
+      },
+      {
+        "name": "focus",
+        "value": 17
+      },
+      {
         "name": "opportunity",
         "value": 17
       },
       {
-        "name": "large",
+        "name": "population",
         "value": 17
       },
       {
-        "name": "ghana",
+        "name": "performance",
         "value": 17
       },
       {
@@ -529,7 +693,7 @@
         "value": 17
       },
       {
-        "name": "university",
+        "name": "presence",
         "value": 17
       },
       {
@@ -537,27 +701,31 @@
         "value": 17
       },
       {
+        "name": "ist",
+        "value": 17
+      },
+      {
         "name": "pandemic",
         "value": 17
       },
       {
-        "name": "identity",
+        "name": "qui",
+        "value": 17
+      },
+      {
+        "name": "english",
+        "value": 17
+      },
+      {
+        "name": "scholar",
         "value": 16
       },
       {
-        "name": "geography",
+        "name": "impact",
         "value": 16
       },
       {
-        "name": "focus",
-        "value": 16
-      },
-      {
-        "name": "significant",
-        "value": 16
-      },
-      {
-        "name": "institution",
+        "name": "volume",
         "value": 16
       },
       {
@@ -565,11 +733,19 @@
         "value": 16
       },
       {
-        "name": "studies",
+        "name": "trade",
         "value": 16
       },
       {
-        "name": "time",
+        "name": "complex",
+        "value": 16
+      },
+      {
+        "name": "relationship",
+        "value": 16
+      },
+      {
+        "name": "law",
         "value": 16
       },
       {
@@ -577,11 +753,11 @@
         "value": 16
       },
       {
-        "name": "action",
+        "name": "trafficking",
         "value": 16
       },
       {
-        "name": "text",
+        "name": "hand",
         "value": 16
       },
       {
@@ -593,23 +769,27 @@
         "value": 16
       },
       {
-        "name": "afro",
+        "name": "cartagena",
         "value": 16
       },
       {
-        "name": "theory",
+        "name": "artistic",
         "value": 16
       },
       {
-        "name": "english",
-        "value": 16
-      },
-      {
-        "name": "american",
+        "name": "modality",
         "value": 15
       },
       {
-        "name": "impact",
+        "name": "reality",
+        "value": 15
+      },
+      {
+        "name": "national",
+        "value": 15
+      },
+      {
+        "name": "domestic",
         "value": 15
       },
       {
@@ -621,7 +801,7 @@
         "value": 15
       },
       {
-        "name": "method",
+        "name": "important",
         "value": 15
       },
       {
@@ -629,206 +809,26 @@
         "value": 15
       },
       {
-        "name": "program",
-        "value": 15
-      },
-      {
-        "name": "understanding",
-        "value": 15
-      },
-      {
-        "name": "culture",
-        "value": 15
-      },
-      {
-        "name": "security",
-        "value": 14
-      },
-      {
-        "name": "discussion",
-        "value": 14
-      },
-      {
-        "name": "hierarchy",
-        "value": 14
-      },
-      {
-        "name": "access",
-        "value": 14
-      },
-      {
-        "name": "interview",
-        "value": 14
-      },
-      {
-        "name": "income",
-        "value": 14
-      },
-      {
-        "name": "information",
-        "value": 14
-      },
-      {
-        "name": "performance",
-        "value": 14
-      },
-      {
         "name": "essay",
-        "value": 14
-      },
-      {
-        "name": "empirical",
-        "value": 14
+        "value": 15
       },
       {
         "name": "health",
-        "value": 14
-      },
-      {
-        "name": "regime",
-        "value": 14
+        "value": 15
       },
       {
         "name": "attention",
-        "value": 14
+        "value": 15
       },
       {
-        "name": "year",
-        "value": 14
-      },
-      {
-        "name": "condition",
-        "value": 14
-      },
-      {
-        "name": "presence",
-        "value": 14
-      },
-      {
-        "name": "agricultural",
-        "value": 14
-      },
-      {
-        "name": "collaboration",
-        "value": 14
-      },
-      {
-        "name": "hand",
-        "value": 14
-      },
-      {
-        "name": "politic",
-        "value": 14
-      },
-      {
-        "name": "problem",
-        "value": 13
-      },
-      {
-        "name": "modality",
-        "value": 13
-      },
-      {
-        "name": "black",
-        "value": 13
-      },
-      {
-        "name": "scholar",
-        "value": 13
-      },
-      {
-        "name": "british",
-        "value": 13
-      },
-      {
-        "name": "collection",
-        "value": 13
-      },
-      {
-        "name": "volume",
-        "value": 13
-      },
-      {
-        "name": "area",
-        "value": 13
-      },
-      {
-        "name": "trade",
-        "value": 13
-      },
-      {
-        "name": "complex",
-        "value": 13
-      },
-      {
-        "name": "employment",
-        "value": 13
-      },
-      {
-        "name": "young",
-        "value": 13
-      },
-      {
-        "name": "finance",
-        "value": 13
-      },
-      {
-        "name": "topic",
-        "value": 13
-      },
-      {
-        "name": "item",
-        "value": 13
-      },
-      {
-        "name": "user",
-        "value": 13
-      },
-      {
-        "name": "creation",
-        "value": 13
-      },
-      {
-        "name": "collective",
-        "value": 13
-      },
-      {
-        "name": "translation",
-        "value": 13
-      },
-      {
-        "name": "literary",
-        "value": 13
-      },
-      {
-        "name": "school",
-        "value": 13
-      },
-      {
-        "name": "mode",
-        "value": 13
-      },
-      {
-        "name": "philosophy",
-        "value": 13
-      },
-      {
-        "name": "tradition",
-        "value": 13
-      },
-      {
-        "name": "conceptual",
-        "value": 12
-      },
-      {
-        "name": "indigenous",
-        "value": 12
+        "name": "program",
+        "value": 15
       }
     ],
     "de": [
       {
         "name": "digital",
-        "value": 55
+        "value": 57
       },
       {
         "name": "guid",
@@ -939,6 +939,10 @@
         "value": 7
       },
       {
+        "name": "historical",
+        "value": 7
+      },
+      {
         "name": "autor",
         "value": 7
       },
@@ -975,10 +979,6 @@
         "value": 6
       },
       {
-        "name": "historical",
-        "value": 6
-      },
-      {
         "name": "research",
         "value": 6
       },
@@ -996,6 +996,10 @@
       },
       {
         "name": "institution",
+        "value": 6
+      },
+      {
+        "name": "global",
         "value": 6
       },
       {
@@ -1055,10 +1059,6 @@
         "value": 5
       },
       {
-        "name": "global",
-        "value": 5
-      },
-      {
         "name": "unterschiedlich",
         "value": 5
       },
@@ -1076,6 +1076,22 @@
       },
       {
         "name": "aufl",
+        "value": 5
+      },
+      {
+        "name": "djumbaiala",
+        "value": 5
+      },
+      {
+        "name": "african",
+        "value": 5
+      },
+      {
+        "name": "brazil",
+        "value": 5
+      },
+      {
+        "name": "their",
         "value": 5
       },
       {
@@ -1203,11 +1219,31 @@
         "value": 4
       },
       {
+        "name": "salvador",
+        "value": 4
+      },
+      {
+        "name": "bahia",
+        "value": 4
+      },
+      {
+        "name": "knowledge",
+        "value": 4
+      },
+      {
+        "name": "initiative",
+        "value": 4
+      },
+      {
         "name": "rassismus",
         "value": 4
       },
       {
         "name": "politisch",
+        "value": 4
+      },
+      {
+        "name": "black",
         "value": 4
       },
       {
@@ -1263,7 +1299,15 @@
         "value": 3
       },
       {
+        "name": "narrativ",
+        "value": 3
+      },
+      {
         "name": "rezeption",
+        "value": 3
+      },
+      {
+        "name": "has",
         "value": 3
       },
       {
@@ -1391,15 +1435,15 @@
         "value": 3
       },
       {
+        "name": "challenges",
+        "value": 3
+      },
+      {
         "name": "boston",
         "value": 3
       },
       {
-        "name": "djumbaiala",
-        "value": 3
-      },
-      {
-        "name": "salvador",
+        "name": "innovativ",
         "value": 3
       },
       {
@@ -1407,7 +1451,39 @@
         "value": 3
       },
       {
+        "name": "south",
+        "value": 3
+      },
+      {
+        "name": "studies",
+        "value": 3
+      },
+      {
         "name": "ungleichheit",
+        "value": 3
+      },
+      {
+        "name": "international",
+        "value": 3
+      },
+      {
+        "name": "cultural",
+        "value": 3
+      },
+      {
+        "name": "africa",
+        "value": 3
+      },
+      {
+        "name": "part",
+        "value": 3
+      },
+      {
+        "name": "processes",
+        "value": 3
+      },
+      {
+        "name": "diaspora",
         "value": 3
       },
       {
@@ -1471,15 +1547,27 @@
         "value": 2
       },
       {
-        "name": "narrativ",
-        "value": 2
-      },
-      {
         "name": "ausdruck",
         "value": 2
       },
       {
         "name": "aktualisiert",
+        "value": 2
+      },
+      {
+        "name": "over",
+        "value": 2
+      },
+      {
+        "name": "which",
+        "value": 2
+      },
+      {
+        "name": "been",
+        "value": 2
+      },
+      {
+        "name": "they",
         "value": 2
       },
       {
@@ -1519,6 +1607,10 @@
         "value": 2
       },
       {
+        "name": "interpretation",
+        "value": 2
+      },
+      {
         "name": "geschichtsschreibung",
         "value": 2
       },
@@ -1533,101 +1625,25 @@
       {
         "name": "bestimmt",
         "value": 2
-      },
-      {
-        "name": "studierend",
-        "value": 2
-      },
-      {
-        "name": "fachbibliographie",
-        "value": 2
-      },
-      {
-        "name": "sache",
-        "value": 2
-      },
-      {
-        "name": "sogenannter",
-        "value": 2
-      },
-      {
-        "name": "recherche",
-        "value": 2
-      },
-      {
-        "name": "publizieren",
-        "value": 2
-      },
-      {
-        "name": "genannt",
-        "value": 2
-      },
-      {
-        "name": "produkt",
-        "value": 2
-      },
-      {
-        "name": "blogs",
-        "value": 2
-      },
-      {
-        "name": "kommunikationsnetzwerk",
-        "value": 2
-      },
-      {
-        "name": "thematisch",
-        "value": 2
-      },
-      {
-        "name": "websites",
-        "value": 2
-      },
-      {
-        "name": "thematic",
-        "value": 2
-      },
-      {
-        "name": "primär",
-        "value": 2
-      },
-      {
-        "name": "eigentlich",
-        "value": 2
-      },
-      {
-        "name": "zeitschrift",
-        "value": 2
-      },
-      {
-        "name": "beschäftigung",
-        "value": 2
-      },
-      {
-        "name": "vergangenheit",
-        "value": 2
-      },
-      {
-        "name": "spannung",
-        "value": 2
-      },
-      {
-        "name": "bewusst",
-        "value": 2
-      },
-      {
-        "name": "aktuell",
-        "value": 2
-      },
-      {
-        "name": "praktisch",
-        "value": 2
-      },
-      {
-        "name": "forschend",
-        "value": 2
       }
     ],
     "fr": [
+      {
+        "name": "discours",
+        "value": 15
+      },
+      {
+        "name": "culture",
+        "value": 14
+      },
+      {
+        "name": "analyse",
+        "value": 10
+      },
+      {
+        "name": "palenque",
+        "value": 10
+      },
       {
         "name": "africain",
         "value": 8
@@ -1637,19 +1653,27 @@
         "value": 8
       },
       {
-        "name": "discours",
-        "value": 8
-      },
-      {
         "name": "article",
         "value": 8
       },
       {
-        "name": "palenque",
+        "name": "afrique",
         "value": 7
       },
       {
-        "name": "culture",
+        "name": "contact",
+        "value": 7
+      },
+      {
+        "name": "african",
+        "value": 7
+      },
+      {
+        "name": "pratique",
+        "value": 7
+      },
+      {
+        "name": "moral",
         "value": 7
       },
       {
@@ -1661,7 +1685,15 @@
         "value": 6
       },
       {
-        "name": "analyse",
+        "name": "question",
+        "value": 6
+      },
+      {
+        "name": "bénin",
+        "value": 6
+      },
+      {
+        "name": "qualitatif",
         "value": 6
       },
       {
@@ -1669,7 +1701,19 @@
         "value": 6
       },
       {
-        "name": "afrique",
+        "name": "heritage",
+        "value": 6
+      },
+      {
+        "name": "contribution",
+        "value": 5
+      },
+      {
+        "name": "innovation",
+        "value": 5
+      },
+      {
+        "name": "french",
         "value": 5
       },
       {
@@ -1677,19 +1721,43 @@
         "value": 5
       },
       {
-        "name": "bénin",
+        "name": "approche",
         "value": 5
       },
       {
-        "name": "qualitatif",
+        "name": "dynamique",
         "value": 5
       },
       {
-        "name": "contribution",
-        "value": 4
+        "name": "culturel",
+        "value": 5
       },
       {
-        "name": "innovation",
+        "name": "étude",
+        "value": 5
+      },
+      {
+        "name": "projet",
+        "value": 5
+      },
+      {
+        "name": "construction",
+        "value": 5
+      },
+      {
+        "name": "politique",
+        "value": 5
+      },
+      {
+        "name": "trace",
+        "value": 5
+      },
+      {
+        "name": "pays",
+        "value": 5
+      },
+      {
+        "name": "variation",
         "value": 4
       },
       {
@@ -1697,7 +1765,7 @@
         "value": 4
       },
       {
-        "name": "contact",
+        "name": "processus",
         "value": 4
       },
       {
@@ -1705,15 +1773,15 @@
         "value": 4
       },
       {
+        "name": "language",
+        "value": 4
+      },
+      {
+        "name": "discursive",
+        "value": 4
+      },
+      {
         "name": "conflit",
-        "value": 4
-      },
-      {
-        "name": "dynamique",
-        "value": 4
-      },
-      {
-        "name": "culturel",
         "value": 4
       },
       {
@@ -1721,15 +1789,11 @@
         "value": 4
       },
       {
-        "name": "pratique",
+        "name": "transformation",
         "value": 4
       },
       {
-        "name": "projet",
-        "value": 4
-      },
-      {
-        "name": "construction",
+        "name": "perspective",
         "value": 4
       },
       {
@@ -1741,11 +1805,43 @@
         "value": 4
       },
       {
-        "name": "politique",
+        "name": "interview",
+        "value": 4
+      },
+      {
+        "name": "basilio",
         "value": 4
       },
       {
         "name": "héritage",
+        "value": 4
+      },
+      {
+        "name": "oral",
+        "value": 4
+      },
+      {
+        "name": "examine",
+        "value": 4
+      },
+      {
+        "name": "afrodescendant",
+        "value": 4
+      },
+      {
+        "name": "donnée",
+        "value": 4
+      },
+      {
+        "name": "both",
+        "value": 4
+      },
+      {
+        "name": "côte",
+        "value": 4
+      },
+      {
+        "name": "ivoire",
         "value": 4
       },
       {
@@ -1761,27 +1857,35 @@
         "value": 3
       },
       {
-        "name": "variation",
+        "name": "discussion",
         "value": 3
       },
       {
-        "name": "processus",
+        "name": "discursif",
         "value": 3
       },
       {
-        "name": "question",
+        "name": "west",
         "value": 3
       },
       {
-        "name": "approche",
+        "name": "africa",
         "value": 3
       },
       {
-        "name": "transformation",
+        "name": "linguistic",
         "value": 3
       },
       {
-        "name": "étude",
+        "name": "which",
+        "value": 3
+      },
+      {
+        "name": "particulier",
+        "value": 3
+      },
+      {
+        "name": "tension",
         "value": 3
       },
       {
@@ -1789,7 +1893,7 @@
         "value": 3
       },
       {
-        "name": "perspective",
+        "name": "stratégie",
         "value": 3
       },
       {
@@ -1813,11 +1917,11 @@
         "value": 3
       },
       {
-        "name": "interview",
+        "name": "rumeur",
         "value": 3
       },
       {
-        "name": "rumeur",
+        "name": "historique",
         "value": 3
       },
       {
@@ -1833,15 +1937,55 @@
         "value": 3
       },
       {
-        "name": "trace",
+        "name": "cartagena",
         "value": 3
       },
       {
-        "name": "moral",
+        "name": "position",
+        "value": 3
+      },
+      {
+        "name": "dimension",
+        "value": 3
+      },
+      {
+        "name": "diaspora",
+        "value": 3
+      },
+      {
+        "name": "fois",
+        "value": 3
+      },
+      {
+        "name": "historical",
+        "value": 3
+      },
+      {
+        "name": "cultural",
+        "value": 3
+      },
+      {
+        "name": "colombia",
+        "value": 3
+      },
+      {
+        "name": "tim",
+        "value": 3
+      },
+      {
+        "name": "they",
+        "value": 3
+      },
+      {
+        "name": "group",
         "value": 3
       },
       {
         "name": "how",
+        "value": 3
+      },
+      {
+        "name": "crise",
         "value": 3
       },
       {
@@ -1869,11 +2013,27 @@
         "value": 3
       },
       {
+        "name": "religieux",
+        "value": 3
+      },
+      {
         "name": "ouest",
         "value": 2
       },
       {
+        "name": "francophone",
+        "value": 2
+      },
+      {
         "name": "domaine",
+        "value": 2
+      },
+      {
+        "name": "recherche",
+        "value": 2
+      },
+      {
+        "name": "science",
         "value": 2
       },
       {
@@ -1889,6 +2049,18 @@
         "value": 2
       },
       {
+        "name": "colonisation",
+        "value": 2
+      },
+      {
+        "name": "appropriation",
+        "value": 2
+      },
+      {
+        "name": "autonomisation",
+        "value": 2
+      },
+      {
         "name": "régional",
         "value": 2
       },
@@ -1901,7 +2073,7 @@
         "value": 2
       },
       {
-        "name": "discussion",
+        "name": "description",
         "value": 2
       },
       {
@@ -1909,15 +2081,47 @@
         "value": 2
       },
       {
+        "name": "technique",
+        "value": 2
+      },
+      {
+        "name": "expression",
+        "value": 2
+      },
+      {
+        "name": "communicatif",
+        "value": 2
+      },
+      {
+        "name": "organisation",
+        "value": 2
+      },
+      {
         "name": "diversité",
         "value": 2
       },
       {
-        "name": "social",
+        "name": "research",
         "value": 2
       },
       {
-        "name": "particulier",
+        "name": "can",
+        "value": 2
+      },
+      {
+        "name": "processe",
+        "value": 2
+      },
+      {
+        "name": "first",
+        "value": 2
+      },
+      {
+        "name": "acros",
+        "value": 2
+      },
+      {
+        "name": "social",
         "value": 2
       },
       {
@@ -1929,10 +2133,6 @@
         "value": 2
       },
       {
-        "name": "tension",
-        "value": 2
-      },
-      {
         "name": "groupe",
         "value": 2
       },
@@ -1941,7 +2141,11 @@
         "value": 2
       },
       {
-        "name": "stratégie",
+        "name": "traditionnel",
+        "value": 2
+      },
+      {
+        "name": "étatique",
         "value": 2
       },
       {
@@ -1969,7 +2173,15 @@
         "value": 2
       },
       {
+        "name": "positif",
+        "value": 2
+      },
+      {
         "name": "compensation",
+        "value": 2
+      },
+      {
+        "name": "communication",
         "value": 2
       },
       {
@@ -1977,7 +2189,19 @@
         "value": 2
       },
       {
+        "name": "camerounais",
+        "value": 2
+      },
+      {
+        "name": "pandémie",
+        "value": 2
+      },
+      {
         "name": "épistémique",
+        "value": 2
+      },
+      {
+        "name": "officiel",
         "value": 2
       },
       {
@@ -1997,11 +2221,7 @@
         "value": 2
       },
       {
-        "name": "historique",
-        "value": 2
-      },
-      {
-        "name": "oral",
+        "name": "intangible",
         "value": 2
       },
       {
@@ -2009,7 +2229,11 @@
         "value": 2
       },
       {
-        "name": "cartagena",
+        "name": "albán",
+        "value": 2
+      },
+      {
+        "name": "achinte",
         "value": 2
       },
       {
@@ -2021,6 +2245,10 @@
         "value": 2
       },
       {
+        "name": "connexion",
+        "value": 2
+      },
+      {
         "name": "touristique",
         "value": 2
       },
@@ -2029,7 +2257,19 @@
         "value": 2
       },
       {
+        "name": "usage",
+        "value": 2
+      },
+      {
         "name": "concept",
+        "value": 2
+      },
+      {
+        "name": "mikula",
+        "value": 2
+      },
+      {
+        "name": "certeau",
         "value": 2
       },
       {
@@ -2037,27 +2277,51 @@
         "value": 2
       },
       {
-        "name": "afrodescendant",
+        "name": "image",
         "value": 2
       },
       {
-        "name": "position",
+        "name": "anderson",
         "value": 2
       },
       {
-        "name": "dimension",
+        "name": "africans",
         "value": 2
       },
       {
-        "name": "diaspora",
+        "name": "community",
         "value": 2
       },
       {
-        "name": "fois",
+        "name": "discourse",
         "value": 2
       },
       {
-        "name": "donnée",
+        "name": "space",
+        "value": 2
+      },
+      {
+        "name": "given",
+        "value": 2
+      },
+      {
+        "name": "situational",
+        "value": 2
+      },
+      {
+        "name": "regard",
+        "value": 2
+      },
+      {
+        "name": "practice",
+        "value": 2
+      },
+      {
+        "name": "light",
+        "value": 2
+      },
+      {
+        "name": "what",
         "value": 2
       },
       {
@@ -2073,19 +2337,7 @@
         "value": 2
       },
       {
-        "name": "côte",
-        "value": 2
-      },
-      {
-        "name": "ivoire",
-        "value": 2
-      },
-      {
         "name": "based",
-        "value": 2
-      },
-      {
-        "name": "discursive",
         "value": 2
       },
       {
@@ -2093,7 +2345,59 @@
         "value": 2
       },
       {
-        "name": "they",
+        "name": "phase",
+        "value": 2
+      },
+      {
+        "name": "centre",
+        "value": 2
+      },
+      {
+        "name": "format",
+        "value": 2
+      },
+      {
+        "name": "multiple",
+        "value": 2
+      },
+      {
+        "name": "apparition",
+        "value": 2
+      },
+      {
+        "name": "début",
+        "value": 2
+      },
+      {
+        "name": "cameroun",
+        "value": 2
+      },
+      {
+        "name": "médiatique",
+        "value": 2
+      },
+      {
+        "name": "imaginaire",
+        "value": 2
+      },
+      {
+        "name": "pandémique",
+        "value": 2
+      },
+      {
+        "name": "fort",
+        "value": 2
+      },
+      {
+        "name": "dernier",
+        "value": 2
+      },
+      {
+        "name": "action",
+        "value": 2
+      },
+      {
+        "name": "relationnel",
         "value": 2
       },
       {
@@ -2117,14 +2421,6 @@
         "value": 2
       },
       {
-        "name": "crise",
-        "value": 2
-      },
-      {
-        "name": "pays",
-        "value": 2
-      },
-      {
         "name": "sud",
         "value": 2
       },
@@ -2135,63 +2431,79 @@
     ],
     "pt": [
       {
-        "name": "história",
-        "value": 7
+        "name": "obra",
+        "value": 11
       },
       {
-        "name": "africano",
-        "value": 7
+        "name": "las",
+        "value": 10
       },
       {
-        "name": "memória",
+        "name": "con",
+        "value": 8
+      },
+      {
+        "name": "videoarte",
         "value": 6
       },
       {
-        "name": "artístico",
-        "value": 5
+        "name": "social",
+        "value": 6
       },
       {
-        "name": "obra",
-        "value": 5
-      },
-      {
-        "name": "possibilidade",
-        "value": 5
+        "name": "una",
+        "value": 6
       },
       {
         "name": "político",
         "value": 5
       },
       {
-        "name": "social",
-        "value": 4
-      },
-      {
         "name": "cultural",
+        "value": 5
+      },
+      {
+        "name": "café",
         "value": 4
       },
       {
-        "name": "continente",
+        "name": "mesa",
+        "value": 4
+      },
+      {
+        "name": "artístico",
+        "value": 4
+      },
+      {
+        "name": "possibilidade",
+        "value": 4
+      },
+      {
+        "name": "contexto",
         "value": 4
       },
       {
         "name": "artista",
-        "value": 3
+        "value": 4
       },
       {
-        "name": "coletivo",
-        "value": 3
+        "name": "áfrica",
+        "value": 4
       },
       {
-        "name": "comunidade",
-        "value": 3
+        "name": "conhecimento",
+        "value": 4
+      },
+      {
+        "name": "del",
+        "value": 4
       },
       {
         "name": "violência",
         "value": 3
       },
       {
-        "name": "videoarte",
+        "name": "colectivo",
         "value": 3
       },
       {
@@ -2199,11 +2511,23 @@
         "value": 3
       },
       {
-        "name": "acadêmico",
+        "name": "comunidade",
         "value": 3
       },
       {
-        "name": "áfrica",
+        "name": "djumbaiala",
+        "value": 3
+      },
+      {
+        "name": "objetivo",
+        "value": 3
+      },
+      {
+        "name": "diálogo",
+        "value": 3
+      },
+      {
+        "name": "acadêmico",
         "value": 3
       },
       {
@@ -2211,63 +2535,59 @@
         "value": 3
       },
       {
-        "name": "passado",
+        "name": "reflexão",
         "value": 3
       },
       {
-        "name": "cinematográfico",
+        "name": "história",
         "value": 3
       },
       {
-        "name": "imagem",
+        "name": "principal",
         "value": 3
       },
       {
-        "name": "representação",
+        "name": "processo",
         "value": 3
       },
       {
-        "name": "fotografia",
+        "name": "han",
         "value": 3
       },
       {
-        "name": "produção",
+        "name": "violencia",
         "value": 3
       },
       {
-        "name": "colômbia",
+        "name": "posibilidade",
+        "value": 3
+      },
+      {
+        "name": "identidade",
+        "value": 3
+      },
+      {
+        "name": "africano",
+        "value": 3
+      },
+      {
+        "name": "artigo",
+        "value": 3
+      },
+      {
+        "name": "pesquisa",
+        "value": 3
+      },
+      {
+        "name": "identitário",
+        "value": 3
+      },
+      {
+        "name": "causa",
         "value": 2
       },
       {
-        "name": "coreográfico",
-        "value": 2
-      },
-      {
-        "name": "musical",
-        "value": 2
-      },
-      {
-        "name": "movimento",
-        "value": 2
-      },
-      {
-        "name": "corpo",
-        "value": 2
-      },
-      {
-        "name": "pessoa",
-        "value": 2
-      },
-      {
-        "name": "produto",
-        "value": 2
-      },
-      {
-        "name": "cocriação",
-        "value": 2
-      },
-      {
-        "name": "conhecimento",
+        "name": "trauma",
         "value": 2
       },
       {
@@ -2279,11 +2599,51 @@
         "value": 2
       },
       {
-        "name": "café",
+        "name": "bailarina",
         "value": 2
       },
       {
-        "name": "mesa",
+        "name": "coreógrafa",
+        "value": 2
+      },
+      {
+        "name": "colombiano",
+        "value": 2
+      },
+      {
+        "name": "carolina",
+        "value": 2
+      },
+      {
+        "name": "beleño",
+        "value": 2
+      },
+      {
+        "name": "garcia",
+        "value": 2
+      },
+      {
+        "name": "músico",
+        "value": 2
+      },
+      {
+        "name": "compositor",
+        "value": 2
+      },
+      {
+        "name": "matchume",
+        "value": 2
+      },
+      {
+        "name": "zango",
+        "value": 2
+      },
+      {
+        "name": "organizador",
+        "value": 2
+      },
+      {
+        "name": "debate",
         "value": 2
       },
       {
@@ -2295,11 +2655,39 @@
         "value": 2
       },
       {
-        "name": "contexto",
+        "name": "papel",
         "value": 2
       },
       {
-        "name": "djumbaiala",
+        "name": "decisivo",
+        "value": 2
+      },
+      {
+        "name": "arte",
+        "value": 2
+      },
+      {
+        "name": "humano",
+        "value": 2
+      },
+      {
+        "name": "somático",
+        "value": 2
+      },
+      {
+        "name": "transdisciplinar",
+        "value": 2
+      },
+      {
+        "name": "américa",
+        "value": 2
+      },
+      {
+        "name": "latina",
+        "value": 2
+      },
+      {
+        "name": "memória",
         "value": 2
       },
       {
@@ -2307,11 +2695,47 @@
         "value": 2
       },
       {
-        "name": "reflexão",
+        "name": "poema",
         "value": 2
       },
       {
-        "name": "discussão",
+        "name": "qué",
+        "value": 2
+      },
+      {
+        "name": "bueno",
+        "value": 2
+      },
+      {
+        "name": "musical",
+        "value": 2
+      },
+      {
+        "name": "coreográfico",
+        "value": 2
+      },
+      {
+        "name": "vídeo",
+        "value": 2
+      },
+      {
+        "name": "ético",
+        "value": 2
+      },
+      {
+        "name": "estético",
+        "value": 2
+      },
+      {
+        "name": "fantasmas",
+        "value": 2
+      },
+      {
+        "name": "passado",
+        "value": 2
+      },
+      {
+        "name": "conversa",
         "value": 2
       },
       {
@@ -2319,7 +2743,71 @@
         "value": 2
       },
       {
-        "name": "processo",
+        "name": "mar",
+        "value": 2
+      },
+      {
+        "name": "fronteira",
+        "value": 2
+      },
+      {
+        "name": "sentido",
+        "value": 2
+      },
+      {
+        "name": "trabalho",
+        "value": 2
+      },
+      {
+        "name": "líder",
+        "value": 2
+      },
+      {
+        "name": "pandemia",
+        "value": 2
+      },
+      {
+        "name": "inspiradoro",
+        "value": 2
+      },
+      {
+        "name": "memorias",
+        "value": 2
+      },
+      {
+        "name": "generación",
+        "value": 2
+      },
+      {
+        "name": "olor",
+        "value": 2
+      },
+      {
+        "name": "situación",
+        "value": 2
+      },
+      {
+        "name": "académico",
+        "value": 2
+      },
+      {
+        "name": "hijo",
+        "value": 2
+      },
+      {
+        "name": "pero",
+        "value": 2
+      },
+      {
+        "name": "sociales",
+        "value": 2
+      },
+      {
+        "name": "comienzo",
+        "value": 2
+      },
+      {
+        "name": "cinema",
         "value": 2
       },
       {
@@ -2327,23 +2815,47 @@
         "value": 2
       },
       {
-        "name": "identidade",
+        "name": "continente",
         "value": 2
       },
       {
-        "name": "política",
+        "name": "cinematográfico",
         "value": 2
       },
       {
-        "name": "artigo",
+        "name": "ousmane",
         "value": 2
       },
       {
-        "name": "holocausto",
+        "name": "sembène",
         "value": 2
       },
       {
-        "name": "objeto",
+        "name": "africa",
+        "value": 2
+      },
+      {
+        "name": "african",
+        "value": 2
+      },
+      {
+        "name": "identity",
+        "value": 2
+      },
+      {
+        "name": "political",
+        "value": 2
+      },
+      {
+        "name": "continent",
+        "value": 2
+      },
+      {
+        "name": "cinematographic",
+        "value": 2
+      },
+      {
+        "name": "santos",
         "value": 2
       }
     ]
