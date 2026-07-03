@@ -134,6 +134,19 @@ Compare combobox (Arrow/Enter/Escape already existed); `aria-live`/`aria-busy` o
 Explorer swap; a `<noscript>` fallback in the shared dashboard partial; a print stylesheet;
 the z-index scale documented; README sections for Network Explorer and Compare Genres.
 
+### Shipped in v2.20.1
+
+- **Peer-reviewed stat card fix** — the sync stores `bibo:status` as a *link* to a
+  "Peer reviewed" / "Not peer reviewed" authority item, not a literal, so the v2.20.0
+  literal count was silently 0 and `buildStatCards` dropped the card. Now counted through
+  the links map via the new `Aggregators::countItemsLinkedTo()` (exact-title,
+  case-insensitive, once per item). Caught by checking the deployed `publications.json`
+  against the intended card list.
+- **Registry contract check, reverse direction** — `check-registry-contracts.mjs` now also
+  verifies every `data-embed-slug` / partial `'slug'` a template stamps against
+  `EmbedController::BLOCKS`, so a renamed or removed embed block can't leave a template
+  building 404 embed URLs (the forward direction, BLOCKS → template, already existed).
+
 ### Queued — new visualizations (data verified present)
 
 | Priority | Visualization | Data / approach |
@@ -151,7 +164,6 @@ the z-index scale documented; README sections for Network Explorer and Compare G
 
 ### Queued — process & tooling
 
-- Extend `scripts/check-registry-contracts.mjs` to verify `data-embed-slug` values ↔ `EmbedController::BLOCKS` keys.
 - `ns.loadJSON()` fetch wrapper (shared error UI, optional retry) — adopt opportunistically when a controller is next touched.
 - Consolidate the responsive breakpoints (420/600/680/720px) onto the DRE theme's scale — needs a theme-side audit first.
 - Rename the repo to DRE-Visualizations ([#2](https://github.com/AM-Digital-Research-Environment/ResourceVisualizations/issues/2)); `module.ini` already points at the new name.

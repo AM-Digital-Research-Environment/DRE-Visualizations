@@ -6,7 +6,7 @@
  * keys, registry keys and embed slugs still need to move together. This script
  * catches drift without requiring Omeka or a browser.
  */
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import vm from 'node:vm';
 
@@ -137,9 +137,9 @@ function parseEmbedBlocks() {
   return entries;
 }
 
-function checkEmbeds(rv) {
+function checkEmbeds(rv, entries) {
   const layouts = rv.LAYOUTS || {};
-  for (const entry of parseEmbedBlocks()) {
+  for (const entry of entries) {
     const templatePath = join(ROOT, 'view/common/block-layout', `${entry.template}.phtml`);
     if (!entry.template || !existsSync(templatePath)) {
       fail(`Embed block ${entry.slug} references missing template: ${entry.template}`);
@@ -160,10 +160,33 @@ function checkEmbeds(rv) {
   }
 }
 
+// Reverse direction of checkEmbeds: every slug a template stamps (directly as
+// data-embed-slug, or via the shared partial's 'slug' param) must be an
+// EmbedController BLOCKS key — otherwise the on-page copy-embed button builds
+// a URL that 404s. The partial's own dynamic `<?= $slug ?>` stamp doesn't
+// match the literal patterns, so it is naturally skipped.
+function checkStampedSlugs(entries) {
+  const known = new Set(entries.map((e) => e.slug));
+  const viewDir = join(ROOT, 'view');
+  for (const dirent of readdirSync(viewDir, { recursive: true, withFileTypes: true })) {
+    if (!dirent.isFile() || !dirent.name.endsWith('.phtml')) continue;
+    const path = join(dirent.parentPath, dirent.name);
+    const source = read(path);
+    for (const m of source.matchAll(/data-embed-slug="([a-z][a-z-]*)"|'slug'\s*=>\s*'([a-z-]+)'/g)) {
+      const slug = m[1] || m[2];
+      if (!known.has(slug)) {
+        fail(`${rel(path)} stamps embed slug with no EmbedController BLOCKS entry: ${slug}`);
+      }
+    }
+  }
+}
+
 checkDashboardAssets();
 const rv = loadRegistries();
 checkLayouts(rv);
-checkEmbeds(rv);
+const embedBlocks = parseEmbedBlocks();
+checkEmbeds(rv, embedBlocks);
+checkStampedSlugs(embedBlocks);
 
 if (failures.length) {
   console.error(`Registry contracts: ${failures.length} finding(s)\n`);

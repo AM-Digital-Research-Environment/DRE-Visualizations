@@ -1266,17 +1266,14 @@ final class Runner
         }
         // Bibliographic breadth cards: distinct venues (journals & book series,
         // dcterms:isPartOf) and publishers (dcterms:publisher) are literal EP3
-        // fields; places of publication counts what the map above renders; the
-        // peer-review split comes from bibo:status (ERef), matched exactly so
-        // "Not peer reviewed" doesn't count as a substring hit.
+        // fields; places of publication counts what the map above renders. The
+        // peer-review flag is NOT a literal — the sync links bibo:status to a
+        // "Peer reviewed" / "Not peer reviewed" authority item — so it is
+        // counted through the links map, on the exact title (no substring hit
+        // for "Not peer reviewed").
         $venueCount = Aggregators::countDistinctLiterals($pubs, $this->literals, 'dcterms:isPartOf');
         $publisherCount = Aggregators::countDistinctLiterals($pubs, $this->literals, 'dcterms:publisher');
-        $peerReviewed = 0;
-        foreach ($this->loadTextValues($pubs, 'bibo:status') as $status) {
-            if (strcasecmp(trim($status), 'Peer reviewed') === 0) {
-                $peerReviewed++;
-            }
-        }
+        $peerReviewed = Aggregators::countItemsLinkedTo($pubs, $this->links, $this->items, 'bibo:status', 'Peer reviewed');
         // EPub deposits carry their open-access PDF as attached media (ERef
         // records are metadata-only), so "has media" = full text available.
         $fullTexts = $this->countItemsWithMedia($pubs);
@@ -1661,8 +1658,8 @@ final class Runner
     /**
      * Literal values of one property across the given items (e.g. bibo:content,
      * dcterms:abstract), as a list of strings. Used as the word-cloud fallback
-     * corpus when the lemmatised input file is absent, and for one-off scoped
-     * fields like bibo:status.
+     * corpus when the lemmatised input file is absent. (Linked values live in
+     * the links map, not here — see countItemsLinkedTo for e.g. bibo:status.)
      *
      * @param list<int> $ids
      * @return list<string>

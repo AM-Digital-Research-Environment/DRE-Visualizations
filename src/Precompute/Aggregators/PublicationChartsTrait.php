@@ -4,7 +4,8 @@ declare(strict_types=1);
 namespace DreVisualizations\Precompute\Aggregators;
 
 /**
- * Publication-specific aggregations: top literal venues and the
+ * Publication-specific aggregations: top venues/funders (literal and linked),
+ * stat-card counts (distinct literals, linked-status flags) and the
  * top-authors union of linked persons and literal names.
  *
  * Composed into {@see \DreVisualizations\Precompute\Aggregators}; its methods
@@ -88,6 +89,28 @@ trait PublicationChartsTrait
             }
         }
         return count($seen);
+    }
+
+    /**
+     * How many items carry a link on $term whose target's title equals $title
+     * (trimmed, case-insensitive) — e.g. publications whose bibo:status links
+     * to the "Peer reviewed" authority record. Each item counts once. Feeds
+     * stat cards.
+     */
+    public static function countItemsLinkedTo(array $itemIds, array $links, array $items, string $term, string $title): int
+    {
+        $n = 0;
+        foreach ($itemIds as $iid) {
+            foreach ($links[$iid] ?? [] as [$t, , $vrid]) {
+                if ($t === $term
+                    && strcasecmp(trim((string) ($items[$vrid]['title'] ?? '')), $title) === 0
+                ) {
+                    $n++;
+                    break;
+                }
+            }
+        }
+        return $n;
     }
 
     /**

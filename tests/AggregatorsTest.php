@@ -294,6 +294,18 @@ $distinctLits = [
 check(A::countDistinctLiterals([1, 2, 3], $distinctLits, 'dcterms:publisher') === 2, 'countDistinctLiterals trims + dedupes publishers');
 check(A::countDistinctLiterals([1, 2, 3], $distinctLits, 'marcrel:pup') === 0, 'countDistinctLiterals 0 when term absent');
 
+// --- countItemsLinkedTo (peer-review flag: bibo:status links to an authority item) ---
+$statusItems = [800 => ['title' => ' Peer reviewed '], 801 => ['title' => 'Not peer reviewed']];
+$statusLinks = [
+    1 => [['bibo:status', 'S', 800]],
+    2 => [['bibo:status', 'S', 801]],                          // exact title only — no substring hit
+    3 => [['bibo:status', 'S', 800], ['bibo:status', 'S', 800]], // repeat on one item counts once
+    4 => [['dcterms:publisher', 'P', 800]],                    // other term ignored
+];
+check(A::countItemsLinkedTo([1, 2, 3, 4], $statusLinks, $statusItems, 'bibo:status', 'Peer reviewed') === 2, 'countItemsLinkedTo counts items linked to the exact title (trimmed, once per item)');
+check(A::countItemsLinkedTo([1, 2], $statusLinks, $statusItems, 'bibo:status', 'PEER REVIEWED') === 1, 'countItemsLinkedTo matches case-insensitively');
+check(A::countItemsLinkedTo([2], $statusLinks, $statusItems, 'bibo:status', 'Peer reviewed') === 0, 'countItemsLinkedTo 0 when nothing matches');
+
 // --- buildLinkedPlacesMap (places of publication via marcrel:pup) ---
 $pupItems = [
     1 => ['title' => 'Border Markets'], 2 => ['title' => 'Imaginaries'], 3 => ['title' => 'Untitled Pub'],
