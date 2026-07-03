@@ -102,7 +102,7 @@ Both open with a grid of **summary stat cards** — Research Items, Projects (wi
 
 The three Collection Overview-only charts come from the precompute too: **Research Sections** (`Aggregators::buildSectionsBar`) counts projects per `frapo:ResearchGroup`; **Research Section × University** (`Aggregators::buildSectionUniversity`) routes each project's items to its funding university, read from the project's `frapo:isFundedBy` link (UBT / UNILAG / UJKZ / UFBA / Rhodes); and the **AMRCs & partners** map (`Aggregators::clusterPartners`) is **data-driven from Omeka**: every institution that `dcterms:isPartOf` one of the four *African Multiple Partners* category authorities (Africa Multiple Research Centres, Privileged partner, Cooperation partners, Global partner Centres of African Studies) and carries `geo:lat`/`geo:long` coordinates, rendered as colour-coded MapLibre markers with a toggleable legend — the categories, their labels, and the coordinates all come from the authority records and institution items, so curation lives in Omeka (no hard-coded list). A project with no research-section assignment is omitted from the section charts.
 
-The stat cards are a **reusable component**: any dashboard that emits a precomputed `stats` array (`Aggregators::buildStatCards()` on the PHP side, `ns.renderStatCards()` on the front end) gets the same icon grid — see *Recipe C* in [ROADMAP.md](ROADMAP.md). Like every dataset in this module, both blocks refresh on **"Regenerate now"** — run it once after installing this version so the snapshot picks up the stat cards, the new section/cluster charts, and the items-by-country map.
+The stat cards are a **reusable component**: any dashboard that emits a precomputed `stats` array (`Aggregators::buildStatCards()` on the PHP side, `ns.renderStatCards()` on the front end) gets the same icon grid — see *Recipe C* in [CONTRIBUTING.md](CONTRIBUTING.md). Like every dataset in this module, both blocks refresh on **"Regenerate now"** — run it once after installing this version so the snapshot picks up the stat cards, the new section/cluster charts, and the items-by-country map.
 
 ### Project Explorer
 
@@ -375,13 +375,13 @@ DreVisualizations/
 │   │   ├── GeoChartsTrait.php          # choropleth, geo-flows, country index
 │   │   ├── HierarchyChartsTrait.php    # sunburst, treemap
 │   │   ├── EntityGraphTrait.php        # global multi-entity co-occurrence graph (MapLibre block)
-│   │   ├── PublicationChartsTrait.php  # top venues, top authors
+│   │   ├── PublicationChartsTrait.php  # venues/funders, top authors, publication stat-card counts
 │   │   └── OverviewChartsTrait.php     # radar, stat cards, sections/section×university, cluster map
 │   ├── KnowledgeGraphs.php             # Per-item knowledge-graph builder (IDF-ranked)
 │   ├── ForceLayout.php                 # Pure-PHP ForceAtlas2 — bakes entity-network positions
 │   ├── JsonArtifactWriter.php          # Consistent, temp-file-backed JSON artifact writes
 │   └── Runner.php                      # Entities, overviews, publications, knowledge graphs
-├── ROADMAP.md                          # Full visualization roadmap
+├── CONTRIBUTING.md                     # How to add a visualization (recipes + guardrails)
 └── README.md
 ```
 
@@ -499,14 +499,14 @@ Self-hosted from committed vendored bundles under `asset/vendor/`:
 
 ## Related project
 
-This module is the Omeka S half of a two-project initiative with the sibling **[amira dashboard](https://github.com/AM-Digital-Research-Environment/amira)** — a SvelteKit static site (ECharts 6 + MapLibre GL) that browses and visualizes the same **Africa Multiple Cluster of Excellence** research data. (amira was formerly the "WissKI dashboard"; some historical names in `ROADMAP.md` reflect that.)
+This module is the Omeka S half of a two-project initiative with the sibling **[amira dashboard](https://github.com/AM-Digital-Research-Environment/amira)** — a SvelteKit static site (ECharts 6 + MapLibre GL) that browses and visualizes the same **Africa Multiple Cluster of Excellence** research data. (amira was formerly the "WissKI dashboard"; some historical names in the codebase and commit history reflect that.)
 
 The two are complementary and were brought to **analytical parity** over the shared dataset — tracked in [AM-Digital-Research-Environment/amira#10](https://github.com/AM-Digital-Research-Environment/amira/issues/10):
 
 - **This module** renders a full per-entity dashboard (7–20 charts) inline on each Omeka resource page, plus cross-cutting site-page blocks — Collection Overview, Collection Dashboard, Compare, Project Explorer, What's New, Discursive Communities, Spatial Exploration, Publications, YouTube, Podcasts, and Photo Browsing.
 - **amira** provides the broad cross-archive overviews as a standalone site.
 
-A reader should find roughly the same analytical toolkit on either side. The "how to add a visualization" recipes and architecture guardrails distilled from that initiative live in [ROADMAP.md](ROADMAP.md).
+A reader should find roughly the same analytical toolkit on either side. The "how to add a visualization" recipes and architecture guardrails distilled from that initiative live in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
