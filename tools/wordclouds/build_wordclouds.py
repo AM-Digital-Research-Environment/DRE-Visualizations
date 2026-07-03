@@ -116,7 +116,15 @@ EXTRA_STOP = {
     "euh", "hein", "bah", "ben",                                          # FR
     "ähm", "äh", "hm", "mhm", "genau", "halt", "quasi", "sozusagen",      # DE
     "ja", "ne",
-    "né", "tá", "aí", "pra", "gente", "coisa", "cara",                    # PT
+    "né", "tá", "aí", "pra", "gente", "coisa", "cara", "hum",             # PT
+    # Function words that leak across buckets when langdetect assigns a
+    # mixed-language recording to one language (English into the PT/FR/DE
+    # buckets; German "was"; Spanish "una"/"pero" via PT↔ES confusion).
+    # Function words in their own language, so they carry no signal in any
+    # bucket. (This also stops FR "but" = goal — an acceptable generic loss.)
+    "was", "were", "there", "but", "are", "have", "has", "had", "they", "what",
+    "will", "would", "can", "could", "should", "been", "being", "does", "did",
+    "una", "uno", "pero", "esta", "este", "esto",
 }
 
 CUE_RE = re.compile(r"\[[^\]]*\]")                          # [music], [applause]
