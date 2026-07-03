@@ -1,6 +1,6 @@
 {
   "corpus": "youtube",
-  "generated_utc": "2026-07-03T09:57:06Z",
+  "generated_utc": "2026-07-03T10:00:34Z",
   "source": "https://data.africamultiple.uni-bayreuth.de",
   "models": {
     "en": "en_core_web_sm",
@@ -2085,10 +2085,6 @@
         "value": 16
       },
       {
-        "name": "they",
-        "value": 16
-      },
-      {
         "name": "paris",
         "value": 16
       },
@@ -2427,6 +2423,10 @@
       {
         "name": "diversität",
         "value": 11
+      },
+      {
+        "name": "amerika",
+        "value": 11
       }
     ],
     "pt": [
@@ -2439,20 +2439,8 @@
         "value": 31
       },
       {
-        "name": "was",
-        "value": 28
-      },
-      {
         "name": "pessoa",
         "value": 26
-      },
-      {
-        "name": "there",
-        "value": 22
-      },
-      {
-        "name": "una",
-        "value": 21
       },
       {
         "name": "mundo",
@@ -2461,14 +2449,6 @@
       {
         "name": "projeto",
         "value": 19
-      },
-      {
-        "name": "but",
-        "value": 19
-      },
-      {
-        "name": "hum",
-        "value": 18
       },
       {
         "name": "terra",
@@ -2484,10 +2464,6 @@
       },
       {
         "name": "colombia",
-        "value": 17
-      },
-      {
-        "name": "are",
         "value": 17
       },
       {
@@ -2507,15 +2483,7 @@
         "value": 15
       },
       {
-        "name": "will",
-        "value": 14
-      },
-      {
         "name": "not",
-        "value": 14
-      },
-      {
-        "name": "had",
         "value": 14
       },
       {
@@ -2536,10 +2504,6 @@
       },
       {
         "name": "áfrica",
-        "value": 13
-      },
-      {
-        "name": "what",
         "value": 13
       },
       {
@@ -2584,10 +2548,6 @@
       },
       {
         "name": "alambique",
-        "value": 11
-      },
-      {
-        "name": "have",
         "value": 11
       },
       {
@@ -2663,10 +2623,6 @@
         "value": 10
       },
       {
-        "name": "pero",
-        "value": 10
-      },
-      {
         "name": "espaço",
         "value": 10
       },
@@ -2733,10 +2689,6 @@
       {
         "name": "exposição",
         "value": 9
-      },
-      {
-        "name": "would",
-        "value": 8
       },
       {
         "name": "viagem",
@@ -2904,10 +2856,6 @@
       },
       {
         "name": "find",
-        "value": 6
-      },
-      {
-        "name": "did",
         "value": 6
       },
       {
@@ -3215,10 +3163,6 @@
         "value": 4
       },
       {
-        "name": "been",
-        "value": 4
-      },
-      {
         "name": "cre",
         "value": 4
       },
@@ -3228,6 +3172,62 @@
       },
       {
         "name": "journey",
+        "value": 4
+      },
+      {
+        "name": "documentary",
+        "value": 4
+      },
+      {
+        "name": "before",
+        "value": 4
+      },
+      {
+        "name": "still",
+        "value": 4
+      },
+      {
+        "name": "valerie",
+        "value": 4
+      },
+      {
+        "name": "used",
+        "value": 4
+      },
+      {
+        "name": "writing",
+        "value": 4
+      },
+      {
+        "name": "through",
+        "value": 4
+      },
+      {
+        "name": "ways",
+        "value": 4
+      },
+      {
+        "name": "dança",
+        "value": 4
+      },
+      {
+        "name": "oficina",
+        "value": 4
+      },
+      {
+        "name": "artista",
+        "value": 4
+      },
+      {
+        "name": "maneira",
+        "value": 4
+      },
+      {
+        "name": "favela",
+        "value": 4
+      },
+      {
+        "name": "atención",
         "value": 4
       }
     ]

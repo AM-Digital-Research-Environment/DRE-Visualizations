@@ -1,6 +1,6 @@
 {
   "corpus": "publications",
-  "generated_utc": "2026-07-03T09:56:19Z",
+  "generated_utc": "2026-07-03T09:59:47Z",
   "source": "https://data.africamultiple.uni-bayreuth.de",
   "models": {
     "en": "en_core_web_sm",
@@ -1307,10 +1307,6 @@
         "value": 3
       },
       {
-        "name": "has",
-        "value": 3
-      },
-      {
         "name": "digitalisierung",
         "value": 3
       },
@@ -1563,14 +1559,6 @@
         "value": 2
       },
       {
-        "name": "been",
-        "value": 2
-      },
-      {
-        "name": "they",
-        "value": 2
-      },
-      {
         "name": "konzeptionell",
         "value": 2
       },
@@ -1624,6 +1612,18 @@
       },
       {
         "name": "bestimmt",
+        "value": 2
+      },
+      {
+        "name": "studierend",
+        "value": 2
+      },
+      {
+        "name": "fachbibliographie",
+        "value": 2
+      },
+      {
+        "name": "sache",
         "value": 2
       }
     ],
@@ -1973,10 +1973,6 @@
         "value": 3
       },
       {
-        "name": "they",
-        "value": 3
-      },
-      {
         "name": "group",
         "value": 3
       },
@@ -2102,10 +2098,6 @@
       },
       {
         "name": "research",
-        "value": 2
-      },
-      {
-        "name": "can",
         "value": 2
       },
       {
@@ -2321,10 +2313,6 @@
         "value": 2
       },
       {
-        "name": "what",
-        "value": 2
-      },
-      {
         "name": "thi",
         "value": 2
       },
@@ -2338,10 +2326,6 @@
       },
       {
         "name": "based",
-        "value": 2
-      },
-      {
-        "name": "were",
         "value": 2
       },
       {
@@ -2427,6 +2411,22 @@
       {
         "name": "structurel",
         "value": 2
+      },
+      {
+        "name": "chapitre",
+        "value": 2
+      },
+      {
+        "name": "catégorisation",
+        "value": 2
+      },
+      {
+        "name": "religion",
+        "value": 2
+      },
+      {
+        "name": "terrain",
+        "value": 2
       }
     ],
     "pt": [
@@ -2448,10 +2448,6 @@
       },
       {
         "name": "social",
-        "value": 6
-      },
-      {
-        "name": "una",
         "value": 6
       },
       {
@@ -2792,10 +2788,6 @@
       },
       {
         "name": "hijo",
-        "value": 2
-      },
-      {
-        "name": "pero",
         "value": 2
       },
       {
