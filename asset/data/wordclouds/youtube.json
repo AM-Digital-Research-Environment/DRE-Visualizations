@@ -1,6 +1,6 @@
 {
   "corpus": "youtube",
-  "generated_utc": "2026-07-03T10:00:34Z",
+  "generated_utc": "2026-07-03T14:34:00Z",
   "source": "https://data.africamultiple.uni-bayreuth.de",
   "models": {
     "en": "en_core_web_sm",
@@ -843,10 +843,6 @@
         "value": 187
       },
       {
-        "name": "oui",
-        "value": 152
-      },
-      {
         "name": "fois",
         "value": 139
       },
@@ -1625,6 +1621,10 @@
       {
         "name": "violence",
         "value": 21
+      },
+      {
+        "name": "portugais",
+        "value": 20
       }
     ],
     "de": [

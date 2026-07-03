@@ -1,6 +1,6 @@
 {
   "corpus": "podcasts",
-  "generated_utc": "2026-07-03T09:59:36Z",
+  "generated_utc": "2026-07-03T14:33:01Z",
   "source": "https://data.africamultiple.uni-bayreuth.de",
   "models": {
     "en": "en_core_web_sm",
@@ -891,10 +891,6 @@
         "value": 16
       },
       {
-        "name": "oui",
-        "value": 15
-      },
-      {
         "name": "rapport",
         "value": 15
       },
@@ -1620,6 +1616,10 @@
       },
       {
         "name": "suite",
+        "value": 3
+      },
+      {
+        "name": "blessure",
         "value": 3
       }
     ]
