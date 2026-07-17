@@ -51,8 +51,9 @@ require_once __DIR__ . '/ForceLayout.php';
  * exactly as the JS orchestrator expects.
  *
  * The builders themselves live in focused traits under the Aggregators/
- * subdirectory (one concern each); this class composes them and owns the
- * shared constants they reference via `self::`. The public API is unchanged:
+ * subdirectory (one concern each); this class composes them. Installation-local
+ * rules are configured from the validated AMIRA profile before aggregation.
+ * The public API is unchanged:
  * every method is still reached as `Aggregators::buildX(...)`.
  */
 final class Aggregators
@@ -69,12 +70,41 @@ final class Aggregators
     use OverviewChartsTrait;
     use MediaChartsTrait;
 
-    /* ------------------------------------------------------------------ */
-    /*  Shared constants (referenced by the trait methods via self::)      */
-    /* ------------------------------------------------------------------ */
+    private static ?int $personTemplateId = null;
+    private static ?int $projectTemplateId = null;
+    /** @var array<string,string> */
+    private static array $universityLabels = [];
 
-    public const TEMPLATE_PERSONS = 4;
-    public const TEMPLATE_PROJECTS = 5;
+    /** Configure installation-local rules once per precompute/test process. */
+    public static function configureInstallation(
+        int $personTemplateId,
+        int $projectTemplateId,
+        array $universityLabels
+    ): void {
+        if ($personTemplateId < 1 || $projectTemplateId < 1) {
+            throw new \InvalidArgumentException('Aggregator template ids must be positive.');
+        }
+        self::$personTemplateId = $personTemplateId;
+        self::$projectTemplateId = $projectTemplateId;
+        self::$universityLabels = $universityLabels;
+    }
+
+    private static function personTemplateId(): int
+    {
+        return self::$personTemplateId
+            ?? throw new \LogicException('Aggregators installation rules are not configured.');
+    }
+
+    private static function projectTemplateId(): int
+    {
+        return self::$projectTemplateId
+            ?? throw new \LogicException('Aggregators installation rules are not configured.');
+    }
+
+    private static function universityLabel(string $title): string
+    {
+        return self::$universityLabels[$title] ?? $title;
+    }
 
     public const RADAR_AXES = [
         ['items', 'Items'],
@@ -85,21 +115,4 @@ final class Aggregators
         ['span', 'Year span'],
     ];
 
-    /** Resource template id for research projects (see Runner::TEMPLATE_PROJECTS). */
-    private const TEMPLATE_PROJECT = 5;
-
-    /**
-     * Funding organisation title → canonical university label, mirroring the
-     * amira dashboard's uniLabelMap. A project's home university is read from its
-     * `frapo:isFundedBy` link (corroborated by the `UBT_`/`ULG_`/… `dre:id`
-     * prefix). Unlisted funders fall through to their own title.
-     */
-    private const UNIVERSITY_LABELS = [
-        'University of Bayreuth' => 'University of Bayreuth',
-        'University of Lagos African Cluster Centre (LACC)' => 'University of Lagos',
-        'University Joseph Ki-Zerbo' => 'Université Joseph Ki-Zerbo',
-        'Universidade Federal da Bahia' => 'Federal University of Bahia',
-        'CEAO Centro de Estudos Afro-Orientais' => 'Federal University of Bahia',
-        'Rhodes University' => 'Rhodes University',
-    ];
 }

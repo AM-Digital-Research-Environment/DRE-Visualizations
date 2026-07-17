@@ -2,34 +2,28 @@
 /**
  * Item Set Dashboard resource page block.
  *
- * Fetches all items in the item set and renders aggregated visualizations.
+ * Hydrates the item set's precomputed dashboard asynchronously.
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\ItemSetRepresentation $resource
  */
 
-$itemSetId = $resource->id();
-$allItems = [];
-$page = 1;
-
-do {
-    $response = $this->api()->search('items', [
-        'item_set_id' => $itemSetId,
-        'per_page'    => 100,
-        'page'        => $page,
-    ]);
-    $items = $response->getContent();
-    $allItems = array_merge($allItems, $items);
-    $page++;
-} while (count($items) === 100);
-
-if (empty($allItems)) {
-    return;
-}
+$this->dashboardAssets();
+$site = $this->currentSite();
 ?>
 
 <div class="resource-vis-block dashboard-block">
-    <?= $this->partial('common/resource-page-block-layout/partials/dashboard-charts', [
-        'items' => $allItems,
-    ]) ?>
+    <div class="dashboard-async-container"
+         data-item-id="<?= (int) $resource->id() ?>"
+         data-dashboard-dir="item-set-dashboards"
+         data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"
+         data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $site->slug()) ?>">
+        <noscript>
+            <div class="rv-no-data"><?= $this->translate('These interactive visualisations require JavaScript.') ?></div>
+        </noscript>
+        <div class="rv-loading">
+            <div class="rv-spinner"></div>
+            <span><?= $this->translate('Loading dashboard…') ?></span>
+        </div>
+    </div>
 </div>

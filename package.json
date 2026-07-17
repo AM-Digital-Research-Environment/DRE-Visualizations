@@ -1,18 +1,22 @@
 {
-  "name": "dre-visualizations",
-  "version": "2.20.1",
+  "name": "resource-visualizations",
+  "version": "2.21.0",
   "private": true,
-  "description": "DRE Visualizations Omeka S module — ECharts/MapLibre dashboards & knowledge graphs. This package.json exists only to run the dependency-free design-token contract lint; the module ships plain CSS/JS with no build step.",
+  "description": "DRE Visualizations Omeka S module — ECharts/MapLibre dashboards and knowledge graphs with a dependency-free release bundle.",
   "scripts": {
+    "build": "node scripts/build-frontend-bundles.mjs",
+    "check:bundles": "node scripts/build-frontend-bundles.mjs --check",
     "lint:tokens": "node scripts/check-design-tokens.mjs",
     "check:js": "node scripts/check-js-syntax.mjs",
     "check:registry": "node scripts/check-registry-contracts.mjs",
-    "check": "npm run lint:tokens && npm run check:js && npm run check:registry"
+    "check:html": "node scripts/check-html-safety.mjs",
+    "check:release": "node scripts/check-release-metadata.mjs",
+    "check": "npm run check:bundles && npm run lint:tokens && npm run check:js && npm run check:registry && npm run check:html && npm run check:release"
   },
   "author": "Frédérick Madore",
   "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AM-Digital-Research-Environment/DRE-Visualizations.git"
+    "url": "git+https://github.com/AM-Digital-Research-Environment/ResourceVisualizations.git"
   }
 }

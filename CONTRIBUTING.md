@@ -37,7 +37,7 @@ whole dashboard object, which is how data-driven overlays work (see `geoFlows`).
 | 3 | `asset/js/dashboard-charts-x.js` | New IIFE builder registering `window.RV.charts.buildX = function (el, data, siteBase, allData) { … }`. |
 | 4 | `asset/js/dashboard-registry.js` | `CHART_MAP['x'] = c.buildX;` + `CHART_LABELS` + (optionally) `CHART_DESCRIPTIONS`. |
 | 5 | `asset/js/dashboard-layouts.js` | Add `'x'` to the chosen layouts' `order` (and `wide`/`tall`). |
-| 6 | `src/View/Helper/DashboardAssets.php` | Add `dashboard-charts-x.js` to `CHART_SCRIPTS` — the single source of truth for the builder chain, add it here and nowhere else. |
+| 6 | `src/View/Helper/DashboardAssets.php` | Add `dashboard-charts-x.js` to `CHART_SCRIPTS`, then run `npm run build`; CI rejects a stale generated bundle. |
 | 7 | `tests/AggregatorsTest.php` | Mock-data case for `buildX`. |
 | 8 | Admin → Regenerate now | Rebuild JSON in-Omeka (pure PHP). |
 

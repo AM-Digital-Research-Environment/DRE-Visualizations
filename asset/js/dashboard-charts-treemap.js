@@ -22,8 +22,10 @@
             tooltip: {
                 confine: true,
                 formatter: function (p) {
-                    var path = p.treePathInfo.map(function (n) { return n.name; }).filter(Boolean);
-                    return path.join(' \u203a ') + '<br/>' + p.value + ' items';
+                    var path = p.treePathInfo.map(function (n) {
+                        return echarts.format.encodeHTML(n.name || '');
+                    }).filter(Boolean);
+                    return path.join(' \u203a ') + '<br/>' + Number(p.value || 0) + ' items';
                 }
             },
             aria: { enabled: true },

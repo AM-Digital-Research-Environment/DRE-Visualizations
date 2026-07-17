@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace DreVisualizations\FeaturedCollections;
 
+use DreVisualizations\Precompute\AmiraProfile;
+
 /**
  * Featured-collections registry — the single source of truth for the curated
  * "collections" experience: the landing-page card grid (FeaturedCollections
@@ -11,8 +13,9 @@ namespace DreVisualizations\FeaturedCollections;
  * covers, sub-collection splits and journal-issue grouping never drift between
  * the three.
  *
- * Mirrors the amira dashboard's src/lib/utils/collectionsRegistry.ts. To feature
- * another collection, add an entry here — nothing else needs to change.
+ * Mirrors the amira dashboard's src/lib/utils/collectionsRegistry.ts. Content
+ * and installation-local ids live in config/amira-profile.json; this class
+ * provides normalised query helpers for views and generators.
  *
  * A few collections are special:
  *   - ILAM groups its 1,032 articles into journal issues (grouping = 'issue'):
@@ -42,77 +45,12 @@ final class Registry
      */
     public static function all(): array
     {
-        return array_map([self::class, 'normalize'], [
-            [
-                'slug' => 'international-library-of-african-music-ilam',
-                'itemSetId' => 27724,
-                'title' => 'International Library of African Music (ILAM)',
-                'description' => 'An external collection sourced from the International Library of African Music (ILAM), Africa’s foremost repository of music — ethnomusicological recordings, journals and photographic materials from across the continent.',
-                'partner' => 'Published in collaboration with Rhodes University',
-                // One host location → a map would be a single marker.
-                'views' => ['map' => false],
-                // Articles share a journal-issue cover; group them into issues
-                // (Vol. N No. M) with a table of contents, keyed off the DOI.
-                'grouping' => 'issue',
-                'dedupe' => true,
-            ],
-            [
-                'slug' => 'memorias-perifericas-capoeira-angola-salvador',
-                'itemSetId' => 6295,
-                'identifierPrefix' => 'APMESTRENO',
-                'title' => 'Memória Periféricas da Capoeira Angola de Salvador',
-                'description' => 'Peripheral Memories of Capoeira Angola in Salvador — the personal archive of Mestre Nô.',
-                'partner' => 'Part of the Museu Afro-Digital — Universidade Federal da Bahia',
-            ],
-            [
-                'slug' => 'trabalhadores-na-da-bahia',
-                'itemSetId' => 6295,
-                'identifierPrefix' => 'TRABNEGRBA',
-                'title' => 'Trabalhadores na/da Bahia',
-                'description' => 'Workers in/from Bahia — Black labour in the city and the Recôncavo.',
-                'partner' => 'Part of the Museu Afro-Digital — Universidade Federal da Bahia',
-            ],
-            [
-                'slug' => 'orixas-fundacao-gregorio-de-mattos',
-                'itemSetId' => 6295,
-                'identifierPrefix' => 'ORIXAFGM',
-                'title' => 'Orixás - Fundação Gregório de Mattos',
-                'description' => 'Orishas — from the Gregório de Mattos Foundation.',
-                'partner' => 'Part of the Museu Afro-Digital — Universidade Federal da Bahia',
-            ],
-            // DECCA and Jambo are record-label *producers* (marcrel:prn) of Audio
-            // recordings inside the "Beyond the Digital Return" collection (item
-            // set 6262), not item sets of their own — and the recordings carry no
-            // images. So they are featured as link-out cards: the card shows a
-            // count + a manual cover and links straight to the producer-filtered
-            // Omeka listing (externalUrl), with no in-module photo gallery.
-            // `producerId` is the Organisation item the recordings credit; the
-            // precompute counts the set's public items that link to it via
-            // marcrel:prn. Drop a cover image in and set `thumbnail` to replace the
-            // placeholder.
-            [
-                'slug' => 'decca',
-                'itemSetId' => 6262,
-                'producerId' => 1219,
-                'title' => 'DECCA',
-                'description' => 'A record label whose Nigerian Yoruba popular-music recordings — Waka, Apala, Highlife and more — were digitised from the Ghana Broadcasting Corporation Gramophone Library.',
-                'partner' => 'Part of “Beyond the Digital Return” · University of Bayreuth',
-                // marcrel:prn (property 568) = Production company → DECCA (org 1219).
-                'externalUrl' => '/item?property[0][property]=568&property[0][type]=res&property[0][text]=1219',
-                // 'thumbnail' => 'asset/featured/decca.jpg', // add a cover to replace the placeholder
-            ],
-            [
-                'slug' => 'jambo',
-                'itemSetId' => 6262,
-                'producerId' => 1222,
-                'title' => 'Jambo',
-                'description' => 'An East African record label whose Swahili and Ganda recordings — including The Kiko Kids — were digitised from the Ghana Broadcasting Corporation Gramophone Library.',
-                'partner' => 'Part of “Beyond the Digital Return” · University of Bayreuth',
-                // marcrel:prn (property 568) = Production company → Jambo (org 1222).
-                'externalUrl' => '/item?property[0][property]=568&property[0][type]=res&property[0][text]=1222',
-                // 'thumbnail' => 'asset/featured/jambo.jpg', // add a cover to replace the placeholder
-            ],
-        ]);
+        static $entries = null;
+        if ($entries === null) {
+            $profile = AmiraProfile::fromFile(dirname(__DIR__, 2) . '/config/amira-profile.json');
+            $entries = array_map([self::class, 'normalize'], $profile->featuredCollections());
+        }
+        return $entries;
     }
 
     /** A registry entry by slug, or null. */

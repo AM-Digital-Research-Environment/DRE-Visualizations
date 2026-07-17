@@ -416,7 +416,7 @@
                 style: ns.getBasemapStyle(),
                 center: [10, 5],
                 zoom: 1.4,
-                attributionControl: false,
+                attributionControl: ns.getMapAttributionOptions(),
                 cooperativeGestures: true,
                 dragRotate: false,
                 pitchWithRotate: false
@@ -646,14 +646,9 @@
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
         ns.basePath = basePath;
-        var url = basePath + '/modules/DreVisualizations/asset/data/item-dashboards/spatial-exploration.json';
-
         var libs = (typeof ns.ensureLibs === 'function') ? ns.ensureLibs({ maplibre: true }) : Promise.resolve();
         Promise.all([
-            fetch(url, { cache: 'no-cache' }).then(function (r) {
-                if (!r.ok) throw new Error('not found');
-                return r.json();
-            }),
+            ns.fetchDataJson('item-dashboards/spatial-exploration.json'),
             libs
         ]).then(function (res) {
             var data = decode(res[0]);

@@ -46,10 +46,9 @@
         });
     };
 
-    // Glyph endpoint for the symbol (label) layer — the same CartoCDN fonts the
-    // DRE basemaps use (ns.getBasemapStyle points at cartocdn), so labels render
-    // with no new third-party dependency.
-    var GLYPHS = 'https://tiles.basemaps.cartocdn.com/fonts/{fontstack}/{range}.pbf';
+    // Optional administrator-configured glyph endpoint. With none configured,
+    // the privacy-safe graph still renders its nodes/edges but omits map labels.
+    var GLYPHS = String((window.RV_MAP_CONFIG || {}).glyphs || '');
     var LABEL_FONT = ['Noto Sans Regular'];
 
     var SRC_NODES = 'eg-nodes';
@@ -343,7 +342,7 @@
             if (!map || !map.getLayer(L_EDGES)) return;
             map.setFilter(L_EDGES, edgeFilter());
             map.setFilter(L_NODES, nodeFilter());
-            map.setFilter(L_LABELS, labelFilter());
+            if (map.getLayer(L_LABELS)) map.setFilter(L_LABELS, labelFilter());
             map.setFilter(L_EDGES_HL, selectedIndex == null ? ['==', ['get', 's'], -1] : highlightEdgeFilter());
             applySelectionPaint();
         }
@@ -391,7 +390,7 @@
                     'circle-stroke-color': theme().surface
                 }
             });
-            if (!m.getLayer(L_LABELS)) m.addLayer({
+            if (GLYPHS && !m.getLayer(L_LABELS)) m.addLayer({
                 id: L_LABELS, type: 'symbol', source: SRC_NODES,
                 layout: {
                     'text-field': ['get', 'label'],
@@ -465,12 +464,13 @@
         /* ------------------------------------------------------------------ */
 
         function graphStyle() {
-            return {
+            var style = {
                 version: 8,
-                glyphs: GLYPHS,
                 sources: {},
                 layers: [{ id: 'bg', type: 'background', paint: { 'background-color': theme().surface } }]
             };
+            if (GLYPHS) style.glyphs = GLYPHS;
+            return style;
         }
 
         function createMap() {
@@ -479,7 +479,7 @@
                 style: graphStyle(),
                 center: [0, 0],
                 zoom: 1,
-                attributionControl: false,
+                attributionControl: ns.getMapAttributionOptions(),
                 renderWorldCopies: false,
                 dragRotate: false,
                 pitchWithRotate: false,
@@ -605,7 +605,7 @@
         var search = el('input', 'deg-search-input');
         search.type = 'search';
         search.placeholder = 'Search entities…';
-        search.setAttribute('aria-label', 'Search entities');
+        search.setAttribute('aria-label', ns.t('searchEntities', 'Search entities'));
         var results = el('div', 'deg-search-results'); results.hidden = true;
         searchWrap.appendChild(search); searchWrap.appendChild(results);
         toolbar.appendChild(searchWrap);
@@ -740,7 +740,8 @@
 
         // Reset view ------------------------------------------------------
         var resetBtn = el('button', 'rv-btn'); resetBtn.type = 'button';
-        resetBtn.title = 'Reset view'; resetBtn.setAttribute('aria-label', 'Reset view');
+        resetBtn.title = ns.t('resetView', 'Reset view');
+        resetBtn.setAttribute('aria-label', ns.t('resetView', 'Reset view'));
         resetBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 9 8 9"/></svg>';
         resetBtn.addEventListener('click', function () {
             selectIndex(null);
@@ -807,8 +808,10 @@
                 map.setPaintProperty(L_NODES, 'circle-stroke-color', theme().surface);
                 map.setPaintProperty(L_EDGES, 'line-color', theme().grid);
                 map.setPaintProperty(L_EDGES_HL, 'line-color', theme().accent);
-                map.setPaintProperty(L_LABELS, 'text-color', theme().text);
-                map.setPaintProperty(L_LABELS, 'text-halo-color', theme().surface);
+                if (map.getLayer(L_LABELS)) {
+                    map.setPaintProperty(L_LABELS, 'text-color', theme().text);
+                    map.setPaintProperty(L_LABELS, 'text-halo-color', theme().surface);
+                }
             }
             Array.prototype.forEach.call(chips.querySelectorAll('.deg-chip'), function (chip) {
                 if (chip._sw) chip._sw.style.background = typeColor(chip._i);
@@ -839,17 +842,12 @@
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
         ns.basePath = basePath;
-        var url = basePath + '/modules/DreVisualizations/asset/data/communities/entity-graph.json';
-
         // Load MapLibre on demand through the shared loader (dashboard-core.js) —
         // the same path the dashboards use — so a page with both a dashboard and
         // this graph loads MapLibre exactly once. Fetch the data in parallel.
         var libs = (typeof ns.ensureLibs === 'function') ? ns.ensureLibs({ maplibre: true }) : Promise.resolve();
         Promise.all([
-            fetch(url, { cache: 'no-cache' }).then(function (r) {
-                if (!r.ok) throw new Error('not found');
-                return r.json();
-            }),
+            ns.fetchDataJson('communities/entity-graph.json'),
             libs
         ]).then(function (res) {
             var data = decode(res[0]);

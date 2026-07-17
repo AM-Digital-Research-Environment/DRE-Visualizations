@@ -16,6 +16,10 @@ asset/data/knowledge-graphs/
 # regenerated in-Omeka by the same job. The Photo Browsing block falls back to
 # live API resolution until it has been generated.
 asset/data/photo-galleries/
+asset/data/item-set-dashboards/
+asset/data/generations/
+asset/data/current.json
+asset/data/.generate-site-*.lock
 
 # Per-item + collection dashboard JSON (~2,500 files, ~17 MB), the
 # {type}-index.json / beeswarm / what's-new artefacts, and the discursive-
@@ -25,3 +29,7 @@ asset/data/photo-galleries/
 # not generated and stays committed.
 asset/data/item-dashboards/
 asset/data/communities/
+
+# Additional install-specific outputs from the same precompute job.
+asset/data/network-explorer.json
+asset/data/featured-collections/

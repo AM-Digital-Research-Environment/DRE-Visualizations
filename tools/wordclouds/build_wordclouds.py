@@ -31,8 +31,9 @@ Output shape (per corpus)::
       "byLang": {"en": [{"name": "africa", "value": 120}, ...], "de": [...], ...}
     }
 
-Reusable: add an entry to CORPORA (item-set id + the text property) and it is
-picked up automatically. On the PHP side, read it via ``Runner::wordCloudInput``
+Reusable: add an entry to ``wordcloudCorpora`` in ``config/amira-profile.json``
+(item-set key + text property) and it is picked up automatically. On the PHP
+side, read it via ``Runner::wordCloudInput``
 (which returns {languages, byLang}); the front-end word-cloud builder renders the
 language toggle from `languages`.
 """
@@ -62,15 +63,45 @@ TOP_N = 200       # words kept per language
 MIN_COUNT = 2     # drop per-language hapax
 MIN_LEN = 3       # drop very short lemmas
 
-# repo-root/asset/data/wordclouds — this file is tools/wordclouds/build_wordclouds.py
-OUT_DIR = Path(__file__).resolve().parents[2] / "asset" / "data" / "wordclouds"
+# repo-root paths — this file is tools/wordclouds/build_wordclouds.py
+REPO_ROOT = Path(__file__).resolve().parents[2]
+OUT_DIR = REPO_ROOT / "asset" / "data" / "wordclouds"
+PROFILE_PATH = REPO_ROOT / "config" / "amira-profile.json"
 
-# Corpora to build: id -> Omeka item set + the property holding the text.
-CORPORA = [
-    {"id": "podcasts", "item_set": 39095, "field": "bibo:content"},      # transcripts
-    {"id": "publications", "item_set": 29918, "field": "bibo:abstract"},
-    {"id": "youtube", "item_set": 39192, "field": "bibo:content"},       # video captions
-]
+
+def load_corpora() -> list[dict]:
+    """Resolve corpus item-set keys through the validated repository profile."""
+    profile = json.loads(PROFILE_PATH.read_text(encoding="utf-8"))
+    item_sets = profile.get("itemSets")
+    corpora = profile.get("wordcloudCorpora")
+    if not isinstance(item_sets, dict) or not isinstance(corpora, list) or not corpora:
+        raise ValueError("AMIRA profile has no usable wordcloudCorpora configuration")
+
+    resolved: list[dict] = []
+    seen: set[str] = set()
+    for corpus in corpora:
+        if not isinstance(corpus, dict):
+            raise ValueError("wordcloudCorpora entries must be objects")
+        corpus_id = corpus.get("id")
+        item_set_key = corpus.get("itemSetKey")
+        field = corpus.get("field")
+        item_set = item_sets.get(item_set_key) if isinstance(item_set_key, str) else None
+        if (
+            not isinstance(corpus_id, str)
+            or not re.fullmatch(r"[a-z][a-z0-9-]*", corpus_id)
+            or corpus_id in seen
+            or not isinstance(item_set, int)
+            or item_set < 1
+            or not isinstance(field, str)
+            or not re.fullmatch(r"[a-z][a-z0-9]*:[A-Za-z][A-Za-z0-9]*", field)
+        ):
+            raise ValueError(f"Invalid word-cloud corpus configuration: {corpus!r}")
+        resolved.append({"id": corpus_id, "item_set": item_set, "field": field})
+        seen.add(corpus_id)
+    return resolved
+
+
+CORPORA = load_corpora()
 
 # Supported languages: code -> spaCy model (each downloaded in the CI workflow).
 MODELS = {
@@ -238,6 +269,7 @@ def main() -> int:
             lang_items[code] += 1
 
         present = sorted((c for c in SUPPORTED if counts[c]), key=lambda c: -lang_items[c])
+        output_path = OUT_DIR / f"{cid}.json"
         payload = {
             "corpus": cid,
             "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -247,7 +279,19 @@ def main() -> int:
             "items": {"total": len(items), "skipped": skipped, **{c: lang_items[c] for c in present}},
             "byLang": {c: top(counts[c]) for c in present},
         }
-        (OUT_DIR / f"{cid}.json").write_text(
+        # Preserve the previous timestamp when the semantic payload did not
+        # change. This keeps scheduled/manual regeneration idempotent and stops
+        # the workflow opening timestamp-only commits.
+        if output_path.is_file():
+            try:
+                previous = json.loads(output_path.read_text(encoding="utf-8"))
+                previous_semantic = {k: v for k, v in previous.items() if k != "generated_utc"}
+                current_semantic = {k: v for k, v in payload.items() if k != "generated_utc"}
+                if previous_semantic == current_semantic and previous.get("generated_utc"):
+                    payload["generated_utc"] = previous["generated_utc"]
+            except (OSError, ValueError, TypeError):
+                pass
+        output_path.write_text(
             json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
         )
         print(f"   wrote asset/data/wordclouds/{cid}.json: languages={present} "

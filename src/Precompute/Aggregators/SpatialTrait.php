@@ -73,7 +73,8 @@ trait SpatialTrait
 
         // Densest bubbles first (draw order + a sensible default sort for the
         // front-end's "top places" list).
-        usort($rows, static fn ($a, $b) => ($b['origin'] + $b['current']) <=> ($a['origin'] + $a['current']));
+        usort($rows, static fn ($a, $b) => (($b['origin'] + $b['current']) <=> ($a['origin'] + $a['current']))
+            ?: strnatcasecmp((string) $a['name'], (string) $b['name']));
 
         // Per-country aggregate: total references + bounding box of member points.
         $agg = [];
@@ -95,7 +96,8 @@ trait SpatialTrait
         foreach ($agg as $name => $a) {
             $countryList[] = ['name' => $name, 'count' => $a['count'], 'bounds' => [$a['w'], $a['s'], $a['e'], $a['n']]];
         }
-        usort($countryList, static fn ($a, $b) => $b['count'] <=> $a['count']);
+        usort($countryList, static fn ($a, $b) => ($b['count'] <=> $a['count'])
+            ?: strnatcasecmp((string) $a['name'], (string) $b['name']));
 
         $countryIdx = [];
         foreach ($countryList as $i => $c) {

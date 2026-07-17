@@ -106,8 +106,6 @@
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
         ns.basePath = basePath; // expose for builders that load module assets
-        var moduleBase = basePath + '/modules/DreVisualizations/asset/data/item-dashboards/';
-
         function readParam() {
             try { return new URLSearchParams(window.location.search).get('project'); }
             catch (e) { return null; }
@@ -122,10 +120,7 @@
 
         var selectedId = readParam();
 
-        fetch(moduleBase + 'projects-index.json').then(function (r) {
-            if (!r.ok) throw new Error('Project index not found');
-            return r.json();
-        }).then(function (projects) {
+        ns.fetchDataJson('item-dashboards/projects-index.json').then(function (projects) {
             container.innerHTML = '';
 
             var header = document.createElement('div');
@@ -155,40 +150,58 @@
             // every chart: polite live region + aria-busy while loading.
             content.setAttribute('aria-live', 'polite');
             container.appendChild(content);
+            var abstractController = null;
+            var dashboardController = null;
+            var abstractRequestId = 0;
+            var dashboardRequestId = 0;
 
             // Fetch the selected project's dcterms:abstract from the public REST
             // API and show it as a collapsible disclosure. Same-origin, optional,
             // and independent of the precomputed dashboard fetch below.
             function loadAbstract(id) {
+                if (abstractController) abstractController.abort();
+                abstractController = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                var requestId = ++abstractRequestId;
                 renderAbstract(abstractEl, '');
                 if (!id) return;
-                fetch(basePath + '/api/items/' + encodeURIComponent(id)).then(function (r) {
+                fetch(basePath + '/api/items/' + encodeURIComponent(id),
+                    abstractController ? { signal: abstractController.signal } : {}).then(function (r) {
                     return r.ok ? r.json() : null;
                 }).then(function (item) {
+                    if (requestId !== abstractRequestId) return;
                     var v = item && item['dcterms:abstract'] && item['dcterms:abstract'][0];
                     renderAbstract(abstractEl, v ? abstractHtml(v['@value']) : '');
-                }).catch(function () { /* abstract is optional */ });
+                }).catch(function (error) {
+                    if (error && error.name === 'AbortError') return;
+                    /* abstract is optional */
+                });
             }
 
             function load(id) {
+                if (dashboardController) dashboardController.abort();
+                dashboardController = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                var requestId = ++dashboardRequestId;
                 if (!id) return;
                 content.setAttribute('aria-busy', 'true');
                 content.innerHTML = '<div class="rv-loading"><div class="rv-spinner"></div>'
-                    + '<span>Loading…</span></div>';
-                fetch(moduleBase + id + '.json').then(function (r) {
-                    if (!r.ok) throw new Error('not found');
-                    return r.json();
-                }).then(function (data) {
+                    + '<span>' + ns.escapeHtml(ns.t('loading', 'Loading…')) + '</span></div>';
+                ns.fetchDataJson('item-dashboards/' + encodeURIComponent(id) + '.json',
+                    dashboardController ? { signal: dashboardController.signal } : {}).then(function (data) {
+                    if (requestId !== dashboardRequestId) return;
                     content.innerHTML = '';
                     content.setAttribute('aria-busy', 'false');
                     if (!data || !data.totalItems) {
-                        content.innerHTML = '<div class="rv-no-data">No data for this project.</div>';
+                        content.innerHTML = '<div class="rv-no-data">'
+                            + ns.escapeHtml(ns.t('noProjectData', 'No data for this project.')) + '</div>';
                         return;
                     }
                     ns.renderInto(content, data, siteBase);
-                }).catch(function () {
+                }).catch(function (error) {
+                    if (error && error.name === 'AbortError') return;
+                    if (requestId !== dashboardRequestId) return;
                     content.setAttribute('aria-busy', 'false');
-                    content.innerHTML = '<div class="rv-error">Could not load this project.</div>';
+                    content.innerHTML = '<div class="rv-error">'
+                        + ns.escapeHtml(ns.t('projectLoadError', 'Could not load this project.')) + '</div>';
                 });
             }
 

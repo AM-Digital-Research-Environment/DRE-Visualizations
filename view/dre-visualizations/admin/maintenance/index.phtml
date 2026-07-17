@@ -8,6 +8,7 @@
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \DreVisualizations\Form\MaintenanceForm $form
+ * @var array{id:int,title:string,slug:string}|null $scopeSite
  */
 
 $translate = $this->plugin('translate');
@@ -26,6 +27,18 @@ echo $this->pageTitle($translate('DRE Visualizations: maintenance'), 1);
 <div style="margin-top:1.5rem;max-width:640px;">
     <section style="border:1px solid #ddd;border-radius:6px;padding:1.5rem;background:#fff;">
         <h3 style="margin-top:0;"><?= $translate('Regenerate dashboard data') ?></h3>
+        <?php if ($scopeSite): ?>
+            <p>
+                <strong><?= $translate('Publication scope:') ?></strong>
+                <?= $this->escapeHtml($scopeSite['title']) ?>
+                <code>#<?= (int) $scopeSite['id'] ?></code>.
+                <?= $translate('Only public items assigned to this public site, including relationship targets and media, enter generated JSON.') ?>
+            </p>
+        <?php else: ?>
+            <div class="messages warning">
+                <?= $translate('No canonical public site is configured. Open this module’s configuration, select a public site, and save before regenerating data.') ?>
+            </div>
+        <?php endif; ?>
         <p>
             <?= $translate('Regenerates every precomputed artefact: per-entity dashboards (sections, projects, people, institutions, locations, subjects), category overviews, the collection overview, the Discursive Communities graph, and the per-country choropleth index.') ?>
         </p>
@@ -35,7 +48,7 @@ echo $this->pageTitle($translate('DRE Visualizations: maintenance'), 1);
         </p>
         <?= $this->form()->openTag($form) ?>
             <?= $this->formCollection($form) ?>
-            <button type="submit" class="button" style="margin-top:0.5rem;">
+            <button type="submit" class="button" style="margin-top:0.5rem;"<?= $scopeSite ? '' : ' disabled' ?>>
                 <?= $translate('Regenerate now') ?>
             </button>
         <?= $this->form()->closeTag() ?>

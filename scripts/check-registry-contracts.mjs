@@ -72,6 +72,26 @@ function checkDashboardAssets() {
     const path = join(ROOT, 'asset', script.replace(/^asset\//, ''));
     if (!existsSync(path)) fail(`DashboardAssets CHART_SCRIPTS missing file: ${script}`);
   }
+  const bundleMatch = /const CHART_BUNDLE = '([^']+)'/.exec(source);
+  if (!bundleMatch || !existsSync(join(ROOT, 'asset', bundleMatch[1]))) {
+    fail('DashboardAssets CHART_BUNDLE is missing its generated file');
+  }
+
+  const registrySource = read(join(ROOT, 'asset/js/dashboard-registry.js'));
+  const registeredBuilders = new Set(
+    [...registrySource.matchAll(/(?:ns\.charts|c)\.(build[A-Za-z0-9_]+)/g)].map((match) => match[1]),
+  );
+  for (const script of scripts) {
+    const path = join(ROOT, 'asset', script.replace(/^asset\//, ''));
+    if (!existsSync(path)) continue;
+    const builders = [...read(path).matchAll(/ns\.charts\.(build[A-Za-z0-9_]+)\s*=/g)]
+      .map((match) => match[1]);
+    for (const builder of builders) {
+      if (!registeredBuilders.has(builder)) {
+        fail(`DashboardAssets loads unused chart builder ${builder} from ${script}`);
+      }
+    }
+  }
 
   const controllerScripts = quotedStrings(extractBlock(source, 'CONTROLLERS'))
     .filter((value) => value.startsWith('js/'));

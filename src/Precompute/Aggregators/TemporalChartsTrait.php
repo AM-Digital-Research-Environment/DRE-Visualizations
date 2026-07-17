@@ -101,7 +101,7 @@ trait TemporalChartsTrait
         if (!$subjectYear) {
             return null;
         }
-        arsort($subjectTotals);
+        self::sortCounts($subjectTotals);
         $topSubjects = array_slice(array_keys($subjectTotals), 0, $topN);
         $yearSet = [];
         foreach ($topSubjects as $s) {
@@ -297,16 +297,18 @@ trait TemporalChartsTrait
                     $projCount[$pid] = ($projCount[$pid] ?? 0) + 1;
                 }
             }
-            usort($recent, static fn ($a, $b) => strcmp((string) $b['created'], (string) $a['created']));
+            usort($recent, static fn ($a, $b) => strcmp((string) $b['created'], (string) $a['created'])
+                ?: ((int) $a['id'] <=> (int) $b['id']));
+            $totalCount = count($recent);
             $recent = array_slice($recent, 0, $maxItems);
 
-            arsort($projCount);
+            self::sortCounts($projCount);
             $topProjects = [];
             foreach (array_slice($projCount, 0, $maxProjects, true) as $pid => $cnt) {
                 $topProjects[] = ['name' => $items[$pid]['title'] ?? ('Project ' . $pid), 'value' => $cnt, 'itemId' => $pid];
             }
 
-            $out[] = ['months' => (int) $months, 'count' => count($recent), 'items' => $recent, 'topProjects' => $topProjects];
+            $out[] = ['months' => (int) $months, 'count' => $totalCount, 'items' => $recent, 'topProjects' => $topProjects];
         }
 
         return ['reference' => $maxDay, 'windows' => $out];

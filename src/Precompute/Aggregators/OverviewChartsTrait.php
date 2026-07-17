@@ -143,7 +143,7 @@ trait OverviewChartsTrait
             }
             $projects = 0;
             foreach ($childrenOf[$sid] ?? [] as $pid) {
-                if (($items[$pid]['template_id'] ?? null) === self::TEMPLATE_PROJECT) {
+                if (($items[$pid]['template_id'] ?? null) === self::projectTemplateId()) {
                     $projects++;
                 }
             }
@@ -185,7 +185,7 @@ trait OverviewChartsTrait
                 continue;
             }
             foreach ($childrenOf[$sid] ?? [] as $pid) {
-                if (($items[$pid]['template_id'] ?? null) !== self::TEMPLATE_PROJECT) {
+                if (($items[$pid]['template_id'] ?? null) !== self::projectTemplateId()) {
                     continue;
                 }
                 $itemCount = count($childrenOf[$pid] ?? []);
@@ -255,7 +255,7 @@ trait OverviewChartsTrait
             if ($term === 'frapo:isFundedBy') {
                 $title = (string) ($items[$vrid]['title'] ?? '');
                 if ($title !== '') {
-                    return self::UNIVERSITY_LABELS[$title] ?? $title;
+                    return self::universityLabel($title);
                 }
             }
         }

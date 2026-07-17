@@ -2,3 +2,34 @@
 # byte-identical to upstream — no EOL conversion — and exclude from GitHub's
 # language statistics and diffs.
 asset/vendor/** -text -diff linguist-vendored
+
+# Runtime release archives are built with `git archive`. Keep development and
+# CI-only material out while retaining README/licence/compliance documents.
+/.agents export-ignore
+/.github export-ignore
+/reports export-ignore
+/scripts export-ignore
+/tests export-ignore
+/tools export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
+/CONTRIBUTING.md export-ignore
+/package.json export-ignore
+
+# Never ship installation-derived legacy JSON. Runtime generations are created
+# after installation and are already ignored by Git.
+/asset/data/item-dashboards/** export-ignore
+/asset/data/communities/** export-ignore
+/asset/data/knowledge-graphs/** export-ignore
+/asset/data/photo-galleries/** export-ignore
+/asset/data/featured-collections/** export-ignore
+/asset/data/item-set-dashboards/** export-ignore
+/asset/data/network-explorer.json export-ignore
+
+# Modular chart sources are retained in Git but omitted from the runtime zip;
+# Omeka loads the checked generated bundle instead.
+/asset/js/dashboard-layouts.js export-ignore
+/asset/js/dashboard-charts-*.js export-ignore
+/asset/js/dashboard-collab-network.js export-ignore
+/asset/js/dashboard-stat-cards.js export-ignore
+/asset/js/dashboard-registry.js export-ignore

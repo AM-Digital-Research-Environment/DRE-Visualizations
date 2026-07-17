@@ -15,102 +15,8 @@ use DreVisualizations\FeaturedCollections\Registry;
  */
 final class Runner
 {
-    // Resource template IDs.
-    private const TEMPLATE_ORGANISATION = 2;
-    private const TEMPLATE_LOCATION = 3;
-    private const TEMPLATE_PERSONS = 4;
-    private const TEMPLATE_PROJECTS = 5;
-    private const TEMPLATE_AUTHORITY = 6;
-    private const TEMPLATE_SECTIONS = 7;
-    private const TEMPLATE_RESEARCH_ITEMS = 10;
-
-    private const TEMPLATE_RESOURCE_TYPE = [
-        2 => 'organisation', 3 => 'location', 4 => 'person',
-        5 => 'project', 7 => 'section', 10 => 'researchItem',
-    ];
-
-    // Item set IDs.
-    private const ITEM_SET_GENRE = 21;
-    private const ITEM_SET_LANGUAGE = 19;
-    private const ITEM_SET_RESOURCE_TYPE = 1;
-    private const ITEM_SET_TARGET_AUDIENCE = 3169;
-    private const ITEM_SET_PERSON = 18;
-    private const ITEM_SET_INSTITUTION = 110;
-    private const ITEM_SET_SUBJECT = 1852;
-    private const ITEM_SET_PROJECT = 20;
-    private const ITEM_SET_PUBLICATIONS = 29918;
-    private const ITEM_SET_PODCASTS = 39095;
-    private const ITEM_SET_YOUTUBE = 39192;
-    private const ITEM_SET_YOUTUBE_PLAYLISTS = 39193;
-
-    /**
-     * Synthetic resource-type label used to fold cluster publications into the
-     * Collection Overview's resource-type pie and year×type timeline (they carry
-     * no dcterms:type of their own). See generateCollectionOverview().
-     */
-    private const SYNTHETIC_TYPE_PUBLICATION = 'Publication';
-
-    /**
-     * Synthetic resource-type label folding the curated Podcasts item set (39095)
-     * into the Collection Overview as one "Podcast" category. See
-     * generateCollectionOverview() and podcastIds().
-     */
-    private const SYNTHETIC_TYPE_PODCAST = 'Podcast';
-
-    /**
-     * Synthetic resource-type label folding the synced YouTube videos item set
-     * (39192) into the Collection Overview as one "YouTube video" category. The
-     * videos carry a dcterms:language and dcterms:date but no dcterms:type of
-     * their own, so the synthetic label is what places them in the resource-type
-     * pie, the year×type timeline and the type×language heatmap. See
-     * generateCollectionOverview() and youtubeIds().
-     */
-    private const SYNTHETIC_TYPE_YOUTUBE = 'YouTube video';
-
-    // External partner collections — their items reach the section×university
-    // overview via item-set membership (they sit outside the section→project
-    // hierarchy: ILAM items have no dcterms:isPartOf, the BayGlo project names no
-    // section). Routed onto a partner-university column in generateCollectionOverview().
-    private const ITEM_SET_ILAM = 27724;     // International Library of African Music → Rhodes University
-    private const ITEM_SET_BAYGLO = 27601;   // Bayreuth Global/Postkolonial → University of Bayreuth
-
-    /**
-     * External partner collections, item-set id → routing. The amira dashboard
-     * models each as a virtual project (it has items but no projectsData /
-     * template-5 project entity), and its items sit outside the
-     * section→project→item hierarchy — so generateCollectionOverview() folds
-     * them onto a partner-university column of the section×university heatmap.
-     */
-    private const EXTERNAL_COLLECTIONS = [
-        self::ITEM_SET_ILAM => ['section' => 'External', 'university' => 'Rhodes University'],
-        self::ITEM_SET_BAYGLO => ['section' => 'External', 'university' => 'University of Bayreuth'],
-    ];
-
-    // Parent item IDs for category overviews.
-    private const OVERVIEW_GENRE = 22198;
-    private const OVERVIEW_LANGUAGE = 2039;
-    private const OVERVIEW_RESOURCE_TYPE = 22203;
-    private const OVERVIEW_TARGET_AUDIENCE = 22479;
-    private const OVERVIEW_PERSON = 22200;
-    private const OVERVIEW_INSTITUTION = 22202;
-    private const OVERVIEW_GROUP = 22536;
-    private const OVERVIEW_LCSH = 3167;
-    private const OVERVIEW_TAG = 22199;
-    private const OVERVIEW_PROJECT = 3346;
-
-    /**
-     * Cluster-partner category authority records (children of "African Multiple
-     * Partners" 39074) → the legend category key, in display order. Any
-     * Organisation item that `dcterms:isPartOf` one of these and carries
-     * coordinates becomes a data-driven marker on the Collection Overview cluster
-     * map (see Aggregators::clusterPartners), replacing the former hard-coded list.
-     */
-    private const CLUSTER_CATEGORY_AUTHORITIES = [
-        37685 => 'amrc',         // Africa Multiple Research Centres
-        39073 => 'privileged',   // Privileged partner
-        39072 => 'cooperation',  // Cooperation partners
-        39071 => 'global',       // Global partner Centres of African Studies
-    ];
+    // Installation-local templates, item sets, authority records, partner
+    // routes, and synthetic labels come exclusively from AmiraProfile.
 
     private array $items = [];
     private array $links = [];
@@ -165,12 +71,16 @@ final class Runner
 
     public function __construct(
         private readonly Connection $connection,
+        private readonly int $siteId,
+        private readonly AmiraProfile $profile,
         private readonly string $outputDir,
         private readonly string $communitiesDir,
         private readonly string $countriesGeojson,
         private readonly string $knowledgeGraphsDir,
         private readonly string $galleriesDir,
         private readonly string $featuredDir,
+        private readonly string $itemSetDashboardsDir,
+        private readonly string $wordcloudsDir,
         ?callable $logFn = null,
     ) {
         $this->logFn = $logFn;
@@ -193,7 +103,8 @@ final class Runner
     /** Write a Compare/Explorer index (`[{id,name,items}]`), sorted by name. */
     private function saveIndex(string $file, array $index): void
     {
-        usort($index, static fn ($a, $b) => strcmp((string) $a['name'], (string) $b['name']));
+        usort($index, static fn ($a, $b) => strcmp((string) $a['name'], (string) $b['name'])
+            ?: ((int) ($a['id'] ?? 0) <=> (int) ($b['id'] ?? 0)));
         $this->writeJson($this->outputDir . '/' . $file, $index);
         $this->log('  ' . $file . ': ' . count($index) . ' entries');
     }
@@ -208,19 +119,24 @@ final class Runner
     {
         $this->artifacts->ensureDirectory($this->outputDir);
 
-        $data = (new DataLoader($this->connection))->load(fn (string $m) => $this->log($m));
-        $this->items = $data['items'];
-        $this->links = $data['links'];
-        $this->reverseLinks = $data['reverseLinks'];
-        $this->childrenOf = $data['childrenOf'];
-        $this->itemYear = $data['itemYear'];
-        $this->itemDate = $data['itemDate'];
-        $this->temporal = $data['temporal'];
-        $this->geo = $data['geo'];
-        $this->itemSets = $data['itemSets'];
-        $this->templateLabels = $data['templateLabels'];
-        $this->literals = $data['literals'];
-        $this->primaryMedia = $data['primaryMedia'];
+        $data = (new DataLoader($this->connection, $this->siteId))->load(fn (string $m) => $this->log($m));
+        $this->items = $data->items;
+        $this->links = $data->links;
+        $this->reverseLinks = $data->reverseLinks;
+        $this->childrenOf = $data->childrenOf;
+        $this->itemYear = $data->itemYear;
+        $this->itemDate = $data->itemDate;
+        $this->temporal = $data->temporal;
+        $this->geo = $data->geo;
+        $this->itemSets = $data->itemSets;
+        $this->templateLabels = $data->templateLabels;
+        $this->literals = $data->literals;
+        $this->primaryMedia = $data->primaryMedia;
+        Aggregators::configureInstallation(
+            $this->profile->template('persons'),
+            $this->profile->template('projects'),
+            $this->profile->universityLabels()
+        );
         $this->loadFeaturedLiterals();
 
         $features = Aggregators::loadCountryFeatures($this->countriesGeojson);
@@ -233,9 +149,9 @@ final class Runner
         $this->generateInstitutions();
         $this->generateLocations();
         $this->generateSubjects();
-        $this->generateByItemSet(self::ITEM_SET_RESOURCE_TYPE, 'dcterms:type', 'Resource Types', 'authority', ['types']);
-        $this->generateByItemSet(self::ITEM_SET_LANGUAGE, 'dcterms:language', 'Languages', 'authority', ['languages'], 'languages-index.json');
-        $this->generateByItemSet(self::ITEM_SET_GENRE, 'dcterms:format', 'Genres', 'genre', [], 'genres-index.json');
+        $this->generateByItemSet($this->profile->itemSet('resourceType'), 'dcterms:type', 'Resource Types', 'authority', ['types']);
+        $this->generateByItemSet($this->profile->itemSet('language'), 'dcterms:language', 'Languages', 'authority', ['languages'], 'languages-index.json');
+        $this->generateByItemSet($this->profile->itemSet('genre'), 'dcterms:format', 'Genres', 'genre', [], 'genres-index.json');
         $this->generateCategoryOverviews();
         $this->generateCollectionOverview();
         $this->generateEntityGraph();
@@ -247,14 +163,27 @@ final class Runner
         $this->generateWhatsNew();
         $this->generatePhotoGalleries();
         $this->generateFeaturedCollections();
-        $this->generateKnowledgeGraphs();
+        $this->fileCount += (new ItemSetDashboardGenerator(
+            $this->artifacts,
+            $this->itemSetDashboardsDir,
+            fn (string $message) => $this->log($message)
+        ))->generate($data);
+        $this->fileCount += (new KnowledgeGraphGenerator(
+            $this->artifacts,
+            $this->knowledgeGraphsDir,
+            fn (string $message) => $this->log($message)
+        ))->generate($data);
 
         $this->log(sprintf(
             'Done. %d files written. Peak memory: %.0f MB.',
             $this->fileCount,
             memory_get_peak_usage(true) / 1048576
         ));
-        return ['files' => $this->fileCount];
+        return [
+            'files' => $this->fileCount,
+            'sourceCounts' => $data->sourceCounts(),
+            'warnings' => [],
+        ];
     }
 
     /* ------------------------------------------------------------------ */
@@ -316,12 +245,14 @@ final class Runner
 
         foreach ($sections as $sid => $sinfo) {
             $projectIds = $this->childrenOf[$sid] ?? [];
-            $itemIds = [];
+            $itemIdSet = [];
             $projectsBreakdown = [];
             $ganttData = [];
             foreach ($projectIds as $pid) {
                 $projItems = $this->childrenOf[$pid] ?? [];
-                $itemIds = array_merge($itemIds, $projItems);
+                foreach ($projItems as $itemId) {
+                    $itemIdSet[(int) $itemId] = true;
+                }
                 $ptitle = $this->items[$pid]['title'] ?? ('Project ' . $pid);
                 if ($projItems) {
                     $projectsBreakdown[] = ['name' => $ptitle, 'value' => count($projItems), 'itemId' => $pid];
@@ -331,14 +262,20 @@ final class Runner
                     $ganttData[] = ['name' => $ptitle, 'start' => $start, 'end' => $end, 'itemId' => $pid];
                 }
             }
-            if (!$itemIds) {
+            if (!$itemIdSet) {
                 continue;
             }
+            $itemIds = array_keys($itemIdSet);
+            sort($itemIds, SORT_NUMERIC);
             $dashboard = Aggregators::aggregateItems($itemIds, $this->items, $this->links, $this->itemYear, $this->geo);
-            usort($projectsBreakdown, static fn ($a, $b) => $b['value'] <=> $a['value']);
+            usort($projectsBreakdown, static fn ($a, $b) => ($b['value'] <=> $a['value'])
+                ?: strcmp((string) $a['name'], (string) $b['name'])
+                ?: ((int) $a['itemId'] <=> (int) $b['itemId']));
             $dashboard['projects'] = $projectsBreakdown;
             if ($ganttData) {
-                usort($ganttData, static fn ($a, $b) => strcmp((string) $a['start'], (string) $b['start']));
+                usort($ganttData, static fn ($a, $b) => strcmp((string) $a['start'], (string) $b['start'])
+                    ?: strcmp((string) $a['name'], (string) $b['name'])
+                    ?: ((int) $a['itemId'] <=> (int) $b['itemId']));
                 $dashboard['gantt'] = $ganttData;
             }
             $beeswarm = Aggregators::buildBeeswarm($sinfo['title'], $projectIds, $this->items, $this->childrenOf, $this->temporal);
@@ -347,7 +284,7 @@ final class Runner
                 $allBeeswarm = array_merge($allBeeswarm, $beeswarm);
             }
             $this->addStandardCharts($dashboard, $sid, $sinfo['title'], $itemIds);
-            $dashboard['resourceType'] = self::TEMPLATE_RESOURCE_TYPE[$this->items[$sid]['template_id']] ?? 'section';
+            $dashboard['resourceType'] = $this->profile->templateResourceType($this->items[$sid]['template_id'] ?? null) ?? 'section';
             $this->save($sid, $dashboard);
         }
 
@@ -358,7 +295,7 @@ final class Runner
 
     private function generateProjects(): void
     {
-        $projects = $this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === self::TEMPLATE_PROJECTS);
+        $projects = $this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === $this->profile->template('projects'));
         $this->log('=== Projects (' . count($projects) . ') ===');
 
         // Radar normalisation: per-project breadth maxima.
@@ -395,11 +332,12 @@ final class Runner
             if ($radar = Aggregators::buildRadar($radarProfiles[$pid] ?? null, $radarMax)) {
                 $dashboard['radar'] = $radar;
             }
-            $dashboard['resourceType'] = self::TEMPLATE_RESOURCE_TYPE[$this->items[$pid]['template_id']] ?? 'project';
+            $dashboard['resourceType'] = $this->profile->templateResourceType($this->items[$pid]['template_id'] ?? null) ?? 'project';
             $this->save($pid, $dashboard);
         }
 
-        usort($projectIndex, static fn ($a, $b) => strcmp((string) $a['name'], (string) $b['name']));
+        usort($projectIndex, static fn ($a, $b) => strcmp((string) $a['name'], (string) $b['name'])
+            ?: ((int) $a['id'] <=> (int) $b['id']));
         $this->writeJson($this->outputDir . '/projects-index.json', $projectIndex);
         $this->statCounts['projects'] = count($projectIndex);
     }
@@ -430,7 +368,7 @@ final class Runner
 
     private function generatePeople(): void
     {
-        $people = $this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === self::TEMPLATE_PERSONS);
+        $people = $this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === $this->profile->template('persons'));
         $this->log('=== People (' . count($people) . ') ===');
 
         $personTerms = array_merge(
@@ -467,14 +405,16 @@ final class Runner
             foreach ($itemIds as $iid) {
                 foreach ($this->links[$iid] ?? [] as [$term, $label, $vrid]) {
                     if (($term === 'dcterms:creator' || $term === 'dcterms:contributor' || $term === 'bibo:authorList' || $term === 'bibo:editorList' || str_starts_with($term, 'marcrel:')) && $vrid !== $pid) {
-                        if (($this->items[$vrid]['template_id'] ?? null) === self::TEMPLATE_PERSONS) {
+                        if (($this->items[$vrid]['template_id'] ?? null) === $this->profile->template('persons')) {
                             $coauthors[$vrid] ??= ['name' => $this->items[$vrid]['title'], 'value' => 0, 'itemId' => $vrid];
                             $coauthors[$vrid]['value']++;
                         }
                     }
                 }
             }
-            usort($coauthors, static fn ($a, $b) => $b['value'] <=> $a['value']);
+            usort($coauthors, static fn ($a, $b) => ($b['value'] <=> $a['value'])
+                ?: strcmp((string) $a['name'], (string) $b['name'])
+                ?: ((int) $a['itemId'] <=> (int) $b['itemId']));
             $dashboard['coAuthors'] = array_slice(array_values($coauthors), 0, 20);
             unset($dashboard['contributors']);
 
@@ -487,7 +427,7 @@ final class Runner
             if ($net = Aggregators::buildContributorNetwork($pid, $pinfo['title'], $itemIds, $this->items, $this->links, $this->childrenOf)) {
                 $dashboard['contributorNetwork'] = $net;
             }
-            $dashboard['resourceType'] = self::TEMPLATE_RESOURCE_TYPE[$this->items[$pid]['template_id']] ?? 'person';
+            $dashboard['resourceType'] = $this->profile->templateResourceType($this->items[$pid]['template_id'] ?? null) ?? 'person';
             $this->save($pid, $dashboard);
         }
 
@@ -540,7 +480,7 @@ final class Runner
             if ($radar = Aggregators::buildRadar($radarProfiles[$iid] ?? null, $radarMax)) {
                 $dashboard['radar'] = $radar;
             }
-            $dashboard['resourceType'] = self::TEMPLATE_RESOURCE_TYPE[$this->items[$iid]['template_id']] ?? 'organisation';
+            $dashboard['resourceType'] = $this->profile->templateResourceType($this->items[$iid]['template_id'] ?? null) ?? 'organisation';
             $this->save($iid, $dashboard);
         }
 
@@ -549,7 +489,7 @@ final class Runner
 
     private function generateLocations(): void
     {
-        $locs = $this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === self::TEMPLATE_LOCATION);
+        $locs = $this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === $this->profile->template('location'));
         $this->log('=== Locations (' . count($locs) . ') ===');
         $withItems = 0;
         foreach ($locs as $lid => $linfo) {
@@ -566,7 +506,7 @@ final class Runner
             if ($geoFlows = Aggregators::buildGeoFlows($itemIds, $this->links, $this->items, $this->geo)) {
                 $dashboard['geoFlows'] = $geoFlows;
             }
-            $dashboard['resourceType'] = self::TEMPLATE_RESOURCE_TYPE[$this->items[$lid]['template_id']] ?? 'location';
+            $dashboard['resourceType'] = $this->profile->templateResourceType($this->items[$lid]['template_id'] ?? null) ?? 'location';
             $this->save($lid, $dashboard);
         }
         $this->statCounts['locations'] = $withItems;
@@ -574,7 +514,7 @@ final class Runner
 
     private function generateSubjects(): void
     {
-        $subjects = $this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === self::TEMPLATE_AUTHORITY);
+        $subjects = $this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === $this->profile->template('authority'));
         $this->log('=== Subjects/Authority (' . count($subjects) . ') ===');
         $index = [];
         foreach ($subjects as $sid => $sinfo) {
@@ -593,7 +533,9 @@ final class Runner
                     }
                 }
             }
-            usort($cosubs, static fn ($a, $b) => $b['value'] <=> $a['value']);
+            usort($cosubs, static fn ($a, $b) => ($b['value'] <=> $a['value'])
+                ?: strcmp((string) $a['name'], (string) $b['name'])
+                ?: ((int) $a['itemId'] <=> (int) $b['itemId']));
             $dashboard['coSubjects'] = array_slice(array_values($cosubs), 0, 30);
             unset($dashboard['subjects']);
             $dashboard['resourceType'] = 'authority';
@@ -659,7 +601,9 @@ final class Runner
         }
 
         $dashboard = Aggregators::aggregateItems($allItems, $this->items, $this->links, $this->itemYear, $this->geo);
-        usort($memberCounts, static fn ($a, $b) => $b['value'] <=> $a['value']);
+        usort($memberCounts, static fn ($a, $b) => ($b['value'] <=> $a['value'])
+            ?: strcmp((string) $a['name'], (string) $b['name'])
+            ?: ((int) $a['itemId'] <=> (int) $b['itemId']));
         $dashboard[$distributionKey] = $memberCounts;
 
         if ($v = Aggregators::buildStackedTimeline($allItems, $this->links, $this->items, $this->itemYear)) {
@@ -703,26 +647,26 @@ final class Runner
 
         $isLcsh = function (int $sid): bool {
             foreach ($this->links[$sid] ?? [] as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:type' && $vrid === self::OVERVIEW_LCSH) {
+                if ($term === 'dcterms:type' && $vrid === $this->profile->overview('lcsh')) {
                     return true;
                 }
             }
             return false;
         };
 
-        $this->generateOverview(self::OVERVIEW_GENRE, 'Genre', $this->itemSets[self::ITEM_SET_GENRE] ?? [], ['dcterms:format'], 'genreOverview', 'genres');
-        $this->generateOverview(self::OVERVIEW_LANGUAGE, 'Language', $this->itemSets[self::ITEM_SET_LANGUAGE] ?? [], ['dcterms:language'], 'languageOverview', 'topLanguages');
-        $this->generateOverview(self::OVERVIEW_RESOURCE_TYPE, 'Resource Type', $this->itemSets[self::ITEM_SET_RESOURCE_TYPE] ?? [], ['dcterms:type'], 'resourceTypeOverview', 'topResourceTypes');
-        $this->generateOverview(self::OVERVIEW_TARGET_AUDIENCE, 'Target Audience', $this->itemSets[self::ITEM_SET_TARGET_AUDIENCE] ?? [], ['dcterms:audience'], 'targetAudienceOverview', 'topAudiences');
-        $this->generateOverview(self::OVERVIEW_PERSON, 'Person', $this->itemSets[self::ITEM_SET_PERSON] ?? [], $personTerms, 'personOverview', 'topPersons');
-        $this->generateOverview(self::OVERVIEW_INSTITUTION, 'Institution', $this->itemSets[self::ITEM_SET_INSTITUTION] ?? [], $instTerms, 'institutionOverview', 'topInstitutions', fn (int $iid) => ($this->items[$iid]['class_term'] ?? '') === 'foaf:Organization');
-        $this->generateOverview(self::OVERVIEW_GROUP, 'Group', $this->itemSets[self::ITEM_SET_INSTITUTION] ?? [], $instTerms, 'groupOverview', 'topGroups');
-        $this->generateOverview(self::OVERVIEW_LCSH, 'LCSH Subject', $this->itemSets[self::ITEM_SET_SUBJECT] ?? [], ['dcterms:subject'], 'lcshOverview', 'topSubjects', $isLcsh);
-        $this->generateOverview(self::OVERVIEW_TAG, 'Tag', $this->itemSets[self::ITEM_SET_SUBJECT] ?? [], ['dcterms:subject'], 'tagOverview', 'topTags', fn (int $sid) => !$isLcsh($sid));
+        $this->generateOverview($this->profile->overview('genre'), 'Genre', $this->itemSets[$this->profile->itemSet('genre')] ?? [], ['dcterms:format'], 'genreOverview', 'genres');
+        $this->generateOverview($this->profile->overview('language'), 'Language', $this->itemSets[$this->profile->itemSet('language')] ?? [], ['dcterms:language'], 'languageOverview', 'topLanguages');
+        $this->generateOverview($this->profile->overview('resourceType'), 'Resource Type', $this->itemSets[$this->profile->itemSet('resourceType')] ?? [], ['dcterms:type'], 'resourceTypeOverview', 'topResourceTypes');
+        $this->generateOverview($this->profile->overview('targetAudience'), 'Target Audience', $this->itemSets[$this->profile->itemSet('targetAudience')] ?? [], ['dcterms:audience'], 'targetAudienceOverview', 'topAudiences');
+        $this->generateOverview($this->profile->overview('person'), 'Person', $this->itemSets[$this->profile->itemSet('person')] ?? [], $personTerms, 'personOverview', 'topPersons');
+        $this->generateOverview($this->profile->overview('institution'), 'Institution', $this->itemSets[$this->profile->itemSet('institution')] ?? [], $instTerms, 'institutionOverview', 'topInstitutions', fn (int $iid) => ($this->items[$iid]['class_term'] ?? '') === 'foaf:Organization');
+        $this->generateOverview($this->profile->overview('group'), 'Group', $this->itemSets[$this->profile->itemSet('institution')] ?? [], $instTerms, 'groupOverview', 'topGroups', fn (int $iid) => ($this->items[$iid]['class_term'] ?? '') !== 'foaf:Organization');
+        $this->generateOverview($this->profile->overview('lcsh'), 'LCSH Subject', $this->itemSets[$this->profile->itemSet('subject')] ?? [], ['dcterms:subject'], 'lcshOverview', 'topSubjects', $isLcsh);
+        $this->generateOverview($this->profile->overview('tag'), 'Tag', $this->itemSets[$this->profile->itemSet('subject')] ?? [], ['dcterms:subject'], 'tagOverview', 'topTags', fn (int $sid) => !$isLcsh($sid));
 
-        $projMembers = $this->itemSets[self::ITEM_SET_PROJECT] ?? [];
+        $projMembers = $this->itemSets[$this->profile->itemSet('project')] ?? [];
         $projExtra = $this->buildProjectsTimelineCharts($projMembers);
-        $this->generateOverview(self::OVERVIEW_PROJECT, 'Research Project', $projMembers, ['dcterms:isPartOf'], 'projectOverview', 'topProjects', null, $projExtra);
+        $this->generateOverview($this->profile->overview('project'), 'Research Project', $projMembers, ['dcterms:isPartOf'], 'projectOverview', 'topProjects', null, $projExtra);
     }
 
     /** Gantt + section-grouped beeswarm for the Projects overview. */
@@ -739,7 +683,9 @@ final class Runner
             }
         }
         if ($gantt) {
-            usort($gantt, static fn ($a, $b) => strcmp((string) $a['start'], (string) $b['start']));
+            usort($gantt, static fn ($a, $b) => strcmp((string) $a['start'], (string) $b['start'])
+                ?: strcmp((string) $a['name'], (string) $b['name'])
+                ?: ((int) $a['itemId'] <=> (int) $b['itemId']));
             $extra['gantt'] = $gantt;
         }
 
@@ -794,7 +740,7 @@ final class Runner
 
     private function generateCollectionOverview(): void
     {
-        $researchItems = array_keys($this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === self::TEMPLATE_RESEARCH_ITEMS));
+        $researchItems = array_keys($this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === $this->profile->template('researchItems')));
         // "Items" in the Collection Overview regroups research items AND cluster
         // publications: the curated Publications item set (same corpus as the
         // Publications block — see publicationIds()) is folded into the same
@@ -824,13 +770,13 @@ final class Runner
         // types stay in the dedicated Publications block.
         $syntheticTypes = [];
         foreach ($publications as $pid) {
-            $syntheticTypes[$pid] = self::SYNTHETIC_TYPE_PUBLICATION;
+            $syntheticTypes[$pid] = $this->profile->syntheticType('publication');
         }
         foreach ($podcasts as $pid) {
-            $syntheticTypes[$pid] = self::SYNTHETIC_TYPE_PODCAST;
+            $syntheticTypes[$pid] = $this->profile->syntheticType('podcast');
         }
         foreach ($youtube as $pid) {
-            $syntheticTypes[$pid] = self::SYNTHETIC_TYPE_YOUTUBE;
+            $syntheticTypes[$pid] = $this->profile->syntheticType('youtube');
         }
 
         $dashboard = Aggregators::aggregateItems($overviewItems, $this->items, $this->links, $this->itemYear, $this->geo, $syntheticTypes);
@@ -883,7 +829,7 @@ final class Runner
         // (ILAM → Rhodes University, BayGlo → University of Bayreuth) under an
         // "External" row; their items sit outside the section→project hierarchy.
         $externalBuckets = [];
-        foreach (self::EXTERNAL_COLLECTIONS as $setId => $route) {
+        foreach ($this->profile->externalCollections() as $setId => $route) {
             $externalBuckets[] = [
                 'itemIds' => $this->itemSets[$setId] ?? [],
                 'section' => $route['section'],
@@ -893,7 +839,7 @@ final class Runner
         if ($v = Aggregators::buildSectionUniversity($sections, $this->childrenOf, $this->items, $this->links, $externalBuckets)) {
             $dashboard['sectionUniversity'] = $v;
         }
-        if ($cp = Aggregators::clusterPartners($this->items, $this->links, $this->geo, self::CLUSTER_CATEGORY_AUTHORITIES)) {
+        if ($cp = Aggregators::clusterPartners($this->items, $this->links, $this->geo, $this->profile->clusterCategoryAuthorities())) {
             $dashboard['clusterPartners'] = $cp;
         }
         // amira-style summary stat cards. Country count comes from the choropleth
@@ -932,17 +878,17 @@ final class Runner
         // cards (Research Items aside, always > 0) and clears null subtitles.
         return Aggregators::buildStatCards([
             ['key' => 'researchItems', 'label' => 'Research Items', 'value' => $researchItemCount],
-            ['key' => 'projects', 'label' => 'Research projects', 'value' => $setCount(self::ITEM_SET_PROJECT)],
-            ['key' => 'people', 'label' => 'People', 'value' => $setCount(self::ITEM_SET_PERSON)],
-            ['key' => 'organisations', 'label' => 'Organisations', 'value' => $setCount(self::ITEM_SET_INSTITUTION)],
+            ['key' => 'projects', 'label' => 'Research projects', 'value' => $setCount($this->profile->itemSet('project'))],
+            ['key' => 'people', 'label' => 'People', 'value' => $setCount($this->profile->itemSet('person'))],
+            ['key' => 'organisations', 'label' => 'Organisations', 'value' => $setCount($this->profile->itemSet('institution'))],
             ['key' => 'locations', 'label' => 'Locations', 'value' => $this->statCounts['locations'] ?? 0,
                 'subtitle' => $countries > 0 ? ('in ' . $countries . ' ' . ($countries === 1 ? 'country' : 'countries')) : null],
-            ['key' => 'languages', 'label' => 'Languages', 'value' => $setCount(self::ITEM_SET_LANGUAGE)],
-            ['key' => 'subjectsTags', 'label' => 'Subjects & Tags', 'value' => $setCount(self::ITEM_SET_SUBJECT)],
-            ['key' => 'resourceTypes', 'label' => 'Resource Types', 'value' => $setCount(self::ITEM_SET_RESOURCE_TYPE)],
-            ['key' => 'publications', 'label' => 'Publications', 'value' => $setCount(self::ITEM_SET_PUBLICATIONS)],
-            ['key' => 'podcasts', 'label' => 'Podcasts', 'value' => $setCount(self::ITEM_SET_PODCASTS)],
-            ['key' => 'youtube', 'label' => 'YouTube videos', 'value' => $setCount(self::ITEM_SET_YOUTUBE)],
+            ['key' => 'languages', 'label' => 'Languages', 'value' => $setCount($this->profile->itemSet('language'))],
+            ['key' => 'subjectsTags', 'label' => 'Subjects & Tags', 'value' => $setCount($this->profile->itemSet('subject'))],
+            ['key' => 'resourceTypes', 'label' => 'Resource Types', 'value' => $setCount($this->profile->itemSet('resourceType'))],
+            ['key' => 'publications', 'label' => 'Publications', 'value' => $setCount($this->profile->itemSet('publications'))],
+            ['key' => 'podcasts', 'label' => 'Podcasts', 'value' => $setCount($this->profile->itemSet('podcasts'))],
+            ['key' => 'youtube', 'label' => 'YouTube videos', 'value' => $setCount($this->profile->itemSet('youtube'))],
         ]);
     }
 
@@ -958,13 +904,13 @@ final class Runner
         $lcshIds = [];
         foreach ($this->links as $sid => $slinks) {
             foreach ($slinks as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:type' && $vrid === self::OVERVIEW_LCSH) {
+                if ($term === 'dcterms:type' && $vrid === $this->profile->overview('lcsh')) {
                     $lcshIds[] = $sid;
                     break;
                 }
             }
         }
-        $researchItems = array_keys($this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === self::TEMPLATE_RESEARCH_ITEMS));
+        $researchItems = array_keys($this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === $this->profile->template('researchItems')));
         // Fold the curated Publications, Podcasts and YouTube item sets in too, so
         // their authors (bibo:authorList/editorList), subjects and places join the
         // network alongside the research items.
@@ -990,7 +936,7 @@ final class Runner
                 }
             }
         }
-        foreach (self::EXTERNAL_COLLECTIONS as $setId => $meta) {
+        foreach ($this->profile->externalCollections() as $setId => $meta) {
             foreach ($this->itemSets[$setId] ?? [] as $iid) {
                 $itemSection[$iid] = $meta['section'];
             }
@@ -1013,22 +959,17 @@ final class Runner
      */
     private function generateNetworkExplorer(): void
     {
-        $researchItems = array_keys($this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === self::TEMPLATE_RESEARCH_ITEMS));
+        $researchItems = array_keys($this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === $this->profile->template('researchItems')));
         $this->log('=== Network Explorer (' . count($researchItems) . ' research items) ===');
-        if (!$researchItems) {
-            return;
-        }
-
-        $payload = [
+        $payload = $researchItems ? [
             'contributors' => Aggregators::buildGlobalContributorNetwork($researchItems, $this->items, $this->links),
             'collaboration' => Aggregators::buildPersonCollaborationNetwork($researchItems, $this->items, $this->links),
             'affiliations' => Aggregators::buildGlobalAffiliationNetwork($this->items, $this->links),
             'institutions' => Aggregators::buildGlobalInstitutionCollaborationNetwork($researchItems, $this->items, $this->links),
-        ];
+        ] : [];
         $payload = array_filter($payload, static fn ($v) => $v !== null);
         if (!$payload) {
             $this->log('  no network explorer graphs had enough data');
-            return;
         }
 
         $path = dirname($this->outputDir) . '/network-explorer.json';
@@ -1083,14 +1024,17 @@ final class Runner
                     continue;
                 }
                 // Densest places (origin + current) first.
-                uasort($places, static fn ($a, $b) => ($b[0] + $b[1]) <=> ($a[0] + $a[1]));
+                uksort($places, static fn ($a, $b) => (($places[$b][0] + $places[$b][1]) <=> ($places[$a][0] + $places[$a][1]))
+                    ?: ((int) $a <=> (int) $b));
                 $adj = [];
                 foreach ($places as $locId => $rc) {
                     $adj[] = [(int) $locId, $rc[0], $rc[1]];
                 }
                 $rows[] = ['id' => (int) $eid, 'label' => $info['label'], 'adj' => $adj];
             }
-            usort($rows, static fn ($a, $b) => count($b['adj']) <=> count($a['adj']));
+            usort($rows, static fn ($a, $b) => (count($b['adj']) <=> count($a['adj']))
+                ?: strcmp((string) $a['label'], (string) $b['label'])
+                ?: ((int) $a['id'] <=> (int) $b['id']));
             if ($cap && count($rows) > self::SPATIAL_PICKER_CAP) {
                 $rows = array_slice($rows, 0, self::SPATIAL_PICKER_CAP);
             }
@@ -1104,7 +1048,7 @@ final class Runner
 
         // Projects (uncapped — ~40): their member research items.
         $projects = [];
-        foreach ($this->itemsWhere(fn ($i) => ($i['template_id'] ?? null) === self::TEMPLATE_PROJECTS) as $pid => $pinfo) {
+        foreach ($this->itemsWhere(fn ($i) => ($i['template_id'] ?? null) === $this->profile->template('projects')) as $pid => $pinfo) {
             $projects[$pid] = ['label' => $pinfo['title'], 'itemIds' => $this->childrenOf[$pid] ?? []];
         }
 
@@ -1122,7 +1066,7 @@ final class Runner
 
         // People (capped): the items they are credited on.
         $people = [];
-        foreach ($this->itemsWhere(fn ($i) => ($i['template_id'] ?? null) === self::TEMPLATE_PERSONS) as $pid => $pinfo) {
+        foreach ($this->itemsWhere(fn ($i) => ($i['template_id'] ?? null) === $this->profile->template('persons')) as $pid => $pinfo) {
             $people[$pid] = ['label' => $pinfo['title'], 'itemIds' => Aggregators::findItemsLinkingTo($pid, $this->reverseLinks, $personTerms)];
         }
 
@@ -1134,7 +1078,7 @@ final class Runner
 
         // Subjects (capped): the items they classify (dcterms:subject).
         $subjects = [];
-        foreach ($this->itemsWhere(fn ($i) => ($i['template_id'] ?? null) === self::TEMPLATE_AUTHORITY) as $sid => $sinfo) {
+        foreach ($this->itemsWhere(fn ($i) => ($i['template_id'] ?? null) === $this->profile->template('authority')) as $sid => $sinfo) {
             $subjects[$sid] = ['label' => $sinfo['title'], 'itemIds' => Aggregators::findItemsLinkingTo($sid, $this->reverseLinks, ['dcterms:subject'])];
         }
 
@@ -1147,7 +1091,7 @@ final class Runner
         ];
 
         $payload = [
-            'meta' => ['locations' => count($spatial['locations']), 'generatedAt' => date('Y-m-d')],
+            'meta' => ['locations' => count($spatial['locations'])],
             'types' => ['Project', 'Section', 'Person', 'Organisation', 'Subject'],
             'locations' => $spatial['locations'],
             'countries' => $spatial['countries'],
@@ -1166,7 +1110,7 @@ final class Runner
     }
 
     /**
-     * Item ids of the curated Publications item set (29918) — the cluster
+     * Item ids of the curated Publications item set from the AMIRA profile — the cluster
      * bibliography landed by the ERef/EPub pipeline. This is the authoritative
      * ~250-item corpus: a `fabio:` resource-class filter is NOT equivalent, since
      * FaBiO classes are also carried by ordinary research items and authority
@@ -1174,32 +1118,32 @@ final class Runner
      */
     private function publicationIds(): array
     {
-        return array_values($this->itemSets[self::ITEM_SET_PUBLICATIONS] ?? []);
+        return array_values($this->itemSets[$this->profile->itemSet('publications')] ?? []);
     }
 
     /**
-     * Item ids of the curated Podcasts item set (39095) — cluster podcast
+     * Item ids of the curated Podcasts item set from the AMIRA profile — cluster podcast
      * episodes hand-catalogued in Omeka (template 21, fabio:AudioDocument). Folded
      * into the Collection Overview under the synthetic "Podcast" resource type.
      */
     private function podcastIds(): array
     {
-        return array_values($this->itemSets[self::ITEM_SET_PODCASTS] ?? []);
+        return array_values($this->itemSets[$this->profile->itemSet('podcasts')] ?? []);
     }
 
     /**
-     * Item ids of the synced YouTube videos item set (39192) — the cluster's
+     * Item ids of the synced YouTube videos item set from the AMIRA profile — the cluster's
      * YouTube channel, synced into Omeka by MongoDB2OmekaS (template 22,
      * bibo:AudioVisualDocument). Folded into the Collection Overview under the
      * synthetic "YouTube video" resource type.
      */
     private function youtubeIds(): array
     {
-        return array_values($this->itemSets[self::ITEM_SET_YOUTUBE] ?? []);
+        return array_values($this->itemSets[$this->profile->itemSet('youtube')] ?? []);
     }
 
     /**
-     * Publications overview — the curated Publications item set (29918) as one
+     * Publications overview — the configured Publications item set as one
      * corpus. Adds top venues/authors, the author/editor collaboration network
      * and keyword co-occurrence on top of the standard aggregation. Saved under
      * 'publications' and rendered by the Publications site-page block.
@@ -1207,7 +1151,7 @@ final class Runner
     private function generatePublications(): void
     {
         $pubs = $this->publicationIds();
-        $this->log('=== Publications (' . count($pubs) . ' items in set ' . self::ITEM_SET_PUBLICATIONS . ') ===');
+        $this->log('=== Publications (' . count($pubs) . ' items in set ' . $this->profile->itemSet('publications') . ') ===');
         if (count($pubs) < 3) {
             return;
         }
@@ -1330,7 +1274,7 @@ final class Runner
     }
 
     /**
-     * YouTube dashboard — the cluster's YouTube channel (item set 39192, synced
+     * YouTube dashboard — the cluster's configured YouTube channel item set (synced
      * by MongoDB2OmekaS), rendered by the dedicated YouTube site-page block.
      * Surfaces what the videos actually carry: a by-year upload timeline, the
      * language mix (and its drift over time), the playlists the channel is
@@ -1340,7 +1284,7 @@ final class Runner
     private function generateYouTube(): void
     {
         $videos = $this->youtubeIds();
-        $this->log('=== YouTube (' . count($videos) . ' videos in set ' . self::ITEM_SET_YOUTUBE . ') ===');
+        $this->log('=== YouTube (' . count($videos) . ' videos in set ' . $this->profile->itemSet('youtube') . ') ===');
         if (count($videos) < 3) {
             return;
         }
@@ -1406,8 +1350,8 @@ final class Runner
     }
 
     /**
-     * Podcasts dashboard — the cluster's curated podcast episodes (item set
-     * 39095, template 21, fabio:AudioDocument), rendered by the dedicated
+     * Podcasts dashboard — the cluster's configured curated podcast episodes
+     * (`fabio:AudioDocument`), rendered by the dedicated
      * Podcasts site-page block. The headline is a word cloud built from the
      * episodes' AI-generated transcripts (bibo:content); alongside it the most
      * frequent speakers, the episode-length distribution, the publication
@@ -1417,7 +1361,7 @@ final class Runner
     private function generatePodcasts(): void
     {
         $ids = $this->podcastIds();
-        $this->log('=== Podcasts (' . count($ids) . ' episodes in set ' . self::ITEM_SET_PODCASTS . ') ===');
+        $this->log('=== Podcasts (' . count($ids) . ' episodes in set ' . $this->profile->itemSet('podcasts') . ') ===');
         if (count($ids) < 3) {
             return;
         }
@@ -1537,7 +1481,9 @@ final class Runner
             return null;
         }
         $rows = array_values($counts);
-        usort($rows, static fn ($a, $b) => $b['value'] <=> $a['value']);
+        usort($rows, static fn ($a, $b) => ($b['value'] <=> $a['value'])
+            ?: strcmp((string) $a['name'], (string) $b['name'])
+            ?: ((int) $a['itemId'] <=> (int) $b['itemId']));
         return $rows;
     }
 
@@ -1642,7 +1588,7 @@ final class Runner
      */
     private function wordCloudInput(string $corpus): ?array
     {
-        $path = dirname($this->outputDir) . '/wordclouds/' . $corpus . '.json';
+        $path = $this->wordcloudsDir . '/' . $corpus . '.json';
         if (!is_file($path)) {
             return null;
         }
@@ -1675,7 +1621,7 @@ final class Runner
 
     /**
      * Top playlists by number of videos. Videos link to their playlist authority
-     * items (item set 39193) via dcterms:isPartOf, so each playlist's video count
+     * items (profile key itemSets.youtubePlaylists) via dcterms:isPartOf, so each playlist's video count
      * is the size of its childrenOf set restricted to the channel's videos.
      * Returns `[{name,value,itemId}]` sorted by count desc, then name.
      *
@@ -1685,7 +1631,7 @@ final class Runner
     {
         $videoSet = array_flip($videoIds);
         $out = [];
-        foreach ($this->itemSets[self::ITEM_SET_YOUTUBE_PLAYLISTS] ?? [] as $plId) {
+        foreach ($this->itemSets[$this->profile->itemSet('youtubePlaylists')] ?? [] as $plId) {
             $title = $this->items[$plId]['title'] ?? '';
             if ($title === '') {
                 continue;
@@ -1712,7 +1658,7 @@ final class Runner
     private function generateWhatsNew(): void
     {
         $this->log('=== What\'s New ===');
-        $projects = $this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === self::TEMPLATE_PROJECTS);
+        $projects = $this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === $this->profile->template('projects'));
         $projectChildren = [];
         foreach ($projects as $pid => $_) {
             $kids = $this->childrenOf[$pid] ?? [];
@@ -1989,38 +1935,6 @@ final class Runner
             }
         }
         return null;
-    }
-
-    private function generateKnowledgeGraphs(): void
-    {
-        $this->log('=== Knowledge Graphs ===');
-        $this->artifacts->ensureDirectory($this->knowledgeGraphsDir);
-        [$idf, $freqPct] = KnowledgeGraphs::computeResourceStats($this->links, count($this->items));
-        $reverse = KnowledgeGraphs::buildShareableReverse($this->reverseLinks);
-        $this->log('  ' . count($idf) . ' resources scored');
-
-        $generated = 0;
-        $skipped = 0;
-        $mapCount = 0;
-        foreach ($this->items as $iid => $info) {
-            $graph = KnowledgeGraphs::buildGraph((int) $iid, $this->items, $this->links, $this->reverseLinks, $reverse, $idf, $freqPct);
-            if ($graph === null) {
-                $skipped++;
-                continue;
-            }
-            $itemMap = KnowledgeGraphs::buildItemMap((int) $iid, $this->links, $this->geo);
-            if ($itemMap !== null) {
-                $graph['itemMap'] = $itemMap;
-                $mapCount++;
-            }
-            $this->writeJson($this->knowledgeGraphsDir . '/' . $iid . '.json', $graph);
-            $generated++;
-            if ($generated % 500 === 0) {
-                $this->log('  ' . $generated . ' graphs…');
-            }
-        }
-        $this->fileCount += $generated;
-        $this->log('  ' . $generated . ' graphs (' . $mapCount . ' with location maps), ' . $skipped . ' skipped');
     }
 
     /** @return array<int,array> id => info, preserving insertion order */

@@ -62,7 +62,7 @@ trait NetworkChartsTrait
             }
         }
 
-        arsort($nodeCounts);
+        self::sortCounts($nodeCounts);
         $topNodes = array_slice(array_keys($nodeCounts), 0, $maxNodes);
         $topSet = array_flip($topNodes);
 
@@ -126,7 +126,7 @@ trait NetworkChartsTrait
             [$c] = explode("\0", $k);
             $contribCounts[$c] = ($contribCounts[$c] ?? 0) + $v;
         }
-        arsort($contribCounts);
+        self::sortCounts($contribCounts);
         $topContribs = array_flip(array_slice(array_keys($contribCounts), 0, 10));
 
         $linkMap = [];
@@ -166,11 +166,11 @@ trait NetworkChartsTrait
             $itemProject = null;
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
                 if (str_starts_with($term, 'marcrel:') || $term === 'dcterms:creator' || $term === 'dcterms:contributor') {
-                    if (($items[$vrid]['template_id'] ?? null) === self::TEMPLATE_PERSONS) {
+                    if (($items[$vrid]['template_id'] ?? null) === self::personTemplateId()) {
                         $itemPersons[] = $vrid;
                     }
                 } elseif ($term === 'dcterms:isPartOf') {
-                    if (($items[$vrid]['template_id'] ?? null) === self::TEMPLATE_PROJECTS) {
+                    if (($items[$vrid]['template_id'] ?? null) === self::projectTemplateId()) {
                         $itemProject = $vrid;
                     }
                 }
@@ -187,9 +187,9 @@ trait NetworkChartsTrait
             return null;
         }
 
-        arsort($personCounts);
+        self::sortCounts($personCounts);
         $topPersons = array_flip(array_slice(array_keys($personCounts), 0, $maxNodes));
-        arsort($projectCounts);
+        self::sortCounts($projectCounts);
         $topProjects = array_flip(array_slice(array_keys($projectCounts), 0, 15));
 
         $nodes = [];
@@ -236,11 +236,11 @@ trait NetworkChartsTrait
             $itemProject = null;
             foreach ($links[$iid] ?? [] as [$term, , $vrid]) {
                 if (self::isPersonContributionTerm($term)) {
-                    if (($items[$vrid]['template_id'] ?? null) === self::TEMPLATE_PERSONS) {
+                    if (($items[$vrid]['template_id'] ?? null) === self::personTemplateId()) {
                         $itemPersons[$vrid] = true;
                     }
                 } elseif ($term === 'dcterms:isPartOf') {
-                    if (($items[$vrid]['template_id'] ?? null) === self::TEMPLATE_PROJECTS) {
+                    if (($items[$vrid]['template_id'] ?? null) === self::projectTemplateId()) {
                         $itemProject = $vrid;
                     }
                 }
@@ -258,8 +258,8 @@ trait NetworkChartsTrait
             return null;
         }
 
-        arsort($personCounts);
-        arsort($projectCounts);
+        self::sortCounts($personCounts);
+        self::sortCounts($projectCounts);
         $topPersons = array_flip(array_slice(array_keys($personCounts), 0, $maxPersons));
         $topProjects = array_flip(array_slice(array_keys($projectCounts), 0, $maxProjects));
 
@@ -311,7 +311,7 @@ trait NetworkChartsTrait
                 if (!self::isPersonContributionTerm($term)) {
                     continue;
                 }
-                if (($items[$vrid]['template_id'] ?? null) === self::TEMPLATE_PERSONS) {
+                if (($items[$vrid]['template_id'] ?? null) === self::personTemplateId()) {
                     $persons[$vrid] = true;
                     $titles[$vrid] = $items[$vrid]['title'] ?? ('Person ' . $vrid);
                 }
@@ -365,7 +365,8 @@ trait NetworkChartsTrait
 
         $pr = self::weightedPagerank($adj, $deg);
         $rankNodes = array_keys($adj);
-        usort($rankNodes, static fn ($x, $y) => ($pr[$y] ?? 0) <=> ($pr[$x] ?? 0));
+        usort($rankNodes, static fn ($x, $y) => (($pr[$y] ?? 0) <=> ($pr[$x] ?? 0))
+            ?: strnatcasecmp((string) $x, (string) $y));
         $ranked = array_slice($rankNodes, 0, $maxNodes);
         $topSet = array_flip($ranked);
 
@@ -409,7 +410,8 @@ trait NetworkChartsTrait
         foreach ($summary as $s) {
             $communitiesList[] = ['id' => $s['id'], 'size' => $s['size'], 'anchor' => $s['anchor']];
         }
-        usort($communitiesList, static fn ($a, $b) => $b['size'] <=> $a['size']);
+        usort($communitiesList, static fn ($a, $b) => ($b['size'] <=> $a['size'])
+            ?: ((int) $a['id'] <=> (int) $b['id']));
 
         return ['nodes' => $nodes, 'links' => $outLinks, 'communities' => $communitiesList];
     }
@@ -422,7 +424,7 @@ trait NetworkChartsTrait
         $institutionCounts = [];
 
         foreach ($items as $pid => $info) {
-            if (($info['template_id'] ?? null) !== self::TEMPLATE_PERSONS) {
+            if (($info['template_id'] ?? null) !== self::personTemplateId()) {
                 continue;
             }
             $affiliations = [];
@@ -444,8 +446,8 @@ trait NetworkChartsTrait
             return null;
         }
 
-        arsort($personCounts);
-        arsort($institutionCounts);
+        self::sortCounts($personCounts);
+        self::sortCounts($institutionCounts);
         $topPersons = array_flip(array_slice(array_keys($personCounts), 0, $maxPersons));
         $topInstitutions = array_flip(array_slice(array_keys($institutionCounts), 0, $maxInstitutions));
 
@@ -500,11 +502,11 @@ trait NetworkChartsTrait
             $projectId = null;
             foreach ($links[$iid] ?? [] as [$term, , $vrid]) {
                 $isOrg = ($items[$vrid]['class_term'] ?? '') === 'foaf:Organization';
-                if ($term === 'dcterms:isPartOf' && ($items[$vrid]['template_id'] ?? null) === self::TEMPLATE_PROJECTS) {
+                if ($term === 'dcterms:isPartOf' && ($items[$vrid]['template_id'] ?? null) === self::projectTemplateId()) {
                     $projectId = $vrid;
                 } elseif ($isOrg && ($term === 'frapo:isFundedBy' || $term === 'dcterms:provenance' || str_starts_with($term, 'marcrel:'))) {
                     $institutions[$vrid] = true;
-                } elseif (self::isPersonContributionTerm($term) && ($items[$vrid]['template_id'] ?? null) === self::TEMPLATE_PERSONS) {
+                } elseif (self::isPersonContributionTerm($term) && ($items[$vrid]['template_id'] ?? null) === self::personTemplateId()) {
                     foreach ($links[$vrid] ?? [] as [$pTerm, , $affId]) {
                         if ($pTerm === 'dcterms:isPartOf' && ($items[$affId]['class_term'] ?? '') === 'foaf:Organization') {
                             $institutions[$affId] = true;
@@ -541,7 +543,7 @@ trait NetworkChartsTrait
             return null;
         }
 
-        arsort($nodeCounts);
+        self::sortCounts($nodeCounts);
         $topInstitutions = array_flip(array_slice(array_keys($nodeCounts), 0, $maxNodes));
         $nodes = [];
         $nodeNames = [];
@@ -575,7 +577,7 @@ trait NetworkChartsTrait
         $affiliated = $reverseLinks[$instId]['dcterms:isPartOf'] ?? [];
         $affiliatedPersons = [];
         foreach ($affiliated as $pid) {
-            if (($items[$pid]['template_id'] ?? null) === self::TEMPLATE_PERSONS) {
+            if (($items[$pid]['template_id'] ?? null) === self::personTemplateId()) {
                 $affiliatedPersons[] = $pid;
             }
         }
@@ -596,7 +598,7 @@ trait NetworkChartsTrait
             $personAffl[$pid] = $affls;
         }
 
-        arsort($instCounts);
+        self::sortCounts($instCounts);
         $topInsts = array_flip(array_slice(array_keys($instCounts), 0, $maxNodes));
         $topInsts[$instId] = true;
 
@@ -647,7 +649,7 @@ trait NetworkChartsTrait
         if (!$collabCounts) {
             return null;
         }
-        arsort($collabCounts);
+        self::sortCounts($collabCounts);
         $topCollabs = array_slice($collabCounts, 0, $maxNodes, true);
         $topIds = array_keys($topCollabs);
 
@@ -825,7 +827,8 @@ trait NetworkChartsTrait
 
         $pr = self::weightedPagerank($adj, $deg);
         $rankNodes = array_keys($adj);
-        usort($rankNodes, static fn ($x, $y) => ($pr[$y] ?? 0) <=> ($pr[$x] ?? 0));
+        usort($rankNodes, static fn ($x, $y) => (($pr[$y] ?? 0) <=> ($pr[$x] ?? 0))
+            ?: strnatcasecmp((string) $x, (string) $y));
         $ranked = array_slice($rankNodes, 0, $maxNodes);
         $topSet = array_flip($ranked);
 
@@ -858,7 +861,7 @@ trait NetworkChartsTrait
             if (isset($topSet[$a], $topSet[$b])) {
                 // Dominant relationship across the publications this pair shares.
                 $rels = $pairRel[$key] ?? [];
-                arsort($rels);
+                self::sortCounts($rels);
                 $relation = $rels ? (string) array_key_first($rels) : 'coauthor';
                 $outLinks[] = ['source' => $idName[$a], 'target' => $idName[$b], 'value' => $w, 'relation' => $relation];
             }
@@ -880,7 +883,8 @@ trait NetworkChartsTrait
         foreach ($summary as $s) {
             $communitiesList[] = ['id' => $s['id'], 'size' => $s['size'], 'anchor' => $s['anchor']];
         }
-        usort($communitiesList, static fn ($a, $b) => $b['size'] <=> $a['size']);
+        usort($communitiesList, static fn ($a, $b) => ($b['size'] <=> $a['size'])
+            ?: ((int) $a['id'] <=> (int) $b['id']));
 
         return ['nodes' => $nodes, 'links' => $outLinks, 'communities' => $communitiesList];
     }

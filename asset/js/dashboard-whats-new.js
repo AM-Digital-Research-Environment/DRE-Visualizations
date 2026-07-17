@@ -90,12 +90,7 @@
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
         ns.basePath = basePath;
-        var url = basePath + '/modules/DreVisualizations/asset/data/item-dashboards/whats-new.json';
-
-        fetch(url).then(function (r) {
-            if (!r.ok) throw new Error('not found');
-            return r.json();
-        }).then(function (data) {
+        ns.fetchDataJson('item-dashboards/whats-new.json').then(function (data) {
             if (!data || !data.windows || !data.windows.length) {
                 container.innerHTML = '<div class="rv-no-data">No recent additions.</div>';
                 return;

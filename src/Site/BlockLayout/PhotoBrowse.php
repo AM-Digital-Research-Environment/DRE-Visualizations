@@ -8,6 +8,7 @@ use Omeka\Api\Representation\SitePageRepresentation;
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Site\BlockLayout\AbstractBlockLayout;
 use DreVisualizations\FeaturedCollections\Registry;
+use DreVisualizations\Precompute\PublishedSnapshot;
 
 /**
  * Photo Browsing site-page block.
@@ -170,11 +171,8 @@ class PhotoBrowse extends AbstractBlockLayout
     private function loadGallery(int $itemSetId): ?array
     {
         // src/Site/BlockLayout/PhotoBrowse.php → module root is three levels up.
-        $file = dirname(__DIR__, 3) . '/asset/data/photo-galleries/' . $itemSetId . '.json';
-        if (!is_readable($file)) {
-            return null;
-        }
-        $data = json_decode((string) file_get_contents($file), true);
+        $dataDir = dirname(__DIR__, 3) . '/asset/data';
+        $data = PublishedSnapshot::readJson($dataDir, 'photo-galleries/' . $itemSetId . '.json');
         return (is_array($data) && isset($data['photos']) && is_array($data['photos'])) ? $data : null;
     }
 

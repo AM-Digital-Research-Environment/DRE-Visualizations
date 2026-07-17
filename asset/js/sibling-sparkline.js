@@ -102,7 +102,7 @@
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
         if (!itemId || !apiBase) return;
-        var dashBase = basePath + '/modules/DreVisualizations/asset/data/item-dashboards/';
+        ns.basePath = basePath;
 
         fetch(apiBase + '/items/' + itemId).then(function (r) { return r.json(); }).then(function (item) {
             var iYear = yearOf(item);
@@ -112,10 +112,7 @@
             (function tryNext(i) {
                 if (i >= parents.length) return;
                 var p = parents[i];
-                fetch(dashBase + p.id + '.json').then(function (r) {
-                    if (!r.ok) throw new Error('no dashboard');
-                    return r.json();
-                }).then(function (dash) {
+                ns.fetchDataJson('item-dashboards/' + encodeURIComponent(p.id) + '.json').then(function (dash) {
                     var tl = dash && dash.timeline;
                     if (tl && Object.keys(tl).length > 1) {
                         // Applicable: pull ECharts on demand, then render. Items

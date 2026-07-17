@@ -143,7 +143,7 @@
         // key): leave a quiet note instead of a blank frame.
         if (chartOnly && !container.querySelector('[data-chart]')) {
             container.innerHTML = '<p class="rv-embed-empty">'
-                + 'No data available for this visualization.</p>';
+                + ns.escapeHtml(ns.t('noVisualizationData', 'No data available for this visualization.')) + '</p>';
         }
 
         // Live-site only: add a copy-embed-code button to each chart on an
@@ -169,13 +169,10 @@
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
         ns.basePath = basePath; // expose for builders that load module assets (e.g. choropleth GeoJSON)
-        var moduleBase = basePath + '/modules/DreVisualizations/asset/data/';
-        var url = moduleBase + 'item-dashboards/' + itemId + '.json';
+        var directory = /^[a-z0-9-]+$/.test(container.dataset.dashboardDir || '')
+            ? container.dataset.dashboardDir : 'item-dashboards';
 
-        fetch(url).then(function (r) {
-            if (!r.ok) throw new Error('not found');
-            return r.json();
-        }).then(function (data) {
+        ns.fetchDataJson(directory + '/' + encodeURIComponent(itemId) + '.json').then(function (data) {
             if (!data || !data.totalItems) { container.innerHTML = ''; return; }
             container.innerHTML = '';
             renderDashboard(container, data, siteBase, true);

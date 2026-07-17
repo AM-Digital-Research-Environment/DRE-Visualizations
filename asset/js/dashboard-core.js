@@ -27,6 +27,15 @@
 
     var ns = window.RV = window.RV || {};
 
+    // Omeka emits the active site language on <html>. Keep all number and date
+    // formatting aligned with it, falling back to the visitor locale only when
+    // the document does not declare one.
+    ns.locale = document.documentElement.lang || navigator.language || 'en';
+    ns.strings = window.RV_I18N || {};
+    ns.t = function (key, fallback) {
+        return Object.prototype.hasOwnProperty.call(ns.strings, key) ? ns.strings[key] : fallback;
+    };
+
     // Categorical palette for multi-series charts — led by the Africa Multiple
     // cluster brand colours, then harmonious extensions for charts with many
     // series. Rebuilt per light/dark by readTheme() (via buildPalette) and
@@ -127,6 +136,51 @@
      *  ns.moduleAsset('data/geo/countries.geojson'). Needs ns.basePath. */
     ns.moduleAsset = function (path) {
         return ns.basePath + '/modules/DreVisualizations/asset/' + path;
+    };
+
+    /**
+     * Resolve a generated-data path through the atomically published manifest.
+     * Old installations without current.json keep working through the legacy
+     * data/<path> fallback. The manifest is fetched once per page with no-store;
+     * generation URLs themselves are immutable and browser-cacheable.
+     */
+    ns.dataAsset = function (path) {
+        path = String(path || '').replace(/^\/+/, '');
+        if (!path || path.split('/').some(function (segment) { return segment === '..'; })) {
+            return Promise.reject(new Error('Invalid generated-data path'));
+        }
+        if (!ns._dataManifestPromise) {
+            var manifestUrl = ns.moduleAsset('data/current.json');
+            ns._dataManifestPromise = fetch(manifestUrl, {
+                cache: 'no-store', credentials: 'same-origin'
+            }).then(function (response) {
+                if (!response.ok) return null;
+                return response.json();
+            }).then(function (manifest) {
+                var id = manifest && String(manifest.generationId || '');
+                return /^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{12}$/.test(id) ? id : null;
+            }).catch(function () { return null; });
+        }
+        return ns._dataManifestPromise.then(function (generationId) {
+            var prefix = generationId ? 'data/generations/' + generationId + '/' : 'data/';
+            return ns.moduleAsset(prefix + path);
+        });
+    };
+
+    /** Central JSON loader for every generated dashboard artifact. */
+    ns.fetchDataJson = function (path, options) {
+        return ns.dataAsset(path).then(function (url) {
+            var requestOptions = Object.assign({ credentials: 'same-origin' }, options || {});
+            return fetch(url, requestOptions).then(function (response) {
+                if (!response.ok) throw new Error('Generated data not found (' + response.status + ')');
+                return response.json();
+            });
+        }).then(function (payload) {
+            if (!payload || typeof payload !== 'object') {
+                throw new Error('Generated data has an invalid top-level value');
+            }
+            return payload;
+        });
     };
 
     /* ------------------------------------------------------------------ */
@@ -492,16 +546,43 @@
         return ns.cssColor('--surface', ns._darkMode ? '#1e1e1e' : '#ffffff');
     };
 
-    /** Get the appropriate basemap style URL for the current color scheme. */
+    /**
+     * Get the configured basemap style. Blank configuration intentionally
+     * yields a same-document background style, making maps privacy-safe by
+     * default (no tile/style/glyph requests leave the Omeka origin).
+     */
     ns.getBasemapStyle = function () {
-        return ns._darkMode
-            ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
-            : 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+        var config = window.RV_MAP_CONFIG || {};
+        var configured = ns._darkMode
+            ? (config.darkStyle || config.lightStyle)
+            : (config.lightStyle || config.darkStyle);
+        if (configured) return configured;
+        return {
+            version: 8,
+            name: 'DRE privacy-safe blank basemap',
+            sources: {},
+            layers: [{
+                id: 'background', type: 'background',
+                paint: { 'background-color': ns.cssColor('--surface', ns._darkMode ? '#1e1e1e' : '#ffffff') }
+            }]
+        };
+    };
+
+    /** Visible, plain-text attribution for the configured basemap. */
+    ns.getMapAttributionOptions = function () {
+        var text = String((window.RV_MAP_CONFIG || {}).attribution || '');
+        var options = { compact: true };
+        if (text) {
+            options.customAttribution = text.replace(/[&<>"']/g, function (ch) {
+                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+            });
+        }
+        return options;
     };
 
     /**
      * Standard MapLibre map bootstrap shared by the map chart builders: themed
-     * basemap, no attribution chrome, cooperative gestures, and the common
+     * basemap, visible source attribution, cooperative gestures, and the common
      * control set. Options:
      *   center, zoom  — initial camera (default [0, 15] / 1.5);
      *   nav           — NavigationControl options ({ visualizePitch: true } by
@@ -517,7 +598,7 @@
             style: ns.getBasemapStyle(),
             center: opts.center || [0, 15],
             zoom: opts.zoom != null ? opts.zoom : 1.5,
-            attributionControl: false,
+            attributionControl: ns.getMapAttributionOptions(),
             cooperativeGestures: true
         });
         if (opts.nav !== false) {
@@ -630,14 +711,17 @@
         });
     };
 
-    /**
-     * Locale-consistent integer formatting ("1,234") for counts in stat cards,
-     * popups and tooltips — one grouping style everywhere instead of the mix of
-     * toLocaleString() and hand-rolled separators.
-     */
+    /** Locale-consistent count formatting for stat cards, popups and tooltips. */
     ns.formatNumber = function (n) {
         var v = Number(n);
-        return isFinite(v) ? v.toLocaleString('en-US') : String(n == null ? '' : n);
+        return isFinite(v) ? new Intl.NumberFormat(ns.locale).format(v) : String(n == null ? '' : n);
+    };
+
+    /** Locale-consistent date formatting, with one safe fallback for bad input. */
+    ns.formatDate = function (value, options) {
+        var date = value instanceof Date ? value : new Date(value);
+        if (!isFinite(date.getTime())) return '';
+        return new Intl.DateTimeFormat(ns.locale, options || {}).format(date);
     };
 
     /** Live check of the user's reduced-motion preference (vestibular safety). */
@@ -743,24 +827,79 @@
         // Update all toggle button states.
         document.querySelectorAll('[data-action="decal"]').forEach(function (btn) {
             btn.classList.toggle('rv-toolbar-btn-active', ns._decalEnabled);
-            btn.title = ns._decalEnabled ? 'Hide patterns' : 'Show patterns';
+            btn.title = ns._decalEnabled
+                ? ns.t('hidePatterns', 'Hide patterns')
+                : ns.t('showPatterns', 'Show patterns');
         });
     };
 
-    /** Attach HTML-level toolbar (save + decal toggle) to a chart panel header. */
+    /** Flatten the currently rendered ECharts series into an accessible table. */
+    ns.chartCsvRows = function (chart) {
+        if (!chart || !chart.getOption) return [];
+        var option = chart.getOption() || {};
+        var xCategories = option.xAxis && option.xAxis[0] && option.xAxis[0].data || [];
+        var yCategories = option.yAxis && option.yAxis[0] && option.yAxis[0].data || [];
+        var categories = xCategories.length ? xCategories : yCategories;
+        var rows = [[
+            ns.t('series', 'Series'),
+            ns.t('category', 'Category'),
+            ns.t('value', 'Value')
+        ]];
+        (option.series || []).forEach(function (series) {
+            (series.data || []).forEach(function (point, index) {
+                var raw = point && typeof point === 'object' && !Array.isArray(point)
+                    ? point.value : point;
+                var name = point && typeof point === 'object' && !Array.isArray(point) && point.name != null
+                    ? point.name : (categories[index] != null ? categories[index] : index + 1);
+                var value = Array.isArray(raw) ? raw.join(' | ') : raw;
+                if (value == null || typeof value === 'object') value = JSON.stringify(value == null ? '' : value);
+                rows.push([series.name || series.type || '', name, value]);
+            });
+        });
+        return rows;
+    };
+
+    /** Download the chart's tabular fallback as UTF-8 CSV. */
+    ns.downloadChartCsv = function (chart, title) {
+        var rows = ns.chartCsvRows(chart);
+        if (rows.length < 2) return;
+        var csvCell = function (value) {
+            var text = String(value == null ? '' : value);
+            return '"' + text.replace(/"/g, '""') + '"';
+        };
+        var csv = '\ufeff' + rows.map(function (row) { return row.map(csvCell).join(','); }).join('\r\n');
+        var url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = (title || 'chart').trim().replace(/[\\/:*?"<>|]+/g, '-') + '.csv';
+        link.click();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+    };
+
+    /** Attach HTML-level toolbar (image, CSV, and pattern controls). */
     ns.attachToolbar = function (panel, chart) {
         if (!chart || !chart.getDataURL) return;
         var showDecal = !chart._noDecal;
+        var decalTitle = ns._decalEnabled
+            ? ns.t('hidePatterns', 'Hide patterns')
+            : ns.t('showPatterns', 'Show patterns');
+        var saveTitle = ns.t('saveImage', 'Save as image');
+        var csvTitle = ns.t('downloadCsv', 'Download chart data as CSV');
+        var hasCsv = ns.chartCsvRows(chart).length > 1;
         var bar = document.createElement('span');
         bar.className = 'rv-chart-toolbar';
         bar.innerHTML = (showDecal
-            ? '<button type="button" class="rv-toolbar-btn' + (ns._decalEnabled ? ' rv-toolbar-btn-active' : '') + '" data-action="decal" title="' + (ns._decalEnabled ? 'Hide patterns' : 'Show patterns') + '">'
+            ? '<button type="button" class="rv-toolbar-btn' + (ns._decalEnabled ? ' rv-toolbar-btn-active' : '') + '" data-action="decal" title="' + ns.escapeHtml(decalTitle) + '">'
             + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><line x1="4" y1="14" x2="14" y2="4"/><line x1="4" y1="8" x2="8" y2="4"/><line x1="10" y1="20" x2="20" y2="10"/><line x1="16" y1="20" x2="20" y2="16"/></svg>'
             + '</button>'
             : '')
-            + '<button type="button" class="rv-toolbar-btn" data-action="save" title="Save as image">'
+            + '<button type="button" class="rv-toolbar-btn" data-action="save" title="' + ns.escapeHtml(saveTitle) + '">'
             + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
-            + '</button>';
+            + '</button>'
+            + (hasCsv
+                ? '<button type="button" class="rv-toolbar-btn" data-action="csv" title="' + ns.escapeHtml(csvTitle) + '">'
+                + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/></svg></button>'
+                : '');
         var title = panel.querySelector('h3');
         if (title) title.appendChild(bar);
         bar.addEventListener('click', function (e) {
@@ -772,6 +911,8 @@
                 a.href = url;
                 a.download = (panel.querySelector('h3').textContent || 'chart').trim() + '.png';
                 a.click();
+            } else if (btn.dataset.action === 'csv') {
+                ns.downloadChartCsv(chart, panel.querySelector('h3').textContent || 'chart');
             } else if (btn.dataset.action === 'decal') {
                 ns.toggleDecals();
             }
@@ -838,9 +979,10 @@
 
     // Briefly swap a button to a "copied" check, then restore its markup/title.
     function flashCopied(btn, restoreHtml, restoreTitle) {
-        btn.innerHTML = CHECK_ICON + (btn.dataset.embedLabel ? '<span>Copied</span>' : '');
+        var copied = ns.t('copied', 'Copied');
+        btn.innerHTML = CHECK_ICON + (btn.dataset.embedLabel ? '<span>' + ns.escapeHtml(copied) + '</span>' : '');
         btn.classList.add('rv-toolbar-btn-active');
-        btn.title = 'Copied';
+        btn.title = copied;
         clearTimeout(btn._embedTimer);
         btn._embedTimer = setTimeout(function () {
             btn.innerHTML = restoreHtml;
@@ -863,13 +1005,14 @@
         if (labelTxt) btn.dataset.embedLabel = labelTxt;
         var baseHtml = EMBED_ICON + (labelTxt ? '<span>' + ns.escapeHtml(labelTxt) + '</span>' : '');
         btn.innerHTML = baseHtml;
-        btn.title = 'Copy embed code';
-        btn.setAttribute('aria-label', 'Copy embed code');
+        var copyTitle = ns.t('copyEmbed', 'Copy embed code');
+        btn.title = copyTitle;
+        btn.setAttribute('aria-label', copyTitle);
         btn.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
             ns.copyToClipboard(ns.embedSnippet(opts.src, opts.title, opts.height)).then(function () {
-                flashCopied(btn, baseHtml, 'Copy embed code');
+                flashCopied(btn, baseHtml, copyTitle);
             });
         });
         return btn;

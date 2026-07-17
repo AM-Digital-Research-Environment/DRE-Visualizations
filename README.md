@@ -4,6 +4,12 @@ An [Omeka S](https://omeka.org/s/) module that adds interactive visualizations t
 
 > Counterpart to the sibling [**amira** dashboard](https://github.com/AM-Digital-Research-Environment/amira) over the same Africa Multiple research data — see [Related project](#related-project).
 
+Operational documentation: [administration](docs/ADMINISTRATION.md),
+[architecture](docs/ARCHITECTURE.md), [security and privacy](docs/SECURITY_AND_PRIVACY.md),
+[roadmap status](docs/ROADMAP_STATUS.md), [release procedure](docs/RELEASING.md),
+[security reporting](SECURITY.md), and
+[third-party notices](THIRD_PARTY_NOTICES).
+
 ## Features
 
 ### Knowledge Graph (Item Pages)
@@ -78,18 +84,18 @@ Dashboard layouts are resource-type-aware: each resource template has its own ch
 
 Parent/category items get aggregate dashboards spanning their entire item set. Each overview includes a ranked distribution bar chart of the category members plus contextual charts:
 
-| Overview | Item ID | Distribution Chart | Additional Charts |
+| Overview | Profile key | Distribution Chart | Additional Charts |
 |---|---|---|---|
-| Genre | 22198 | Top genres (124) | Stacked timeline, types, languages, roles, heatmap, subjects, subject trends |
-| Language | 2039 | Top languages (28) | Stacked timeline, language timeline, types, roles, heatmap, subjects, subject trends |
-| Resource Type | 22203 | Top types (16) | Stacked timeline, languages, roles, heatmap, subjects, subject trends |
-| Target Audience | 22479 | Top audiences (49) | Stacked timeline, types, languages, subjects |
-| Person | 22200 | Top persons (1,242) | Stacked timeline, types, languages, roles, heatmap, subjects, subject trends, choropleth |
-| Institution | 22202 | Top institutions (552) | Stacked timeline, types, languages, roles, subjects, subject trends, choropleth |
-| Group | 22536 | Top groups | Stacked timeline, types, languages, roles, heatmap, subjects, subject trends |
-| LCSH Subjects | 3167 | Top LCSH subjects (418) | Stacked timeline, types, languages, roles, heatmap, subjects, subject trends |
-| Tags | 22199 | Top tags (773) | Stacked timeline, types, languages, roles, heatmap, subjects, subject trends |
-| Research Project | 3346 | Top projects (36) | Stacked timeline, language timeline, gantt, beeswarm, types, languages, roles, heatmap, subjects, subject trends, choropleth |
+| Genre | `overviewItems.genre` | Top genres (124) | Stacked timeline, types, languages, roles, heatmap, subjects, subject trends |
+| Language | `overviewItems.language` | Top languages (28) | Stacked timeline, language timeline, types, roles, heatmap, subjects, subject trends |
+| Resource Type | `overviewItems.resourceType` | Top types (16) | Stacked timeline, languages, roles, heatmap, subjects, subject trends |
+| Target Audience | `overviewItems.targetAudience` | Top audiences (49) | Stacked timeline, types, languages, subjects |
+| Person | `overviewItems.person` | Top persons (1,242) | Stacked timeline, types, languages, roles, heatmap, subjects, subject trends, choropleth |
+| Institution | `overviewItems.institution` | Top institutions (552) | Stacked timeline, types, languages, roles, subjects, subject trends, choropleth |
+| Group | `overviewItems.group` | Top groups | Stacked timeline, types, languages, roles, heatmap, subjects, subject trends |
+| LCSH Subjects | `overviewItems.lcsh` | Top LCSH subjects (418) | Stacked timeline, types, languages, roles, heatmap, subjects, subject trends |
+| Tags | `overviewItems.tag` | Top tags (773) | Stacked timeline, types, languages, roles, heatmap, subjects, subject trends |
+| Research Project | `overviewItems.project` | Top projects (36) | Stacked timeline, language timeline, gantt, beeswarm, types, languages, roles, heatmap, subjects, subject trends, choropleth |
 
 ### Collection Overview & Collection Dashboard
 
@@ -120,7 +126,7 @@ A single-purpose variant of Compare: the same paired-chart comparison **locked t
 
 A collection-wide **entity network**: people, organisations, places, subjects and tags that co-occur across the research items, drawn as an explorable force-directed graph with **MapLibre GL** (WebGL). Positions are **precomputed** (ForceAtlas2 in PHP, projected onto a pseudo-Mercator plane), so the client renders ~15k edges with zero layout cost and the network looks identical on every load. Nodes are coloured by entity type and sized by connectivity; an optional toggle re-colours by Louvain co-occurrence cluster. Added as a **site-page block** (Admin > Sites > [site] > Pages), it loads `asset/data/communities/entity-graph.json`. Hover a node to isolate its links, scroll to zoom, search or filter by entity type, raise the minimum link weight, and click an entity for its details and page. Organisations are surfaced through their authors' affiliations (`person → dcterms:isPartOf → foaf:Organization`); subjects split into LCSH **Subjects** vs free **Tags**.
 
-> The graph renders on the **MapLibre GL** the module already vendors for its maps — no extra front-end dependency and no build step. Node positions are baked by `src/Precompute/ForceLayout.php` (a pure-PHP ForceAtlas2 port of graphology's, projected to pseudo lng/lat). (The earlier ECharts subject-only `discursive.json` pipeline was removed in v2.20.0; its force-graph builder lives on as the Publications/Podcasts network chart.)
+> The graph renders on the **MapLibre GL** the module already vendors for its maps — no extra front-end dependency. Node positions are baked by `src/Precompute/ForceLayout.php` (a pure-PHP ForceAtlas2 port of graphology's, projected to pseudo lng/lat). (The earlier ECharts subject-only `discursive.json` pipeline was removed in v2.20.0; its force-graph builder lives on as the Publications/Podcasts network chart.)
 
 ### Network Explorer
 
@@ -149,12 +155,12 @@ Authors/editors matched to Person records and subjects matched to Authority/LCSH
 
 ### YouTube
 
-Analytics for the cluster **YouTube channel** — the synced **YouTube videos** item set (39192; `bibo:AudioVisualDocument`). Added as a **site-page block** (Admin > Sites > [site] > Pages), it loads `asset/data/item-dashboards/youtube.json` and shows:
+Analytics for the cluster **YouTube channel** — the synced **YouTube videos** item set configured as `itemSets.youtube` in `config/amira-profile.json` (`bibo:AudioVisualDocument`). Added as a **site-page block** (Admin > Sites > [site] > Pages), it loads `asset/data/item-dashboards/youtube.json` and shows:
 
 - **summary stat cards** — videos, playlists, languages, and the people credited as **speakers** (`marcrel:spk`, manually curated so often empty) — the same reusable component as the Collection Overview;
 - **transcript word cloud** — the headline chart, from the videos' captions (`bibo:content`), lemmatised when the [Word clouds](#word-clouds-lemmatised) Action has run (in-PHP tokeniser fallback otherwise) — the YouTube counterpart of the Podcasts cloud;
 - **who appears together** — speakers (`marcrel:spk`) featuring on the same video, as the shared community force graph; auto-hidden until speaker credits are curated;
-- **videos by playlist** — each video's `dcterms:isPartOf` links to a playlist authority item (item set 39193 *YouTube playlists*), so this ranks the channel's playlists by video count;
+- **videos by playlist** — each video's `dcterms:isPartOf` links to a playlist authority item in `itemSets.youtubePlaylists`, so this ranks the channel's playlists by video count;
 - **videos by year** (upload date, `dcterms:date`) and the **language mix** (`dcterms:language`) plus **languages over time**;
 - **speakers**, when credited.
 
@@ -162,7 +168,7 @@ YouTube videos carry no `dcterms:type` of their own, so they don't appear in the
 
 ### Podcasts
 
-Analytics for the cluster's curated **podcast episodes** — the manually-catalogued **Podcasts** item set (39095; template 21, `fabio:AudioDocument`). Added as a **site-page block** (Admin > Sites > [site] > Pages), it loads `asset/data/item-dashboards/podcasts.json` and shows:
+Analytics for the cluster's curated **podcast episodes** — the manually-catalogued **Podcasts** item set configured as `itemSets.podcasts` in `config/amira-profile.json` (`fabio:AudioDocument`). Added as a **site-page block** (Admin > Sites > [site] > Pages), it loads `asset/data/item-dashboards/podcasts.json` and shows:
 
 - **summary stat cards** — episodes, series, distinct **speakers** (`marcrel:spk`), total **hours of audio** (with the average length), and the languages — the same reusable component as the Collection Overview;
 - **transcript word cloud** — the headline chart, from the episodes' AI-generated transcripts (`bibo:content`), with audio cues (`[music]`), `Speaker N:` labels and numbers stripped. **Lemmatised** when the [Word clouds](#word-clouds-lemmatised) Action has run; the in-PHP tokeniser (`Aggregators::buildTranscriptWordCloud`, a tunable EN+FR stop-word/filler list) is the fallback;
@@ -177,7 +183,7 @@ The text word clouds (Podcasts transcripts, Publications abstracts, YouTube capt
 - `tools/wordclouds/build_wordclouds.py` reads each corpus's text from the **public REST API** (no VPN/auth), lemmatises it with spaCy (EN / FR / DE / PT models; content-word POS only, plus per-language + domain stop-words), and writes per-corpus, per-language frequencies to `asset/data/wordclouds/<corpus>.json`.
 - The **Build word clouds** GitHub Action (`.github/workflows/wordclouds.yml`, **manual** `workflow_dispatch`) runs the script and commits the regenerated inputs.
 - These are committed **static inputs** — like `geo/countries.geojson`, *not* the git-ignored generated dashboards. The precompute reads them via `Runner::wordCloudInput()` and folds the combined (`all`) frequencies into the dashboard; when a file is absent it **falls back** to the in-PHP tokeniser, so the clouds always render — just unlemmatised until the Action has run.
-- **Reusable:** add a corpus to `CORPORA` in the script (item-set id + text property) and read it on the PHP side — that's exactly how the YouTube captions corpus was added. The per-language buckets feed the word cloud's **language toggle** (shipped in v2.16.0).
+- **Reusable:** add a corpus under `wordcloudCorpora` in `config/amira-profile.json` (item-set key + text property). The Python builder and PHP precompute share that profile, and the per-language buckets feed the word cloud's **language toggle** (shipped in v2.16.0).
 
 ### What's New
 
@@ -243,12 +249,12 @@ Every embed shows a small **source** link back to the site, and the endpoint sen
 Download via Omeka S CLI:
 
 ```bash
-docker compose exec php omeka-s-cli module:download --base-path /var/www/html gh:AM-Digital-Research-Environment/DRE-Visualizations
+docker compose exec php omeka-s-cli module:download --base-path /var/www/html https://github.com/AM-Digital-Research-Environment/ResourceVisualizations/releases/latest/download/DreVisualizations.zip
 ```
 
 Then activate in **Admin > Modules**.
 
-> **Module folder name.** Omeka loads this module from a directory named `DreVisualizations` — it must match the PHP namespace — even though the repository is `DRE-Visualizations`. If you install by hand, clone into that folder: `git clone https://github.com/AM-Digital-Research-Environment/DRE-Visualizations.git modules/DreVisualizations`.
+> **Module folder name.** Omeka loads this module from a directory named `DreVisualizations`, matching the PHP namespace. Official release archives already contain that top-level directory. For development installs, clone the `ResourceVisualizations` repository explicitly into it: `git clone https://github.com/AM-Digital-Research-Environment/ResourceVisualizations.git modules/DreVisualizations`.
 
 ### Configure Resource Pages
 
@@ -259,7 +265,10 @@ Go to **Admin > Sites > [site] > Theme > Configure resource pages**:
 
 ## Pre-computing Data
 
-Visualizations load from pre-computed JSON in `asset/data/`. **Everything regenerates inside Omeka** — no Python, shell access, or extra credentials.
+Visualizations load from precomputed JSON in `asset/data/`. Dashboard snapshots
+regenerate inside Omeka with no Python at runtime, shell access, or extra database
+credentials. The optional lemmatised word-cloud inputs are refreshed separately by
+the repository's Python-based GitHub Action.
 
 **Admin → Modules → DRE Visualizations → "Regenerate now"** dispatches an Omeka background job (`src/Precompute/`, pure PHP) that rebuilds, straight from the Omeka database via Omeka's own connection:
 
@@ -279,7 +288,7 @@ Watch progress and any errors at **Admin → Jobs → the job's log**. Re-run af
 To pull a new module **release** into the container:
 
 ```bash
-docker compose exec php omeka-s-cli module:download --base-path /var/www/html --force gh:AM-Digital-Research-Environment/DRE-Visualizations
+docker compose exec php omeka-s-cli module:download --base-path /var/www/html --force https://github.com/AM-Digital-Research-Environment/ResourceVisualizations/releases/latest/download/DreVisualizations.zip
 docker compose restart php
 ```
 
@@ -331,7 +340,6 @@ DreVisualizations/
 │   │   ├── dashboard-charts-affiliation-map.js   # Geocoded affiliation markers
 │   │   ├── dashboard-charts-stacked-area.js      # Subject trends, language timeline
 │   │   ├── dashboard-charts-treemap.js           # Hierarchical treemap
-│   │   ├── dashboard-charts-geo-flows.js         # Origin → current location flow map
 │   │   ├── dashboard-charts-choropleth.js        # Country choropleth (MapLibre fill)
 │   │   ├── dashboard-charts-radar.js             # Entity breadth-profile radar (ECharts)
 │   │   ├── dashboard-charts-time-chord.js        # Subject co-occurrence with a year slider
@@ -388,7 +396,9 @@ DreVisualizations/
 The front-end script chain (chart builders + registry + controller) is injected by a
 single view helper — `src/View/Helper/DashboardAssets.php` (`$this->dashboardAssets(...)`).
 Registering a new chart means adding its builder file to that helper's `CHART_SCRIPTS`
-list once, rather than editing every dashboard/compare/overview template.
+list once and running `npm run build`. Omeka loads the generated
+`dashboard-charts.bundle.js`, reducing the modular builder chain to one request;
+`npm run check` rejects a stale bundle.
 
 The **in-Omeka regeneration** (the admin "Regenerate" button) is a self-contained PHP
 port of the precompute under `src/Precompute/` (`DataLoader` → `Aggregators` / `KnowledgeGraphs` → `Runner`),
@@ -399,20 +409,23 @@ Python are needed at runtime.
 
 ## Local checks
 
-The module ships plain PHP, CSS and JavaScript with no bundler. Before committing
+The module ships plain PHP, CSS and JavaScript. Its dependency-free Node build
+concatenates the modular chart builders into one release asset. Before committing
 front-end or styling changes, run:
 
 ```bash
+npm run build
 npm run check
 ```
 
-That runs the DRE design-token contract lint, a syntax sweep over every shipped
-`asset/js/*.js` file, and a registry/layout/embed contract check for the
-hand-maintained visualization wiring. Aggregator regressions are covered by the
-dependency-free PHP harness in `tests/AggregatorsTest.php`:
+The check rejects a stale bundle, then runs the DRE design-token contract lint,
+a syntax sweep, HTML-safety checks, and registry/layout/embed/release contracts.
+The dependency-free PHP harnesses cover public scope, deterministic metadata
+selection, snapshot publication, and aggregators:
 
 ```bash
-docker run --rm -v "$PWD:/m" php:8.4-cli php /m/tests/AggregatorsTest.php
+docker run --rm -v "$PWD:/m" php:8.4-cli sh -c \
+  'php /m/tests/PublicCorpusTest.php && php /m/tests/DataSelectionTest.php && php /m/tests/SnapshotPublisherTest.php && php /m/tests/AggregatorsTest.php'
 ```
 
 ## Theming — follows the DRE theme

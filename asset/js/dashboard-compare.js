@@ -451,7 +451,7 @@
         if (!hasData) {
             var empty = document.createElement('div');
             empty.className = 'rv-no-data';
-            empty.textContent = 'No data';
+            empty.textContent = ns.t('noData', 'No data');
             panel.appendChild(empty);
             return panel;
         }
@@ -495,25 +495,31 @@
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
         ns.basePath = basePath; // expose for builders that load module assets
-        var moduleBase = basePath + '/modules/DreVisualizations/asset/data/item-dashboards/';
-
         var fixedType = container.dataset.entityType || '';
         var hasSwitcher = !TYPES[fixedType];
         var activeType = TYPES[fixedType] ? fixedType : 'projects';
+        var typeController = null;
+        var typeRequestId = 0;
 
         container.innerHTML = '<div class="rv-loading"><div class="rv-spinner"></div>'
-            + '<span>Loading…</span></div>';
+            + '<span>' + escapeHtml(ns.t('loading', 'Loading…')) + '</span></div>';
         loadType(activeType);
 
         function loadType(type) {
             activeType = type;
             var cfg = TYPES[type];
-            fetch(moduleBase + cfg.index).then(function (r) {
-                if (!r.ok) throw new Error('index not found');
-                return r.json();
-            }).then(function (entries) {
+            if (typeController) typeController.abort();
+            typeController = typeof AbortController !== 'undefined' ? new AbortController() : null;
+            var requestId = ++typeRequestId;
+            container.innerHTML = '<div class="rv-loading"><div class="rv-spinner"></div>'
+                + '<span>' + escapeHtml(ns.t('loading', 'Loading…')) + '</span></div>';
+            ns.fetchDataJson('item-dashboards/' + cfg.index,
+                typeController ? { signal: typeController.signal } : {}).then(function (entries) {
+                if (requestId !== typeRequestId) return;
                 renderType(cfg, entries);
-            }).catch(function () {
+            }).catch(function (error) {
+                if (error && error.name === 'AbortError') return;
+                if (requestId !== typeRequestId) return;
                 container.innerHTML = '<div class="rv-error">Could not load '
                     + cfg.label.toLowerCase() + ' data.</div>';
             });
@@ -524,6 +530,8 @@
             var leftId = null, rightId = null;
             var leftData = null, rightData = null;
             var leftEntry = null, rightEntry = null;
+            var dashboardControllers = { left: null, right: null };
+            var dashboardRequests = { left: 0, right: 0 };
 
             var header = document.createElement('div');
             header.className = 'dashboard-header';
@@ -537,16 +545,18 @@
             var selectors = document.createElement('div');
             selectors.className = 'compare-selectors';
             selectors.appendChild(buildSelector(entries, 'left', cfg, function (id, entry) {
-                leftId = id; leftEntry = entry;
-                fetchDashboard(id, function (data) { leftData = data; renderComparison(); });
+                leftId = id; leftEntry = entry; leftData = null;
+                renderComparison();
+                fetchDashboard('left', id, function (data) { leftData = data; renderComparison(); });
             }));
             var vsSpan = document.createElement('span');
             vsSpan.className = 'compare-vs';
             vsSpan.textContent = 'vs';
             selectors.appendChild(vsSpan);
             selectors.appendChild(buildSelector(entries, 'right', cfg, function (id, entry) {
-                rightId = id; rightEntry = entry;
-                fetchDashboard(id, function (data) { rightData = data; renderComparison(); });
+                rightId = id; rightEntry = entry; rightData = null;
+                renderComparison();
+                fetchDashboard('right', id, function (data) { rightData = data; renderComparison(); });
             }));
             container.appendChild(selectors);
 
@@ -565,6 +575,11 @@
                 if (!leftId || !rightId) {
                     content.innerHTML = '<div class="rv-no-data">Select a second '
                         + cfg.singular.toLowerCase() + ' to compare.</div>';
+                    return;
+                }
+                if (!leftData || !rightData) {
+                    content.innerHTML = '<div class="rv-loading"><div class="rv-spinner"></div>'
+                        + '<span>' + escapeHtml(ns.t('loadingComparison', 'Loading comparison…')) + '</span></div>';
                     return;
                 }
 
@@ -607,14 +622,21 @@
 
                 flushPendingCharts();
             }
-        }
 
-        function fetchDashboard(id, callback) {
-            if (!id) { callback(null); return; }
-            fetch(moduleBase + id + '.json').then(function (r) {
-                if (!r.ok) throw new Error('not found');
-                return r.json();
-            }).then(callback).catch(function () { callback(null); });
+            function fetchDashboard(side, id, callback) {
+                if (dashboardControllers[side]) dashboardControllers[side].abort();
+                if (!id) { callback(null); return; }
+                var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                dashboardControllers[side] = controller;
+                var requestId = ++dashboardRequests[side];
+                ns.fetchDataJson('item-dashboards/' + encodeURIComponent(id) + '.json',
+                    controller ? { signal: controller.signal } : {}).then(function (data) {
+                    if (requestId === dashboardRequests[side]) callback(data);
+                }).catch(function (error) {
+                    if (error && error.name === 'AbortError') return;
+                    if (requestId === dashboardRequests[side]) callback(null);
+                });
+            }
         }
     }
 

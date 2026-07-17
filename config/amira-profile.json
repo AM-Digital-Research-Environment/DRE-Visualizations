@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "templates": {
+    "organisation": 2,
+    "location": 3,
+    "persons": 4,
+    "projects": 5,
+    "authority": 6,
+    "sections": 7,
+    "researchItems": 10
+  },
+  "templateResourceTypes": {
+    "2": "organisation",
+    "3": "location",
+    "4": "person",
+    "5": "project",
+    "7": "section",
+    "10": "researchItem"
+  },
+  "itemSets": {
+    "genre": 21,
+    "language": 19,
+    "resourceType": 1,
+    "targetAudience": 3169,
+    "person": 18,
+    "institution": 110,
+    "subject": 1852,
+    "project": 20,
+    "publications": 29918,
+    "podcasts": 39095,
+    "youtube": 39192,
+    "youtubePlaylists": 39193,
+    "ilam": 27724,
+    "bayglo": 27601,
+    "museuAfroDigital": 6295,
+    "beyondDigitalReturn": 6262
+  },
+  "overviewItems": {
+    "genre": 22198,
+    "language": 2039,
+    "resourceType": 22203,
+    "targetAudience": 22479,
+    "person": 22200,
+    "institution": 22202,
+    "group": 22536,
+    "lcsh": 3167,
+    "tag": 22199,
+    "project": 3346
+  },
+  "syntheticTypes": {
+    "publication": "Publication",
+    "podcast": "Podcast",
+    "youtube": "YouTube video"
+  },
+  "universityLabels": {
+    "University of Bayreuth": "University of Bayreuth",
+    "University of Lagos African Cluster Centre (LACC)": "University of Lagos",
+    "University Joseph Ki-Zerbo": "Université Joseph Ki-Zerbo",
+    "Universidade Federal da Bahia": "Federal University of Bahia",
+    "CEAO Centro de Estudos Afro-Orientais": "Federal University of Bahia",
+    "Rhodes University": "Rhodes University"
+  },
+  "authorities": {
+    "deccaProducer": 1219,
+    "jamboProducer": 1222
+  },
+  "properties": {
+    "productionCompany": 568
+  },
+  "externalCollections": [
+    { "itemSetKey": "ilam", "section": "External", "university": "Rhodes University" },
+    { "itemSetKey": "bayglo", "section": "External", "university": "University of Bayreuth" }
+  ],
+  "clusterCategoryAuthorities": {
+    "37685": "amrc",
+    "39073": "privileged",
+    "39072": "cooperation",
+    "39071": "global"
+  },
+  "featuredCollections": [
+    {
+      "slug": "international-library-of-african-music-ilam",
+      "itemSetKey": "ilam",
+      "title": "International Library of African Music (ILAM)",
+      "description": "An external collection sourced from the International Library of African Music (ILAM), Africa’s foremost repository of music — ethnomusicological recordings, journals and photographic materials from across the continent.",
+      "partner": "Published in collaboration with Rhodes University",
+      "views": { "map": false },
+      "grouping": "issue",
+      "dedupe": true
+    },
+    {
+      "slug": "memorias-perifericas-capoeira-angola-salvador",
+      "itemSetKey": "museuAfroDigital",
+      "identifierPrefix": "APMESTRENO",
+      "title": "Memória Periféricas da Capoeira Angola de Salvador",
+      "description": "Peripheral Memories of Capoeira Angola in Salvador — the personal archive of Mestre Nô.",
+      "partner": "Part of the Museu Afro-Digital — Universidade Federal da Bahia"
+    },
+    {
+      "slug": "trabalhadores-na-da-bahia",
+      "itemSetKey": "museuAfroDigital",
+      "identifierPrefix": "TRABNEGRBA",
+      "title": "Trabalhadores na/da Bahia",
+      "description": "Workers in/from Bahia — Black labour in the city and the Recôncavo.",
+      "partner": "Part of the Museu Afro-Digital — Universidade Federal da Bahia"
+    },
+    {
+      "slug": "orixas-fundacao-gregorio-de-mattos",
+      "itemSetKey": "museuAfroDigital",
+      "identifierPrefix": "ORIXAFGM",
+      "title": "Orixás - Fundação Gregório de Mattos",
+      "description": "Orishas — from the Gregório de Mattos Foundation.",
+      "partner": "Part of the Museu Afro-Digital — Universidade Federal da Bahia"
+    },
+    {
+      "slug": "decca",
+      "itemSetKey": "beyondDigitalReturn",
+      "externalFilter": { "propertyKey": "productionCompany", "resourceKey": "deccaProducer" },
+      "title": "DECCA",
+      "description": "A record label whose Nigerian Yoruba popular-music recordings — Waka, Apala, Highlife and more — were digitised from the Ghana Broadcasting Corporation Gramophone Library.",
+      "partner": "Part of “Beyond the Digital Return” · University of Bayreuth"
+    },
+    {
+      "slug": "jambo",
+      "itemSetKey": "beyondDigitalReturn",
+      "externalFilter": { "propertyKey": "productionCompany", "resourceKey": "jamboProducer" },
+      "title": "Jambo",
+      "description": "An East African record label whose Swahili and Ganda recordings — including The Kiko Kids — were digitised from the Ghana Broadcasting Corporation Gramophone Library.",
+      "partner": "Part of “Beyond the Digital Return” · University of Bayreuth"
+    }
+  ],
+  "wordcloudCorpora": [
+    { "id": "podcasts", "itemSetKey": "podcasts", "field": "bibo:content" },
+    { "id": "publications", "itemSetKey": "publications", "field": "bibo:abstract" },
+    { "id": "youtube", "itemSetKey": "youtube", "field": "bibo:content" }
+  ]
+}

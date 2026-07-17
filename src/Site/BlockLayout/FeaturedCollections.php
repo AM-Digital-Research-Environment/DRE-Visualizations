@@ -8,6 +8,7 @@ use Omeka\Api\Representation\SitePageRepresentation;
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Site\BlockLayout\AbstractBlockLayout;
 use DreVisualizations\FeaturedCollections\Registry;
+use DreVisualizations\Precompute\PublishedSnapshot;
 
 /**
  * Featured Collections landing block.
@@ -232,11 +233,8 @@ class FeaturedCollections extends AbstractBlockLayout
     private function loadIndex(): array
     {
         // src/Site/BlockLayout/FeaturedCollections.php → module root is three up.
-        $file = dirname(__DIR__, 3) . '/asset/data/featured-collections/index.json';
-        if (!is_readable($file)) {
-            return [];
-        }
-        $data = json_decode((string) file_get_contents($file), true);
+        $dataDir = dirname(__DIR__, 3) . '/asset/data';
+        $data = PublishedSnapshot::readJson($dataDir, 'featured-collections/index.json');
         return is_array($data) ? $data : [];
     }
 }

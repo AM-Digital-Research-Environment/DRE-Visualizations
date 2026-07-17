@@ -13,6 +13,16 @@ namespace DreVisualizations\Precompute\Aggregators;
  */
 trait SupportTrait
 {
+    /** Sort an associative count map by value descending, then key ascending. */
+    private static function sortCounts(array &$counts): void
+    {
+        $snapshot = $counts;
+        uksort($counts, static function (int|string $a, int|string $b) use ($snapshot): int {
+            return (($snapshot[$b] ?? 0) <=> ($snapshot[$a] ?? 0))
+                ?: strnatcasecmp((string) $a, (string) $b);
+        });
+    }
+
     /** Find item IDs that link to $entityId via any of the given terms. */
     public static function findItemsLinkingTo(int $entityId, array $reverseLinks, array $terms): array
     {
@@ -29,7 +39,8 @@ trait SupportTrait
     /** Sort a list of {name,value,...} rows by value descending (stable-ish). */
     private static function sortByValueDesc(array $rows): array
     {
-        usort($rows, static fn ($a, $b) => $b['value'] <=> $a['value']);
+        usort($rows, static fn ($a, $b) => ($b['value'] <=> $a['value'])
+            ?: strnatcasecmp((string) ($a['name'] ?? ''), (string) ($b['name'] ?? '')));
         return $rows;
     }
 

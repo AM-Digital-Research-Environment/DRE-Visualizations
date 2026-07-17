@@ -55,7 +55,7 @@ trait HierarchyChartsTrait
             $typeNode = ['name' => $typeName, 'children' => []];
             foreach ($langs as $langName => $subjects) {
                 $langNode = ['name' => $langName, 'children' => []];
-                arsort($subjects);
+                self::sortCounts($subjects);
                 foreach (array_slice($subjects, 0, 8, true) as $subName => $count) {
                     $langNode['children'][] = ['name' => $subName, 'value' => $count];
                 }
@@ -74,7 +74,7 @@ trait HierarchyChartsTrait
         foreach ($itemIds as $iid) {
             $assigned = false;
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:isPartOf' && ($items[$vrid]['template_id'] ?? null) === self::TEMPLATE_PROJECTS) {
+                if ($term === 'dcterms:isPartOf' && ($items[$vrid]['template_id'] ?? null) === self::projectTemplateId()) {
                     $projectItems[$vrid][] = $iid;
                     $assigned = true;
                     break;
@@ -100,7 +100,7 @@ trait HierarchyChartsTrait
                     }
                 }
             }
-            arsort($types);
+            self::sortCounts($types);
             $children = [];
             foreach ($types as $t => $c) {
                 $children[] = ['name' => $t, 'value' => $c];

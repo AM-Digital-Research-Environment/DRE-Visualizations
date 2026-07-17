@@ -1,0 +1,31 @@
+DRE Visualizations includes the following unmodified, self-hosted browser
+libraries. Their licenses apply to those files; the module's own code is
+licensed under GPL-3.0-or-later.
+
+Apache ECharts 6.1.0
+  Files: asset/vendor/echarts.min.js
+  License: Apache-2.0
+  Project: https://echarts.apache.org/
+  The distribution retains the upstream license and attribution header.
+
+echarts-wordcloud 2.1.0 (including wordcloud2.js)
+  Files: asset/vendor/echarts-wordcloud.min.js
+  Licenses: ISC and MIT
+  Project: https://github.com/ecomfe/echarts-wordcloud
+  Full notices: asset/vendor/echarts-wordcloud.min.js.LICENSE.txt
+
+MapLibre GL JS 5.24.0
+  Files: asset/vendor/maplibre-gl.js, asset/vendor/maplibre-gl.css
+  Primary license: BSD-3-Clause; the upstream distribution also contains
+  notices for incorporated Mapbox GL JS, glfx.js, and d3-color code.
+  Project and full notices:
+  https://github.com/maplibre/maplibre-gl-js/blob/v5.24.0/LICENSE.txt
+
+Natural Earth country boundaries
+  File: asset/data/geo/countries.geojson
+  Dataset: Admin 0 Countries, 1:110m; public domain
+  Project: https://www.naturalearthdata.com/
+  Exact inherited source release was not recorded before this repository
+  review. The retained asset is pinned by SHA-256:
+  82b72e34f69a8b9ae98dc6174953c0e0fa76e6980e1213feccfa123f41426d5a
+  Replace it only from a named Natural Earth release and update this notice.

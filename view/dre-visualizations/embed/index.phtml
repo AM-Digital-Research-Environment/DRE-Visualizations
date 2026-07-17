@@ -221,7 +221,6 @@ $basePath = $this->basePath();
     var RV = window.RV || {};
     var basePath = <?= json_encode($basePath, JSON_UNESCAPED_SLASHES) ?>;
     var embedBase = <?= json_encode($embedBase, JSON_UNESCAPED_SLASHES) ?>;
-    var dataBase = basePath.replace(/\/$/, '') + '/modules/DreVisualizations/asset/data/item-dashboards/';
     var copyLabel = <?= json_encode($this->translate('Copy')) ?>;
     var doneLabel = <?= json_encode($this->translate('Copied!')) ?>;
     var previewLabel = <?= json_encode($this->translate('Preview')) ?>;
@@ -276,7 +275,8 @@ $basePath = $this->basePath();
         var layoutKey = host.getAttribute('data-layout');
         var order = (LAYOUTS[layoutKey] && LAYOUTS[layoutKey].order) || [];
         if (!order.length) return;
-        fetch(dataBase + itemId + '.json').then(function (r) { return r.ok ? r.json() : null; }).then(function (data) {
+        RV.basePath = basePath;
+        RV.fetchDataJson('item-dashboards/' + encodeURIComponent(itemId) + '.json').then(function (data) {
             if (!data) return;
             var seen = {};
             var keys = order.filter(function (k) {

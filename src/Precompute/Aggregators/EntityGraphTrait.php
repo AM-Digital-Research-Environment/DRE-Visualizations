@@ -210,7 +210,11 @@ trait EntityGraphTrait
         foreach ($groups as $members) {
             $sized[] = $members;
         }
-        usort($sized, static fn ($p, $q) => count($q) <=> count($p));
+        usort($sized, static function (array $p, array $q): int {
+            sort($p, SORT_NUMERIC);
+            sort($q, SORT_NUMERIC);
+            return (count($q) <=> count($p)) ?: (($p[0] ?? 0) <=> ($q[0] ?? 0));
+        });
         $communityOf = [];
         $cid = 0;
         foreach ($sized as $members) {
@@ -250,7 +254,7 @@ trait EntityGraphTrait
                 return -1;
             }
             $total = array_sum($counts);
-            arsort($counts);
+            self::sortCounts($counts);
             $topName = array_key_first($counts);
             if (count($counts) > 1 && $counts[$topName] * 2 <= $total) {
                 return -2; // no majority: a cross-section bridge
@@ -323,7 +327,6 @@ trait EntityGraphTrait
 
         return [
             'meta' => [
-                'generatedAt' => gmdate('c'),
                 'weightMin' => $minCooccurrence,
                 'weightMax' => $weightMax,
                 'nodeCount' => count($nodes),

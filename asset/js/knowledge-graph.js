@@ -55,13 +55,10 @@
         var itemId = container.dataset.itemId;
         var basePath = container.dataset.basePath || '';
         var apiBase = container.dataset.apiBase;
-        var precomputedUrl = basePath + '/modules/DreVisualizations/asset/data/knowledge-graphs/' + itemId + '.json';
+        ns.basePath = basePath;
 
         // Try precomputed file first.
-        return fetch(precomputedUrl).then(function (resp) {
-            if (resp.ok) return resp.json();
-            throw new Error('not found');
-        }).catch(function () {
+        return ns.fetchDataJson('knowledge-graphs/' + encodeURIComponent(itemId) + '.json').catch(function () {
             // Fall back to lightweight API (direct relationships only).
             return fetch(apiBase + '/items/' + itemId)
                 .then(function (r) { return r.json(); })
@@ -667,7 +664,7 @@
                 style: ns.getBasemapStyle(),
                 center: [all[0].lon, all[0].lat],
                 zoom: 3,
-                attributionControl: false,
+                attributionControl: ns.getMapAttributionOptions(),
                 scrollZoom: false,
             });
             map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
@@ -675,9 +672,10 @@
             map.on('load', function () {
                 // Origin markers (brand accent).
                 origins.forEach(function (loc) {
-                    var popupHtml = '<strong>' + loc.name + '</strong><br/>'
+                    var popupHtml = '<strong>' + ns.escapeHtml(loc.name || '') + '</strong><br/>'
                         + '<span style="color:' + THEME.accent + '">Origin</span>';
-                    if (siteBase) popupHtml += '<br/><a href="' + siteBase + '/item/' + loc.itemId + '" style="font-size:12px">View location</a>';
+                    if (siteBase) popupHtml += '<br/><a href="' + ns.escapeHtml(siteBase) + '/item/'
+                        + encodeURIComponent(loc.itemId) + '" style="font-size:12px">View location</a>';
                     new maplibregl.Marker({ color: THEME.accent })
                         .setLngLat([loc.lon, loc.lat])
                         .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML(popupHtml))
@@ -686,9 +684,10 @@
 
                 // Current location markers.
                 current.forEach(function (loc) {
-                    var popupHtml = '<strong>' + loc.name + '</strong><br/>'
+                    var popupHtml = '<strong>' + ns.escapeHtml(loc.name || '') + '</strong><br/>'
                         + '<span style="color:' + COLORS[1] + '">Current location</span>';
-                    if (siteBase) popupHtml += '<br/><a href="' + siteBase + '/item/' + loc.itemId + '" style="font-size:12px">View location</a>';
+                    if (siteBase) popupHtml += '<br/><a href="' + ns.escapeHtml(siteBase) + '/item/'
+                        + encodeURIComponent(loc.itemId) + '" style="font-size:12px">View location</a>';
                     new maplibregl.Marker({ color: COLORS[1] })
                         .setLngLat([loc.lon, loc.lat])
                         .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML(popupHtml))

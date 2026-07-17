@@ -9,14 +9,21 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
+
+concurrency:
+  group: wordclouds
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # actions/checkout v7.0.0, verified upstream 2026-06-18.
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
-      - uses: actions/setup-python@v5
+      # actions/setup-python v6.3.0, verified upstream 2026-06-24.
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: '3.12'
           cache: pip
@@ -26,15 +33,18 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r tools/wordclouds/requirements.txt
-          python -m spacy download en_core_web_sm
-          python -m spacy download fr_core_news_sm
-          python -m spacy download de_core_news_sm
-          python -m spacy download pt_core_news_sm
+          pip install \
+            https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl \
+            https://github.com/explosion/spacy-models/releases/download/fr_core_news_sm-3.8.0/fr_core_news_sm-3.8.0-py3-none-any.whl \
+            https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.8.0/de_core_news_sm-3.8.0-py3-none-any.whl \
+            https://github.com/explosion/spacy-models/releases/download/pt_core_news_sm-3.8.0/pt_core_news_sm-3.8.0-py3-none-any.whl
 
       - name: Build word-cloud inputs
         run: python tools/wordclouds/build_wordclouds.py
 
-      - name: Commit regenerated inputs
+      - name: Open bot PR for regenerated inputs
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -42,6 +52,11 @@ jobs:
           if git diff --staged --quiet; then
             echo "No word-cloud changes."
           else
+            branch="automation/wordclouds-${GITHUB_RUN_ID}"
+            git switch -c "$branch"
             git commit -m "Word clouds: regenerate lemmatised frequencies [skip ci]"
-            git push
+            git push --set-upstream origin "$branch"
+            gh pr create --base main --head "$branch" \
+              --title "Word clouds: regenerate lemmatised frequencies" \
+              --body "Automated word-cloud refresh from workflow run ${GITHUB_RUN_ID}."
           fi

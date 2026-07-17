@@ -49,7 +49,7 @@ trait GeoChartsTrait
             $nodes[] = ['name' => $geo[$nid]['name'], 'lat' => $geo[$nid]['lat'], 'lon' => $geo[$nid]['lon'], 'itemId' => $nid];
         }
 
-        arsort($flows);
+        self::sortCounts($flows);
         $flowLinks = [];
         foreach ($flows as $key => $count) {
             [$o, $c] = array_map('intval', explode(',', $key));
@@ -270,7 +270,7 @@ trait GeoChartsTrait
         if (!$counts) {
             return null;
         }
-        arsort($counts);
+        self::sortCounts($counts);
         $out = [];
         foreach ($counts as $c => $n) {
             $out[] = ['country' => $c, 'count' => $n];

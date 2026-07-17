@@ -21,6 +21,15 @@ require dirname(__DIR__) . '/src/Precompute/KnowledgeGraphs.php';
 use DreVisualizations\Precompute\Aggregators as A;
 use DreVisualizations\Precompute\KnowledgeGraphs as KG;
 
+A::configureInstallation(4, 5, [
+    'University of Bayreuth' => 'University of Bayreuth',
+    'University of Lagos African Cluster Centre (LACC)' => 'University of Lagos',
+    'University Joseph Ki-Zerbo' => 'Université Joseph Ki-Zerbo',
+    'Universidade Federal da Bahia' => 'Federal University of Bahia',
+    'CEAO Centro de Estudos Afro-Orientais' => 'Federal University of Bahia',
+    'Rhodes University' => 'Rhodes University',
+]);
+
 $failures = 0;
 function check(bool $cond, string $msg): void
 {

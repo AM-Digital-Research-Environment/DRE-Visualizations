@@ -9,6 +9,7 @@
     var ns = window.RV;
     var THEME = ns.THEME, COLORS = ns.COLORS;
     var truncateLabel = ns.truncateLabel, getBasemapStyle = ns.getBasemapStyle;
+    var esc = ns.escapeHtml;
 
     ns.charts = ns.charts || {};
 
@@ -29,7 +30,7 @@
             pageItems.forEach(function (it) {
                 var url = siteBase ? siteBase + '/item/' + it.id : '#';
                 var title = truncateLabel(it.title, 55);
-                h += '<li><a href="' + url + '">' + ns.escapeHtml(title) + '</a></li>';
+                h += '<li><a href="' + esc(url) + '">' + esc(title) + '</a></li>';
             });
             h += '</ul>';
         }
@@ -43,7 +44,8 @@
         }
 
         if (props.itemId && siteBase) {
-            h += '<a class="rv-popup-location-link" href="' + siteBase + '/item/' + props.itemId + '">View location page \u2192</a>';
+            h += '<a class="rv-popup-location-link" href="' + esc(siteBase) + '/item/'
+                + encodeURIComponent(props.itemId) + '">View location page \u2192</a>';
         }
 
         h += '</div>';
@@ -304,13 +306,16 @@
                 map.on('click', 'flow-lines', function (e) {
                     var p = e.features[0].properties;
                     showPopup(e.lngLat,
-                        '<div class="rv-popup-content"><strong>' + p.from + '</strong> \u2192 <strong>' + p.to + '</strong><br/>' + p.value + ' items</div>');
+                        '<div class="rv-popup-content"><strong>' + esc(p.from || '')
+                        + '</strong> \u2192 <strong>' + esc(p.to || '') + '</strong><br/>'
+                        + ns.formatNumber(p.value) + ' items</div>');
                 });
 
                 map.on('click', 'current-dots', function (e) {
                     var p = e.features[0].properties;
                     showPopup(e.lngLat,
-                        '<div class="rv-popup-content"><strong>' + p.name + '</strong><br/><em>Current location</em></div>');
+                        '<div class="rv-popup-content"><strong>' + esc(p.name || '')
+                        + '</strong><br/><em>Current location</em></div>');
                 });
 
                 ['flow-lines', 'current-dots'].forEach(function (layerId) {
@@ -409,7 +414,8 @@
     /* -- Self-location mini map -- */
 
     ns.charts.buildMiniMap = function (el, data) {
-        if (!data || !data.lat || typeof maplibregl === 'undefined') return null;
+        if (!data || !Number.isFinite(Number(data.lat)) || !Number.isFinite(Number(data.lon))
+            || typeof maplibregl === 'undefined') return null;
         el.style.borderRadius = '6px';
 
         function create() {
@@ -418,14 +424,14 @@
             style: getBasemapStyle(),
             center: [data.lon, data.lat],
             zoom: 4,
-            attributionControl: false,
+            attributionControl: ns.getMapAttributionOptions(),
             scrollZoom: false,
         });
         map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
         map.addControl(new maplibregl.FullscreenControl(), 'top-right');
         new maplibregl.Marker({ color: THEME.accent })
             .setLngLat([data.lon, data.lat])
-            .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML('<strong>' + (data.name || '') + '</strong>'))
+            .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML('<strong>' + esc(data.name || '') + '</strong>'))
             .addTo(map);
         ns.trackMap(map, create);
         return { resize: function () { map.resize(); } };

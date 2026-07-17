@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace DreVisualizations\Controller\Admin;
 
+use DreVisualizations\Module;
 use Laminas\Http\Response;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
@@ -26,8 +27,17 @@ class MaintenanceController extends AbstractActionController
 {
     public function indexAction(): ViewModel
     {
+        $services = $this->getEvent()->getApplication()->getServiceManager();
+        $siteId = (int) $services->get('Omeka\Settings')->get(Module::SETTING_SITE_ID, 0);
+        $scopeSite = $siteId > 0
+            ? $services->get('Omeka\Connection')->executeQuery(
+                'SELECT id, title, slug FROM site WHERE id = ? AND is_public = 1',
+                [$siteId]
+            )->fetchAssociative()
+            : false;
         return new ViewModel([
             'form' => $this->getForm(MaintenanceForm::class),
+            'scopeSite' => $scopeSite ?: null,
         ]);
     }
 
@@ -42,6 +52,19 @@ class MaintenanceController extends AbstractActionController
         $form->setData($request->getPost()->toArray());
         if (!$form->isValid()) {
             $this->messenger()->addError('Invalid form submission. Please reload the page and try again.'); // @translate
+            return $this->redirect()->toRoute('admin/dre-visualizations/maintenance');
+        }
+
+        $services = $this->getEvent()->getApplication()->getServiceManager();
+        $siteId = (int) $services->get('Omeka\Settings')->get(Module::SETTING_SITE_ID, 0);
+        $validSite = $siteId > 0 && (bool) $services->get('Omeka\Connection')->executeQuery(
+            'SELECT 1 FROM site WHERE id = ? AND is_public = 1',
+            [$siteId]
+        )->fetchOne();
+        if (!$validSite) {
+            $this->messenger()->addError(
+                'Configure a canonical public site in the DRE Visualizations module settings before regenerating data.' // @translate
+            );
             return $this->redirect()->toRoute('admin/dre-visualizations/maintenance');
         }
 

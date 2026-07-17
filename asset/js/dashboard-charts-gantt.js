@@ -37,8 +37,9 @@
                 confine: true,
                 formatter: function (params) {
                     var v = params.value;
-                    var s = new Date(v[1]).toLocaleDateString('en', { year: 'numeric', month: 'short' });
-                    var e = new Date(v[2]).toLocaleDateString('en', { year: 'numeric', month: 'short' });
+                    var dateOptions = { year: 'numeric', month: 'short' };
+                    var s = ns.formatDate(v[1], dateOptions);
+                    var e = ns.formatDate(v[2], dateOptions);
                     return '<strong>' + echarts.format.encodeHTML(params.name) + '</strong><br/>' + s + ' \u2192 ' + e;
                 }
             },

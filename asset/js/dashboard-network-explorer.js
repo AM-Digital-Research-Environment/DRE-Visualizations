@@ -197,12 +197,7 @@
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
         ns.basePath = basePath;
-        var url = basePath + '/modules/DreVisualizations/asset/data/network-explorer.json';
-
-        fetch(url, { cache: 'no-cache' }).then(function (r) {
-            if (!r.ok) throw new Error('not found');
-            return r.json();
-        }).then(function (payload) {
+        ns.fetchDataJson('network-explorer.json').then(function (payload) {
             if (!payload || typeof payload !== 'object') {
                 container.innerHTML = '<div class="rv-no-data">No network explorer data available yet.</div>';
                 return;

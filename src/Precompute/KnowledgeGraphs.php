@@ -188,7 +188,9 @@ final class KnowledgeGraphs
             $pri = array_search($cat, self::CAT_PRIORITY, true);
             $directRels[] = [$pri === false ? count(self::CAT_PRIORITY) : $pri, $term, $label, $vrid, $cat];
         }
-        usort($directRels, static fn ($a, $b) => $a[0] <=> $b[0]);
+        usort($directRels, static fn ($a, $b) => ($a[0] <=> $b[0])
+            ?: ((int) $a[3] <=> (int) $b[3])
+            ?: strcmp((string) $a[1], (string) $b[1]));
 
         $directCount = 0;
         foreach ($directRels as [$pri, $term, $label, $vrid, $cat]) {
@@ -304,7 +306,9 @@ final class KnowledgeGraphs
                 }
             }
         }
-        arsort($strengths); // strongest connection first
+        $strengthSnapshot = $strengths;
+        uksort($strengths, static fn ($a, $b) => (($strengthSnapshot[$b] ?? 0) <=> ($strengthSnapshot[$a] ?? 0))
+            ?: ((int) $a <=> (int) $b));
         $topSids = array_slice(array_keys($strengths), 0, self::MAX_SHARED_NODES);
 
         $siCat = null;
@@ -456,7 +460,11 @@ final class KnowledgeGraphs
                 $multi[] = $members;
             }
         }
-        usort($multi, static fn ($a, $b) => count($b) <=> count($a)); // largest first
+        usort($multi, static function (array $a, array $b): int {
+            sort($a, SORT_STRING);
+            sort($b, SORT_STRING);
+            return (count($b) <=> count($a)) ?: strcmp((string) ($a[0] ?? ''), (string) ($b[0] ?? ''));
+        }); // largest first
 
         $communityOf = [];
         foreach ($multi as $cidx => $members) {

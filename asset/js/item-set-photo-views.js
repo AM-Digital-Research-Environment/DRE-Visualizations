@@ -23,6 +23,7 @@
     'use strict';
 
     var ns = window.RV = window.RV || {};
+    var escapeHtml = ns.escapeHtml;
 
     /* ------------------------------------------------------------------ */
     /*  Small inline-SVG icons (lucide, MIT)                               */
@@ -353,7 +354,7 @@
         box.innerHTML =
             '<div class="photo-toc-backdrop" data-close="1"></div>' +
             '<div class="photo-toc-frame">' +
-                '<button type="button" class="photo-toc-close" data-close="1" aria-label="Close">✕</button>' +
+                '<button type="button" class="photo-toc-close" data-close="1" aria-label="' + escapeHtml(ns.t('close', 'Close')) + '">✕</button>' +
                 '<aside class="photo-toc-cover"><img alt=""></aside>' +
                 '<section class="photo-toc-body">' +
                     '<header class="photo-toc-header">' +
@@ -608,7 +609,7 @@
             var map = new maplibregl.Map({
                 container: mapEl,
                 style: ns.getBasemapStyle(),
-                attributionControl: { compact: true }
+                attributionControl: ns.getMapAttributionOptions()
             });
             map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
 
@@ -702,9 +703,9 @@
         box.hidden = true;
         box.innerHTML =
             '<div class="photo-lightbox-backdrop" data-close="1"></div>' +
-            '<button type="button" class="photo-lightbox-close" data-close="1" aria-label="Close">' + svg(ICON.close) + '</button>' +
-            '<button type="button" class="photo-lightbox-nav photo-lightbox-prev" data-nav="-1" aria-label="Previous">' + svg(ICON.chevronLeft) + '</button>' +
-            '<button type="button" class="photo-lightbox-nav photo-lightbox-next" data-nav="1" aria-label="Next">' + svg(ICON.chevronRight) + '</button>' +
+            '<button type="button" class="photo-lightbox-close" data-close="1" aria-label="' + escapeHtml(ns.t('close', 'Close')) + '">' + svg(ICON.close) + '</button>' +
+            '<button type="button" class="photo-lightbox-nav photo-lightbox-prev" data-nav="-1" aria-label="' + escapeHtml(ns.t('previous', 'Previous')) + '">' + svg(ICON.chevronLeft) + '</button>' +
+            '<button type="button" class="photo-lightbox-nav photo-lightbox-next" data-nav="1" aria-label="' + escapeHtml(ns.t('next', 'Next')) + '">' + svg(ICON.chevronRight) + '</button>' +
             '<div class="photo-lightbox-body">' +
                 '<figure class="photo-lightbox-figure"><img alt=""></figure>' +
                 '<aside class="photo-lightbox-meta">' +

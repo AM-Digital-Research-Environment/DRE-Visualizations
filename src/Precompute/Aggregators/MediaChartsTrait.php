@@ -104,7 +104,7 @@ trait MediaChartsTrait
         if (!$counts) {
             return null;
         }
-        arsort($counts);
+        self::sortCounts($counts);
         $out = [];
         foreach ($counts as $word => $n) {
             if ($n < 2) {
