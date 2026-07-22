@@ -2,7 +2,7 @@
 
 ## Requirements and configuration
 
-Supported environments are Omeka S `4.x` and PHP `8.1`–`8.5`. Install the
+Supported environments are Omeka S `4.x` and PHP `8.2`–`8.5`. Install the
 release archive as `modules/DreVisualizations`, enable the module, then open its
 configuration form.
 

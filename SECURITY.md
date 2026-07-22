@@ -3,7 +3,7 @@
 ## Supported versions
 
 Security fixes are made on the current `2.x` release line. The module supports
-Omeka S `4.x` and PHP `8.1` through `8.5`; the CI matrix tests every listed PHP
+Omeka S `4.x` and PHP `8.2` through `8.5`; the CI matrix tests every listed PHP
 minor. Older module releases and unsupported PHP/Omeka versions should be
 upgraded before a report is evaluated.
 

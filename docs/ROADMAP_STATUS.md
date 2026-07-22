@@ -9,7 +9,7 @@ This status tracks implementation of the review performed against `a93ab945`.
 - Stored-XSS remediation and automated sink/tooltip inventory with a malicious
   metadata fixture.
 - Canonical release metadata, generated release archive, pinned Actions, and
-  PHP 8.1–8.5 pull-request CI.
+  PHP 8.2–8.5 pull-request CI.
 - Configurable privacy-safe basemaps with visible attribution.
 - Locked, versioned, schema-checked generation publication through an atomic
   manifest, last-known-good retention, and safe cleanup of legacy outputs.

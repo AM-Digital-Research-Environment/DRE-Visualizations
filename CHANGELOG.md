@@ -2,6 +2,18 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.21.1 — 2026-07-21
+
+### Changed
+
+- Require PHP 8.2+ (8.1 is end-of-life and the precompute layer uses trait
+  constants); CI and the security policy now cover PHP 8.2–8.5.
+
+### Fixed
+
+- Model a deleted item by its absence from the snapshot in the public-corpus
+  regression fixture, which failed on every CI run.
+
 ## 2.21.0 — 2026-07-17
 
 ### Security

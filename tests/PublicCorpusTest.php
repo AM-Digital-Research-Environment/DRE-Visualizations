@@ -24,7 +24,7 @@ $snapshot = [
         3 => ['title' => 'Private source', 'public' => false],
         4 => ['title' => 'Private target', 'public' => false],
         5 => ['title' => 'Other-site item', 'public' => true],
-        6 => ['title' => 'Deleted after id query', 'public' => true],
+        // Id 6 is requested below but absent here: deleted after the id query.
     ],
     'links' => [
         1 => [
