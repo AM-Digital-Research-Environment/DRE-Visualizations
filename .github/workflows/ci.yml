@@ -44,3 +44,24 @@ jobs:
           php tests/CorpusSnapshotTest.php
           php tests/SnapshotPublisherTest.php
           php tests/AggregatorsTest.php
+
+  # `php -l` parses; it does not check an override against its parent. Declaring
+  # the module's classes against a real Omeka S core does, which is the only way
+  # a bad hook signature fails here instead of blanking an admin page.
+  module-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: none
+      # Omeka S 4.2.1, the current release of the supported ^4.0.0 line.
+      - name: Fetch Omeka S core
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/omeka-s.zip" \
+            https://github.com/omeka/omeka-s/releases/download/v4.2.1/omeka-s-4.2.1.zip
+          unzip -q "$RUNNER_TEMP/omeka-s.zip" -d "$RUNNER_TEMP"
+      - name: Module classes declare against Omeka S
+        run: php scripts/check-module-contract.php "$RUNNER_TEMP/omeka-s"

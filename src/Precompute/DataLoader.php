@@ -39,13 +39,13 @@ final class DataLoader
         return array_map(
             'intval',
             array_column($this->query(
-                'SELECT si.item_id'
-                . ' FROM site_item si'
-                . ' JOIN site s ON s.id = si.site_id'
-                . ' JOIN resource r ON r.id = si.item_id'
-                . ' WHERE si.site_id = ? AND s.is_public = 1'
+                'SELECT isi.item_id'
+                . ' FROM item_site isi'
+                . ' JOIN site s ON s.id = isi.site_id'
+                . ' JOIN resource r ON r.id = isi.item_id'
+                . ' WHERE isi.site_id = ? AND s.is_public = 1'
                 . ' AND r.resource_type = ? AND r.is_public = 1'
-                . ' ORDER BY si.item_id ASC',
+                . ' ORDER BY isi.item_id ASC',
                 [$this->siteId, 'Omeka\\Entity\\Item']
             ), 0)
         );

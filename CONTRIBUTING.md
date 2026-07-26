@@ -20,6 +20,14 @@ docker run --rm -v "$PWD:/m" php:8.4-cli php /m/tests/AggregatorsTest.php   # ag
 The aggregators are dependency-free and unit-tested — add a mock-data case for
 every new builder.
 
+Whenever you touch a class that extends an Omeka base — `Module.php`, a block
+layout, a controller, a job — remember that `php -l` cannot see a bad override:
+PHP compares a signature against its parent only when the class is *declared*, so
+a wrong hook signature lints clean and then fatals every admin page that loads it.
+CI catches this by declaring every module class against a real Omeka S core
+(`module-contract`); run it locally against any Omeka checkout with
+`php scripts/check-module-contract.php /path/to/omeka-s`.
+
 ## The precompute → registry → builder pattern
 
 Every per-entity chart lands as the same change across the PHP precompute and the

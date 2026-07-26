@@ -9,7 +9,7 @@ use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\Mvc\MvcEvent;
 use Laminas\Mvc\Controller\AbstractController;
 use Laminas\ServiceManager\ServiceLocatorInterface;
-use Laminas\View\Model\ViewModel;
+use Laminas\View\Renderer\PhpRenderer;
 use DreVisualizations\View\Helper\DashboardAssets;
 
 class Module extends AbstractModule
@@ -49,7 +49,7 @@ class Module extends AbstractModule
         }
     }
 
-    public function getConfigForm(ViewModel $view)
+    public function getConfigForm(PhpRenderer $renderer)
     {
         $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings');
@@ -109,10 +109,7 @@ class Module extends AbstractModule
             ]);
         }
 
-        $view->setVariable('form', $form);
-        return $services->get('ViewRenderer')->render(
-            $view->setTemplate('dre-visualizations/config-form')
-        );
+        return $renderer->render('dre-visualizations/config-form', ['form' => $form]);
     }
 
     public function handleConfigForm(AbstractController $controller)

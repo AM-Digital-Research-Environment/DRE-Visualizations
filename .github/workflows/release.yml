@@ -23,11 +23,18 @@ jobs:
           php-version: '8.4'
           coverage: none
           tools: none
+      # Omeka S 4.2.1, the current release of the supported ^4.0.0 line.
+      - name: Fetch Omeka S core
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/omeka-s.zip" \
+            https://github.com/omeka/omeka-s/releases/download/v4.2.1/omeka-s-4.2.1.zip
+          unzip -q "$RUNNER_TEMP/omeka-s.zip" -d "$RUNNER_TEMP"
       - name: Validate tag, metadata, and source
         run: |
           npm run check
           node scripts/check-release-metadata.mjs --tag "${GITHUB_REF_NAME}"
           find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
+          php scripts/check-module-contract.php "$RUNNER_TEMP/omeka-s"
           php tests/PublicCorpusTest.php
           php tests/DataSelectionTest.php
           php tests/AmiraProfileTest.php

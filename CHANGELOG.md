@@ -2,6 +2,25 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.21.2 — 2026-07-26
+
+### Fixed
+
+- Restore the module configuration form and every admin page that loads the
+  module. `getConfigForm()` declared a `ViewModel` parameter where Omeka's
+  `AbstractModule` declares a `PhpRenderer`, so PHP rejected the override at
+  class-declaration time and the class could not be loaded at all — Configure
+  and Upgrade returned a blank 500 with nothing in `application.log`.
+- Regenerate now reads the site item pool from `item_site`, Omeka's actual join
+  table; the reversed name `site_item` made every precompute run abort with
+  "Base table or view not found".
+
+### Changed
+
+- Add a `module-contract` CI job (and release gate) that declares every module
+  class against a real Omeka S core, so an incompatible override fails CI
+  instead of a live admin page. `php -l` cannot detect this class of bug.
+
 ## 2.21.1 — 2026-07-21
 
 ### Changed
