@@ -185,6 +185,25 @@ final class SnapshotPublisher
             return;
         }
 
+        // Section scatter points merged across sections — the one item-dashboards
+        // artifact that is a list rather than a dashboard object.
+        if ($group === 'item-dashboards' && $file === 'beeswarm-all-sections.json') {
+            if ($isObject || !array_is_list($payload) || !$payload) {
+                throw new RuntimeException('Beeswarm artifact must be a non-empty JSON array: ' . $relative);
+            }
+            foreach ($payload as $point) {
+                if (!is_array($point)
+                    || !is_string($point['category'] ?? null) || $point['category'] === ''
+                    || !is_string($point['label'] ?? null) || $point['label'] === ''
+                    || !is_int($point['value'] ?? null)
+                    || !is_int($point['size'] ?? null)
+                    || !is_int($point['itemId'] ?? null)) {
+                    throw new RuntimeException('Beeswarm artifact has an invalid point: ' . $relative);
+                }
+            }
+            return;
+        }
+
         if ($group === 'item-dashboards') {
             if (!$isObject || !$payload) {
                 throw new RuntimeException('Dashboard artifact must be a non-empty JSON object: ' . $relative);
@@ -220,7 +239,9 @@ final class SnapshotPublisher
             return;
         }
 
-        if ($group === 'featured-collections' && !$isObject) {
+        // Keyed by slug, so a populated index is an object; an index with no
+        // qualifying collection is an empty PHP array and encodes as [].
+        if ($group === 'featured-collections' && !$isObject && $payload !== []) {
             throw new RuntimeException('Featured collection index must be a JSON object: ' . $relative);
         }
         // network-explorer.json may intentionally be [] when no graph qualifies.

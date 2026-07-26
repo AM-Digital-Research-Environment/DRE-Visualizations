@@ -14,12 +14,20 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 - Regenerate now reads the site item pool from `item_site`, Omeka's actual join
   table; the reversed name `site_item` made every precompute run abort with
   "Base table or view not found".
+- Publish `beeswarm-all-sections.json`, which is a JSON array of scatter points
+  rather than a dashboard object. Snapshot validation had no schema for it and
+  discarded the entire completed generation.
+- Accept a featured-collections index with no qualifying collection, which
+  encodes as `[]` rather than `{}`.
 
 ### Changed
 
 - Add a `module-contract` CI job (and release gate) that declares every module
   class against a real Omeka S core, so an incompatible override fails CI
   instead of a live admin page. `php -l` cannot detect this class of bug.
+- Mirror the full `item-dashboards` artifact inventory in the snapshot publisher
+  fixture, so an artifact shape the validator has no schema for fails in CI
+  rather than at the end of a regeneration.
 
 ## 2.21.1 — 2026-07-21
 

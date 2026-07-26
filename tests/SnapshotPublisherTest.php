@@ -28,8 +28,37 @@ function snapshotFixture(string $dir, int $marker): array
         'items' => 1,
     ]]);
     $writer->write($dir . '/item-dashboards/collection-overview.json', ['totalItems' => $marker]);
+    // Mirror every artifact shape Runner writes into item-dashboards, so a shape
+    // the publisher has no schema for fails here rather than mid-regeneration.
+    $writer->write($dir . '/item-dashboards/' . $marker . '.json', [
+        'resourceType' => 'section',
+        'projects' => [['name' => 'Project ' . $marker, 'value' => 1, 'itemId' => $marker]],
+    ]);
+    $writer->write($dir . '/item-dashboards/beeswarm-all-sections.json', [[
+        'category' => 'Section ' . $marker,
+        'value' => 2024,
+        'label' => 'Project ' . $marker,
+        'size' => 1,
+        'itemId' => $marker,
+    ]]);
+    $writer->write($dir . '/item-dashboards/spatial-exploration.json', [
+        'meta' => ['locations' => 1],
+        'types' => ['Project'],
+        'locations' => [],
+        'countries' => [],
+        'pickers' => [],
+        'entityPlaces' => new stdClass(),
+    ]);
+    $writer->write($dir . '/item-dashboards/whats-new.json', [
+        'reference' => '2026-07-01',
+        'windows' => [],
+    ]);
     $writer->write($dir . '/network-explorer.json', ['contributors' => []]);
     $writer->write($dir . '/knowledge-graphs/' . $marker . '.json', ['nodes' => [], 'edges' => []]);
+    // An index with no qualifying collection encodes as [], not {}.
+    $writer->write($dir . '/featured-collections/index.json', $marker === 1 ? [] : [
+        'museu' => ['itemCount' => $marker, 'photoCount' => null, 'covers' => []],
+    ]);
     return [
         'sourceCounts' => ['items' => $marker],
         'warnings' => $marker === 1 ? ['fixture warning'] : [],
@@ -61,9 +90,13 @@ try {
     snapshotCheck(($first['scope']['siteId'] ?? null) === 7, 'manifest declares the site scope');
     snapshotCheck(($first['scope']['itemCount'] ?? null) === 1, 'manifest declares the scoped item count');
     snapshotCheck(($first['sourceCounts']['items'] ?? null) === 1, 'manifest carries source counts');
-    snapshotCheck(($first['artifactCounts']['total'] ?? null) === 4, 'all staged JSON is counted');
+    snapshotCheck(($first['artifactCounts']['total'] ?? null) === 9, 'all staged JSON is counted');
+    snapshotCheck(is_file($root . '/' . $first['basePath'] . '/featured-collections/index.json'),
+        'an empty featured-collections index passes validation');
     snapshotCheck(is_file($root . '/' . $first['basePath'] . '/knowledge-graphs/1.json'),
         'validated generation is published under an immutable path');
+    snapshotCheck(is_file($root . '/' . $first['basePath'] . '/item-dashboards/beeswarm-all-sections.json'),
+        'the list-shaped beeswarm artifact passes validation');
     snapshotCheck(!is_dir($root . '/item-dashboards') && !is_file($root . '/network-explorer.json'),
         'direct legacy generated paths are removed after validation');
     snapshotCheck(is_file($root . '/wordclouds/input.json'), 'static data inputs are preserved');
@@ -95,6 +128,23 @@ try {
         snapshotCheck(false, 'invalid artifact schema is rejected');
     } catch (RuntimeException $e) {
         snapshotCheck(str_contains($e->getMessage(), 'Photo gallery'), 'invalid artifact schema is rejected');
+    }
+
+    try {
+        $publisher->publish(static function (string $dir): array {
+            $stats = snapshotFixture($dir, 97);
+            (new JsonArtifactWriter())->write($dir . '/item-dashboards/beeswarm-all-sections.json', [[
+                'category' => 'Section',
+                'label' => 'Project',
+                'value' => '2024', // the plotted year must stay an int
+                'size' => 1,
+                'itemId' => 97,
+            ]]);
+            return $stats;
+        });
+        snapshotCheck(false, 'invalid beeswarm point is rejected');
+    } catch (RuntimeException $e) {
+        snapshotCheck(str_contains($e->getMessage(), 'Beeswarm'), 'invalid beeswarm point is rejected');
     }
     snapshotCheck(file_get_contents($root . '/current.json') === $currentBeforeFailure,
         'schema failure leaves the current manifest unchanged');
