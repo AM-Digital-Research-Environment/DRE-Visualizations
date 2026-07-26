@@ -551,21 +551,65 @@
      * yields a same-document background style, making maps privacy-safe by
      * default (no tile/style/glyph requests leave the Omeka origin).
      */
+    /**
+     * Glyph endpoint for MapLibre text layers. Falls back to the Noto Sans
+     * ranges this module ships, so labels render with no third-party request.
+     * The fontstack name is the one the common hosts also serve, so a
+     * configured endpoint resolves the same `text-font`.
+     */
+    ns.mapGlyphs = function () {
+        return String((window.RV_MAP_CONFIG || {}).glyphs || '')
+            || ns.moduleAsset('fonts/{fontstack}/{range}.pbf');
+    };
+
+    /**
+     * Basemap assembled from the country outlines already shipped for the
+     * choropleth: land, coastlines and borders with no tile server and no
+     * third-party call. This is the default, so maps read as maps out of the
+     * box; an administrator can still point the basemap settings at any
+     * MapLibre style. Colours resolve from DRE theme tokens, so it follows
+     * light/dark like every other surface.
+     */
+    ns.selfHostedBasemapStyle = function () {
+        var dark = ns._darkMode;
+        return {
+            version: 8,
+            name: 'DRE self-hosted basemap',
+            glyphs: ns.mapGlyphs(),
+            sources: {
+                'dre-countries': {
+                    type: 'geojson',
+                    data: ns.moduleAsset('data/geo/countries.geojson'),
+                    attribution: 'Natural Earth'
+                }
+            },
+            layers: [
+                {
+                    id: 'background', type: 'background',
+                    paint: { 'background-color': ns.cssColor('--surface-sunken', dark ? '#1a1a1a' : '#f1ede6') }
+                },
+                {
+                    id: 'dre-country-fill', type: 'fill', source: 'dre-countries',
+                    paint: { 'fill-color': ns.cssColor('--surface', dark ? '#242424' : '#fdfcfa') }
+                },
+                {
+                    id: 'dre-country-line', type: 'line', source: 'dre-countries',
+                    paint: {
+                        'line-color': ns.cssColor('--border', dark ? '#3c3c3c' : '#dcd6cb'),
+                        'line-width': 0.6
+                    }
+                }
+            ]
+        };
+    };
+
     ns.getBasemapStyle = function () {
         var config = window.RV_MAP_CONFIG || {};
         var configured = ns._darkMode
             ? (config.darkStyle || config.lightStyle)
             : (config.lightStyle || config.darkStyle);
         if (configured) return configured;
-        return {
-            version: 8,
-            name: 'DRE privacy-safe blank basemap',
-            sources: {},
-            layers: [{
-                id: 'background', type: 'background',
-                paint: { 'background-color': ns.cssColor('--surface', ns._darkMode ? '#1e1e1e' : '#ffffff') }
-            }]
-        };
+        return ns.selfHostedBasemapStyle();
     };
 
     /** Visible, plain-text attribution for the configured basemap. */

@@ -16,6 +16,12 @@ const requiredReleaseFiles = [
   'SECURITY.md',
   'CHANGELOG.md',
   'config/amira-profile.json',
+  // The self-hosted basemap. Without these the maps silently lose their land,
+  // borders and every label, so they are release-blocking assets.
+  'asset/data/geo/countries.geojson',
+  'asset/fonts/OFL.txt',
+  'asset/fonts/Noto Sans Regular/0-255.pbf',
+  'asset/fonts/Noto Sans Regular/8192-8447.pbf',
 ];
 let profile = null;
 try {

@@ -21,6 +21,16 @@ MapLibre GL JS 5.24.0
   Project and full notices:
   https://github.com/maplibre/maplibre-gl-js/blob/v5.24.0/LICENSE.txt
 
+Noto Sans Regular (MapLibre SDF glyph ranges)
+  Files: asset/fonts/Noto Sans Regular/*.pbf
+  License: SIL Open Font License 1.1 — asset/fonts/OFL.txt
+  Project: https://fonts.google.com/noto
+  Prebuilt ranges taken unmodified from
+  https://github.com/protomaps/basemaps-assets (fonts/Noto Sans Regular).
+  Only the ranges the collection's labels need are shipped: Latin and its
+  supplements/extensions (0-1023, 7680-7935), Arabic (1536-1791) and general
+  punctuation (8192-8447). Add a range file to support a further script.
+
 Natural Earth country boundaries
   File: asset/data/geo/countries.geojson
   Dataset: Admin 0 Countries, 1:110m; public domain

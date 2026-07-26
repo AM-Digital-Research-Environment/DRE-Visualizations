@@ -46,9 +46,6 @@
         });
     };
 
-    // Optional administrator-configured glyph endpoint. With none configured,
-    // the privacy-safe graph still renders its nodes/edges but omits map labels.
-    var GLYPHS = String((window.RV_MAP_CONFIG || {}).glyphs || '');
     var LABEL_FONT = ['Noto Sans Regular'];
 
     var SRC_NODES = 'eg-nodes';
@@ -390,7 +387,7 @@
                     'circle-stroke-color': theme().surface
                 }
             });
-            if (GLYPHS && !m.getLayer(L_LABELS)) m.addLayer({
+            if (!m.getLayer(L_LABELS)) m.addLayer({
                 id: L_LABELS, type: 'symbol', source: SRC_NODES,
                 layout: {
                     'text-field': ['get', 'label'],
@@ -463,14 +460,15 @@
         /*  Map                                                                */
         /* ------------------------------------------------------------------ */
 
+        // The graph is laid out in pseudo-coordinates, so it wants no basemap —
+        // only a themed backdrop and the glyphs its node labels are drawn from.
         function graphStyle() {
-            var style = {
+            return {
                 version: 8,
+                glyphs: ns.mapGlyphs(),
                 sources: {},
                 layers: [{ id: 'bg', type: 'background', paint: { 'background-color': theme().surface } }]
             };
-            if (GLYPHS) style.glyphs = GLYPHS;
-            return style;
         }
 
         function createMap() {

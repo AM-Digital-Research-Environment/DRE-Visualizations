@@ -8,9 +8,26 @@ configuration form.
 
 Choose exactly one canonical public site. All static dashboard data is limited
 to public items currently assigned to that site. Regeneration is disabled until
-this setting is valid. Optional basemap style and glyph URLs must be HTTPS or
-same-origin absolute paths; any configured map source requires visible
+this setting is valid.
+
+## Basemaps
+
+Leave the four basemap settings blank. Maps then draw from assets this module
+ships — Natural Earth country outlines and Noto Sans glyph ranges — so they
+render land, coastlines, borders and labels with no third-party request and no
+tile server, themed light/dark from the DRE tokens. This is the recommended
+configuration.
+
+Set the style and glyph URLs only to replace that with an external basemap, for
+example a commercial tile provider or a style you host yourself. They must be
+HTTPS or same-origin absolute paths, the glyph template must contain
+`{fontstack}` and `{range}`, and any configured source requires visible
 attribution text.
+
+Note that the attribution box then shows both what you enter *and* whatever the
+style declares for its own sources, which is how MapLibre credits tiles. Two
+differently worded credits for the same data read as a duplicate, so match your
+text to the provider's or leave the provider's to speak for itself.
 
 ## Regeneration
 

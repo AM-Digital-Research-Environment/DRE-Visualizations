@@ -2,6 +2,25 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.21.4 — 2026-07-26
+
+### Added
+
+- Self-hosted basemap. Maps now default to a style built from the Natural Earth
+  outlines already shipped for the choropleth, with self-hosted Noto Sans glyph
+  ranges for labels, themed from the DRE tokens. Land, coastlines, borders and
+  labels render with no tile server and no third-party request, so the basemap
+  settings can stay blank.
+
+### Fixed
+
+- Restore Entity Network and Spatial Exploration labels, which drew nothing
+  unless an administrator had configured an external glyph endpoint.
+- Stop showing two credits for the same basemap. The built-in style declares its
+  own attribution, so the attribution setting is only needed for an external
+  style; documented that an external style adds the provider's credit to
+  whatever text is configured.
+
 ## 2.21.3 — 2026-07-26
 
 ### Fixed

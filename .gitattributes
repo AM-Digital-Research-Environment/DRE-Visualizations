@@ -3,6 +3,9 @@
 # language statistics and diffs.
 asset/vendor/** -text -diff linguist-vendored
 
+# Self-hosted MapLibre glyph ranges (SDF protobuf). Binary — never EOL-convert.
+asset/fonts/**/*.pbf -text -diff linguist-vendored
+
 # Runtime release archives are built with `git archive`. Keep development and
 # CI-only material out while retaining README/licence/compliance documents.
 /.agents export-ignore

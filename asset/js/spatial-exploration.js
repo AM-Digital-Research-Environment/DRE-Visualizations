@@ -49,7 +49,7 @@
     var L_ORIGIN = 'rv-spatial-origin';
     var L_CURRENT = 'rv-spatial-current';
     var L_LABELS = 'rv-spatial-labels';
-    var LABEL_FONT = ['Noto Sans Regular']; // served by the CartoCDN basemap glyphs
+    var LABEL_FONT = ['Noto Sans Regular']; // served by the basemap style's glyphs
     var LIST_CAP = 60;
     var TOP_PLACES = 10;
 
