@@ -2,6 +2,13 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.21.5 — 2026-07-26
+
+### Added
+
+- Country labels on the self-hosted basemap, sized by zoom and haloed against
+  the land fill, and a stronger border colour so coastlines read at world zoom.
+
 ## 2.21.4 — 2026-07-26
 
 ### Added

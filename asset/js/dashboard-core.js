@@ -595,8 +595,26 @@
                 {
                     id: 'dre-country-line', type: 'line', source: 'dre-countries',
                     paint: {
-                        'line-color': ns.cssColor('--border', dark ? '#3c3c3c' : '#dcd6cb'),
+                        'line-color': ns.cssColor('--border-strong', dark ? '#4a4a4a' : '#c3b9a9'),
                         'line-width': 0.6
+                    }
+                },
+                {
+                    // Placed at each polygon's pole of inaccessibility by MapLibre.
+                    // Natural Earth carries no importance rank, so which labels
+                    // survive at low zoom is decided by collision alone.
+                    id: 'dre-country-label', type: 'symbol', source: 'dre-countries',
+                    layout: {
+                        'text-field': ['coalesce', ['get', 'NAME_EN'], ['get', 'NAME'], ['get', 'ADMIN']],
+                        'text-font': ['Noto Sans Regular'],
+                        'text-size': ['interpolate', ['linear'], ['zoom'], 1, 9, 4, 12, 7, 15],
+                        'text-max-width': 8,
+                        'text-padding': 6
+                    },
+                    paint: {
+                        'text-color': ns.cssColor('--ink-light', dark ? '#a49c91' : '#6c6357'),
+                        'text-halo-color': ns.cssColor('--surface', dark ? '#242424' : '#fdfcfa'),
+                        'text-halo-width': 1.2
                     }
                 }
             ]
