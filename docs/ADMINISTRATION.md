@@ -24,10 +24,10 @@ HTTPS or same-origin absolute paths, the glyph template must contain
 `{fontstack}` and `{range}`, and any configured source requires visible
 attribution text.
 
-Note that the attribution box then shows both what you enter *and* whatever the
-style declares for its own sources, which is how MapLibre credits tiles. Two
-differently worded credits for the same data read as a duplicate, so match your
-text to the provider's or leave the provider's to speak for itself.
+Attribution comes from the style itself whenever it credits its own sources,
+which every common provider does. The attribution setting is the fallback for a
+style that credits nothing, so it is required but usually not the text you see
+on the map. Only one credit is ever shown.
 
 ## Regeneration
 

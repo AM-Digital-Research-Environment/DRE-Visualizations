@@ -92,7 +92,7 @@ class Module extends AbstractModule
             ],
             self::SETTING_BASEMAP_ATTRIBUTION => [
                 'Basemap attribution',
-                'Required when a basemap URL is configured. Enter plain text such as “© OpenStreetMap contributors”.',
+                'Required when a basemap URL is configured, but shown only when that style does not already credit its own sources. Most providers (CARTO included) do credit themselves, so this is normally an unused fallback rather than the text on the map.',
             ],
         ] as $name => [$label, $info]) {
             $form->add([

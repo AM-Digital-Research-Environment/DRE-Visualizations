@@ -513,6 +513,7 @@
      */
     ns.trackMap = function (map, rebuild) {
         ns._allMaps.push({ map: map, rebuild: rebuild });
+        ns.attachMapAttribution(map);
         return map;
     };
 
@@ -630,16 +631,53 @@
         return ns.selfHostedBasemapStyle();
     };
 
-    /** Visible, plain-text attribution for the configured basemap. */
+    /**
+     * Suppress MapLibre's construction-time attribution control. A style credits
+     * its own sources and MapLibre renders that automatically, so passing the
+     * configured text as well printed the same tiles twice in different words
+     * ("© OpenStreetMap contributors © CARTO | © CARTO, © OpenStreetMap
+     * contributors"). Whether a style credits itself is only knowable once it has
+     * loaded, so ns.trackMap() attaches the control then.
+     */
     ns.getMapAttributionOptions = function () {
-        var text = String((window.RV_MAP_CONFIG || {}).attribution || '');
-        var options = { compact: true };
-        if (text) {
-            options.customAttribution = text.replace(/[&<>"']/g, function (ch) {
-                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+        return false;
+    };
+
+    /**
+     * Attach exactly one attribution control once the style is loaded. The
+     * style's own source credits win; the configured text is the fallback for a
+     * style that declares none, which is what makes it a safety net rather than
+     * a duplicate. A map with nothing to credit gets no control.
+     */
+    ns.attachMapAttribution = function (map) {
+        var apply = function () {
+            if (map._rvAttributionAdded) return; // one control per map, never two
+            var sources;
+            try {
+                sources = (map.getStyle() || {}).sources || {};
+            } catch (e) {
+                return;
+            }
+            map._rvAttributionAdded = true;
+            var options = { compact: true };
+            var credited = Object.keys(sources).some(function (id) {
+                return sources[id] && sources[id].attribution;
             });
+            if (!credited) {
+                var text = String((window.RV_MAP_CONFIG || {}).attribution || '');
+                if (!text) return; // nothing to credit — no empty control
+                options.customAttribution = text.replace(/[&<>"']/g, function (ch) {
+                    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+                });
+            }
+            map.addControl(new maplibregl.AttributionControl(options));
+        };
+        if (map.isStyleLoaded && map.isStyleLoaded()) {
+            apply();
+        } else {
+            map.once('load', apply);
         }
-        return options;
+        return map;
     };
 
     /**

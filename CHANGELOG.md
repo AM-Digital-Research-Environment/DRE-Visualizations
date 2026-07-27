@@ -2,6 +2,17 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.21.6 — 2026-07-26
+
+### Fixed
+
+- Show one basemap credit instead of two. MapLibre already renders the credits a
+  style declares for its own sources, so also passing the configured attribution
+  printed the same tiles twice in different words. The style's own credit now
+  wins and the setting is the fallback for a style that declares none, so an
+  external basemap such as CARTO is credited exactly once.
+- Stop crediting a basemap on the Entity Network, which renders no map data.
+
 ## 2.21.5 — 2026-07-26
 
 ### Added
