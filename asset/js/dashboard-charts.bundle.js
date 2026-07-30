@@ -1849,6 +1849,10 @@
     ns.charts.buildCollabNetwork = function (el, data, siteBase) {
         if (!data || !data.nodes || !data.links || data.links.length < 1) return;
         var chart = initChart(el);
+        // Decal patterns exist to separate FILLED AREAS without relying on colour.
+        // On a node-link graph they land on small circles and read as noise, so this
+        // chart opts out of the global toggle (as chord/sankey/radar already do).
+        chart._noDecal = true;
         var n = data.nodes.length;
 
         chart.setOption({
@@ -1930,17 +1934,19 @@
     'use strict';
 
     var ns = window.RV;
-    var THEME = ns.THEME, COLORS = ns.COLORS;
+    var THEME = ns.THEME;
     var initChart = ns.initChart, truncateLabel = ns.truncateLabel;
 
     ns.charts = ns.charts || {};
 
-    /** Category color palettes for bipartite graphs (from COLORS palette). */
-    var CATEGORY_COLORS = {
-        person:      COLORS[0],
-        project:     COLORS[1],
-        institution: COLORS[2]
-    };
+    // Entity-type colours now come from the shared registry in dashboard-core
+    // (ns.entityColor), which was seeded from the person/project/institution
+    // convention this file used to own — so these three keep exactly the colours
+    // they had, and the knowledge graph and Entity Network line up behind them
+    // instead of each indexing the palette by their own category order.
+    function categoryColor(name) {
+        return ns.entityColor(name);
+    }
 
     /**
      * Generic bipartite force graph builder.
@@ -1950,11 +1956,15 @@
     function buildBipartiteNetwork(el, data, siteBase, tooltipFormatter) {
         if (!data || !data.nodes || !data.links || data.links.length < 1) return;
         var chart = initChart(el);
+        // Decal patterns exist to separate FILLED AREAS without relying on colour.
+        // On a node-link graph they land on small circles and read as noise, so this
+        // chart opts out of the global toggle (as chord/sankey/radar already do).
+        chart._noDecal = true;
         var n = data.nodes.length;
 
         // Build categories array for legend.
         var cats = (data.categories || []).map(function (c) {
-            return { name: c, itemStyle: { color: CATEGORY_COLORS[c] || COLORS[0] } };
+            return { name: c, itemStyle: { color: categoryColor(c) } };
         });
 
         chart.setOption({
@@ -1987,7 +1997,7 @@
                 data: data.nodes.map(function (nd, i) {
                     var isSelf = !!nd.isSelf;
                     var catIdx = (data.categories || []).indexOf(nd.category);
-                    var catColor = CATEGORY_COLORS[nd.category] || COLORS[i % COLORS.length];
+                    var catColor = categoryColor(nd.category);
                     var size = isSelf ? 45 : Math.max(10, Math.min(35, nd.value * 2.5));
                     return {
                         name: nd.name, symbolSize: size, value: nd.value,
@@ -2578,6 +2588,10 @@
     ns.charts.buildCommunities = function (el, data, siteBase) {
         if (!data || !data.nodes || !data.nodes.length || !data.links) return;
         var chart = initChart(el);
+        // Decal patterns exist to separate FILLED AREAS without relying on colour.
+        // On a node-link graph they land on small circles and read as noise, so this
+        // chart opts out of the global toggle (as chord/sankey/radar already do).
+        chart._noDecal = true;
         var n = data.nodes.length;
         // When links carry a `relation` (the co-author network), colour is reserved
         // for the edge relationship and the legend lists those; the subject graph

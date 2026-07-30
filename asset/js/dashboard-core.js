@@ -101,6 +101,73 @@
 
     ns.HALO = ns.buildHaloPalette(false);
 
+    /* ------------------------------------------------------------------ */
+    /*  Entity-type colours — one mapping for every network                */
+    /* ------------------------------------------------------------------ */
+
+    // An entity type must keep ONE colour everywhere: a person is the same hue on
+    // an item's knowledge graph, on the Entity Network, and on a contributor
+    // network. Colouring by the *index* a category happened to land at cannot do
+    // that — the knowledge graph discovers categories in per-item order, so Person
+    // could be slot 1 (the project hue) on one item and slot 3 on the next.
+    //
+    // Slots 0-2 are inherited from the convention the contributor network already
+    // encoded (person / project / institution), so those three graphs keep the
+    // colours they have today and everything else lines up behind them.
+    //
+    // This is the entity-TYPE axis only. Graphs that colour by a different axis —
+    // Louvain community (Discursive Communities) or one hue per individual
+    // co-author (Collaboration Network) — legitimately index the palette directly
+    // and must not be routed through here.
+    var ENTITY_SLOT = {
+        // 0 — people
+        'person': 0, 'persons': 0, 'people': 0, 'creator': 0, 'author': 0, 'agent': 0,
+        // 1 — projects
+        'project': 1, 'projects': 1,
+        // 2 — organisations
+        'institution': 2, 'institutions': 2, 'organization': 2, 'organisation': 2,
+        'organizations': 2, 'organisations': 2, 'affiliation': 2, 'affiliations': 2,
+        'sponsor': 2, 'sponsors': 2, 'funder': 2, 'funders': 2,
+        // 3 — subjects (the data model folds the former free-form tags in here)
+        'subject': 3, 'subjects': 3, 'tag': 3, 'tags': 3, 'topic': 3, 'topics': 3,
+        'keyword': 3, 'keywords': 3,
+        // 4 — places
+        'location': 4, 'locations': 4, 'place': 4, 'places': 4, 'spatial': 4,
+        'country': 4, 'countries': 4,
+        // 5 — genre / form
+        'genre': 5, 'genres': 5, 'format': 5, 'formats': 5,
+        'resource type': 5, 'type of resource': 5,
+        // 6 — languages
+        'language': 6, 'languages': 6,
+        // 7 — contributor roles (marcrel:*), kept apart from plain Person so a
+        //     graph showing both does not give them one swatch
+        'contributor': 7, 'contributors': 7, 'role': 7, 'roles': 7,
+        // 8 — items (also the fallback: an unrecognised label on these graphs is
+        //     almost always a resource-class name on the centre node, which is an
+        //     item, and which the renderer already marks out by size and border)
+        'item': 8, 'items': 8, 'research item': 8, 'research items': 8,
+        'linked item': 8, 'linked items': 8,
+        // 9 / 10 — the knowledge graph's two discovery-flavoured item buckets
+        'related item': 9, 'related items': 9,
+        'shared item': 10, 'shared items': 10,
+        // 11 — groupings
+        'research section': 11, 'research sections': 11, 'section': 11, 'sections': 11,
+        'group': 11, 'groups': 11
+    };
+    var ENTITY_SLOT_FALLBACK = 8;
+
+    /** Palette slot for an entity-type label (case/whitespace-insensitive). */
+    ns.entityColorIndex = function (name) {
+        var key = String(name == null ? '' : name).toLowerCase().trim().replace(/\s+/g, ' ');
+        var slot = ENTITY_SLOT[key];
+        return slot === undefined ? ENTITY_SLOT_FALLBACK : slot;
+    };
+
+    /** The stable colour for an entity-type label, in the active theme. */
+    ns.entityColor = function (name) {
+        return ns.COLORS[ns.entityColorIndex(name) % ns.COLORS.length];
+    };
+
     // Shared design tokens. Colour values are placeholders here; readTheme()
     // overwrites them in place (so modules that captured `ns.THEME` see updates)
     // from the DRE theme's CSS variables on load and on every theme change.

@@ -144,16 +144,18 @@
 
         var pass = { nodes: [], links: [], deg: {}, adj: {} };
         var sim = null;
-        var hoverId = null;       // node under the pointer
+        var hoverId = null;       // node under the pointer (transient, desktop only)
         var hoverLink = null;     // link under the pointer (only when no node is)
         var focusId = null;       // keyboard focus
-        var armedId = null;       // touch: the first tap arms the tooltip, the second opens
+        var selectedId = null;    // the reader's anchor — persists until they clear it
         var showHalos = true;
         var labelsAll = false;
+        var edgeLabels = false;
         var frozen = false;
         var hiddenCats = {};      // category index → true when toggled off
         var onPinChangeCb = null;
         var onThemeCb = null;
+        var onSelectCb = null;
 
         function isVisible(n) { return !hiddenCats[n.category]; }
         function visibleNodes() { return pass.nodes.filter(isVisible); }
@@ -168,9 +170,15 @@
         }
         function firePinChange() { if (onPinChangeCb) onPinChangeCb(pinnedCount()); }
 
-        /** The focus set: the hovered/focused node plus its neighbours. */
+        /**
+         * The focus set: the anchor node plus its neighbours, everything else dimmed.
+         *
+         * A selection outranks a hover, so moving the pointer away does not throw
+         * away the neighbourhood the reader deliberately picked — that is the whole
+         * point of selecting rather than hovering.
+         */
         function focusSet() {
-            var id = hoverId || focusId;
+            var id = selectedId || hoverId || focusId;
             if (!id) return null;
             var set = {};
             set[id] = true;
@@ -184,9 +192,25 @@
             return {
                 nodes: visibleNodes(), links: visibleLinks(), categories: categories,
                 colorOf: colorOf, haloOf: haloOf,
-                hoverId: hoverId, focusId: focusId, hoverLink: hoverLink, focusSet: focusSet(),
-                showHalos: showHalos, labelsAll: labelsAll
+                hoverId: hoverId, focusId: focusId, selectedId: selectedId,
+                hoverLink: hoverLink, focusSet: focusSet(),
+                showHalos: showHalos, labelsAll: labelsAll, edgeLabels: edgeLabels
             };
+        }
+
+        /**
+         * Make a node the reader's anchor (or clear it with null). Highlights its
+         * neighbourhood, labels its edges, and hands it to the chrome so a detail
+         * card can offer an explicit link — instead of a click silently navigating
+         * away, which fought exploration and had no touch story.
+         */
+        function select(node) {
+            var id = node ? node.id : null;
+            if (id === selectedId) return;
+            selectedId = id;
+            hideTooltip();
+            if (onSelectCb) onSelectCb(node || null);
+            requestPaint();
         }
 
         var paintQueued = false;
@@ -197,9 +221,10 @@
         }
 
         function resize() {
-            if (!gc.resize()) return;
-            if (!gc.isUserAdjusted()) gc.fit(visibleNodes());
-            gc.paint(scene());
+            var changed = gc.resize();
+            if (!gc.width() || !gc.height()) return;    // collapsed <details>, not laid out yet
+            if (changed && !gc.isUserAdjusted()) gc.fit(visibleNodes());
+            requestPaint();
         }
 
         /* ---- Simulation ----------------------------------------------- */
@@ -255,8 +280,8 @@
             // longer drawn.
             hoverId = null;
             hoverLink = null;
-            armedId = null;
             if (focusId && !present[focusId]) { focusId = null; announce(null); }
+            if (selectedId && !present[selectedId]) select(null);
             hideTooltip();
 
             buildSimulation(nodes, links, deg, warm);
@@ -306,7 +331,7 @@
         }
 
         function showTooltip(px, py, node, link) {
-            var rows = spec.tooltip ? spec.tooltip(node, link, { armed: !!(node && node.id === armedId) }) : null;
+            var rows = spec.tooltip ? spec.tooltip(node, link, {}) : null;
             if (!rows || !rows.length) { hideTooltip(); return; }
             ns.setChildren(tooltip, rows);
             tooltip.hidden = false;
@@ -363,7 +388,6 @@
                 if (!frozen && !reduced) sim.alphaTarget(0.22).restart();
             } else {
                 panning = true;
-                armedId = null;
                 hideTooltip();
             }
             try { canvas.setPointerCapture(ev.pointerId); } catch (e) { /* noop */ }
@@ -441,12 +465,17 @@
                 var p = localPos(ev);
                 if (Math.hypot(p.x - start.x, p.y - start.y) < 5 && performance.now() - start.time < 500) {
                     releaseDrag(false);                          // a click, not a drag
-                    activate(wasDrag, start.alt, ev.pointerType === 'touch', p);
+                    activate(wasDrag, start.alt);
                 } else {
                     releaseDrag(true);                           // deliberate drag: it stays
                 }
             } else {
                 releaseDrag(false);
+                // A click on empty canvas — not a pan — clears the anchor, the same
+                // way Escape does. Distinguished by travel, like the node click above.
+                if (start && Math.hypot(localPos(ev).x - start.x, localPos(ev).y - start.y) < 5) {
+                    select(null);
+                }
             }
             panning = false;
             pressStart = null;
@@ -459,8 +488,13 @@
             if (!dragNode && !panning) { hoverId = null; hoverLink = null; hideTooltip(); requestPaint(); }
         });
 
-        /** Click / tap / Enter on a node: release a pin, arm the tooltip, or open. */
-        function activate(node, alt, isTouch, p) {
+        /**
+         * Click / tap / Enter on a node. Alt-click releases a pin; otherwise the node
+         * becomes the selection. It deliberately does NOT navigate: opening the record
+         * is a second, explicit act on the real link in the detail card, which works
+         * the same on a mouse and a finger and can be copied or opened in a new tab.
+         */
+        function activate(node, alt) {
             if (alt) {
                 node.pinned = false;
                 if (node.isCenter) { node.fx = 0; node.fy = 0; } else { node.fx = null; node.fy = null; }
@@ -468,16 +502,7 @@
                 if (sim && !frozen && !reduced) sim.alpha(0.2).restart(); else requestPaint();
                 return;
             }
-            if (isTouch && armedId !== node.id) {
-                // There is no hover on touch: the first tap reveals the tooltip and
-                // the second opens, so a tap can never be an accidental navigation.
-                armedId = node.id;
-                hoverId = node.id;
-                if (p) showTooltip(p.x, p.y, node, null);
-                requestPaint();
-                return;
-            }
-            if (spec.onActivate) spec.onActivate(node);
+            select(node.id === selectedId ? null : node);   // clicking it again clears
         }
 
         // Double-click the background to zoom (Alt to zoom out) — the gesture that
@@ -544,7 +569,7 @@
                     next = byId[nb[neighbourCursor]];
                 }
             } else if (ev.key === 'Enter' || ev.key === ' ') {
-                if (focusId && byId[focusId]) { activate(byId[focusId], ev.altKey, false, null); ev.preventDefault(); }
+                if (focusId && byId[focusId]) { activate(byId[focusId], ev.altKey); ev.preventDefault(); }
                 return;
             } else if (ev.key === '+' || ev.key === '=') {
                 if (gc.zoomAt(gc.width() / 2, gc.height() / 2, 1.25)) requestPaint();
@@ -555,6 +580,10 @@
             } else if (ev.key === '0') {
                 gc.fit(visibleNodes()); requestPaint(); ev.preventDefault(); return;
             } else if (ev.key === 'Escape') {
+                // Selection first, then keyboard focus: two Escapes to leave the
+                // graph entirely, and neither one reaches the fullscreen handler
+                // while there is still something in the graph to clear.
+                if (selectedId) { select(null); ev.stopPropagation(); return; }
                 if (focusId) { focusId = null; announce(null); requestPaint(); ev.stopPropagation(); }
                 return;
             } else {
@@ -628,6 +657,10 @@
                 firePinChange();
                 if (sim && !frozen && !reduced) sim.alpha(0.3).restart(); else requestPaint();
             },
+            toggleEdgeLabels: function () { edgeLabels = !edgeLabels; requestPaint(); return edgeLabels; },
+            select: function (id) { select(id ? byId[id] || null : null); },
+            selected: function () { return selectedId ? byId[selectedId] : null; },
+            onSelect: function (cb) { onSelectCb = cb; },
             onPinChange: function (cb) { onPinChangeCb = cb; },
             onTheme: function (cb) { onThemeCb = cb; },
             pinnedCount: pinnedCount,

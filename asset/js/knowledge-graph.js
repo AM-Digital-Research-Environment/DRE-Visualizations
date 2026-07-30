@@ -21,8 +21,20 @@
 
     function t(key, fallback) { return ns.t(key, fallback); }
 
-    /** Categorical fill for a node's category index (re-read on a theme toggle). */
-    function colorOf(i) { return ns.COLORS[i % ns.COLORS.length]; }
+    /**
+     * Categorical fill for a node's category index (re-read on a theme toggle).
+     *
+     * Resolved through the category's NAME, not its index: the precompute appends
+     * categories in per-item discovery order, so index 1 is Person on one item and
+     * Project on the next. `ns.entityColor` pins each entity type to one slot, so a
+     * person is the same hue on every item page and on every other network.
+     */
+    function colorOfIn(categories) {
+        return function (i) {
+            var cat = categories[i];
+            return ns.entityColor(cat ? cat.name : '');
+        };
+    }
 
     /**
      * Halo colour for a node's community, or null when it has none. The ring
@@ -48,6 +60,7 @@
         var kgUI = ns.kgUI;
         var categories = data.categories || [];
         var maxStrength = (data.stats || {}).maxStrength || 1;
+        var colorOf = colorOfIn(categories);
 
         var graph = ns.ForceGraph.create(container, {
             nodes: kgData.toNodeSpecs(data.nodes, siteBase),
@@ -59,8 +72,10 @@
             tooltip: kgUI.tooltipRows(categories, colorOf),
             announce: kgUI.announcer(categories),
             ariaLabel: t('kgCanvasLabel', 'Knowledge graph. Use the arrow keys to move between '
-                + 'connected entities and Enter to open one.'),
-            onActivate: function (node) { if (node.url) window.location.href = node.url; }
+                + 'connected entities and Enter to select one.')
+            // No onActivate: a click selects rather than navigates. The link to the
+            // record lives in the detail card, so leaving the page is always a
+            // second, deliberate act — and works identically on a finger.
         });
 
         graph.setGraph({
@@ -68,6 +83,12 @@
             links: kgData.toLinkSpecs(data.edges, maxStrength)
         }, false);
         graph.resize();
+
+        // The detail card lives INSIDE the stage so it follows the graph into
+        // fullscreen; the click that selects a node is what reveals it.
+        var card = kgUI.buildDetailCard(graph, categories, colorOf);
+        container.appendChild(card.el);
+        graph.onSelect(card.show);
 
         // Chrome below the stage: legend, gesture hint, text alternative. Below —
         // never over the canvas — the same rule the module's map legends follow.

@@ -15,6 +15,10 @@
     ns.charts.buildCollabNetwork = function (el, data, siteBase) {
         if (!data || !data.nodes || !data.links || data.links.length < 1) return;
         var chart = initChart(el);
+        // Decal patterns exist to separate FILLED AREAS without relying on colour.
+        // On a node-link graph they land on small circles and read as noise, so this
+        // chart opts out of the global toggle (as chord/sankey/radar already do).
+        chart._noDecal = true;
         var n = data.nodes.length;
 
         chart.setOption({

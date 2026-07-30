@@ -1,6 +1,6 @@
 {
   "name": "resource-visualizations",
-  "version": "2.22.0",
+  "version": "2.22.1",
   "private": true,
   "description": "DRE Visualizations Omeka S module — ECharts/MapLibre dashboards and a d3-force knowledge graph, with a dependency-free release bundle.",
   "scripts": {
@@ -11,7 +11,8 @@
     "check:registry": "node scripts/check-registry-contracts.mjs",
     "check:html": "node scripts/check-html-safety.mjs",
     "check:release": "node scripts/check-release-metadata.mjs",
-    "check": "npm run check:bundles && npm run lint:tokens && npm run check:js && npm run check:registry && npm run check:html && npm run check:release"
+    "check:graph": "node scripts/check-graph-contracts.mjs",
+    "check": "npm run check:bundles && npm run lint:tokens && npm run check:js && npm run check:registry && npm run check:html && npm run check:graph && npm run check:release"
   },
   "author": "Frédérick Madore",
   "license": "GPL-3.0-or-later",

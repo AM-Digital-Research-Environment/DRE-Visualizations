@@ -2,6 +2,55 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.22.1 — 2026-07-30
+
+### Fixed
+
+- **Entity colours are consistent across every network.** A type was coloured by
+  the palette slot its category happened to occupy, and the knowledge graph
+  appends categories in per-item discovery order — so Person came out in the
+  project colour on one item and a project in the research-item colour on the
+  next, and nothing matched the Entity Network or the contributor networks. All
+  three entity-typed graphs now resolve through one registry
+  (`ns.entityColor`), seeded from the person/project/institution convention the
+  contributor network already encoded, so those colours are unchanged and
+  everything else lines up behind them. `npm run check:graph` fails if two types
+  ever collide again.
+- **The knowledge graph no longer grows without bound in fullscreen.** The canvas
+  was in flow while carrying an inline pixel height measured from its own
+  container, so each ResizeObserver pass made it taller. The canvas is now out of
+  flow, the stage takes its height from the panel rather than its content, and
+  `resize()` returns early when nothing changed. Also fixed the height that
+  produced: `display: flex` on the `<details>` block never reached the panel,
+  because modern Chromium wraps a `<details>` element's content in an internal
+  `::details-content` box — so the stage had collapsed to its minimum instead of
+  filling the viewport.
+- Dropped the "Show patterns" control from the Contributor, Affiliation,
+  Collaboration and Discursive Communities networks. Decal patterns exist to
+  separate filled areas without relying on colour; on small graph nodes they read
+  as noise. Chord, sankey, radar and the word cloud already opted out.
+- The same linked resource stated twice on one property no longer counts twice
+  toward a node's degree in the REST-API fallback either (the precompute was
+  fixed in 2.22.0).
+
+### Changed
+
+- **Clicking an entity selects it instead of navigating away.** It anchors the
+  neighbourhood, names its connections along their edges, and opens a card with
+  the entity's type, stats, relationship kinds and an explicit link to its
+  record; clicking it again, clicking the background or Escape clears it. The
+  previous behaviour jumped straight to the Omeka page, which fought exploration
+  and had no touch story — the tap-twice-to-open workaround is gone.
+- Relationship names are drawn along the edges of the selected entity, with a
+  toolbar toggle to name every connection. Edge labels share the node labels'
+  collision pass, so the two never overlap.
+
+### Internal
+
+- `scripts/check-graph-contracts.mjs` (`npm run check:graph`, wired into CI):
+  asserts the entity-colour registry's invariants and that the vendored d3 files
+  only work in their declared order. Both are regressions that reached the site.
+
 ## 2.22.0 — 2026-07-30
 
 ### Changed

@@ -194,8 +194,8 @@ class Module extends AbstractModule
 
             // Knowledge graph (the d3-force canvas: graph-force.js + the kgUI chrome).
             'graphCanvasLabel' => $view->translate('Network graph. Use the arrow keys to move between connected entities and Enter to open one.'),
-            'kgCanvasLabel' => $view->translate('Knowledge graph. Use the arrow keys to move between connected entities and Enter to open one.'),
-            'kgHint' => $view->translate('Drag a node to rearrange it — it stays where you put it. Alt-click to release it, double-click the background to zoom, Ctrl + scroll to zoom.'),
+            'kgCanvasLabel' => $view->translate('Knowledge graph. Use the arrow keys to move between connected entities and Enter to select one.'),
+            'kgHint' => $view->translate('Click an entity to focus it and name its connections; the panel that opens links to its record. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom.'),
             'kgNoRelationships' => $view->translate('No relationships found.'),
             'kgLoadError' => $view->translate('Failed to load knowledge graph.'),
             'kgNoEngine' => $view->translate('Graph library failed to load.'),
@@ -227,9 +227,12 @@ class Module extends AbstractModule
             'kgSharedLinks' => $view->translate('shared links'),
             'kgStrength' => $view->translate('strength'),
             'kgPinnedHint' => $view->translate('Pinned — Alt-click to release'),
-            'kgClickToOpen' => $view->translate('Click to open'),
-            'kgTapAgain' => $view->translate('Tap again to open'),
-            'kgEnterToOpen' => $view->translate('Press Enter to open.'),
+            'kgClickToFocus' => $view->translate('Click to focus'),
+            'kgEnterToOpen' => $view->translate('Press Enter to select.'),
+            'kgOpenRecord' => $view->translate('Open this record'),
+            'kgVia' => $view->translate('Connected via'),
+            'kgEdgeLabelsLabel' => $view->translate('Name every connection'),
+            'kgEdgeLabelsTitle' => $view->translate('Name every connection — otherwise only the selected entity’s are named'),
         ];
     }
 

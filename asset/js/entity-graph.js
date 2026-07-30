@@ -83,7 +83,15 @@
     function halo() {
         return (ns.HALO && ns.HALO.length) ? ns.HALO : colors();
     }
+    // Resolved through the type NAME via the shared registry, so Person here is the
+    // same hue as Person on an item's knowledge graph and on a contributor network.
+    // Indexing the palette by the position in `types` used to make Organization the
+    // project colour. `_types` is set by build() once the payload is decoded.
+    var _types = [];
     function typeColor(typeIdx) {
+        if (typeof ns.entityColor === 'function') {
+            return ns.entityColor(_types[typeIdx] || '');
+        }
         var pal = colors();
         return pal[typeIdx % pal.length];
     }
@@ -125,6 +133,9 @@
         var types = data.types;
         var sections = data.sections || [];
         var siteBase = ctx.siteBase;
+
+        // typeColor() resolves through the shared entity-type registry by name.
+        _types = types;
 
         container.innerHTML = '';
 

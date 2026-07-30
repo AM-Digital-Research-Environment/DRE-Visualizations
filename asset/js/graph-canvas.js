@@ -103,13 +103,24 @@
             userAdjusted = true;
         }
 
-        /** Match the backing store to the host box + pixel ratio. */
+        /**
+         * Match the backing store to the host box + pixel ratio. Returns false when
+         * nothing changed, which is what stops a ResizeObserver loop: this writes an
+         * inline px size onto the canvas, so any layout in which the canvas can
+         * influence the host would otherwise ratchet. The CSS keeps the canvas out
+         * of flow; this is the second line of defence, and it also means a spurious
+         * observer callback costs nothing.
+         */
         function resize() {
             var rect = host.getBoundingClientRect();
             if (!rect.width || !rect.height) return false;
-            dpr = Math.min(window.devicePixelRatio || 1, 2);
-            W = Math.round(rect.width);
-            H = Math.round(rect.height);
+            var ratio = Math.min(window.devicePixelRatio || 1, 2);
+            var w = Math.round(rect.width);
+            var h = Math.round(rect.height);
+            if (w === W && h === H && ratio === dpr) return false;
+            dpr = ratio;
+            W = w;
+            H = h;
             canvas.width = Math.round(W * dpr);
             canvas.height = Math.round(H * dpr);
             canvas.style.width = W + 'px';
@@ -224,9 +235,19 @@
                     c.lineWidth = 1.25;
                     c.stroke();
                 }
-                if (n.id === scene.focusId) {
+                // A selected node is the reader's anchor and stays marked while they
+                // read its card, so it gets a solid ring — distinct from the dashed
+                // keyboard-focus ring, which is transient.
+                if (n.id === scene.selectedId) {
                     c.beginPath();
                     c.arc(x, y, r + 6, 0, Math.PI * 2);
+                    c.strokeStyle = THEME.accent;
+                    c.lineWidth = 2.5;
+                    c.stroke();
+                }
+                if (n.id === scene.focusId) {
+                    c.beginPath();
+                    c.arc(x, y, r + (n.id === scene.selectedId ? 10 : 6), 0, Math.PI * 2);
                     c.strokeStyle = THEME.accent;
                     c.lineWidth = 2;
                     c.setLineDash([3, 2]);
@@ -273,11 +294,12 @@
 
             for (var i = 0; i < ordered.length && boxes.length < budget; i++) {
                 var n = ordered[i];
-                // Only these four skip the collision test. Members of the focus set
-                // get a priority boost (labelPriority) but are still collision-tested:
+                // Only these skip the collision test. Members of the focus set get a
+                // priority boost (labelPriority) but are still collision-tested:
                 // exempting them would let a hub with fifty neighbours stack fifty
                 // labels on top of each other the moment it is hovered.
-                var forced = n.isCenter || n.pinned || n.id === scene.focusId || n.id === scene.hoverId;
+                var forced = n.isCenter || n.pinned || n.id === scene.focusId
+                    || n.id === scene.hoverId || n.id === scene.selectedId;
                 if (!everything && !forced && n.deg <= 1 && k < 0.85) continue;
                 if (scene.focusSet && !scene.focusSet[n.id] && !o.allLabels) continue;
 
@@ -298,6 +320,73 @@
                 c.fillStyle = n.isCenter ? THEME.heading : THEME.text;
                 c.fillText(text, lx, ly);
             }
+            return boxes;   // handed to drawEdgeLabels so the two never collide
+        }
+
+        /**
+         * Relationship names along their edges.
+         *
+         * Property labels repeat hard ("Subject" forty times), so drawing every one
+         * is noise: the reader gets them for the node they selected or hovered — the
+         * case where "what IS this connection?" is the actual question — and a
+         * toolbar toggle (`scene.edgeLabels`) opts into the rest.
+         *
+         * Shares the caller's `boxes` list, so an edge label never lands on a node
+         * label. Runs after them: naming the entities beats naming the wires.
+         */
+        function drawEdgeLabels(c, scene, o, boxes) {
+            var focus = scene.selectedId || scene.hoverId;
+            if (!scene.edgeLabels && !focus) return;
+            var k = view.k;
+            if (k < 0.45) return;                       // illegible; skip the work
+
+            var candidates = scene.links.filter(function (l) {
+                if (scene.edgeLabels) return true;
+                return l.source.id === focus || l.target.id === focus;
+            }).filter(function (l) { return l.name; });
+            if (!candidates.length) return;
+
+            // Edges touching the focused node first, then the shortest labels — they
+            // fit in the gaps the long ones cannot.
+            candidates.sort(function (a, b) {
+                var af = (a.source.id === focus || a.target.id === focus) ? 1 : 0;
+                var bf = (b.source.id === focus || b.target.id === focus) ? 1 : 0;
+                return (bf - af) || (a.name.length - b.name.length);
+            });
+
+            var size = Math.max(9, ns.THEME.fontSize - 2);
+            c.font = size + 'px ' + ns.THEME.fontFamily;
+            c.textBaseline = 'middle';
+            c.textAlign = 'center';
+            c.lineJoin = 'round';
+
+            var drawn = 0;
+            var budget = scene.edgeLabels ? 60 : 24;
+            for (var i = 0; i < candidates.length && drawn < budget; i++) {
+                var l = candidates[i];
+                var x1 = screenX(l.source), y1 = screenY(l.source);
+                var x2 = screenX(l.target), y2 = screenY(l.target);
+                // Midpoint of the same quadratic the edge was drawn with, so the
+                // label sits ON its wire rather than beside the straight chord.
+                var dx = x2 - x1, dy = y2 - y1;
+                var cx = (x1 + x2) / 2 - dy * 0.075, cy = (y1 + y2) / 2 + dx * 0.075;
+                var mx = (x1 + 2 * cx + x2) / 4, my = (y1 + 2 * cy + y2) / 4;
+                if (mx < 0 || my < 0 || mx > o.w || my > o.h) continue;
+
+                var text = ns.truncateLabel(l.name, 22);
+                var half = c.measureText(text).width / 2 + 3;
+                var box = [mx - half, my - size * 0.7, mx + half, my + size * 0.7];
+                if (overlaps(box, boxes)) continue;
+                boxes.push(box);
+                drawn++;
+
+                c.lineWidth = 3;
+                c.strokeStyle = ns.THEME.surface;
+                c.strokeText(text, mx, my);
+                c.fillStyle = ns.THEME.textMuted;
+                c.fillText(text, mx, my);
+            }
+            c.textAlign = 'left';
         }
 
         /** Category swatches along the bottom — drawn into the PNG export only. */
@@ -334,7 +423,7 @@
             else c.clearRect(0, 0, o.w, o.h);
             drawEdges(c, scene, o);
             drawNodes(c, scene, o);
-            drawLabels(c, scene, o);
+            drawEdgeLabels(c, scene, o, drawLabels(c, scene, o));
             if (o.legend) drawLegend(c, scene, o);
             c.restore();
         }

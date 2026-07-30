@@ -277,7 +277,15 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
 /* touch-action: none — the graph owns its gestures (one finger drags a node or
    pans, two fingers pinch), matching the module's MapLibre surfaces. The page is
    still scrollable everywhere outside the canvas. */
+/* position: absolute is load-bearing, not cosmetic. resize() measures the stage and
+   writes the result back as an inline px height on this canvas; if the canvas were
+   in flow, that height would feed the stage's own content height and the two would
+   ratchet upward forever under the ResizeObserver — which is exactly what happened
+   in fullscreen, where the stage is flex-sized rather than a fixed 520px.
+   Out of flow, the canvas can never influence its container's size. */
 .rv-graph-canvas {
+    position: absolute;
+    inset: 0;
     display: block;
     width: 100%;
     height: 100%;
@@ -322,6 +330,76 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
 .rv-kg-tip-meta {
     color: var(--rv-text-color);
     font-size: var(--rv-text-2xs);
+}
+
+/* Detail card for the selected entity. Bottom-left, so it never sits under the
+   toolbar (top-right); pointer-events stay on so its link is clickable, unlike the
+   tooltip above. Capped so it can never cover the whole graph on a phone. */
+.rv-kg-card {
+    position: absolute;
+    z-index: 3;
+    bottom: var(--rv-space-3);
+    left: var(--rv-space-3);
+    width: max-content;
+    max-width: min(20rem, calc(100% - 2 * var(--rv-space-3)));
+    max-height: calc(100% - 2 * var(--rv-space-3));
+    overflow-y: auto;
+    padding: var(--rv-space-3) var(--rv-space-4);
+    border: 1px solid var(--rv-border);
+    border-radius: var(--rv-radius-sm);
+    background: var(--rv-overlay);
+    box-shadow: var(--rv-shadow);
+}
+
+.rv-kg-card[hidden] {
+    display: none;
+}
+
+.rv-kg-card-close {
+    position: absolute;
+    top: var(--rv-space-1);
+    right: var(--rv-space-1);
+}
+
+.rv-kg-card-title {
+    margin: 0 var(--rv-space-6) var(--rv-space-1) 0;
+    color: var(--rv-heading-color);
+    font-size: var(--rv-text-sm);
+    line-height: 1.3;
+}
+
+.rv-kg-card-type {
+    margin: 0 0 var(--rv-space-2);
+    font-size: var(--rv-text-2xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.rv-kg-card-meta {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-2xs);
+}
+
+.rv-kg-card-rels {
+    margin: var(--rv-space-2) 0 0;
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-2xs);
+}
+
+/* The one way out of the graph to the record — deliberately a real link. */
+.rv-kg-card-link {
+    display: inline-block;
+    margin-top: var(--rv-space-3);
+    font-size: var(--rv-text-xs);
+    font-weight: 600;
+}
+
+.rv-kg-card-link[hidden] {
+    display: none;
 }
 
 /* Screen-reader live region announcing the keyboard-focused node. Visually
@@ -442,25 +520,27 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     background: var(--rv-bg);
 }
 
-/* Fullscreen lays the panel out as a column so the canvas takes whatever is left
-   after the legend/hint/list, instead of a magic viewport subtraction that breaks
-   the moment the chrome below changes height (or wraps on a narrow window). */
-.knowledge-graph-block.rv-fullscreen {
-    display: flex;
-    flex-direction: column;
-}
-
+/* Fullscreen lays the PANEL out as a column so the stage takes whatever the legend
+   and hint leave — they can wrap on a narrow window without cropping the graph.
+   The definite height goes on the panel, NOT via flex from the <details> block:
+   modern Chromium wraps a <details> element's content in an internal
+   ::details-content box, so `display: flex` on the block never reaches the panel
+   and the stage would collapse to its min-height. 2rem = the block's own padding. */
 .knowledge-graph-block.rv-fullscreen .rv-collapsible__panel {
     display: flex;
-    flex: 1 1 auto;
     flex-direction: column;
+    height: calc(100vh - 2rem);
     min-height: 0;
 }
 
+/* flex-basis 0, not auto: the stage takes the space the flex line has left over
+   instead of being sized by its content. Combined with the out-of-flow canvas above
+   this makes the height flow strictly one way — container decides, canvas follows —
+   so there is no cycle for the ResizeObserver to amplify. */
 .knowledge-graph-block.rv-fullscreen .knowledge-graph-container {
-    flex: 1 1 auto;
+    flex: 1 1 0;
     height: auto;
-    min-height: 0;
+    min-height: 8rem;
 }
 
 .knowledge-graph-block.rv-fullscreen .knowledge-graph-toolbar {

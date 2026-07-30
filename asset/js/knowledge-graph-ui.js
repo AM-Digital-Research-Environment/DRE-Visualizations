@@ -21,6 +21,7 @@
         filter: '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
         halo: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/>',
         label: '<path d="M4 7V5h16v2"/><path d="M9 19h6"/><path d="M12 5v14"/>',
+        edgeLabel: '<line x1="4" y1="18" x2="20" y2="6"/><circle cx="4" cy="18" r="2"/><circle cx="20" cy="6" r="2"/><path d="M9 8h7"/>',
         freeze: '<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>',
         play: '<polygon points="7 4 20 12 7 20 7 4"/>',
         unpin: '<path d="M12 17v5"/><path d="M9 10.76V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v5.76l2 3.24H7z"/><line x1="3" y1="3" x2="21" y2="21"/>',
@@ -269,6 +270,102 @@
     }
 
     /* ------------------------------------------------------------------ */
+    /*  Detail card                                                        */
+    /* ------------------------------------------------------------------ */
+
+    /**
+     * The panel that appears when a reader selects an entity.
+     *
+     * This is what lets a click *select* instead of navigate. Clicking a node used
+     * to jump straight to its Omeka page, which fought exploration — the obvious
+     * gesture for "tell me more" threw away the graph — and on touch, with no hover,
+     * there was no way to read a node without leaving. Now the click anchors the
+     * neighbourhood and the jump lives here as a real `<a>`: keyboard-reachable,
+     * long-pressable, openable in a new tab.
+     *
+     * Mounted inside the stage so it travels into fullscreen with the graph.
+     */
+    function buildDetailCard(graph, categories, colorOf) {
+        var card = el('div', 'rv-kg-card');
+        card.hidden = true;
+
+        var close = ns.iconButton('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+            t('close', 'Close'), t('close', 'Close'));
+        close.classList.add('rv-kg-card-close');
+        close.addEventListener('click', function () { graph.select(null); });
+
+        var title = el('h4', 'rv-kg-card-title');
+        var type = el('p', 'rv-kg-card-type');
+        var meta = el('ul', 'rv-kg-card-meta');
+        var link = el('a', 'rv-kg-card-link');
+        var rels = el('p', 'rv-kg-card-rels');
+
+        card.appendChild(close);
+        card.appendChild(title);
+        card.appendChild(type);
+        card.appendChild(meta);
+        card.appendChild(rels);
+        card.appendChild(link);
+
+        /** Render (or hide, on null) — called by graph.onSelect. */
+        function show(node) {
+            if (!node) {
+                card.hidden = true;
+                return;
+            }
+            var d = node.data || {};
+            title.textContent = node.name;
+
+            var cat = categories[node.category];
+            type.textContent = cat ? cat.name : '';
+            type.style.color = colorOf(node.category);
+
+            ns.setChildren(meta);
+            function addMeta(text) {
+                if (text) meta.appendChild(el('li', null, text));
+            }
+            addMeta(node.deg
+                ? node.deg + ' ' + (node.deg === 1 ? t('kgConnection', 'connection in view')
+                    : t('kgConnections', 'connections in view'))
+                : null);
+            if (d.freqPct !== undefined && d.freqPct !== null) {
+                addMeta(t('kgSharedBy', 'Shared by') + ' ' + d.freqPct + '% ' + t('kgOfItems', 'of items'));
+            }
+            if (d.strength !== undefined) {
+                addMeta(d.sharedCount + ' '
+                    + (d.sharedCount > 1 ? t('kgSharedLinks', 'shared links') : t('kgSharedLink', 'shared link'))
+                    + ' (' + t('kgStrength', 'strength') + ' ' + d.strength + ')');
+            }
+            if (node.pinned) addMeta(t('kgPinnedHint', 'Pinned — Alt-click to release'));
+
+            // Name the relationships this entity actually participates in, so the
+            // reader gets the *kind* of connection without chasing each edge label.
+            var adj = graph.adjacency()[node.id] || {};
+            var seen = {}, names = [];
+            Object.keys(adj).forEach(function (other) {
+                var name = adj[other] && adj[other].name;
+                if (name && !seen[name]) { seen[name] = true; names.push(name); }
+            });
+            rels.textContent = names.length
+                ? t('kgVia', 'Connected via') + ': ' + names.slice(0, 6).join(', ')
+                    + (names.length > 6 ? '…' : '')
+                : '';
+
+            if (node.url) {
+                link.href = node.url;
+                link.textContent = t('kgOpenRecord', 'Open this record') + ' →';
+                link.hidden = false;
+            } else {
+                link.hidden = true;
+                link.removeAttribute('href');
+            }
+            card.hidden = false;
+        }
+
+        return { el: card, show: show };
+    }
+
+    /* ------------------------------------------------------------------ */
     /*  Tooltip rows                                                       */
     /* ------------------------------------------------------------------ */
 
@@ -305,10 +402,9 @@
                 if (node.pinned) {
                     rows.push(el('span', 'rv-kg-tip-meta', t('kgPinnedHint', 'Pinned — Alt-click to release')));
                 }
-                if (node.url) {
-                    rows.push(el('span', 'rv-kg-tip-meta', (opts && opts.armed)
-                        ? t('kgTapAgain', 'Tap again to open') : t('kgClickToOpen', 'Click to open')));
-                }
+                // A click no longer navigates, so say what it actually does. The
+                // link to the record lives in the detail card the click opens.
+                rows.push(el('span', 'rv-kg-tip-meta', t('kgClickToFocus', 'Click to focus')));
                 return rows;
             }
             if (link) {
@@ -374,6 +470,17 @@
             labelBtn.setAttribute('aria-pressed', String(on));
         });
         add(labelBtn);
+
+        /* -- edge labels -- */
+        var edgeBtn = ns.iconButton(ICON.edgeLabel, t('kgEdgeLabelsLabel', 'Name every connection'),
+            t('kgEdgeLabelsTitle', 'Name every connection — otherwise only the selected entity’s are named'));
+        edgeBtn.setAttribute('aria-pressed', 'false');
+        edgeBtn.addEventListener('click', function () {
+            var on = graph.toggleEdgeLabels();
+            edgeBtn.classList.toggle('rv-btn-active', on);
+            edgeBtn.setAttribute('aria-pressed', String(on));
+        });
+        add(edgeBtn);
 
         /* -- community halos -- */
         if ((data.stats || {}).communityCount > 0) {
@@ -449,8 +556,9 @@
     /** The gesture hint that sits under the graph. */
     function buildHint() {
         return el('p', 'rv-kg-hint', t('kgHint',
-            'Drag a node to rearrange it — it stays where you put it. Alt-click to release it, '
-            + 'double-click the background to zoom, Ctrl + scroll to zoom.'));
+            'Click an entity to focus it and name its connections; the panel that opens links to '
+            + 'its record. Drag to rearrange — a dragged node stays where you put it (Alt-click to '
+            + 'release). Double-click the background or Ctrl + scroll to zoom.'));
     }
 
     ns.kgUI = {
@@ -459,6 +567,7 @@
         buildFilterPanel: buildFilterPanel,
         buildLegend: buildLegend,
         buildListPanel: buildListPanel,
+        buildDetailCard: buildDetailCard,
         buildHint: buildHint,
         tooltipRows: tooltipRows,
         announcer: announcer,

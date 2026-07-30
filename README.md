@@ -20,7 +20,8 @@ Rendered on a canvas by [d3-force](https://d3js.org/d3-force) (`graph-canvas.js`
 
 - **Draggable, with live relaxation** — drag to curate the layout; a dragged node is pinned (a ring marks it), Alt-click releases it, and "Release all" clears every pin
 - **Not just a star** — the precompute also draws the statements *between* the item's neighbours (a person who is a member of its project, a project carrying its subjects), so the picture is a network rather than hub-and-spokes. These cross edges are drawn thinner so the item's own statements still read as the primary structure
-- **Labels placed by collision test** — as many as fit, prioritised by centrality; zoom in and more appear. A toolbar toggle forces all of them
+- **Labels placed by collision test** — as many as fit, prioritised by centrality; zoom in and more appear. Toolbar toggles force all entity labels, and name every connection rather than only the selected entity's
+- **Consistent colours across every network** — an entity type keeps one hue on this graph, on the Entity Network and on the contributor/affiliation networks, resolved from a shared registry (`ns.entityColor`) rather than from whichever slot a category happened to land in
 - Hover an entity to isolate its connections — its neighbours and their edges brighten while everything else fades
 - **Community colours** — a coloured halo rings entities that co-occur, so connected clusters read at a glance (toggle in the toolbar); the busiest (hub) entities are drawn larger
 - **Clickable legend** below the graph toggles whole entity types in and out
@@ -28,7 +29,7 @@ Rendered on a canvas by [d3-force](https://d3js.org/d3-force) (`graph-canvas.js`
 - **Keyboard + screen reader** — the canvas is focusable: ←/→ walk every entity, ↑/↓ walk the focused entity's own neighbours, Enter opens one, and each move is announced. A *Relationships as a list* disclosure gives the same content as real links (also handy for Ctrl+F)
 - **Freeze the layout** when you like it; **Reset view** re-fits; **Save as image** exports a 2× PNG with every label and a legend
 - Deterministic — the same item lays out identically on every load, so a graph you share is the graph you return to
-- Click any node to navigate to its Omeka S page (on touch, the first tap shows the tooltip and the second opens)
+- **Click selects, it does not navigate.** Clicking an entity anchors it — neighbourhood highlighted, its connections named on their edges — and opens a card with its type, its stats, the kinds of relationship it participates in, and an explicit link to its record. Clicking it again, clicking the background, or Escape clears it. Navigation is always a second, deliberate act on a real link, which is what makes the graph usable on a touchscreen (there is no hover to fall back on) and stops the obvious "tell me more" gesture from throwing the graph away
 - Fullscreen mode (Escape to exit); inside it a plain scroll zooms
 - Node caps (220 direct + 90 shared + 40 reverse + 60 referencing) prevent overload on highly-connected entities; the "Max. neighbours" slider trims further
 - Loads ~17 KiB of d3-force rather than the 1.1 MiB ECharts bundle, so an item page whose only visualization block is the graph is much lighter
