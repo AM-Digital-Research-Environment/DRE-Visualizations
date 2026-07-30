@@ -22,8 +22,20 @@ Generated roots are `item-dashboards`, `item-set-dashboards`, `communities`,
 The aggregation layer is dependency-free PHP over plain arrays and has a
 standalone test harness. Browser sources remain modular; `npm run build`
 concatenates the ordered chart-builder list into the one runtime bundle. The
-vendored ECharts and MapLibre files are same-origin and byte-identical to their
-upstream distributions.
+vendored ECharts, MapLibre and d3-force files are same-origin and byte-identical
+to their upstream distributions.
+
+Two renderers coexist. ECharts draws the dashboards and MapLibre the maps; the
+item-page knowledge graph owns a canvas and simulates with d3-force, because it
+needs a layout the reader can push around rather than a chart. That renderer is
+split so neither half knows about Omeka: `graph-canvas.js` holds the view
+transform, the painter and the hit tests, `graph-force.js` the simulation and the
+interaction. Both are driven by `knowledge-graph*.js`, listed in load order in
+`DashboardAssets::KNOWLEDGE_GRAPH_SCRIPTS`; the same helper's `D3_SCRIPTS` fixes
+the vendored load order, which is load-bearing because d3-force resolves its
+dependencies off the shared `d3` global. A canvas surface re-themes through
+`ns.trackRenderer` (repaint, no re-layout) rather than the ECharts or MapLibre
+paths in `ns.refresh()`.
 
 `Runner` remains the coordinator while domain extraction proceeds incrementally.
 `KnowledgeGraphGenerator` and `ItemSetDashboardGenerator` already consume the

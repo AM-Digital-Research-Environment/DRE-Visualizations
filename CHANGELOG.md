@@ -2,6 +2,73 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.22.0 — 2026-07-30
+
+### Changed
+
+- The item-page Knowledge Graph is now a **live d3-force simulation on a canvas**
+  instead of an ECharts `graph`/`force` series. ECharts ran its layout to a frozen
+  state with no collision pass, so nodes overlapped, only the centre could carry a
+  label, and dragging a node moved it through a static picture. Now a drag makes
+  the neighbourhood relax around it and the node keeps the position you gave it
+  (a ring marks it as pinned; Alt-click releases it, and a toolbar button releases
+  every pin). The payload contract is unchanged, so **no regeneration is required**
+  to get the new renderer.
+- The graph block loads ~17 KiB of d3-force rather than the 1.1 MiB ECharts
+  bundle, so an item page whose only visualization block is the graph is much
+  lighter. MapLibre still loads only when the item has coordinates.
+
+### Added
+
+- **Cross edges in the precompute.** The graph also draws the statements *between*
+  an item's neighbours — a person who is a member of its project, a project
+  carrying its subjects, a project's items sharing its themes — instead of only
+  the spokes from the item outwards. The picture is a network rather than
+  hub-and-spokes, and community detection finally has real structure to find.
+  Cross edges are drawn thinner and fainter so the item's own statements still
+  read as the primary layer. Requires "Regenerate now".
+- Raised node caps now the renderer can carry them: 220 direct (was 150), 90
+  shared (was 60), 40 reverse (was 25), 60 referencing (was 40).
+- Labels are placed by an actual collision test — as many as fit, prioritised by
+  centrality, and more appear as you zoom in. A toolbar toggle forces all of them.
+- A clickable legend below the graph toggles whole entity types in and out.
+- Keyboard and screen-reader access to the graph: the canvas is focusable, ←/→
+  walk every entity, ↑/↓ walk the focused entity's own neighbours, Enter opens
+  one, and each move is announced through a live region. A *Relationships as a
+  list* disclosure gives the same content as real links.
+- Freeze the layout, reset the view, and a 2× PNG export that includes every
+  label and a category legend.
+- Pan by dragging the background; zoom with Ctrl/⌘ + scroll, a double-click,
+  pinch, or `+`/`−`. A plain scroll still scrolls the page, so the graph never
+  hijacks the wheel mid-article; in fullscreen the wheel zooms.
+- `prefers-reduced-motion` is respected: the layout settles before first paint
+  and never animates on its own, while a drag still relaxes its neighbourhood.
+- Layouts are deterministic — the same item lays out identically on every load.
+
+### Fixed
+
+- The same linked resource stated twice on one property produced two edges, in both
+  the precompute and the REST fallback. That now collapses to one — it had become
+  visible, because edge count feeds the hub sizing and the "connections in view"
+  count. The same resource under two *different* properties is still two statements.
+
+### Internal
+
+- New reusable front-end modules, none of which know about Omeka: `graph-canvas.js`
+  (view transform, canvas painter, hit tests) and `graph-force.js` (simulation +
+  interaction). `knowledge-graph-data.js`, `knowledge-graph-ui.js`,
+  `item-location-map.js` and a thin `knowledge-graph.js` controller replace the
+  former single file. The co-occurrence networks can adopt the renderer unchanged.
+- `ns.iconSvg` / `ns.iconButton` in `dashboard-core.js` give the module one
+  `innerHTML` sink for inline icons instead of one per button.
+- `ns.trackRenderer` re-themes a canvas surface on a light/dark toggle without
+  re-simulating, alongside the existing ECharts and MapLibre paths.
+- `ns.ensureLibs({ d3: true })` loads the vendored d3-force stack in dependency
+  order. Vendored: d3-force 3.0.0, d3-quadtree 3.0.1, d3-dispatch 3.0.1,
+  d3-timer 3.0.1 — pinned by SHA-256 in `THIRD_PARTY_NOTICES`.
+- `tests/KnowledgeGraphsTest.php` covers the IDF statistics, the cross-edge pass,
+  community detection and the item location map.
+
 ## 2.21.6 — 2026-07-26
 
 ### Fixed

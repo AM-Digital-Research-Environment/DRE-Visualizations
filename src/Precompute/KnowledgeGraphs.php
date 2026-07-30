@@ -41,10 +41,21 @@ final class KnowledgeGraphs
     /** Priority order for direct relationships when capping. */
     private const CAT_PRIORITY = ['Person', 'Contributor', 'Subject', 'Project', 'Location', 'Institution', 'Genre', 'Related Item'];
 
-    private const MAX_DIRECT_NODES = 150;
-    private const MAX_REVERSE_NODES = 25;
-    private const MAX_SHARED_NODES = 60;
-    private const MAX_REVERSE_ITEMS = 40;
+    // Node budgets. Raised in v2.22 when the front end moved off the ECharts graph
+    // series onto the d3-force canvas renderer: it lays out with Barnes–Hut plus a
+    // collision pass and places labels by collision test, so a few hundred nodes
+    // stay readable where the old renderer turned to soup well before 150. Readers
+    // who want fewer still have the "Max. neighbours" slider.
+    private const MAX_DIRECT_NODES = 220;
+    private const MAX_REVERSE_NODES = 40;
+    private const MAX_SHARED_NODES = 90;
+    private const MAX_REVERSE_ITEMS = 60;
+
+    // Budget for the cross pass (see addCrossEdges). Bounds both the work done per
+    // item and the size of the emitted JSON; the scan cap keeps the cost linear in
+    // the node budget rather than in the corpus.
+    private const MAX_CROSS_EDGES = 400;
+    private const MAX_CROSS_SCAN = 250;
 
     private static function getCategory(string $term): ?string
     {
@@ -192,6 +203,13 @@ final class KnowledgeGraphs
             ?: ((int) $a[3] <=> (int) $b[3])
             ?: strcmp((string) $a[1], (string) $b[1]));
 
+        // Omeka happily stores the same linked resource twice on one property. That
+        // is one statement, and emitting it twice would double the node's degree —
+        // which the front end now uses for hub sizing and the connection count.
+        // Keyed by property as well, so the same resource under two DIFFERENT
+        // properties stays two statements; only exact repeats collapse.
+        $edgeSeen = [];
+
         $directCount = 0;
         foreach ($directRels as [$pri, $term, $label, $vrid, $cat]) {
             $nid = 'resource_' . $vrid;
@@ -210,7 +228,11 @@ final class KnowledgeGraphs
                 $nodes[] = $node;
                 $directCount++;
             }
-            $edges[] = ['source' => 'item_' . $itemId, 'target' => $nid, 'name' => $label];
+            $ekey = $nid . "\0" . $term;
+            if (!isset($edgeSeen[$ekey])) {
+                $edgeSeen[$ekey] = true;
+                $edges[] = ['source' => 'item_' . $itemId, 'target' => $nid, 'name' => $label];
+            }
             if (self::isShareable($term)) {
                 $centerLinked[$vrid] = $nid;
             }
@@ -236,7 +258,11 @@ final class KnowledgeGraphs
                 ];
                 $reverseCount++;
             }
-            $edges[] = ['source' => $rnid, 'target' => 'item_' . $itemId, 'name' => 'Is Part Of'];
+            $ekey = $rnid . "\0dcterms:isPartOf";
+            if (!isset($edgeSeen[$ekey])) {
+                $edgeSeen[$ekey] = true;
+                $edges[] = ['source' => $rnid, 'target' => 'item_' . $itemId, 'name' => 'Is Part Of'];
+            }
         }
 
         // ── Low-connectivity fallback: items that reference this entity ─
@@ -340,6 +366,9 @@ final class KnowledgeGraphs
             return null;
         }
 
+        // Close the triangles among everything gathered above.
+        $edges = self::addCrossEdges($nodes, $edges, $links, $itemId);
+
         $maxFreq = 0.0;
         foreach ($edges as $e) {
             if (!empty($e['isShared']) && ($e['freqPct'] ?? 0) > $maxFreq) {
@@ -359,6 +388,91 @@ final class KnowledgeGraphs
                 'communityCount' => $communityCount,
             ],
         ];
+    }
+
+    /**
+     * Close the triangles: draw the statements that exist BETWEEN the nodes already
+     * gathered, not only from the centre out to each of them.
+     *
+     * Everything above builds a star. The centre links to its subjects, its people,
+     * its project; items link back to it — but the graph never showed that one of
+     * those people is a member of that project, that a location is part of another,
+     * or that a project's items carry the project's own subjects. Those statements
+     * are all present in $links; this pass reads them back and draws them. It is
+     * what turns the picture from a hub-and-spokes diagram into a network, and it is
+     * also what gives the community detection real structure to find — label
+     * propagation over a star can only ever return one cluster per spoke.
+     *
+     * Bounded twice over: MAX_CROSS_SCAN nodes are scanned (in node order, so the
+     * centre's own highest-priority relationships come first) and at most
+     * MAX_CROSS_EDGES edges are added. Edges already drawn are skipped in both
+     * directions, so the shared-item pass is never duplicated.
+     *
+     * Cross edges carry `kind => 'cross'`; the front end draws them thinner and
+     * fainter than the centre's own spokes, so the item's own statements still read
+     * as the primary structure.
+     *
+     * @param array $nodes  the graph's nodes (each non-centre one carrying itemId)
+     * @param array $edges  the edges built so far
+     * @param array $links  DataLoader's itemId => [[term, label, valueResourceId], …]
+     * @return array the edges, with the cross edges appended
+     */
+    public static function addCrossEdges(array $nodes, array $edges, array $links, int $centerItemId): array
+    {
+        // Resource/item id => node id, for every non-centre node in the graph.
+        $nodeByRid = [];
+        foreach ($nodes as $n) {
+            if (!empty($n['isCenter']) || !isset($n['itemId'])) {
+                continue;
+            }
+            $nodeByRid[(int) $n['itemId']] = (string) $n['id'];
+        }
+        if (count($nodeByRid) < 2) {
+            return $edges;
+        }
+
+        // Seed the dedupe set with what is already drawn, both directions.
+        $seen = [];
+        foreach ($edges as $e) {
+            $seen[$e['source'] . "\0" . $e['target']] = true;
+            $seen[$e['target'] . "\0" . $e['source']] = true;
+        }
+
+        $added = 0;
+        $scanned = 0;
+        foreach ($nodeByRid as $rid => $nid) {
+            if ($scanned >= self::MAX_CROSS_SCAN || $added >= self::MAX_CROSS_EDGES) {
+                break;
+            }
+            $scanned++;
+            foreach ($links[$rid] ?? [] as [$term, $label, $vrid]) {
+                $vrid = (int) $vrid;
+                if ($vrid === $centerItemId || $vrid === $rid) {
+                    continue;   // the spoke to the centre is already drawn
+                }
+                if (!isset($nodeByRid[$vrid])) {
+                    continue;   // the other end is not on this graph
+                }
+                $target = $nodeByRid[$vrid];
+                $key = $nid . "\0" . $target;
+                if (isset($seen[$key])) {
+                    continue;
+                }
+                $seen[$key] = true;
+                $seen[$target . "\0" . $nid] = true;
+                $edges[] = [
+                    'source' => $nid,
+                    'target' => $target,
+                    'name' => $label,
+                    'kind' => 'cross',
+                ];
+                if (++$added >= self::MAX_CROSS_EDGES) {
+                    break;
+                }
+            }
+        }
+
+        return $edges;
     }
 
     /**

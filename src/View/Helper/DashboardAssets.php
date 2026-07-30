@@ -29,11 +29,49 @@ class DashboardAssets extends AbstractHelper
     // caching, and no third-party dependency (consistent with the privacy-first
     // posture). Paths are relative to the module asset root: resolve with
     // assetUrl()/the $asset() helper before use. Pinned: echarts 6.1.0,
-    // echarts-wordcloud 2.1.0, maplibre-gl 5.24.0.
+    // echarts-wordcloud 2.1.0, maplibre-gl 5.24.0, d3-force 3.0.0.
     const ECHARTS_JS   = 'vendor/echarts.min.js';
     const WORDCLOUD_JS = 'vendor/echarts-wordcloud.min.js';
     const MAPLIBRE_CSS = 'vendor/maplibre-gl.css';
     const MAPLIBRE_JS  = 'vendor/maplibre-gl.js';
+
+    /**
+     * The d3-force layout stack the knowledge graph simulates with, in LOAD
+     * ORDER: d3-force's UMD wrapper resolves d3-quadtree / d3-dispatch /
+     * d3-timer off the shared `d3` global, so the three dependencies MUST
+     * execute first. ~17 KiB total — only the force engine is vendored; the
+     * graph renders to its own canvas and handles pan/zoom/drag with plain
+     * pointer events, so the d3-selection / d3-zoom chain is not needed.
+     *
+     * @var string[]
+     */
+    const D3_SCRIPTS = [
+        'vendor/d3-quadtree.min.js',
+        'vendor/d3-dispatch.min.js',
+        'vendor/d3-timer.min.js',
+        'vendor/d3-force.min.js',
+    ];
+
+    /**
+     * The item-page Knowledge Graph chain, in LOAD ORDER: the two renderer layers
+     * (canvas geometry, then the d3-force controller), the data layer, the chrome,
+     * the location-map module, and the controller that wires them together last.
+     *
+     * Deferred scripts execute in append order, so each file finds the namespaces
+     * it reads (ns.GraphCanvas, ns.ForceGraph, ns.kgData, ns.kgUI,
+     * ns.itemLocationMap) already registered. Neither ECharts nor the chart-builder
+     * bundle appears here — the graph needs neither.
+     *
+     * @var string[]
+     */
+    const KNOWLEDGE_GRAPH_SCRIPTS = [
+        'js/graph-canvas.js',
+        'js/graph-force.js',
+        'js/knowledge-graph-data.js',
+        'js/knowledge-graph-ui.js',
+        'js/item-location-map.js',
+        'js/knowledge-graph.js',
+    ];
 
     /**
      * The chart-builder chain in load order: layouts first, then every builder
@@ -154,6 +192,32 @@ class DashboardAssets extends AbstractHelper
             ], JSON_UNESCAPED_SLASHES) . ', window.RV_LIBS||{});');
             $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
             $headScript->appendFile($asset('js/entity-graph.js'), 'text/javascript', $defer);
+            return $this;
+        }
+
+        // Knowledge Graph block (item pages): the d3-force canvas renderer chain.
+        // Deliberately NOT the ECharts prelude or the chart-builder bundle — the
+        // graph needs neither, so an item page carrying just this block pulls
+        // ~17 KiB of d3 instead of 1.1 MiB of ECharts.
+        //
+        // Module::addAssets has already emitted RV_LIBS and dashboard-core.js on
+        // every item page (the only surface this block can appear on), but naming
+        // them again costs nothing — Laminas de-duplicates a repeated script src,
+        // and the RV_LIBS merge is idempotent — and it keeps the surface working if
+        // the block is ever mounted somewhere that prelude does not run.
+        //
+        // The stylesheet is the one thing NOT repeated here: item pages inject it
+        // through a media="print"→"all" swap to keep it off the critical render
+        // path, and headLink cannot see that, so appending it would add a second,
+        // render-blocking copy.
+        if (!empty($options['knowledgeGraph'])) {
+            $headScript->appendScript('window.RV_LIBS=Object.assign(' . json_encode([
+                'd3' => array_map($asset, self::D3_SCRIPTS),
+            ], JSON_UNESCAPED_SLASHES) . ', window.RV_LIBS||{});');
+            $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
+            foreach (self::KNOWLEDGE_GRAPH_SCRIPTS as $script) {
+                $headScript->appendFile($asset($script), 'text/javascript', $defer);
+            }
             return $this;
         }
 

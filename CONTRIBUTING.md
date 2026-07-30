@@ -7,14 +7,23 @@ visualization-parity initiative with the sibling
 [amira dashboard](https://github.com/AM-Digital-Research-Environment/amira).
 
 The module ships **plain PHP, CSS and vanilla JavaScript with no bundler**. There
-is no build step: ECharts 6, echarts-wordcloud 2, and MapLibre GL 5 stay
-self-hosted from committed `asset/vendor/` bundles (injected by `DashboardAssets`).
+is no build step: ECharts 6, echarts-wordcloud 2, MapLibre GL 5, and the d3-force 3
+layout stack stay self-hosted from committed `asset/vendor/` bundles (injected by
+`DashboardAssets`). A new vendored file needs an entry in `THIRD_PARTY_NOTICES`
+with its licence; pin it by SHA-256 when upstream ships no versioned URL.
+
+Three renderers, and the choice between them is not a matter of taste: ECharts for
+charts, MapLibre for maps, and the module's own canvas + d3-force for a graph the
+reader is meant to rearrange (`graph-canvas.js` + `graph-force.js` — both generic,
+neither knows about Omeka). Reach for the last one only when direct manipulation is
+the point; a static network is cheaper as an ECharts series.
 
 ## Before you commit
 
 ```bash
 npm run check   # design-token contract + JS syntax sweep + registry/layout/embed contracts
-docker run --rm -v "$PWD:/m" php:8.4-cli php /m/tests/AggregatorsTest.php   # aggregator regressions
+docker run --rm -v "$PWD:/m" php:8.4-cli php /m/tests/AggregatorsTest.php     # aggregator regressions
+docker run --rm -v "$PWD:/m" php:8.4-cli php /m/tests/KnowledgeGraphsTest.php # graph builder regressions
 ```
 
 The aggregators are dependency-free and unit-tested — add a mock-data case for

@@ -14,14 +14,25 @@ Operational documentation: [administration](docs/ADMINISTRATION.md),
 
 ### Knowledge Graph (Item Pages)
 
-A force-directed network showing the item's relationships. For items with rich outgoing links (research items, projects, people), shows linked persons, subjects, locations, and other items sharing the same properties. For items that are primarily linked TO (subjects, languages, locations, genres), shows the research items that reference them.
+A **live force-directed network** the reader can handle directly: drag a node and its neighbourhood relaxes around it, and the node keeps the position you gave it. For items with rich outgoing links (research items, projects, people), shows linked persons, subjects, locations, and other items sharing the same properties. For items that are primarily linked TO (subjects, languages, locations, genres), shows the research items that reference them.
 
-- Pre-computed JSON for instant loading, regenerated in-Omeka (live REST-API fallback when absent)
+Rendered on a canvas by [d3-force](https://d3js.org/d3-force) (`graph-canvas.js` + `graph-force.js`), not ECharts — the previous `graph`/`force` series ran its layout to a frozen state with no collision pass, so nodes overlapped, only the centre could carry a label, and a drag moved one node through a static picture. The renderer is generic; only `knowledge-graph*.js` knows about research items.
+
+- **Draggable, with live relaxation** — drag to curate the layout; a dragged node is pinned (a ring marks it), Alt-click releases it, and "Release all" clears every pin
+- **Not just a star** — the precompute also draws the statements *between* the item's neighbours (a person who is a member of its project, a project carrying its subjects), so the picture is a network rather than hub-and-spokes. These cross edges are drawn thinner so the item's own statements still read as the primary structure
+- **Labels placed by collision test** — as many as fit, prioritised by centrality; zoom in and more appear. A toolbar toggle forces all of them
 - Hover an entity to isolate its connections — its neighbours and their edges brighten while everything else fades
-- **Community colours** — a coloured halo rings entities that co-occur through shared items, so connected clusters read at a glance (toggle in the toolbar); the busiest (hub) entities are drawn larger
-- Click any node to navigate to its Omeka S page
-- Fullscreen mode (Escape to exit)
-- Node cap (150 direct + 30 shared) prevents overload on highly-connected entities
+- **Community colours** — a coloured halo rings entities that co-occur, so connected clusters read at a glance (toggle in the toolbar); the busiest (hub) entities are drawn larger
+- **Clickable legend** below the graph toggles whole entity types in and out
+- Pan by dragging the background; zoom with Ctrl/⌘ + scroll, a double-click, pinch, or `+`/`−`. A plain scroll still scrolls the page — the graph never hijacks the wheel mid-article
+- **Keyboard + screen reader** — the canvas is focusable: ←/→ walk every entity, ↑/↓ walk the focused entity's own neighbours, Enter opens one, and each move is announced. A *Relationships as a list* disclosure gives the same content as real links (also handy for Ctrl+F)
+- **Freeze the layout** when you like it; **Reset view** re-fits; **Save as image** exports a 2× PNG with every label and a legend
+- Deterministic — the same item lays out identically on every load, so a graph you share is the graph you return to
+- Click any node to navigate to its Omeka S page (on touch, the first tap shows the tooltip and the second opens)
+- Fullscreen mode (Escape to exit); inside it a plain scroll zooms
+- Node caps (220 direct + 90 shared + 40 reverse + 60 referencing) prevent overload on highly-connected entities; the "Max. neighbours" slider trims further
+- Loads ~17 KiB of d3-force rather than the 1.1 MiB ECharts bundle, so an item page whose only visualization block is the graph is much lighter
+- Respects `prefers-reduced-motion` — the layout settles before first paint and never animates on its own
 - Collapsible section — a native `<details>` disclosure mirroring the DRE theme's *Linked resources* accordion (expanded by default; the graph re-fits on expand)
 
 ### Item Location Map (Item Pages)
@@ -283,6 +294,8 @@ Watch progress and any errors at **Admin → Jobs → the job's log**. Re-run af
 
 > `asset/data/knowledge-graphs/` is **not** committed to the repo (≈6,000 files) — it regenerates on demand. Until the first "Regenerate now", the knowledge-graph block falls back to a lighter live REST-API graph.
 
+> Upgrading to 2.22: the new graph renderer works against existing precomputed files, so it needs no regeneration. The **cross edges** between an item's neighbours, and the raised node caps, are produced by the precompute — click "Regenerate now" to get them.
+
 ### Updating the module
 
 To pull a new module **release** into the container:
@@ -319,7 +332,12 @@ DreVisualizations/
 │   └── embed/not-found.phtml           # Bare 404 inside the frame
 ├── asset/
 │   ├── js/
-│   │   ├── knowledge-graph.js                    # Graph + item map
+│   │   ├── graph-canvas.js                       # Reusable: view transform, canvas painter, hit tests
+│   │   ├── graph-force.js                        # Reusable: d3-force simulation + pointer/keyboard interaction
+│   │   ├── knowledge-graph-data.js               # Payload load + REST fallback + IDF filters (pure data)
+│   │   ├── knowledge-graph-ui.js                 # Toolbar, filter panel, legend, text alternative
+│   │   ├── item-location-map.js                  # MapLibre origin / current-location panel
+│   │   ├── knowledge-graph.js                    # Controller wiring the five together
 │   │   ├── dashboard-core.js                     # THEME, COLORS, helpers (window.RV)
 │   │   ├── dashboard-layouts.js                  # Per-resource-type layout configs
 │   │   ├── dashboard-charts-timeline.js          # Timeline (bar by year)

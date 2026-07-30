@@ -63,7 +63,10 @@ const requiredFixes = [
   ['asset/js/dashboard-charts-map.js', "esc(p.name || '')"],
   ['asset/js/dashboard-charts-map.js', 'Number.isFinite(Number(data.lat))'],
   ['asset/js/dashboard-charts-map.js', "esc(data.name || '')"],
-  ['asset/js/knowledge-graph.js', "ns.escapeHtml(loc.name || '')"],
+  // The item location map moved out of knowledge-graph.js into its own module
+  // when the graph switched to the d3-force canvas renderer; the guard follows it.
+  ['asset/js/item-location-map.js', "ns.escapeHtml(loc.name || '')"],
+  ['asset/js/item-location-map.js', 'ns.escapeHtml(siteBase)'],
   ['asset/js/dashboard-charts-treemap.js', 'echarts.format.encodeHTML(n.name'],
 ];
 for (const [file, fragment] of requiredFixes) {

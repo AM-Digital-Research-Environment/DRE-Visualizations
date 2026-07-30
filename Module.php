@@ -188,6 +188,48 @@ class Module extends AbstractModule
             'series' => $view->translate('Series'),
             'category' => $view->translate('Category'),
             'value' => $view->translate('Value'),
+            'locations' => $view->translate('Locations'),
+            'origin' => $view->translate('Origin'),
+            'currentLocation' => $view->translate('Current location'),
+
+            // Knowledge graph (the d3-force canvas: graph-force.js + the kgUI chrome).
+            'graphCanvasLabel' => $view->translate('Network graph. Use the arrow keys to move between connected entities and Enter to open one.'),
+            'kgCanvasLabel' => $view->translate('Knowledge graph. Use the arrow keys to move between connected entities and Enter to open one.'),
+            'kgHint' => $view->translate('Drag a node to rearrange it — it stays where you put it. Alt-click to release it, double-click the background to zoom, Ctrl + scroll to zoom.'),
+            'kgNoRelationships' => $view->translate('No relationships found.'),
+            'kgLoadError' => $view->translate('Failed to load knowledge graph.'),
+            'kgNoEngine' => $view->translate('Graph library failed to load.'),
+            'kgListToggle' => $view->translate('Relationships as a list'),
+            'kgFilters' => $view->translate('Toggle graph filters'),
+            'kgFiltersTitle' => $view->translate('Filters'),
+            'kgResetFilters' => $view->translate('Reset filters'),
+            'kgMaxCommonality' => $view->translate('Max. commonality'),
+            'kgMaxCommonalityHelp' => $view->translate('Hide connections through resources shared by too many items'),
+            'kgMinStrength' => $view->translate('Min. connection strength'),
+            'kgMinStrengthHelp' => $view->translate('Only show shared items with strong distinctive links'),
+            'kgMaxNeighbours' => $view->translate('Max. neighbours'),
+            'kgMaxNeighboursHelp' => $view->translate('Limit the number of visible nodes'),
+            'kgLabelsLabel' => $view->translate('Show every label'),
+            'kgLabelsTitle' => $view->translate('Show every label — otherwise labels are placed where they fit'),
+            'kgHalosLabel' => $view->translate('Toggle community colours'),
+            'kgHalosTitle' => $view->translate('Community colours — rings group entities that co-occur'),
+            'kgFreezeLabel' => $view->translate('Freeze the layout'),
+            'kgFreezeTitle' => $view->translate('Freeze the layout — stops the nodes settling'),
+            'kgResumeLabel' => $view->translate('Resume the layout'),
+            'kgUnpinLabel' => $view->translate('Release all pinned nodes'),
+            'kgUnpinTitle' => $view->translate('Release every node you dragged'),
+            'kgConnection' => $view->translate('connection in view'),
+            'kgConnections' => $view->translate('connections in view'),
+            'kgSharedBy' => $view->translate('Shared by'),
+            'kgOfItems' => $view->translate('of items'),
+            'kgResourceSharedBy' => $view->translate('Resource shared by'),
+            'kgSharedLink' => $view->translate('shared link'),
+            'kgSharedLinks' => $view->translate('shared links'),
+            'kgStrength' => $view->translate('strength'),
+            'kgPinnedHint' => $view->translate('Pinned — Alt-click to release'),
+            'kgClickToOpen' => $view->translate('Click to open'),
+            'kgTapAgain' => $view->translate('Tap again to open'),
+            'kgEnterToOpen' => $view->translate('Press Enter to open.'),
         ];
     }
 
@@ -315,6 +357,11 @@ class Module extends AbstractModule
             'wordcloud'   => $asset(DashboardAssets::WORDCLOUD_JS),
             'maplibre'    => $asset(DashboardAssets::MAPLIBRE_JS),
             'maplibreCss' => $asset(DashboardAssets::MAPLIBRE_CSS),
+            // The knowledge graph simulates with d3-force instead of ECharts, so
+            // an item page carrying only that block pulls ~17 KiB rather than the
+            // 1.1 MiB ECharts bundle. An ordered list: the loader executes it
+            // sequentially because d3-force needs its deps on the `d3` global.
+            'd3'          => array_map($asset, DashboardAssets::D3_SCRIPTS),
         ], JSON_UNESCAPED_SLASHES) . ';');
 
         // dashboard-core.js defines ns.ensureLibs + the shared chart helpers;

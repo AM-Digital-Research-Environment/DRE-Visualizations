@@ -128,6 +128,7 @@
 
     ns._allCharts = [];   // tracked ECharts instances
     ns._allMaps = [];     // tracked MapLibre maps: { map, rebuild }
+    ns._allRenderers = []; // tracked custom renderers: { el, redraw }
     ns._echartsTheme = null;
     ns._darkMode = false;
     ns.basePath = '';     // Omeka base path, set by the dashboard orchestrator
@@ -196,6 +197,10 @@
      * URLs come from window.RV_LIBS (emitted by the DashboardAssets helper on the
      * lazy surfaces). When a library was loaded eagerly, its global is already
      * defined and that part resolves immediately.
+     *
+     * Recognised keys: `echarts`, `wordcloud` (implies echarts), `maplibre`, and
+     * `d3` (the d3-force stack the knowledge graph simulates with). `d3` is NOT in
+     * the default set, so no existing caller starts downloading it.
      */
     ns.ensureLibs = function (required) {
         required = required || { echarts: true, wordcloud: true, maplibre: true };
@@ -254,6 +259,25 @@
         var work = [];
         var echartsReady = function () { return typeof window.echarts !== 'undefined'; };
         var maplibreReady = function () { return typeof window.maplibregl !== 'undefined'; };
+        // d3-force is the only d3 module the module needs a global for; testing
+        // for the entry point (not just `window.d3`) also means a host page that
+        // already ships full d3 satisfies this without a second download.
+        var d3Ready = function () { return !!(window.d3 && window.d3.forceSimulation); };
+
+        if (required.d3 && !d3Ready()) {
+            // RV_LIBS.d3 is an ORDERED list (DashboardAssets::D3_SCRIPTS): the
+            // d3-force UMD wrapper resolves d3-quadtree / d3-dispatch / d3-timer
+            // off the shared `d3` global, so these must EXECUTE sequentially —
+            // chained, never Promise.all'd like the independent libraries below.
+            var d3Srcs = cfg.d3;
+            if (typeof d3Srcs === 'string') d3Srcs = [d3Srcs];
+            if (!Array.isArray(d3Srcs)) d3Srcs = [];
+            var chain = Promise.resolve();
+            d3Srcs.forEach(function (src, i) {
+                chain = chain.then(function () { return loadScript('d3-' + i, src, null); });
+            });
+            work.push(chain);
+        }
 
         if (required.maplibre) {
             loadStyle(cfg.maplibreCss);
@@ -517,6 +541,75 @@
         return map;
     };
 
+    /* ------------------------------------------------------------------ */
+    /*  Icon buttons                                                       */
+    /* ------------------------------------------------------------------ */
+
+    // One innerHTML sink for every inline icon in the module. The bodies passed in
+    // are module-authored path constants, never curator data — routing them all
+    // through here is what keeps the count in check-html-safety.mjs flat as blocks
+    // gain controls, instead of one sink per button.
+    var _iconHost = null;
+
+    /** Build an inline 24×24 stroke icon from an SVG path body. */
+    ns.iconSvg = function (body, size) {
+        if (!_iconHost) _iconHost = document.createElement('div');
+        size = size || 14;
+        _iconHost.innerHTML = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24"'
+            + ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"'
+            + ' stroke-linejoin="round" aria-hidden="true">' + body + '</svg>';
+        return _iconHost.firstChild;   // appending it elsewhere detaches it from the host
+    };
+
+    /**
+     * Replace an element's children with the given nodes (none = clear it).
+     *
+     * Two reasons this exists rather than `innerHTML = ''` plus appendChild: it
+     * keeps clearing a node off the innerHTML sink inventory
+     * (scripts/check-html-safety.mjs), and it falls back to a removal loop so no
+     * shipped surface depends on `replaceChildren` — a 2020 DOM API, newer than
+     * anything else the module relies on.
+     */
+    ns.setChildren = function (el, nodes) {
+        nodes = nodes || [];
+        if (el.replaceChildren) {
+            el.replaceChildren.apply(el, nodes);
+            return el;
+        }
+        while (el.firstChild) el.removeChild(el.firstChild);
+        for (var i = 0; i < nodes.length; i++) el.appendChild(nodes[i]);
+        return el;
+    };
+
+    /** A `.rv-btn` toolbar button carrying one ns.iconSvg glyph. */
+    ns.iconButton = function (body, label, title) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'rv-btn';
+        btn.setAttribute('aria-label', label);
+        btn.title = title || label;
+        btn.appendChild(ns.iconSvg(body));
+        return btn;
+    };
+
+    /**
+     * Track a renderer that owns its own canvas — neither an ECharts instance nor
+     * a MapLibre map, so neither of the two lists above can re-theme it. The
+     * knowledge graph is the one such surface: it paints nodes and edges itself,
+     * and on a light/dark toggle it only needs a repaint with the freshly read
+     * tokens (no re-layout — node positions must survive the toggle).
+     *
+     * `redraw` is a zero-arg closure invoked by ns.refresh() AFTER readTheme(), so
+     * it sees the new ns.THEME / ns.COLORS / ns.HALO values. Entries whose element
+     * has left the document are dropped instead of called.
+     *
+     * @param {HTMLElement} el      the container, used as the liveness check
+     * @param {Function}    redraw  repaint with the current theme
+     */
+    ns.trackRenderer = function (el, redraw) {
+        ns._allRenderers.push({ el: el, redraw: redraw });
+    };
+
     /**
      * Mount a map legend BELOW the map — appended to the enclosing .chart-panel,
      * not absolutely positioned over the basemap — so it never covers countries,
@@ -775,6 +868,15 @@
         maps.forEach(function (entry) {
             try { if (entry.map && entry.map.remove) entry.map.remove(); } catch (e) { /* noop */ }
             try { if (typeof entry.rebuild === 'function') entry.rebuild(); } catch (e) { /* noop */ }
+        });
+
+        // Custom canvas renderers (the knowledge graph): repaint in place, so the
+        // simulation's node positions survive the toggle. Drop detached entries.
+        ns._allRenderers = ns._allRenderers.filter(function (entry) {
+            return entry.el && entry.el.isConnected;
+        });
+        ns._allRenderers.forEach(function (entry) {
+            try { entry.redraw(); } catch (e) { /* keep going */ }
         });
     };
 

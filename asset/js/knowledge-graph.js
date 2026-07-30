@@ -1,12 +1,17 @@
 /**
- * Knowledge Graph — loads precomputed JSON files, falls back to REST API.
+ * Knowledge Graph controller — wires the four pieces together on an item page.
  *
- * Depends on:
- *   - dashboard-core.js (THEME, COLORS, HALO, initChart, truncateLabel, getBasemapStyle)
+ *   knowledge-graph-data.js  → the payload, the REST fallback, the IDF filters
+ *   graph-force.js           → the reusable d3-force canvas renderer
+ *   knowledge-graph-ui.js    → the toolbar, filter panel, legend, text alternative
+ *   item-location-map.js     → the MapLibre panel below, when the item is placed
  *
- * Priority:
- * 1. Try /modules/DreVisualizations/asset/data/knowledge-graphs/{id}.json (precomputed, instant)
- * 2. Fall back to REST API (lightweight: direct relationships only)
+ * This file owns only the sequence: lazy-mount → load → build → mount chrome. It
+ * replaces the former ECharts `graph`/`force` series, which ran its layout to a
+ * frozen state with no collision pass — nodes overlapped, only the centre carried
+ * a label, and dragging one moved it through a static picture.
+ *
+ * The payload contract is unchanged, so no regeneration is needed.
  */
 (function () {
     'use strict';
@@ -14,759 +19,128 @@
     var ns = window.RV;
     if (!ns) { console.warn('DreVisualizations: dashboard-core.js must load before knowledge-graph.js'); return; }
 
-    var COLORS = ns.COLORS;
-    var THEME = ns.THEME;
+    function t(key, fallback) { return ns.t(key, fallback); }
 
-    // Ring palette for community halos — deliberately distinct from the
-    // categorical node fills (ns.COLORS) so a node's cluster reads independently
-    // of its entity type. Lives in dashboard-core next to the brand palette
-    // (deep pigments on light, lifted on dark) and is mutated in place by
-    // readTheme(), so this reference re-colours on every light/dark toggle.
-    var HALO = ns.HALO;
-
-    /** Halo colour for a community index (null when none / halos off). */
-    function communityColor(c) {
-        if (c === undefined || c === null || c < 0) return null;
-        return HALO[c % HALO.length];
-    }
-
-    // Property -> category mapping (used in API fallback only).
-    var PROP_CAT = {
-        'dcterms:creator': 'Person', 'dcterms:contributor': 'Person', 'foaf:member': 'Person',
-        'dcterms:subject': 'Subject', 'dcterms:spatial': 'Location', 'dcterms:provenance': 'Location',
-        'dcterms:isPartOf': 'Project', 'dcterms:format': 'Genre', 'frapo:isFundedBy': 'Institution',
-        'dcterms:relation': 'Related Item', 'dcterms:hasPart': 'Related Item',
-        'dcterms:replaces': 'Related Item', 'dcterms:isReplacedBy': 'Related Item',
-        'dcterms:hasVersion': 'Related Item', 'dcterms:isVersionOf': 'Related Item',
-        'dcterms:hasFormat': 'Related Item'
-    };
-
-    function getCat(term) {
-        if (PROP_CAT[term]) return PROP_CAT[term];
-        if (term.indexOf('marcrel:') === 0) return 'Contributor';
-        return null;
-    }
-
-    /* ------------------------------------------------------------------ */
-    /*  Load precomputed or fall back to API                               */
-    /* ------------------------------------------------------------------ */
-
-    function loadGraphData(container) {
-        var itemId = container.dataset.itemId;
-        var basePath = container.dataset.basePath || '';
-        var apiBase = container.dataset.apiBase;
-        ns.basePath = basePath;
-
-        // Try precomputed file first.
-        return ns.fetchDataJson('knowledge-graphs/' + encodeURIComponent(itemId) + '.json').catch(function () {
-            // Fall back to lightweight API (direct relationships only).
-            return fetch(apiBase + '/items/' + itemId)
-                .then(function (r) { return r.json(); })
-                .then(function (item) { return buildFromApi(item); });
-        });
-    }
-
-    /** Build graph from a single REST API item response (no shared items). */
-    function buildFromApi(item) {
-        var itemId = item['o:id'];
-        var title = item['o:title'] || 'Item';
-        var rc = item['o:resource_class'];
-        var centerCat = (rc && rc['o:label']) || 'Item';
-
-        var nodes = [], edges = [], categories = [{ name: centerCat }];
-        var catMap = {}; catMap[centerCat] = 0;
-        var seen = {};
-
-        function ensureCat(name) {
-            if (catMap[name] === undefined) { catMap[name] = categories.length; categories.push({ name: name }); }
-            return catMap[name];
-        }
-
-        nodes.push({ id: 'item_' + itemId, name: title, category: 0, symbolSize: 45, isCenter: true, itemId: itemId });
-
-        for (var key in item) {
-            if (!Array.isArray(item[key]) || key.indexOf(':') === -1) continue;
-            if (key.indexOf('o:') === 0 || key.indexOf('@') === 0) continue;
-
-            var cat = getCat(key);
-            if (!cat) continue;
-            var catIdx = ensureCat(cat);
-
-            item[key].forEach(function (v) {
-                if (!v.value_resource_id) return;
-                var nid = 'resource_' + v.value_resource_id;
-                if (!seen[nid]) {
-                    seen[nid] = true;
-                    nodes.push({ id: nid, name: v.display_title || '', category: catIdx, symbolSize: 22, itemId: v.value_resource_id });
-                }
-                edges.push({ source: 'item_' + itemId, target: nid, name: v.property_label || key });
-            });
-        }
-
-        return { nodes: nodes, edges: edges, categories: categories };
-    }
-
-    /* ------------------------------------------------------------------ */
-    /*  Filter panel                                                       */
-    /* ------------------------------------------------------------------ */
-
-    /** True when any shared edge carries IDF metadata (precomputed data). */
-    function hasFilterData(data) {
-        for (var i = 0; i < data.edges.length; i++) {
-            if (data.edges[i].isShared && data.edges[i].idf !== undefined) return true;
-        }
-        return false;
-    }
-
-    /** Build the collapsible slider panel.  Returns {el, onChange}. */
-    function buildFilterPanel(data) {
-        var stats = data.stats || {};
-        var hasShared = false;
-        for (var i = 0; i < data.nodes.length; i++) {
-            if (data.nodes[i].strength !== undefined) { hasShared = true; break; }
-        }
-
-        var maxFreq = stats.maxFreqPct || 100;
-        var maxStr  = stats.maxStrength || 10;
-
-        // Outer wrapper
-        var wrap = document.createElement('div');
-        wrap.className = 'rv-kg-filters';
-
-        // Toggle button
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'rv-btn rv-kg-filters-toggle';
-        btn.setAttribute('aria-expanded', 'false');
-        btn.setAttribute('aria-label', 'Toggle graph filters');
-        btn.title = 'Filters';
-        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>';
-        wrap.appendChild(btn);
-
-        // Panel (hidden by default)
-        var panel = document.createElement('div');
-        panel.className = 'rv-kg-filters-panel';
-        panel.hidden = true;
-        wrap.appendChild(panel);
-
-        btn.addEventListener('click', function () {
-            var open = panel.hidden;
-            panel.hidden = !open;
-            btn.setAttribute('aria-expanded', String(open));
-            btn.classList.toggle('rv-btn-active', open);
-        });
-
-        // State for slider values
-        var state = {
-            maxCommonality: Math.ceil(maxFreq),
-            minStrength: 0,
-            maxNodes: data.nodes.length,
-        };
-        // Snapshot of the unfiltered defaults, so "Reset" can restore them and the
-        // reset button can grey out while the graph is still at its full extent.
-        var defaults = {
-            maxCommonality: state.maxCommonality,
-            minStrength: state.minStrength,
-            maxNodes: state.maxNodes,
-        };
-        var callbacks = [];
-
-        function filtersActive() {
-            return state.maxCommonality !== defaults.maxCommonality
-                || state.minStrength !== defaults.minStrength
-                || state.maxNodes !== defaults.maxNodes;
-        }
-        function fireChange() {
-            for (var i = 0; i < callbacks.length; i++) callbacks[i](state);
-            if (resetBtn) resetBtn.disabled = !filtersActive();
-        }
-
-        // ── Max commonality slider ──
-        var s1 = makeSlider(
-            'Max. commonality',
-            'Hide connections through resources shared by too many items',
-            1, Math.ceil(maxFreq), state.maxCommonality, '%'
-        );
-        panel.appendChild(s1.el);
-        s1.onInput(function (v) { state.maxCommonality = v; fireChange(); });
-
-        // ── Min strength slider ──
-        if (hasShared) {
-            // Round up for slider max so the entire range is reachable.
-            var strMax = Math.ceil(maxStr);
-            if (strMax < 1) strMax = 1;
-            var s2 = makeSlider(
-                'Min. connection strength',
-                'Only show shared items with strong distinctive links',
-                0, strMax, 0, ''
-            );
-            panel.appendChild(s2.el);
-            s2.onInput(function (v) { state.minStrength = v; fireChange(); });
-        }
-
-        // ── Max neighbours slider ──
-        var totalNodes = data.nodes.length;
-        if (totalNodes > 10) {
-            var s3 = makeSlider(
-                'Max. neighbours',
-                'Limit the number of visible nodes',
-                5, totalNodes, totalNodes, ''
-            );
-            panel.appendChild(s3.el);
-            s3.onInput(function (v) { state.maxNodes = v; fireChange(); });
-        }
-
-        // ── Reset ──
-        // One click back to the unfiltered graph. Disabled until a slider moves.
-        var actions = document.createElement('div');
-        actions.className = 'rv-kg-filters-actions';
-        var resetBtn = document.createElement('button');
-        resetBtn.type = 'button';
-        resetBtn.className = 'rv-kg-filters-reset';
-        resetBtn.textContent = 'Reset filters';
-        resetBtn.disabled = true;
-        resetBtn.addEventListener('click', function () {
-            state.maxCommonality = defaults.maxCommonality;
-            state.minStrength = defaults.minStrength;
-            state.maxNodes = defaults.maxNodes;
-            s1.reset();
-            if (s2) s2.reset();
-            if (s3) s3.reset();
-            fireChange();
-        });
-        actions.appendChild(resetBtn);
-        panel.appendChild(actions);
-
-        return {
-            el: wrap,
-            onChange: function (cb) { callbacks.push(cb); },
-            state: state,
-        };
-    }
-
-    /** Create a single labelled range slider.  Returns {el, onInput}. */
-    function makeSlider(label, description, min, max, value, suffix) {
-        var row = document.createElement('div');
-        row.className = 'rv-kg-slider';
-
-        var lbl = document.createElement('label');
-
-        // Top row: label text + current value, side by side.
-        var topRow = document.createElement('span');
-        topRow.className = 'rv-kg-slider-label';
-
-        var labelText = document.createElement('span');
-        labelText.textContent = label;
-        topRow.appendChild(labelText);
-
-        var val = document.createElement('span');
-        val.className = 'rv-kg-slider-value';
-        val.textContent = value + suffix;
-        topRow.appendChild(val);
-
-        lbl.appendChild(topRow);
-
-        // Second row: full-width slider.
-        var input = document.createElement('input');
-        input.type = 'range';
-        input.min = min;
-        input.max = max;
-        input.value = value;
-        lbl.appendChild(input);
-
-        row.appendChild(lbl);
-
-        // Third row: description.
-        if (description) {
-            var desc = document.createElement('div');
-            desc.className = 'rv-kg-slider-desc';
-            desc.textContent = description;
-            row.appendChild(desc);
-        }
-
-        var cbs = [];
-        input.addEventListener('input', function () {
-            var v = Number(input.value);
-            val.textContent = v + suffix;
-            for (var i = 0; i < cbs.length; i++) cbs[i](v);
-        });
-
-        // Restore the slider to its initial value + label, without firing callbacks
-        // (the caller batches a single re-render after resetting every slider).
-        function reset() {
-            input.value = value;
-            val.textContent = value + suffix;
-        }
-
-        return { el: row, onInput: function (cb) { cbs.push(cb); }, reset: reset };
-    }
-
-    /* ------------------------------------------------------------------ */
-    /*  Filtering logic                                                    */
-    /* ------------------------------------------------------------------ */
+    /** Categorical fill for a node's category index (re-read on a theme toggle). */
+    function colorOf(i) { return ns.COLORS[i % ns.COLORS.length]; }
 
     /**
-     * Apply slider filters to the full graph data and return a filtered copy.
-     *
-     * Pipeline:
-     * 1. Keep all direct (non-shared) edges.
-     * 2. Keep shared edges where freqPct <= maxCommonality.
-     * 3. For each shared node, recompute effective strength from surviving
-     *    edges; drop node if strength < minStrength.
-     * 4. Remove orphaned edges (edges pointing to removed nodes).
-     * 5. Cap at maxNodes (keep center + highest-strength shared + all direct).
+     * Halo colour for a node's community, or null when it has none. The ring
+     * palette is deliberately distinct from the categorical fills, so a node's
+     * cluster reads independently of its entity type.
      */
-    function filterGraph(allNodes, allEdges, state) {
-        var maxC = state.maxCommonality;
-        var minS = state.minStrength;
-        var maxN = state.maxNodes;
+    function haloOf(node) {
+        var c = node.community;
+        if (c === undefined || c === null || c < 0) return null;
+        return ns.HALO[c % ns.HALO.length];
+    }
 
-        // Step 1-2: filter edges by commonality.
-        var edges = [];
-        for (var i = 0; i < allEdges.length; i++) {
-            var e = allEdges[i];
-            if (e.isShared) {
-                if ((e.freqPct || 0) <= maxC) edges.push(e);
-            } else {
-                edges.push(e);
-            }
-        }
-
-        // Step 3: recompute strength for shared nodes from surviving edges.
-        var nodeStrength = {};  // node id → effective strength
-        for (i = 0; i < edges.length; i++) {
-            var ed = edges[i];
-            if (ed.isShared) {
-                nodeStrength[ed.source] = (nodeStrength[ed.source] || 0) + (ed.idf || 0);
-            }
-        }
-
-        // Build set of kept node IDs.
-        var keptIds = {};
-        var sharedNodes = [];
-        var nonSharedNodes = [];
-
-        for (i = 0; i < allNodes.length; i++) {
-            var nd = allNodes[i];
-            if (nd.isCenter) {
-                keptIds[nd.id] = true;
-                continue;
-            }
-            if (nd.strength !== undefined) {
-                // Shared item — check effective strength.
-                var eff = nodeStrength[nd.id] || 0;
-                if (eff >= minS) {
-                    sharedNodes.push({ node: nd, eff: eff });
-                }
-            } else {
-                nonSharedNodes.push(nd);
-                keptIds[nd.id] = true;
-            }
-        }
-
-        // Sort shared nodes by effective strength descending.
-        sharedNodes.sort(function (a, b) { return b.eff - a.eff; });
-
-        // Step 5: cap total nodes.
-        var remaining = maxN - 1 - nonSharedNodes.length; // -1 for center
-        if (remaining < 0) remaining = 0;
-        for (i = 0; i < sharedNodes.length && i < remaining; i++) {
-            keptIds[sharedNodes[i].node.id] = true;
-        }
-
-        // Collect filtered nodes.
-        var nodes = [];
-        for (i = 0; i < allNodes.length; i++) {
-            if (keptIds[allNodes[i].id]) nodes.push(allNodes[i]);
-        }
-
-        // Step 4: remove orphaned edges.
-        var filteredEdges = [];
-        for (i = 0; i < edges.length; i++) {
-            if (keptIds[edges[i].source] && keptIds[edges[i].target]) {
-                filteredEdges.push(edges[i]);
-            }
-        }
-
-        return { nodes: nodes, edges: filteredEdges };
+    function showMessage(container, cls, text) {
+        ns.setChildren(container, [ns.el('p', cls, text)]);
     }
 
     /* ------------------------------------------------------------------ */
-    /*  ECharts rendering                                                  */
+    /*  Build                                                             */
     /* ------------------------------------------------------------------ */
 
-    /** Map an IDF-weighted edge to a visual width in [minW, maxW]. */
-    function edgeWidth(e, maxStr) {
-        if (!e.isShared || !maxStr) return 1.5;
-        var t = Math.min((e.idf || 0) / maxStr, 1);
-        return 0.6 + t * 2.4; // 0.6 – 3.0
-    }
+    function build(container, data, siteBase, seed) {
+        var kgData = ns.kgData;
+        var kgUI = ns.kgUI;
+        var categories = data.categories || [];
+        var maxStrength = (data.stats || {}).maxStrength || 1;
 
-    /** Map an IDF-weighted edge to an opacity in [minO, maxO]. */
-    function edgeOpacity(e, maxStr) {
-        if (!e.isShared || !maxStr) return 0.6;
-        var t = Math.min((e.idf || 0) / maxStr, 1);
-        return 0.15 + t * 0.55; // 0.15 – 0.70
-    }
-
-    function renderChart(container, data, siteBase) {
-        // Add URLs to nodes.
-        data.nodes.forEach(function (n) {
-            if (n.itemId && siteBase) {
-                n.url = siteBase + '/item/' + n.itemId;
-            }
+        var graph = ns.ForceGraph.create(container, {
+            nodes: kgData.toNodeSpecs(data.nodes, siteBase),
+            categories: categories,
+            seed: seed,
+            colorOf: colorOf,
+            haloOf: haloOf,
+            forces: kgData.buildForces(maxStrength),
+            tooltip: kgUI.tooltipRows(categories, colorOf),
+            announce: kgUI.announcer(categories),
+            ariaLabel: t('kgCanvasLabel', 'Knowledge graph. Use the arrow keys to move between '
+                + 'connected entities and Enter to open one.'),
+            onActivate: function (node) { if (node.url) window.location.href = node.url; }
         });
 
-        var chart = ns.initChart(container);
-        var stats = data.stats || {};
-        var maxStr = stats.maxStrength || 1;
-        var enableFilters = hasFilterData(data);
+        graph.setGraph({
+            nodes: data.nodes,
+            links: kgData.toLinkSpecs(data.edges, maxStrength)
+        }, false);
+        graph.resize();
 
-        data.categories.forEach(function (cat, i) {
-            cat.itemStyle = { color: COLORS[i % COLORS.length] };
-        });
-
-        // Keep full copies for filtering.
-        var allNodes = data.nodes.slice();
-        var allEdges = data.edges.slice();
-        // Community halos are only offered/drawn when the precompute found clusters.
-        var hasCommunities = !!(data.stats && data.stats.communityCount > 0);
-        var showHalos = true;
-
-        /** Build an ECharts option from a (possibly filtered) node/edge set. */
-        function buildOption(nodes, edges) {
-            var n = nodes.length;
-            // Degree per node (from the currently visible edges) drives hub sizing,
-            // so the busiest entities read as the largest.
-            var degree = {};
-            edges.forEach(function (e) {
-                degree[e.source] = (degree[e.source] || 0) + 1;
-                degree[e.target] = (degree[e.target] || 0) + 1;
-            });
-            return {
-                aria: { enabled: true },
-                tooltip: {
-                    trigger: 'item',
-                    confine: true,
-                    extraCssText: 'word-spacing:normal;letter-spacing:normal;white-space:normal;font-family:sans-serif;line-height:1.5;',
-                    formatter: function (p) {
-                        if (p.dataType === 'node') {
-                            var c = data.categories[p.data.category];
-                            var t = '<strong>' + echarts.format.encodeHTML(p.name) + '</strong><br/>'
-                                + '<span style="color:' + COLORS[p.data.category % COLORS.length] + '">'
-                                + echarts.format.encodeHTML(c ? c.name : '') + '</span>';
-                            if (p.data.freqPct !== undefined && p.data.freqPct !== null) {
-                                t += '<br/><span style="font-size:11px;color:var(--ink-light,#888)">Shared by '
-                                    + p.data.freqPct + '% of items</span>';
-                            }
-                            if (p.data.strength !== undefined) {
-                                t += '<br/><span style="font-size:11px;color:var(--ink-light,#888)">'
-                                    + p.data.sharedCount + ' shared link' + (p.data.sharedCount > 1 ? 's' : '')
-                                    + ' (strength ' + p.data.strength + ')</span>';
-                            }
-                            if (p.data.url) t += '<br/><span style="font-size:11px;color:var(--ink-light,#888)">Click to open</span>';
-                            return t;
-                        }
-                        if (p.dataType === 'edge') {
-                            var lbl = echarts.format.encodeHTML(p.data.name || '');
-                            if (p.data.isShared && p.data.freqPct !== undefined) {
-                                lbl += '<br/><span style="font-size:11px;color:var(--ink-light,#888)">Resource shared by '
-                                    + p.data.freqPct + '% of items</span>';
-                            }
-                            return lbl;
-                        }
-                        return '';
-                    }
-                },
-                legend: {
-                    data: data.categories.map(function (c) { return c.name; }),
-                    bottom: 10, textStyle: { fontSize: THEME.fontSize }, type: 'scroll'
-                },
-                animationDuration: ns.prefersReducedMotion && ns.prefersReducedMotion() ? 0 : 300,
-                animationEasingUpdate: 'cubicOut',
-                series: [{
-                    type: 'graph', layout: 'force',
-                    data: nodes.map(function (nd) {
-                        var sh = !nd.isCenter && nd.symbolSize <= 16;
-                        // Grow well-connected (hub) nodes so the busiest entities
-                        // stand out; the centre already dominates, so leave it.
-                        var deg = degree[nd.id] || 0;
-                        var size = nd.isCenter ? nd.symbolSize
-                            : Math.min(nd.symbolSize * 2, nd.symbolSize * (1 + 0.22 * Math.sqrt(Math.max(0, deg - 1))));
-                        // Community halo: a coloured ring groups entities that
-                        // co-occur through shared items. The centre keeps its strong
-                        // neutral border; halos can be toggled off from the toolbar.
-                        var halo = (nd.isCenter || !showHalos) ? null : communityColor(nd.community);
-                        return {
-                            id: nd.id, name: nd.name, category: nd.category, url: nd.url || null,
-                            symbolSize: size,
-                            freqPct: nd.freqPct, strength: nd.strength, sharedCount: nd.sharedCount,
-                            community: nd.community,
-                            label: {
-                                show: !!nd.isCenter, fontSize: nd.isCenter ? THEME.fontSizeTitle : THEME.fontSize,
-                                fontWeight: nd.isCenter ? 'bold' : 'normal',
-                                width: 150, overflow: 'break'
-                            },
-                            emphasis: { label: { show: true, fontSize: 12, fontWeight: 'bold', width: 180, overflow: 'break' } },
-                            itemStyle: nd.isCenter
-                                ? { borderColor: THEME.text, borderWidth: 3, shadowBlur: 8, shadowColor: 'rgba(0,0,0,0.2)' }
-                                : halo
-                                    ? { borderColor: halo, borderWidth: 3, opacity: sh ? 0.95 : 1 }
-                                    : (sh ? { opacity: 0.85 } : { borderWidth: 1 })  // node border (= --surface) from theme
-                        };
-                    }),
-                    links: edges.map(function (e) {
-                        return {
-                            source: e.source, target: e.target, name: e.name,
-                            isShared: !!e.isShared, freqPct: e.freqPct, idf: e.idf,
-                            lineStyle: {
-                                color: e.isShared ? THEME.grid : THEME.textMuted,
-                                type: e.isShared ? 'dashed' : 'solid',
-                                width: edgeWidth(e, maxStr),
-                                curveness: 0.15,
-                                opacity: edgeOpacity(e, maxStr)
-                            }
-                        };
-                    }),
-                    categories: data.categories,
-                    force: {
-                        repulsion: n > 60 ? 600 : n > 30 ? 450 : 300,
-                        gravity: n > 60 ? 0.05 : 0.08,
-                        edgeLength: n > 60 ? [40, 250] : [60, 200],
-                        friction: 0.85,
-                        layoutAnimation: false
-                    },
-                    roam: true, draggable: true, cursor: 'pointer',
-                    // Hovering an entity isolates its connections: neighbours + their
-                    // edges brighten and grow slightly, everything else fades hard.
-                    emphasis: {
-                        focus: 'adjacency', scale: 1.05,
-                        lineStyle: { width: 3, opacity: 0.95 },
-                        itemStyle: { shadowBlur: 12, shadowColor: 'rgba(0,0,0,0.25)' }
-                    },
-                    blur: { itemStyle: { opacity: 0.08 }, lineStyle: { opacity: 0.04 } },
-                    label: { position: 'right', formatter: function (p) { return ns.truncateLabel(p.name, THEME.labelMaxLen); } },
-                    lineStyle: { opacity: 0.5, width: 1.2 },
-                    scaleLimit: { min: 0.2, max: 5 }
-                }]
-            };
+        // Chrome below the stage: legend, gesture hint, text alternative. Below —
+        // never over the canvas — the same rule the module's map legends follow.
+        var panel = container.parentElement;
+        var legend = kgUI.buildLegend(graph, categories, colorOf);
+        if (panel) {
+            panel.appendChild(legend.el);
+            panel.appendChild(kgUI.buildHint());
+            panel.appendChild(kgUI.buildListPanel(graph, categories));
         }
-
-        // Initial render with all data. Track what's currently displayed so the
-        // theme engine can re-apply structural (node/edge) colours on a live
-        // light/dark toggle — see dashboard-core ns.refresh().
-        var currentNodes = allNodes, currentEdges = allEdges;
-        chart.setOption(buildOption(currentNodes, currentEdges));
-        chart._rvRebuild = function () {
-            chart.setOption(buildOption(currentNodes, currentEdges), true);
-        };
-
-        chart.on('click', function (p) {
-            if (p.dataType === 'node' && p.data.url) window.location.href = p.data.url;
-        });
-        // Window resizing is handled globally in dashboard-core.js.
+        graph.onTheme(legend.recolour);
 
         var block = container.closest('.knowledge-graph-block');
         if (block) {
-            var toolbar = block.querySelector('.knowledge-graph-toolbar');
+            // The legend is not rebuilt on a filter change: filters only ever remove
+            // nodes, so the chips built from the full graph stay a valid superset.
+            kgUI.mountToolbar(block, graph, data, function (state) {
+                var filtered = kgData.filterGraph(data.nodes, data.edges, state);
+                graph.setGraph({
+                    nodes: filtered.nodes,
+                    links: kgData.toLinkSpecs(filtered.edges, maxStrength)
+                }, true);
+            });
+        }
 
-            // ── Filter panel ──
-            if (enableFilters && toolbar) {
-                var filters = buildFilterPanel(data);
-                toolbar.insertBefore(filters.el, toolbar.firstChild);
-
-                var filterTimer;
-                filters.onChange(function (state) {
-                    clearTimeout(filterTimer);
-                    filterTimer = setTimeout(function () {
-                        var filtered = filterGraph(allNodes, allEdges, state);
-                        currentNodes = filtered.nodes;
-                        currentEdges = filtered.edges;
-                        chart.setOption(buildOption(currentNodes, currentEdges), true);
-                    }, 80);
-                });
-            }
-
-            // ── Community halo toggle ──
-            if (toolbar && hasCommunities) {
-                var haloBtn = document.createElement('button');
-                haloBtn.type = 'button';
-                haloBtn.className = 'rv-btn rv-btn-active';
-                haloBtn.setAttribute('aria-pressed', 'true');
-                haloBtn.setAttribute('aria-label', 'Toggle community colours');
-                haloBtn.title = 'Community colours — rings group entities that co-occur';
-                haloBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></svg>';
-                haloBtn.addEventListener('click', function () {
-                    showHalos = !showHalos;
-                    haloBtn.classList.toggle('rv-btn-active', showHalos);
-                    haloBtn.setAttribute('aria-pressed', String(showHalos));
-                    chart.setOption(buildOption(currentNodes, currentEdges), true);
-                });
-                toolbar.insertBefore(haloBtn, toolbar.firstChild);
-            }
-
-            // ── Save button ──
-            if (toolbar) {
-                var saveBtn = document.createElement('button');
-                saveBtn.type = 'button';
-                saveBtn.className = 'rv-btn';
-                saveBtn.setAttribute('aria-label', 'Save as image');
-                saveBtn.title = 'Save as image';
-                saveBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
-                saveBtn.addEventListener('click', function () {
-                    var url = chart.getDataURL({ pixelRatio: 2, backgroundColor: ns.exportBg() });
-                    var a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'knowledge-graph.png';
-                    a.click();
-                });
-                toolbar.insertBefore(saveBtn, toolbar.firstChild);
-            }
-
-            var toggle = block.querySelector('.rv-fullscreen-toggle');
-            if (toggle) {
-                toggle.addEventListener('click', function () {
-                    block.classList.toggle('rv-fullscreen');
-                    setTimeout(function () { chart.resize(); }, 50);
-                });
-            }
-            var onKeydown = function (e) {
-                if (e.key === 'Escape' && block.classList.contains('rv-fullscreen')) {
-                    block.classList.remove('rv-fullscreen');
-                    setTimeout(function () { chart.resize(); }, 50);
-                }
-            };
-            document.addEventListener('keydown', onKeydown);
+        // A located item also gets a map; MapLibre loads only in that case. It goes
+        // in the disclosure panel with the rest of the chrome (fullscreen lays that
+        // panel out as a column and hides the map, which is not what fullscreen is
+        // for), and mount() is a no-op when the item has no coordinates.
+        if (data.itemMap) {
+            ns.itemLocationMap.mount(panel || container.parentElement, data.itemMap, siteBase);
         }
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Item location map                                                  */
-    /* ------------------------------------------------------------------ */
-
-    /**
-     * Render a MapLibre map showing origin and current locations for an item.
-     * @param {HTMLElement} el - Container element for the map.
-     * @param {Object} itemMap - { origins: [{name,lat,lon,itemId}], current: [{name,lat,lon,itemId}] }
-     * @param {string} siteBase - Base URL for item links.
-     */
-    function renderItemMap(el, itemMap, siteBase) {
-        if (typeof maplibregl === 'undefined') return;
-        var origins = itemMap.origins || [];
-        var current = itemMap.current || [];
-        if (!origins.length && !current.length) return;
-
-        var all = origins.concat(current);
-
-        function create() {
-            var map = new maplibregl.Map({
-                container: el,
-                style: ns.getBasemapStyle(),
-                center: [all[0].lon, all[0].lat],
-                zoom: 3,
-                attributionControl: ns.getMapAttributionOptions(),
-                scrollZoom: false,
-            });
-            map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
-
-            map.on('load', function () {
-                // Origin markers (brand accent).
-                origins.forEach(function (loc) {
-                    var popupHtml = '<strong>' + ns.escapeHtml(loc.name || '') + '</strong><br/>'
-                        + '<span style="color:' + THEME.accent + '">Origin</span>';
-                    if (siteBase) popupHtml += '<br/><a href="' + ns.escapeHtml(siteBase) + '/item/'
-                        + encodeURIComponent(loc.itemId) + '" style="font-size:12px">View location</a>';
-                    new maplibregl.Marker({ color: THEME.accent })
-                        .setLngLat([loc.lon, loc.lat])
-                        .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML(popupHtml))
-                        .addTo(map);
-                });
-
-                // Current location markers.
-                current.forEach(function (loc) {
-                    var popupHtml = '<strong>' + ns.escapeHtml(loc.name || '') + '</strong><br/>'
-                        + '<span style="color:' + COLORS[1] + '">Current location</span>';
-                    if (siteBase) popupHtml += '<br/><a href="' + ns.escapeHtml(siteBase) + '/item/'
-                        + encodeURIComponent(loc.itemId) + '" style="font-size:12px">View location</a>';
-                    new maplibregl.Marker({ color: COLORS[1] })
-                        .setLngLat([loc.lon, loc.lat])
-                        .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML(popupHtml))
-                        .addTo(map);
-                });
-
-                // Fit bounds to all markers.
-                if (all.length > 1) {
-                    var bounds = new maplibregl.LngLatBounds();
-                    all.forEach(function (loc) { bounds.extend([loc.lon, loc.lat]); });
-                    map.fitBounds(bounds, { padding: 50, maxZoom: 8 });
-                }
-            });
-
-            // Re-create with the new basemap + marker colours when the theme toggles.
-            ns.trackMap(map, create);
-            return map;
-        }
-        create();
-    }
-
-    /* ------------------------------------------------------------------ */
-    /*  Init                                                               */
+    /*  Init                                                              */
     /* ------------------------------------------------------------------ */
 
     function initKnowledgeGraph(container) {
         if (!container.dataset.itemId) return;
         var siteBase = container.dataset.siteBase || '';
+        var seed = parseInt(container.dataset.itemId, 10) || 1;
 
-        loadGraphData(container).then(function (data) {
+        ns.kgData.load(container).then(function (data) {
             if (!data || !data.nodes || data.nodes.length < 2) {
-                container.innerHTML = '<p class="rv-no-data">No relationships found.</p>';
+                showMessage(container, 'rv-no-data', t('kgNoRelationships', 'No relationships found.'));
                 return;
             }
-            container.innerHTML = '';
-            renderChart(container, data, siteBase);
-
-            // If item has location data, render a map below the graph.
-            if (data.itemMap && (data.itemMap.origins.length || data.itemMap.current.length)) {
-                var block = container.closest('.knowledge-graph-block') || container.parentElement;
-                var wrapper = document.createElement('div');
-                wrapper.className = 'rv-item-map-panel';
-
-                var heading = document.createElement('h3');
-                heading.textContent = 'Locations';
-                wrapper.appendChild(heading);
-
-                var legend = document.createElement('div');
-                legend.className = 'rv-item-map-legend';
-                if (data.itemMap.origins.length) {
-                    legend.innerHTML += '<span class="rv-legend-dot" style="background:' + THEME.accent + '"></span> Origin';
-                }
-                if (data.itemMap.current.length) {
-                    legend.innerHTML += '<span class="rv-legend-dot" style="background:' + COLORS[1] + '"></span> Current location';
-                }
-                wrapper.appendChild(legend);
-
-                var mapEl = document.createElement('div');
-                mapEl.className = 'rv-item-map-container';
-                wrapper.appendChild(mapEl);
-
-                block.appendChild(wrapper);
-                renderItemMap(mapEl, data.itemMap, siteBase);
+            if (typeof d3 === 'undefined' || !d3.forceSimulation) {
+                showMessage(container, 'rv-error', t('kgNoEngine', 'Graph library failed to load.'));
+                return;
             }
+            build(container, data, siteBase, seed);
         }).catch(function (err) {
             console.error('DreVisualizations:', err);
-            container.innerHTML = '<p class="rv-error">Failed to load knowledge graph.</p>';
+            showMessage(container, 'rv-error', t('kgLoadError', 'Failed to load knowledge graph.'));
         });
     }
 
-    // Lazy-mount: the knowledge graph sits below the item metadata, so defer
-    // loading ECharts/MapLibre (ns.ensureLibs) and the graph render until the
-    // block nears the viewport. When the libraries were loaded eagerly, ensureLibs
-    // resolves at once and behaviour is unchanged. Mirrors dashboard.js.
-    function mountWhenVisible(container, render) {
+    /**
+     * Lazy-mount: the graph sits below the item metadata, so defer the d3-force
+     * stack and the render until the block nears the viewport. Mirrors dashboard.js.
+     * Note it asks for d3 ONLY — an item page whose one viz block is the graph never
+     * downloads ECharts, and MapLibre follows later if the item has coordinates.
+     */
+    function mountWhenVisible(container) {
         var run = function () {
-            (ns.ensureLibs ? ns.ensureLibs() : Promise.resolve()).then(render).catch(function (err) {
-                console.error('DreVisualizations:', err);
-            });
+            (ns.ensureLibs ? ns.ensureLibs({ d3: true }) : Promise.resolve())
+                .then(function () { initKnowledgeGraph(container); })
+                .catch(function (err) {
+                    console.error('DreVisualizations:', err);
+                    showMessage(container, 'rv-error', t('kgNoEngine', 'Graph library failed to load.'));
+                });
         };
         if (!('IntersectionObserver' in window)) { run(); return; }
         var io = new IntersectionObserver(function (entries) {
@@ -779,9 +153,7 @@
 
     function init() {
         var cs = document.querySelectorAll('.knowledge-graph-container');
-        for (var i = 0; i < cs.length; i++) {
-            (function (c) { mountWhenVisible(c, function () { initKnowledgeGraph(c); }); })(cs[i]);
-        }
+        for (var i = 0; i < cs.length; i++) mountWhenVisible(cs[i]);
     }
 
     if (document.readyState === 'loading') {

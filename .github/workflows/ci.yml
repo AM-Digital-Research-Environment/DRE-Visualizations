@@ -44,6 +44,7 @@ jobs:
           php tests/CorpusSnapshotTest.php
           php tests/SnapshotPublisherTest.php
           php tests/AggregatorsTest.php
+          php tests/KnowledgeGraphsTest.php
 
   # `php -l` parses; it does not check an override against its parent. Declaring
   # the module's classes against a real Omeka S core does, which is the only way

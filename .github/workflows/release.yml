@@ -41,6 +41,7 @@ jobs:
           php tests/CorpusSnapshotTest.php
           php tests/SnapshotPublisherTest.php
           php tests/AggregatorsTest.php
+          php tests/KnowledgeGraphsTest.php
       - name: Build Omeka-ready archive
         run: |
           git archive --format=zip --prefix=DreVisualizations/ "${GITHUB_SHA}" -o DreVisualizations.zip
