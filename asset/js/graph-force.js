@@ -29,6 +29,7 @@
  *       seed: 1234,
  *       colorOf: function (categoryIndex) { return '#009260'; },
  *       haloOf: function (node) { return '#8e2a4c' || null; },
+ *       linkColorOf: function (link) { return '#f59c08' || null; },
  *       tooltip: function (node, link, opts) { return [Element, …]; },
  *       announce: function (node) { return 'spoken description'; },
  *       onActivate: function (node) { window.location.href = node.url; },
@@ -37,6 +38,7 @@
  *   graph.setGraph({ nodes: [{id}, …], links: [{ source: id, target: id, name,
  *                                                width?, alpha?, weak?, data? }] });
  *   graph.resize();
+ *   graph.destroy();   // when the container is about to be torn down
  */
 (function () {
     'use strict';
@@ -100,6 +102,7 @@
         var forces = Object.assign({}, DEFAULT_FORCES, spec.forces || {});
         var colorOf = spec.colorOf || function () { return ns.COLORS[0]; };
         var haloOf = spec.haloOf || function () { return null; };
+        var linkColorOf = spec.linkColorOf || null;
         var reduced = !!(ns.prefersReducedMotion && ns.prefersReducedMotion());
         var rng = makeRng(spec.seed || 1);
 
@@ -191,7 +194,7 @@
         function scene() {
             return {
                 nodes: visibleNodes(), links: visibleLinks(), categories: categories,
-                colorOf: colorOf, haloOf: haloOf,
+                colorOf: colorOf, haloOf: haloOf, linkColorOf: linkColorOf,
                 hoverId: hoverId, focusId: focusId, selectedId: selectedId,
                 hoverLink: hoverLink, focusSet: focusSet(),
                 showHalos: showHalos, labelsAll: labelsAll, edgeLabels: edgeLabels
@@ -214,13 +217,18 @@
         }
 
         var paintQueued = false;
+        var destroyed = false;
         function requestPaint() {
-            if (paintQueued) return;
+            if (paintQueued || destroyed) return;
             paintQueued = true;
-            requestAnimationFrame(function () { paintQueued = false; gc.paint(scene()); });
+            requestAnimationFrame(function () {
+                paintQueued = false;
+                if (!destroyed) gc.paint(scene());
+            });
         }
 
         function resize() {
+            if (destroyed) return;
             var changed = gc.resize();
             if (!gc.width() || !gc.height()) return;    // collapsed <details>, not laid out yet
             if (changed && !gc.isUserAdjusted()) gc.fit(visibleNodes());
@@ -609,10 +617,27 @@
 
         /* ---- Resize + theme ------------------------------------------- */
 
+        var observer = null;
         if (window.ResizeObserver) {
-            new ResizeObserver(function () { resize(); }).observe(container);
+            observer = new ResizeObserver(function () { resize(); });
+            observer.observe(container);
         } else {
             window.addEventListener('resize', resize);
+        }
+
+        /**
+         * Tear the graph down. Needed wherever a container is REPLACED rather than
+         * navigated away from — the Network Explorer swaps one network for another
+         * in the same panel, and a simulation left running would keep ticking (and
+         * repainting into a detached canvas) for the life of the page.
+         */
+        function destroy() {
+            if (destroyed) return;
+            destroyed = true;
+            if (sim) sim.stop();
+            if (observer) observer.disconnect();
+            else window.removeEventListener('resize', resize);
+            hideTooltip();
         }
 
         // A light/dark toggle only needs a repaint with the freshly read tokens —
@@ -629,6 +654,7 @@
         return {
             setGraph: function (graph, warm) { setGraph(graph, warm); requestPaint(); },
             resize: resize,
+            destroy: destroy,
             repaint: requestPaint,
             resetView: function () { gc.fit(visibleNodes()); requestPaint(); },
             categoriesInUse: function () {

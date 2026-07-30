@@ -100,10 +100,12 @@ function checkDashboardAssets() {
     if (!existsSync(path)) fail(`DashboardAssets CONTROLLERS missing file: ${script}`);
   }
 
-  // The two ordered asset chains that are NOT part of the chart registry: the
-  // knowledge graph's renderer/data/chrome files, and the vendored d3-force stack
-  // whose load order is load-bearing (d3-force resolves its deps off `d3`).
-  for (const constName of ['KNOWLEDGE_GRAPH_SCRIPTS', 'D3_SCRIPTS']) {
+  // The ordered asset chains that are NOT part of the chart registry: the shared
+  // d3-force renderer, the knowledge graph's own data/chrome files, and the
+  // vendored d3-force stack whose load order is load-bearing (d3-force resolves
+  // its dependencies off `d3`).
+  for (const constName of ['GRAPH_RENDERER_SCRIPTS', 'KNOWLEDGE_GRAPH_SCRIPTS',
+    'ENTITY_GRAPH_SCRIPTS', 'D3_SCRIPTS']) {
     for (const script of quotedStrings(extractBlock(source, constName))) {
       if (!existsSync(join(ROOT, 'asset', script))) {
         fail(`DashboardAssets ${constName} missing file: ${script}`);

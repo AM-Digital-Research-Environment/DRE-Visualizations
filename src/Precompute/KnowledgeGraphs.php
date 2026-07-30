@@ -21,6 +21,13 @@ final class KnowledgeGraphs
     /** Property term => node category. */
     private const PROP_CAT = [
         'dcterms:creator' => 'Person', 'dcterms:contributor' => 'Person', 'foaf:member' => 'Person',
+        // Publications credit their people through bibo: rather than dcterms:, so
+        // without these two a publication's graph showed no authors at all and a
+        // person's graph never reached the work they wrote. Both stay 'Person' — the
+        // edge already carries the property label ("Author", "Editor"), which is
+        // where that distinction belongs; a separate category would only split the
+        // legend and give editors a non-person colour.
+        'bibo:authorList' => 'Person', 'bibo:editorList' => 'Person',
         'dcterms:subject' => 'Subject',
         'dcterms:spatial' => 'Location', 'dcterms:provenance' => 'Location',
         'dcterms:isPartOf' => 'Project',
@@ -32,10 +39,18 @@ final class KnowledgeGraphs
         'dcterms:hasFormat' => 'Related Item',
     ];
 
-    /** Terms whose links are "shareable" — used to discover co-occurring items. */
+    /**
+     * Terms whose links are "shareable" — used to discover co-occurring items.
+     *
+     * The bibo: author/editor terms belong here for the same reason as the dcterms:
+     * ones: two publications by one author are exactly the kind of co-occurrence
+     * this pass exists to surface, and without them a person's own works never
+     * showed up alongside each other.
+     */
     private const SHAREABLE = [
         'dcterms:subject', 'dcterms:isPartOf', 'dcterms:spatial',
         'dcterms:creator', 'dcterms:contributor',
+        'bibo:authorList', 'bibo:editorList',
     ];
 
     /** Priority order for direct relationships when capping. */

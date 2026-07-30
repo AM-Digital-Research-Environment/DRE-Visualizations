@@ -2,6 +2,113 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.23.0 — 2026-07-30
+
+### Fixed
+
+- **The Entity Network's dots now match its own legend.** Its legend, type chips and
+  sidebar swatches resolved colour through the shared entity registry, but the
+  MapLibre paint expression still coloured circles by their position in `types` — so
+  Organization, Location and Tag each had a swatch in one hue and dots in another,
+  and none of the three matched the same type elsewhere on the site. This is the
+  defect 2.22.1 fixed for the graph categories, still live in the paint expression.
+  `npm run check:graph` now fails if the expression stops going through the registry.
+
+### Changed
+
+- **The co-occurrence networks now use the d3-force canvas renderer.** The
+  Publications co-author network, the Podcasts and YouTube speaker networks and the
+  Network Explorer's co-authorship tab were the last ECharts `graph`/`force`
+  series: the layout ran to a frozen state with no collision pass, so nodes
+  overlapped, only the largest could carry a label, and dragging one moved it
+  through a static picture. They now simulate with d3-force on their own canvas —
+  drag a person and their collaborators relax around them, and the node keeps the
+  position you gave it. Same renderer as the item-page knowledge graph, so there is
+  one set of gestures to learn for every graph on the site.
+
+  Kept: PageRank sizing, Louvain colouring, the co-author edge-relationship
+  palette and its key, and click-through to a matched person's record. New:
+  labels placed by collision test, a **clickable cluster legend** — which the
+  co-author network never had, because colour there was spent on the edges — a
+  detail card naming the kinds of connection, an edge list rather than a
+  series/category/value CSV, deterministic layouts, keyboard and screen-reader
+  access, and a PNG export that draws every label. The payload contract is
+  unchanged, so no regeneration is needed for this part.
+
+  One deliberate loss: the plain accent border that marked every matched person is
+  now shown only when the data actually mixes matched records with external
+  (literal) names, so the ring appears where it discriminates instead of on every
+  node.
+
+- Publication authors and editors reach the knowledge graph. Publications credit
+  their people through `bibo:authorList` / `bibo:editorList` rather than
+  `dcterms:creator`, and those two terms were missing from the graph's property
+  whitelist — so a publication's graph showed no people at all, and a person's
+  graph never reached the work they wrote. Both terms are now also *shareable*, so
+  two publications by one author surface as each other's shared items. **Needs a
+  regeneration.** (Podcast episodes and YouTube videos were already covered: their
+  speaker credits use `marcrel:spk`, which the `marcrel:` prefix rule already
+  matched.)
+
+### Added
+
+- **The Entity Network can be driven from the keyboard.** A WebGL canvas is opaque
+  to a pointer-less reader, and this block carried `role="application"` with no key
+  handling at all — there was no way in. Left/right now step through the entities
+  and set the "hub", up/down walk that hub's own neighbours, Enter selects, `+`/`-`
+  zoom, `0` refits and Escape unwinds; a `polite` live region announces each entity
+  with its type and its item and link counts, and the cursor is drawn as an accent
+  ring that outranks the hover ring. This is the same key model `graph-force.js`
+  gives the knowledge graph, so there is one set of gestures for every graph on the
+  site. MapLibre's own arrow-key panning is switched off to free the keys — `+`/`-`
+  still zoom, so nothing is lost.
+- **A text alternative for the Entity Network**: every visible entity as a real
+  link, grouped by type and hubs-first, in a disclosure below the graph. The tabular
+  fallback for MapLibre-only visualizations that `docs/ROADMAP_STATUS.md` asks for,
+  and a Ctrl+F-able index for everyone else. It follows the active filters.
+- **Export from the Entity Network** — the block previously had none. PNG (the map
+  is now created with `preserveDrawingBuffer`, without which the canvas reads back
+  blank) and CSV. The CSV is the *entity* table, not the edge list: the Louvain
+  cluster and the dominant research section are computed by this precompute and
+  published nowhere else, whereas the edges are the picture on screen. It follows
+  the visible filters, so a reader exports what they narrowed to.
+- **Isolate one co-occurrence cluster.** The block is called Discursive Communities
+  and the clusters were the one axis a reader could not filter on — the chips filter
+  by type, the select by link weight, and colouring by cluster only recoloured.
+  Each cluster is named by its most central member, the camera flies to it, and
+  edges need *both* ends inside it so an isolated cluster shows its own structure
+  rather than a fringe running to hidden nodes.
+- **Fullscreen for the Entity Network**, on the same `.rv-fullscreen` convention as
+  the knowledge graph. The whole block expands, not just the canvas: the toolbar,
+  sidebar and legend are how this graph is driven, so MapLibre's own control would
+  have taken the map out from under them.
+- The search box is a real combobox: type, then arrow through the hits and press
+  Enter. Focus stays in the input via `aria-activedescendant` (so typing keeps
+  working while the highlight moves), the results are `role="option"`, and a
+  `focusout` guard replaces the 150 ms blur timeout that could close the list from
+  under a click. Hits are also restricted to entities the current filters leave
+  reachable, instead of offering dead ends.
+- `entity-graph-ui.js` — the Entity Network's chrome (keyboard walker, text
+  alternative, cluster filter, export and fullscreen controls), split out so
+  `entity-graph.js` stays the controller that owns the payload, the MapLibre layers
+  and the filter expressions. Mirrors the knowledge-graph.js / -ui.js split.
+- `ns.mapPng(map)` — a MapLibre map as a PNG data URL, forcing a fresh frame first
+  so the export cannot predate the filter change that prompted it.
+- `graph-chrome.js` — the renderer-agnostic chrome (clickable legend, detail card,
+  edge-colour key, gesture hint) shared by any graph built on `ns.ForceGraph`, so a
+  second consumer no longer has to pull in the knowledge graph's own filter panel,
+  relationship list and floating toolbar to reuse the four generic pieces.
+- `graph-canvas.js` takes an optional per-link colour (`scene.linkColorOf`), which
+  is what keeps the co-author network's relationship palette. Hover and focus
+  emphasis still win over it.
+- `ForceGraph.destroy()` — stops the simulation and disconnects the resize
+  observer. The Network Explorer replaces one network with another in the same
+  panel, and a simulation left running kept ticking and repainting into a detached
+  canvas for the life of the page.
+- `ns.chartCsvRows` honours a renderer-supplied `csvRows()`, so a graph can offer
+  its natural tabular form (an edge list) instead of being walked as an ECharts
+  option.
+
 ## 2.22.1 — 2026-07-30
 
 ### Fixed

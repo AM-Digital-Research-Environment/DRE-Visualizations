@@ -15,8 +15,8 @@
  * Depends on: dashboard-core.js (ns.THEME, ns.truncateLabel, ns.exportBg).
  *
  * A scene is:
- *   { nodes, links,                  // already visibility-filtered
- *     categories, colorOf, haloOf,   // style hooks
+ *   { nodes, links,                              // already visibility-filtered
+ *     categories, colorOf, haloOf, linkColorOf,  // style hooks
  *     hoverId, focusId, hoverLink, focusSet,
  *     showHalos, labelsAll }
  */
@@ -181,8 +181,14 @@
                 var dx = x2 - x1, dy = y2 - y1;
                 var cx = (x1 + x2) / 2 - dy * 0.075, cy = (y1 + y2) / 2 + dx * 0.075;
                 c.globalAlpha = alpha;
+                // An optional per-link colour carries an edge ATTRIBUTE the reader
+                // needs to tell apart — a co-authorship from an author–editor tie,
+                // say. Emphasis still wins over it: a hovered or in-focus edge goes
+                // accent, because "which edges belong to this node" is the more
+                // urgent question the moment there is a focus at all.
+                var own = scene.linkColorOf ? scene.linkColorOf(l) : null;
                 c.strokeStyle = (hovered || (fset && inFocus)) ? THEME.accent
-                    : (l.weak ? THEME.grid : THEME.textMuted);
+                    : (own || (l.weak ? THEME.grid : THEME.textMuted));
                 c.lineWidth = (hovered ? l.width + 1.4 : (fset && inFocus ? l.width + 0.8 : l.width))
                     * clamp(k, 0.75, 1.6);
                 if (l.weak) c.setLineDash([4 * k, 3 * k]); else c.setLineDash([]);

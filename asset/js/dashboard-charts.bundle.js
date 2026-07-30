@@ -2532,13 +2532,30 @@
 
 /* ---- js/dashboard-charts-communities.js ---- */
 /**
- * Community force-graph builder: a co-occurrence network with nodes coloured
- * by Louvain community and sized by PageRank. Shared by the Publications
- * collaboration network (coAuthorNetwork) and the Podcasts speaker network
- * (speakerNetwork) through the registry.
+ * Community force-graph builder: a co-occurrence network with nodes coloured by
+ * Louvain community and sized by PageRank. Shared by the Publications co-author
+ * network (coAuthorNetwork), the Podcasts / YouTube speaker networks
+ * (speakerNetwork) and the Network Explorer's co-authorship tab.
  *
- * Data: { nodes: [{ name, value, itemId, community, rank }],
- *         links: [{ source, target, value }],
+ * Renders with the module's own d3-force canvas renderer (graph-force.js +
+ * graph-canvas.js + graph-chrome.js) — the same stack the item-page knowledge
+ * graph uses — instead of an ECharts `graph`/`force` series. The ECharts series ran
+ * its layout to a frozen state with no collision pass, so nodes overlapped, only
+ * the largest could carry a label, and dragging one moved it through a static
+ * picture. Now a drag makes the neighbourhood relax and the node keeps the position
+ * the reader gave it.
+ *
+ * Kept from the ECharts version: PageRank sizing, Louvain colouring, the
+ * co-author edge-relationship palette and its key, and click-through to a matched
+ * person's record. Gained with the renderer: labels placed by collision test, a
+ * clickable community legend (which the co-author network never had — colour there
+ * was spent on the edges), a detail card, deterministic layout, keyboard and
+ * screen-reader access, and a PNG export that draws every label.
+ *
+ * The payload contract is unchanged, so no regeneration is needed.
+ *
+ * Data: { nodes: [{ name, value, itemId, community, rank, matched, role }],
+ *         links: [{ source, target, value, relation? }],   // endpoints are NAMES
  *         communities: [{ id, size, anchor }] }
  *
  * Registers into window.RV.charts.
@@ -2547,167 +2564,291 @@
     'use strict';
 
     var ns = window.RV;
-    var THEME = ns.THEME, COLORS = ns.COLORS;
-    var initChart = ns.initChart, truncateLabel = ns.truncateLabel;
+    var el = ns.el, truncateLabel = ns.truncateLabel;
 
     ns.charts = ns.charts || {};
 
-    // Edge-relationship palette for the co-author network (used only when links
-    // carry a `relation`). Pulled from the active cluster palette at render time
-    // so it follows the light / dark theme; the legend and the edges read it from
-    // the same place, so they stay in sync.
+    function t(key, fallback) { return ns.t(key, fallback); }
+
+    /**
+     * Edge-relationship palette for the co-author network (used only when links
+     * carry a `relation`). Pulled from the active cluster palette at render time so
+     * it follows the light / dark theme; the key and the edges read it from the same
+     * place, so they stay in sync. This axis is the edge relationship, not an entity
+     * type, so it legitimately indexes the palette rather than ns.entityColor.
+     */
     function relStyles() {
-        var P = COLORS;
+        var P = ns.COLORS;
         return {
-            coauthor: { label: 'Co-authorship', color: P[4 % P.length] },
-            mixed:    { label: 'Author–editor', color: P[1 % P.length] },
-            coeditor: { label: 'Co-editorship', color: P[9 % P.length] }
+            coauthor: { label: t('relCoauthor', 'Co-authorship'), color: P[4 % P.length] },
+            mixed:    { label: t('relMixed', 'Author–editor'), color: P[1 % P.length] },
+            coeditor: { label: t('relCoeditor', 'Co-editorship'), color: P[9 % P.length] }
         };
     }
 
-    // Mount the relationship key below the graph (in the .chart-panel) — the same
-    // below-the-canvas placement the map legends use. Idempotent: a stale legend
-    // (e.g. from the light/dark rebuild) is removed first, so it never stacks.
-    function mountEdgeLegend(el, rel, present) {
-        var panel = el.closest('.chart-panel') || el.parentNode || el;
-        var stale = panel.querySelector('.rv-edge-legend');
-        if (stale) stale.remove();
-        var rows = ['coauthor', 'mixed', 'coeditor'].filter(function (k) { return present[k]; })
-            .map(function (k) {
-                return '<span class="rv-map-legend-row">'
-                    + '<span class="rv-map-legend-line" style="background:' + rel[k].color + '"></span>'
-                    + echarts.format.encodeHTML(rel[k].label) + '</span>';
-            });
-        if (!rows.length) return;
-        var legend = document.createElement('div');
-        legend.className = 'rv-edge-legend';
-        legend.innerHTML = rows.join('');
-        panel.appendChild(legend);
+    /**
+     * Deterministic seed from the node names, so the same network lays out
+     * identically on every load — the graph a reader shares is the graph a reader
+     * returns to — while two different networks on one page still differ.
+     */
+    function seedFrom(nodes) {
+        var h = 2166136261;
+        for (var i = 0; i < nodes.length; i++) {
+            var name = String(nodes[i].name || '');
+            for (var j = 0; j < name.length; j++) {
+                h = Math.imul(h ^ name.charCodeAt(j), 16777619);
+            }
+        }
+        return (h >>> 0) || 1;
     }
 
-    ns.charts.buildCommunities = function (el, data, siteBase) {
+    function showMessage(container, cls, text) {
+        ns.setChildren(container, [el('p', cls, text)]);
+    }
+
+    ns.charts.buildCommunities = function (container, data, siteBase) {
         if (!data || !data.nodes || !data.nodes.length || !data.links) return;
-        var chart = initChart(el);
-        // Decal patterns exist to separate FILLED AREAS without relying on colour.
-        // On a node-link graph they land on small circles and read as noise, so this
-        // chart opts out of the global toggle (as chord/sankey/radar already do).
-        chart._noDecal = true;
-        var n = data.nodes.length;
-        // When links carry a `relation` (the co-author network), colour is reserved
-        // for the edge relationship and the legend lists those; the subject graph
-        // (no relation) keeps colouring nodes by Louvain community as before.
-        var hasRel = data.links.some(function (l) { return !!l.relation; });
-        var communities = (data.communities && data.communities.length)
-            ? data.communities : [{ id: 0, size: n, anchor: null }];
-
-        // Re-runnable so the theme engine re-applies colours on light/dark toggle.
-        function render() {
-            var rel = relStyles();
-            var present = {};
-
-            var catIndex = {};
-            var cats = hasRel
-                ? [{ name: 'Contributor', itemStyle: { color: THEME.accent } }]
-                : communities.map(function (c, i) {
-                    catIndex[c.id] = i;
-                    var label = c.anchor ? (c.anchor + ' (' + c.size + ')') : ('Community ' + (c.id + 1));
-                    return { name: truncateLabel(label, 28), itemStyle: { color: COLORS[c.id % COLORS.length] } };
-                });
-
-            var maxRank = data.nodes.reduce(function (m, nd) {
-                return Math.max(m, nd.rank || 0);
-            }, 0) || 1;
-
-            chart.setOption({
-                tooltip: {
-                    confine: true,
-                    formatter: function (p) {
-                        if (p.dataType === 'node') {
-                            var meta = hasRel
-                                ? '<br/><em>' + (p.data.role === 'both' ? 'author & editor'
-                                    : p.data.role === 'editor' ? 'editor' : 'author')
-                                    + (p.data.matched ? '' : ', external name') + '</em>'
-                                : (p.data.matched ? '<br/><em>matched person</em>' : '')
-                                    + '<br/><em>community ' + (p.data.community + 1) + '</em>';
-                            return '<strong>' + echarts.format.encodeHTML(p.name) + '</strong>'
-                                + '<br/>' + p.data.value + (hasRel ? ' publications' : ' items') + meta;
-                        }
-                        if (p.dataType === 'edge') {
-                            var r = p.data.relation && rel[p.data.relation];
-                            return echarts.format.encodeHTML(p.data.source) + ' ↔ '
-                                + echarts.format.encodeHTML(p.data.target) + ': ' + p.data.value
-                                + (r ? '<br/><em>' + r.label + '</em>' : '');
-                        }
-                        return '';
-                    }
-                },
-                aria: { enabled: true },
-                legend: (!hasRel && cats.length > 1) ? [{
-                    data: cats.map(function (c) { return c.name; }),
-                    type: 'scroll', bottom: 0,
-                    textStyle: { color: THEME.text, fontSize: THEME.fontSize }
-                }] : [],
-                series: [{
-                    type: 'graph', layout: 'force',
-                    categories: cats,
-                    roam: true, draggable: true,
-                    scaleLimit: { min: 0.3, max: 5 },
-                    data: data.nodes.map(function (nd) {
-                        var size = 8 + Math.sqrt((nd.rank || 0) / maxRank) * 38;
-                        var node = {
-                            name: nd.name, value: nd.value, itemId: nd.itemId,
-                            community: nd.community, matched: nd.matched, role: nd.role,
-                            category: (!hasRel && catIndex[nd.community] != null) ? catIndex[nd.community] : 0,
-                            symbolSize: size,
-                            label: {
-                                show: size > 26, color: THEME.text, fontSize: THEME.fontSize,
-                                formatter: function (p) { return truncateLabel(p.name, THEME.labelMaxLen); }
-                            }
-                        };
-                        if (hasRel) {
-                            // Solid accent = person matched to a record (click-through);
-                            // muted = an external (literal) name.
-                            node.itemStyle = {
-                                color: nd.matched ? THEME.accent : THEME.textMuted,
-                                opacity: nd.matched ? 1 : 0.6
-                            };
-                        } else if (nd.matched) {
-                            node.itemStyle = { borderColor: THEME.accent || THEME.text, borderWidth: 2.5 };
-                        }
-                        return node;
-                    }),
-                    links: data.links.map(function (l) {
-                        var ls = {
-                            width: Math.max(0.5, Math.min(4, Math.sqrt(l.value))),
-                            opacity: hasRel ? 0.55 : 0.22, curveness: 0.1
-                        };
-                        if (hasRel && rel[l.relation]) {
-                            ls.color = rel[l.relation].color;
-                            present[l.relation] = true;
-                        }
-                        return { source: l.source, target: l.target, value: l.value, relation: l.relation, lineStyle: ls };
-                    }),
-                    force: {
-                        repulsion: n > 60 ? 240 : 150,
-                        gravity: 0.06, edgeLength: [40, 160], friction: 0.85
-                    },
-                    emphasis: { focus: 'adjacency', label: { show: true }, lineStyle: { opacity: 0.6 } },
-                    blur: { itemStyle: { opacity: 0.12 }, lineStyle: { opacity: 0.04 } }
-                }]
-            });
-
-            if (hasRel) mountEdgeLegend(el, rel, present);
+        if (!ns.ForceGraph || !ns.graphChrome || typeof d3 === 'undefined' || !d3.forceSimulation) {
+            showMessage(container, 'rv-error', t('kgNoEngine', 'Graph library failed to load.'));
+            return;
         }
 
-        render();
-        chart._rvRebuild = render; // re-colour on light/dark toggle
+        var nodes = data.nodes;
+        var hasRel = data.links.some(function (l) { return !!l.relation; });
+        // An "external" name is a contributor string that never resolved to a Person
+        // record. Only worth marking when the data actually mixes the two — the
+        // speaker networks match everything, and a ring on every node says nothing.
+        var mixedMatch = nodes.some(function (n) { return n.matched; })
+            && nodes.some(function (n) { return !n.matched; });
+        var unit = hasRel ? t('publications', 'publications') : t('items', 'items');
 
-        chart.on('click', function (p) {
-            if (p.dataType === 'node' && p.data.itemId && siteBase) {
-                window.location.href = siteBase + '/item/' + p.data.itemId;
+        /* -- categories: one per Louvain community ------------------------- */
+
+        var communities = (data.communities && data.communities.length)
+            ? data.communities
+            : [{ id: 0, size: nodes.length, anchor: null }];
+        var catIndex = {};
+        var categories = communities.map(function (c, i) {
+            catIndex[c.id] = i;
+            var label = c.anchor
+                ? (c.anchor + ' (' + c.size + ')')
+                : (t('community', 'Community') + ' ' + (c.id + 1));
+            return { name: truncateLabel(label, 28), community: c.id };
+        });
+        function categoryOf(node) {
+            var i = catIndex[node.community];
+            return i == null ? 0 : i;
+        }
+        // Keyed by the community ID, not the legend position, so the colours are the
+        // ones the ECharts version produced and a community keeps its hue even if a
+        // regeneration reorders the list.
+        function colorOf(i) {
+            var c = categories[i];
+            var id = c ? c.community : 0;
+            return ns.COLORS[id % ns.COLORS.length];
+        }
+
+        /* -- node + link specs -------------------------------------------- */
+
+        var maxRank = nodes.reduce(function (m, n) { return Math.max(m, n.rank || 0); }, 0) || 1;
+        var byName = {};
+        nodes.forEach(function (n) { byName[n.name] = n; });
+
+        var nodeSpecs = nodes.map(function (n) {
+            return {
+                id: n.name,
+                name: n.name,
+                category: categoryOf(n),
+                // Sized by PageRank, as before. The renderer grows well-connected
+                // nodes a little further on top, so hubs read as hubs at any zoom.
+                size: 9 + Math.sqrt((n.rank || 0) / maxRank) * 26,
+                community: n.community,
+                url: (n.itemId && siteBase) ? (siteBase + '/item/' + n.itemId) : null,
+                data: n
+            };
+        });
+
+        var rel = relStyles();
+        var present = {};
+        var linkSpecs = [];
+        data.links.forEach(function (l) {
+            if (!byName[l.source] || !byName[l.target]) return;
+            var r = l.relation && rel[l.relation];
+            if (r) present[l.relation] = true;
+            linkSpecs.push({
+                source: l.source,
+                target: l.target,
+                // The relationship names the edge, so it reaches the edge labels and
+                // the detail card's "Connected via" for free.
+                name: r ? r.label : '',
+                width: Math.max(0.5, Math.min(4, Math.sqrt(l.value || 1))),
+                alpha: hasRel ? 0.55 : 0.32,
+                data: l
+            });
+        });
+        if (!linkSpecs.length) return;
+
+        /* -- graph -------------------------------------------------------- */
+
+        var graph = ns.ForceGraph.create(container, {
+            nodes: nodeSpecs,
+            categories: categories,
+            seed: seedFrom(nodes),
+            colorOf: colorOf,
+            // The node outline marks a contributor who resolved to a real record —
+            // the ones whose card can offer a link. Suppressed when every node
+            // matched, so the ring only ever appears where it discriminates.
+            haloOf: function (node) {
+                return (mixedMatch && node.data && node.data.matched) ? ns.THEME.accent : null;
+            },
+            linkColorOf: function (link) {
+                var r = link.data && link.data.relation;
+                return (r && rel[r]) ? rel[r].color : null;
+            },
+            tooltip: tooltipRows,
+            announce: announce,
+            ariaLabel: t('communitiesCanvasLabel', 'Co-occurrence network. Use the arrow keys to '
+                + 'move between connected people and Enter to select one.'),
+            forces: {
+                // Heavier co-occurrence pulls a pair closer, so the strength of a
+                // tie reads as distance and not only as line width; hubs still get
+                // room so their neighbours do not pile up on one rim.
+                distance: function (link, deg, scale) {
+                    var hub = Math.max(deg[link.source.id] || 1, deg[link.target.id] || 1);
+                    var w = Math.max(1, (link.data && link.data.value) || 1);
+                    return (95 - Math.min(40, 18 * Math.log(w))
+                        + Math.min(60, 3.4 * Math.sqrt(hub))) * scale;
+                }
             }
         });
-        return chart;
+
+        graph.setGraph({ nodes: nodeSpecs, links: linkSpecs }, false);
+        graph.resize();
+
+        /* -- chrome ------------------------------------------------------- */
+
+        var chrome = ns.graphChrome;
+        var card = chrome.buildDetailCard(graph, {
+            typeLabel: function (node) {
+                var c = categories[node.category];
+                return c ? c.name : '';
+            },
+            typeColor: function (node) { return colorOf(node.category); },
+            metaRows: function (node) {
+                var d = node.data || {};
+                return [
+                    d.value ? (d.value + ' ' + unit) : null,
+                    node.deg ? (node.deg + ' ' + (node.deg === 1
+                        ? t('kgConnection', 'connection in view')
+                        : t('kgConnections', 'connections in view'))) : null,
+                    roleLabel(d),
+                    node.pinned ? t('kgPinnedHint', 'Pinned — Alt-click to release') : null
+                ];
+            },
+            url: function (node) { return node.url; },
+            openLabel: t('kgOpenRecord', 'Open this record')
+        });
+        // Inside the stage, so it follows the graph into a fullscreen panel.
+        container.appendChild(card.el);
+        graph.onSelect(card.show);
+
+        var legend = chrome.buildLegend(graph, categories, colorOf);
+        var lineLegend = hasRel
+            ? chrome.buildLineLegend(['coauthor', 'mixed', 'coeditor']
+                .filter(function (k) { return present[k]; })
+                .map(function (k) { return rel[k]; }))
+            : null;
+        chrome.mountBelow(container, [
+            legend.el,
+            lineLegend,
+            chrome.buildHint(t('communitiesHint', 'Click a person to focus their collaborators; '
+                + 'the panel that opens links to their record. Toggle a cluster in the legend to '
+                + 'isolate it. Drag to rearrange — a dragged node stays where you put it '
+                + '(Alt-click to release). Double-click the background or Ctrl + scroll to zoom.'))
+        ]);
+        graph.onTheme(legend.recolour);
+
+        /* -- helpers ------------------------------------------------------ */
+
+        function roleLabel(d) {
+            if (!d) return null;
+            var role = d.role === 'both' ? t('roleBoth', 'author & editor')
+                : d.role === 'editor' ? t('roleEditor', 'editor')
+                    : d.role === 'author' ? t('roleAuthor', 'author') : null;
+            if (!mixedMatch) return role;
+            var external = d.matched ? null : t('externalName', 'external name');
+            return [role, external].filter(Boolean).join(', ') || null;
+        }
+
+        /** DOM rows, never markup, so a curated name can never become HTML. */
+        function tooltipRows(node, link) {
+            var rows = [];
+            if (node) {
+                var d = node.data || {};
+                rows.push(el('strong', null, node.name));
+                var cat = categories[node.category];
+                if (cat) {
+                    var cs = el('span', 'rv-kg-tip-cat', cat.name);
+                    cs.style.color = colorOf(node.category);
+                    rows.push(cs);
+                }
+                if (d.value) rows.push(el('span', 'rv-kg-tip-meta', d.value + ' ' + unit));
+                if (node.deg) {
+                    rows.push(el('span', 'rv-kg-tip-meta', node.deg + ' ' + (node.deg === 1
+                        ? t('kgConnection', 'connection in view')
+                        : t('kgConnections', 'connections in view'))));
+                }
+                var role = roleLabel(d);
+                if (role) rows.push(el('span', 'rv-kg-tip-meta', role));
+                rows.push(el('span', 'rv-kg-tip-meta', t('kgClickToFocus', 'Click to focus')));
+                return rows;
+            }
+            if (link) {
+                var e = link.data || {};
+                rows.push(el('strong', null, link.source.name + ' ↔ ' + link.target.name));
+                rows.push(el('span', 'rv-kg-tip-meta', (e.value || 1) + ' ' + t('shared', 'shared') + ' ' + unit));
+                if (link.name) rows.push(el('span', 'rv-kg-tip-meta', link.name));
+                return rows;
+            }
+            return null;
+        }
+
+        function announce(node) {
+            var cat = categories[node.category];
+            return node.name + (cat ? ', ' + cat.name : '')
+                + ', ' + (node.deg || 0) + ' ' + t('kgConnections', 'connections in view')
+                + '. ' + t('kgEnterToOpen', 'Press Enter to select.');
+        }
+
+        /**
+         * The panel toolbar's adapter. ns.attachToolbar needs only getDataURL (and
+         * csvRows for the CSV button); dispose() is what the Network Explorer calls
+         * when it swaps one network for another in the same panel.
+         */
+        return {
+            // Decal patterns separate filled AREAS; on small graph nodes they read
+            // as noise, so this chart opts out as chord/sankey/radar already do.
+            _noDecal: true,
+            getDataURL: function () { return graph.toDataURL(); },
+            csvRows: function () {
+                var rows = [[
+                    t('source', 'Source'), t('target', 'Target'),
+                    t('value', 'Value'), t('community', 'Community')
+                ].concat(hasRel ? [t('relationship', 'Relationship')] : [])];
+                data.links.forEach(function (l) {
+                    var s = byName[l.source];
+                    if (!s || !byName[l.target]) return;
+                    var cat = categories[categoryOf(s)];
+                    var row = [l.source, l.target, l.value || 1, cat ? cat.name : ''];
+                    if (hasRel) row.push((rel[l.relation] || {}).label || '');
+                    rows.push(row);
+                });
+                return rows;
+            },
+            resize: function () { graph.resize(); },
+            dispose: function () { graph.destroy(); },
+            graph: graph
+        };
     };
 })();
 ;

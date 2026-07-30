@@ -233,6 +233,42 @@ class Module extends AbstractModule
             'kgVia' => $view->translate('Connected via'),
             'kgEdgeLabelsLabel' => $view->translate('Name every connection'),
             'kgEdgeLabelsTitle' => $view->translate('Name every connection — otherwise only the selected entity’s are named'),
+
+            // Co-occurrence networks (the co-author and speaker graphs, which share
+            // the d3-force renderer with the knowledge graph above).
+            'communitiesCanvasLabel' => $view->translate('Co-occurrence network. Use the arrow keys to move between connected people and Enter to select one.'),
+            'communitiesHint' => $view->translate('Click a person to focus their collaborators; the panel that opens links to their record. Toggle a cluster in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom.'),
+            'community' => $view->translate('Community'),
+            'relCoauthor' => $view->translate('Co-authorship'),
+            'relMixed' => $view->translate('Author–editor'),
+            'relCoeditor' => $view->translate('Co-editorship'),
+            'relationship' => $view->translate('Relationship'),
+            'roleAuthor' => $view->translate('author'),
+            'roleEditor' => $view->translate('editor'),
+            'roleBoth' => $view->translate('author & editor'),
+            'externalName' => $view->translate('external name'),
+            'publications' => $view->translate('publications'),
+            'items' => $view->translate('items'),
+            'shared' => $view->translate('shared'),
+            'source' => $view->translate('Source'),
+            'target' => $view->translate('Target'),
+
+            // Entity Network (Discursive Communities) chrome.
+            'degCanvasLabel' => $view->translate('Entity co-occurrence network. Use the arrow keys to move between connected entities and Enter to select one.'),
+            'degEnterToSelect' => $view->translate('Press Enter to select.'),
+            'degListToggle' => $view->translate('Entities as a list'),
+            'degCluster' => $view->translate('Cluster'),
+            'degAllClusters' => $view->translate('All'),
+            'degCsvTitle' => $view->translate('Download the visible entities as CSV'),
+            'degLabel' => $view->translate('Entity'),
+            'degLink' => $view->translate('link'),
+            'degLinks' => $view->translate('links'),
+            'degSection' => $view->translate('Section'),
+            'degUrl' => $view->translate('URL'),
+            'degMultipleSections' => $view->translate('Multiple sections'),
+            'fullscreen' => $view->translate('Fullscreen'),
+            'exitFullscreen' => $view->translate('Exit fullscreen'),
+            'item' => $view->translate('item'),
         ];
     }
 

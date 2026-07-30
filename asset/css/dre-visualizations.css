@@ -3211,6 +3211,84 @@ body.photo-lightbox-open {
 .deg-legend-item { display: inline-flex; align-items: center; gap: var(--rv-space-2); }
 .deg-legend-note { font-style: italic; }
 
+/* The cluster select can hold a long anchor name ("Fatou Sow (34)"), so cap it
+   rather than let one option stretch the whole control row. */
+.deg-cluster-select { max-width: 12rem; }
+
+/* Keyboard: the stage is the focusable thing (entity-graph.js takes the arrow keys
+   off MapLibre to walk between entities), so it needs a visible ring of its own. */
+.deg-canvas:focus-visible {
+    outline: none;
+    border-color: var(--rv-accent);
+    box-shadow: var(--rv-focus-ring);
+}
+
+/* Live region announcing the keyboard-focused entity. Visually hidden rather than
+   display:none, which would stop it being announced at all. */
+.deg-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* The highlighted search option. Driven by aria-activedescendant, so focus stays in
+   the input and typing keeps working while the highlight moves. */
+.deg-search-hit.is-active {
+    background: var(--rv-bg-sunken);
+    box-shadow: inset 2px 0 0 var(--rv-accent);
+}
+
+/* Text alternative: a swatch beside each type heading ties the list back to the
+   colours on the map. */
+.deg-list .rv-kg-list-head {
+    display: flex;
+    align-items: center;
+    gap: var(--rv-space-2);
+}
+
+/* Fullscreen. Same convention (and the same 9999 layer) as the knowledge graph:
+   the whole block expands, because the toolbar, sidebar and legend are how this
+   graph is driven — MapLibre's own control would take only the canvas. */
+.communities-block.rv-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    margin: 0;
+    padding: var(--rv-space-4);
+    background: var(--rv-bg);
+    overflow: hidden;
+}
+
+/* The definite height goes on the graph container, which then hands the stage
+   whatever the header, toolbar and legend leave. 2rem = the block's own padding. */
+.communities-block.rv-fullscreen .dre-entity-graph {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 2rem);
+    min-height: 0;
+}
+
+/* flex-basis 0, not auto: the stage takes the leftover space instead of being
+   sized by its content, so height flows strictly one way and the stage's
+   ResizeObserver has no cycle to amplify. */
+.communities-block.rv-fullscreen .deg-stage {
+    flex: 1 1 0;
+    height: auto;
+    min-height: 8rem;
+}
+
+/* Fullscreen is for the graph. The prose description and the text alternative are
+   reading aids for the page; squeezing them in would only take height from the
+   thing the reader just asked to see. */
+.communities-block.rv-fullscreen .chart-description,
+.communities-block.rv-fullscreen .deg-list {
+    display: none;
+}
+
 /* Stack the sidebar under the canvas on narrow viewports */
 @media (max-width: 720px) {
     .deg-stage { grid-template-columns: 1fr; height: auto; }

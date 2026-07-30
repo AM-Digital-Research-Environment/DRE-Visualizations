@@ -53,24 +53,55 @@ class DashboardAssets extends AbstractHelper
     ];
 
     /**
-     * The item-page Knowledge Graph chain, in LOAD ORDER: the two renderer layers
-     * (canvas geometry, then the d3-force controller), the data layer, the chrome,
-     * the location-map module, and the controller that wires them together last.
+     * The item-page Knowledge Graph's OWN files, in LOAD ORDER: the data layer, its
+     * chrome, the location-map module, and the controller that wires everything
+     * together last. The shared renderer is prepended from
+     * {@see self::GRAPH_RENDERER_SCRIPTS} at use, so the renderer is listed once.
      *
      * Deferred scripts execute in append order, so each file finds the namespaces
-     * it reads (ns.GraphCanvas, ns.ForceGraph, ns.kgData, ns.kgUI,
+     * it reads (ns.GraphCanvas, ns.ForceGraph, ns.graphChrome, ns.kgData, ns.kgUI,
      * ns.itemLocationMap) already registered. Neither ECharts nor the chart-builder
      * bundle appears here — the graph needs neither.
      *
      * @var string[]
      */
     const KNOWLEDGE_GRAPH_SCRIPTS = [
-        'js/graph-canvas.js',
-        'js/graph-force.js',
         'js/knowledge-graph-data.js',
         'js/knowledge-graph-ui.js',
         'js/item-location-map.js',
         'js/knowledge-graph.js',
+    ];
+
+    /**
+     * The Entity Network (Discursive Communities) chain, in LOAD ORDER: the chrome
+     * first — the keyboard walker, the text alternative, the cluster filter and the
+     * export / fullscreen controls — then the controller that wires them to the
+     * MapLibre layers. Deferred scripts run in append order, so entity-graph.js
+     * finds ns.egUI registered by the time its init() fires.
+     *
+     * @var string[]
+     */
+    const ENTITY_GRAPH_SCRIPTS = [
+        'js/entity-graph-ui.js',
+        'js/entity-graph.js',
+    ];
+
+    /**
+     * The shared d3-force graph renderer, in LOAD ORDER: canvas geometry, the
+     * simulation controller, then the chrome that wraps either of them.
+     *
+     * Named separately from KNOWLEDGE_GRAPH_SCRIPTS because two surfaces now use
+     * it — the item-page knowledge graph and the dashboards' co-occurrence networks
+     * — and it must NOT go in CHART_SCRIPTS: that list is bundled, and an item page
+     * carrying both a knowledge graph and a dashboard would then ship the renderer
+     * twice. As separate files Laminas de-duplicates them by src.
+     *
+     * @var string[]
+     */
+    const GRAPH_RENDERER_SCRIPTS = [
+        'js/graph-canvas.js',
+        'js/graph-force.js',
+        'js/graph-chrome.js',
     ];
 
     /**
@@ -191,7 +222,11 @@ class DashboardAssets extends AbstractHelper
                 'maplibreCss' => $asset(self::MAPLIBRE_CSS),
             ], JSON_UNESCAPED_SLASHES) . ', window.RV_LIBS||{});');
             $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
-            $headScript->appendFile($asset('js/entity-graph.js'), 'text/javascript', $defer);
+            // Chrome before controller: deferred scripts run in append order, so
+            // entity-graph.js finds ns.egUI registered when its init() fires.
+            foreach (self::ENTITY_GRAPH_SCRIPTS as $script) {
+                $headScript->appendFile($asset($script), 'text/javascript', $defer);
+            }
             return $this;
         }
 
@@ -215,7 +250,8 @@ class DashboardAssets extends AbstractHelper
                 'd3' => array_map($asset, self::D3_SCRIPTS),
             ], JSON_UNESCAPED_SLASHES) . ', window.RV_LIBS||{});');
             $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
-            foreach (self::KNOWLEDGE_GRAPH_SCRIPTS as $script) {
+            $graphScripts = array_merge(self::GRAPH_RENDERER_SCRIPTS, self::KNOWLEDGE_GRAPH_SCRIPTS);
+            foreach ($graphScripts as $script) {
                 $headScript->appendFile($asset($script), 'text/javascript', $defer);
             }
             return $this;
@@ -255,18 +291,38 @@ class DashboardAssets extends AbstractHelper
                     'wordcloud'   => $asset(self::WORDCLOUD_JS),
                     'maplibre'    => $asset(self::MAPLIBRE_JS),
                     'maplibreCss' => $asset(self::MAPLIBRE_CSS),
+                    // The co-occurrence networks (co-author, speakers) simulate with
+                    // d3-force rather than an ECharts series. An ordered list: the
+                    // loader executes it sequentially because d3-force resolves its
+                    // dependencies off the shared `d3` global.
+                    'd3'          => array_map($asset, self::D3_SCRIPTS),
                 ], JSON_UNESCAPED_SLASHES) . ', window.RV_LIBS||{});');
                 $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
             } else {
-                // Dedicated dashboard pages (compare / explorer / communities /
+                // Dedicated dashboard pages (compare / explorer / network /
                 // whatsNew): the dashboard IS the page content and sits in the
                 // viewport, so load the libraries eagerly (deferred) up front.
+                // Their controllers render straight from their own fetch without
+                // going through ns.ensureLibs, so d3 has to be here rather than
+                // handed over as a URL — the Network Explorer's co-authorship tab
+                // would otherwise find no simulation to build with.
                 $headScript->appendFile($asset(self::ECHARTS_JS), 'text/javascript', $defer);
                 $headScript->appendFile($asset(self::WORDCLOUD_JS), 'text/javascript', $defer);
                 $headLink->appendStylesheet($asset(self::MAPLIBRE_CSS));
                 $headScript->appendFile($asset(self::MAPLIBRE_JS), 'text/javascript', $defer);
+                foreach (self::D3_SCRIPTS as $script) {
+                    $headScript->appendFile($asset($script), 'text/javascript', $defer);
+                }
                 $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
             }
+        }
+
+        // The d3-force renderer the co-occurrence network builders draw with. Before
+        // the bundle, so ns.GraphCanvas / ns.ForceGraph / ns.graphChrome are
+        // registered by the time a builder is called. De-duplicated by src, so an
+        // item page carrying a knowledge graph as well loads each file once.
+        foreach (self::GRAPH_RENDERER_SCRIPTS as $script) {
+            $headScript->appendFile($asset($script), 'text/javascript', $defer);
         }
 
         $headScript->appendFile($asset(self::CHART_BUNDLE), 'text/javascript', $defer);

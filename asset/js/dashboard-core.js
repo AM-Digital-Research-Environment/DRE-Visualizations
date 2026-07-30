@@ -266,11 +266,17 @@
      * defined and that part resolves immediately.
      *
      * Recognised keys: `echarts`, `wordcloud` (implies echarts), `maplibre`, and
-     * `d3` (the d3-force stack the knowledge graph simulates with). `d3` is NOT in
-     * the default set, so no existing caller starts downloading it.
+     * `d3` (the d3-force stack the graph renderer simulates with).
+     *
+     * The default set — what a dashboard asks for — includes `d3` because a
+     * dashboard cannot know which charts it holds until its JSON has arrived, and
+     * this runs before that fetch. At ~17 KiB beside the 1.1 MiB of ECharts already
+     * in the same set, requesting it unconditionally costs less than the round trip
+     * a chart-driven decision would need. Callers that know exactly what they need
+     * (the knowledge graph, the maps) still pass an explicit set and get only that.
      */
     ns.ensureLibs = function (required) {
-        required = required || { echarts: true, wordcloud: true, maplibre: true };
+        required = required || { echarts: true, wordcloud: true, maplibre: true, d3: true };
         if (required.wordcloud) required.echarts = true;
 
         ns._libPromises = ns._libPromises || {};
@@ -708,6 +714,28 @@
     };
 
     /**
+     * A MapLibre map as a PNG data URL, or null when it cannot be read.
+     *
+     * The map MUST have been created with `preserveDrawingBuffer: true`; without it
+     * WebGL is free to discard the buffer after each frame and the canvas reads back
+     * blank. Labels come along for free — MapLibre draws them into the same canvas —
+     * but DOM overlays (popups, controls, a legend) do not, which matches how the
+     * ECharts exports behave.
+     */
+    ns.mapPng = function (map) {
+        try {
+            // Force one more frame first: after a filter change the last painted
+            // frame can predate it, and the buffer is what we are about to read.
+            if (typeof map.redraw === 'function') map.redraw();
+            else if (typeof map.triggerRepaint === 'function') map.triggerRepaint();
+            return map.getCanvas().toDataURL('image/png');
+        } catch (e) {
+            console.warn('DreVisualizations: map PNG export failed', e);
+            return null;
+        }
+    };
+
+    /**
      * Get the configured basemap style. Blank configuration intentionally
      * yields a same-document background style, making maps privacy-safe by
      * default (no tile/style/glyph requests leave the Omeka origin).
@@ -1104,7 +1132,13 @@
 
     /** Flatten the currently rendered ECharts series into an accessible table. */
     ns.chartCsvRows = function (chart) {
-        if (!chart || !chart.getOption) return [];
+        if (!chart) return [];
+        // A renderer that is not an ECharts instance (the d3-force canvas graphs)
+        // has no `option` to walk, and its natural tabular form is not
+        // series/category/value anyway — a network's is an edge list. Let it supply
+        // its own rows.
+        if (typeof chart.csvRows === 'function') return chart.csvRows();
+        if (!chart.getOption) return [];
         var option = chart.getOption() || {};
         var xCategories = option.xAxis && option.xAxis[0] && option.xAxis[0].data || [];
         var yCategories = option.yAxis && option.yAxis[0] && option.yAxis[0].data || [];

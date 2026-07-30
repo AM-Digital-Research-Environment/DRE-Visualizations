@@ -19,6 +19,8 @@
  *   - asset/js/dashboard-core.js → window.RV (theme tokens, basePath helpers, and
  *     ns.ensureLibs — the shared lazy loader that pulls in MapLibre GL on mount,
  *     so a page with both a dashboard and this graph loads MapLibre exactly once)
+ *   - asset/js/entity-graph-ui.js → ns.egUI (the keyboard walker and its live
+ *     region, the text alternative, the cluster filter, export + fullscreen)
  *
  * Data (compact row arrays, see EntityGraphTrait::buildEntityGraph):
  *   { types: ['Person','Organization','Location','Subject','Tag'],
@@ -45,6 +47,8 @@
             return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
         });
     };
+
+    function t(key, fallback) { return typeof ns.t === 'function' ? ns.t(key, fallback) : fallback; }
 
     var LABEL_FONT = ['Noto Sans Regular'];
 
@@ -161,7 +165,9 @@
         var stage = el('div', 'deg-stage');
         var canvas = el('div', 'deg-canvas');
         canvas.setAttribute('role', 'application');
-        canvas.setAttribute('aria-label', 'Entity co-occurrence network');
+        canvas.tabIndex = 0;
+        canvas.setAttribute('aria-label', ns.t('degCanvasLabel', 'Entity co-occurrence network. '
+            + 'Use the arrow keys to move between connected entities and Enter to select one.'));
         var sidebar = el('div', 'deg-sidebar');
         stage.appendChild(canvas);
         stage.appendChild(sidebar);
@@ -178,6 +184,20 @@
         var commSet = {};
         data.nodes.forEach(function (n) { if (n.community >= 0) commSet[n.community] = true; });
         var commIds = Object.keys(commSet).map(Number).sort(function (a, b) { return a - b; });
+
+        // Cluster summaries for the filter. The payload names no anchor (unlike the
+        // co-author network's), so take each cluster's most central member — `rank`
+        // is the precompute's own hub ordering, lowest first — which is the only
+        // handle a reader has on an otherwise anonymous community number.
+        var clusters = commIds.map(function (id) {
+            var size = 0, anchor = null, best = Infinity;
+            data.nodes.forEach(function (n) {
+                if (n.community !== id) return;
+                size++;
+                if (n.rank < best) { best = n.rank; anchor = n.label; }
+            });
+            return { id: id, size: size, anchor: anchor };
+        }).sort(function (a, b) { return (b.size - a.size) || (a.id - b.id); });
 
         // adjacency[i] = [{ j, w }] sorted by weight desc.
         var adjacency = data.nodes.map(function () { return []; });
@@ -210,6 +230,10 @@
                     geometry: { type: 'LineString', coordinates: [[s.lng, s.lat], [t.lng, t.lat]] },
                     properties: {
                         s: e[0], t: e[1], w: e[2], st: s.type, tt: t.type,
+                        // Endpoint communities, so isolating a cluster can drop the
+                        // edges that leave it without a per-feature lookup at filter
+                        // time — the expression has to be pure to run on the GPU.
+                        sc: s.community, tc: t.community,
                         wn: Math.sqrt(e[2] / maxWeight)
                     }
                 };
@@ -231,11 +255,15 @@
         types.forEach(function (_t, i) { enabledTypes[i] = true; });
         var weightMin = data.weightMin;
         var colorMode = 'type';        // 'type' | 'community' | 'section'
+        var commFilter = null;         // isolate one cluster, or null for all
         var selectedIndex = null;
+        var focusIndex = null;         // keyboard focus (distinct from selection)
         var map = null;
         var fitted = false;
         var hoverPopup = null;
         var hoverId = null;
+        var listPanel = null;          // the text alternative, mounted at the end
+        var keys = null;               // the keyboard walker (ns.egUI.attachKeyboard)
 
         /* ------------------------------------------------------------------ */
         /*  Paint expressions                                                  */
@@ -265,10 +293,14 @@
                 expr.push(dimColor());           // default: bridge (-2) / no section (-1)
                 return expr;
             }
-            pal = colors();
+            // Through the shared registry, exactly like the legend, the type chips
+            // and the sidebar swatches (typeColor). Painting the circles by their
+            // position in `types` instead put Organization, Location and Tag in
+            // hues their own swatches did not use — the same defect 2.22.1 fixed for
+            // the categories, still live in the paint expression.
             expr = ['match', ['get', 'type']];
             for (i = 0; i < types.length; i++) {
-                expr.push(i, pal[i % pal.length]);
+                expr.push(i, typeColor(i));
             }
             expr.push(theme().textMuted);
             return expr;
@@ -279,6 +311,19 @@
         }
         function hoverOpacityExpr(base, hovered) {
             return ['case', ['boolean', ['feature-state', 'hover'], false], hovered, base];
+        }
+        // The keyboard cursor outranks the pointer: a reader arrowing through the
+        // graph must be able to see where they are even as the mouse sits elsewhere.
+        function strokeWidthExpr() {
+            return ['case',
+                ['boolean', ['feature-state', 'focus'], false], 3.5,
+                ['boolean', ['feature-state', 'hover'], false], 2.5,
+                1];
+        }
+        function strokeColorExpr() {
+            return ['case',
+                ['boolean', ['feature-state', 'focus'], false], theme().accent,
+                theme().surface];
         }
 
         /* ------------------------------------------------------------------ */
@@ -292,19 +337,36 @@
         }
         function allTypesOn() { return enabledList().length === types.length; }
 
+        /**
+         * Is this node currently drawn? Type and cluster are the facets that hide
+         * nodes; the min-link select only thins edges. The keyboard walker and the
+         * text alternative both need this so neither can land on something invisible.
+         */
+        function visibleNode(index) {
+            var n = data.nodes[index];
+            if (!n) return false;
+            if (!enabledTypes[n.type]) return false;
+            return commFilter == null || n.community === commFilter;
+        }
+
         // A facet is "active" whenever the view is narrowed from its default: a type
-        // switched off, the min-link raised, or an entity selected. Drives the
-        // enabled state of the Clear-filters button (colour mode is a lens, not a facet).
+        // switched off, the min-link raised, a cluster isolated, or an entity
+        // selected. Drives the enabled state of the Clear-filters button (colour
+        // mode is a lens, not a facet).
         function filtersActive() {
-            return !allTypesOn() || weightMin > data.weightMin || selectedIndex != null;
+            return !allTypesOn() || weightMin > data.weightMin
+                || commFilter != null || selectedIndex != null;
         }
         function updateClearState() {
             if (clearBtn) clearBtn.disabled = !filtersActive();
         }
 
         function nodeFilter() {
-            if (allTypesOn()) return null;
-            return ['in', ['get', 'type'], ['literal', enabledList()]];
+            var parts = [];
+            if (!allTypesOn()) parts.push(['in', ['get', 'type'], ['literal', enabledList()]]);
+            if (commFilter != null) parts.push(['==', ['get', 'comm'], commFilter]);
+            if (!parts.length) return null;
+            return parts.length === 1 ? parts[0] : ['all'].concat(parts);
         }
         function edgeFilter() {
             var parts = [];
@@ -313,6 +375,12 @@
                 var lst = ['literal', enabledList()];
                 parts.push(['in', ['get', 'st'], lst]);
                 parts.push(['in', ['get', 'tt'], lst]);
+            }
+            // Both ends, so an isolated cluster shows only its internal structure
+            // rather than a fringe of edges running to hidden nodes.
+            if (commFilter != null) {
+                parts.push(['==', ['get', 'sc'], commFilter]);
+                parts.push(['==', ['get', 'tc'], commFilter]);
             }
             if (!parts.length) return null;
             return parts.length === 1 ? parts[0] : ['all'].concat(parts);
@@ -327,6 +395,10 @@
             if (selectedIndex == null) return base;
             var ids = [selectedIndex];
             adjacency[selectedIndex].forEach(function (nb) { ids.push(nb.j); });
+            // The keyboard-focused entity keeps its label even when it sits outside
+            // the selected neighbourhood — otherwise arrowing away from a selection
+            // moves an invisible cursor.
+            if (focusIndex != null && ids.indexOf(focusIndex) === -1) ids.push(focusIndex);
             var sel = ['in', ['get', 'i'], ['literal', ids]];
             return base ? ['all', base, sel] : sel;
         }
@@ -345,8 +417,45 @@
                 ['case', ['in', ['get', 'i'], ['literal', ids]], 1, 0.16]);
         }
 
+        /**
+         * The keyboard cursor, as a feature-state ring.
+         *
+         * The source is created with `generateId: true`, which assigns each feature
+         * an id from its position in the features array — and those are built in node
+         * order, so a feature id IS a node index. That equality is what lets the
+         * focus ring be set from an index without a lookup.
+         */
+        var focusFeature = null;
+        function paintFocus(index) {
+            if (!map || !map.getSource(SRC_NODES)) return;
+            if (focusFeature !== null) {
+                map.setFeatureState({ source: SRC_NODES, id: focusFeature }, { focus: false });
+            }
+            focusFeature = index == null ? null : index;
+            if (focusFeature !== null) {
+                map.setFeatureState({ source: SRC_NODES, id: focusFeature }, { focus: true });
+            }
+        }
+
+        /** Move the keyboard cursor: ring it, centre it, and relabel it. */
+        function setFocus(index) {
+            focusIndex = index;
+            paintFocus(index);
+            if (map && map.getLayer(L_LABELS)) map.setFilter(L_LABELS, labelFilter());
+            if (index == null) return;
+            var node = data.nodes[index];
+            hideHover();
+            try {
+                map.easeTo({ center: [node.lng, node.lat], zoom: Math.max(map.getZoom(), 3.5), duration: 260 });
+            } catch (err) { /* ignore */ }
+        }
+
         function applyFilters() {
             updateClearState();
+            // A facet change can hide whatever the keyboard was on; dropping the
+            // cursor is better than leaving it on something no longer drawn.
+            if (focusIndex != null && !visibleNode(focusIndex)) setFocus(null);
+            if (listPanel) listPanel.refresh();
             if (!map || !map.getLayer(L_EDGES)) return;
             map.setFilter(L_EDGES, edgeFilter());
             map.setFilter(L_NODES, nodeFilter());
@@ -394,8 +503,8 @@
                     'circle-radius': ['get', 'r'],
                     'circle-color': nodeColorExpr(),
                     'circle-opacity': hoverOpacityExpr(0.9, 1),
-                    'circle-stroke-width': ['case', ['boolean', ['feature-state', 'hover'], false], 2.5, 1],
-                    'circle-stroke-color': theme().surface
+                    'circle-stroke-width': strokeWidthExpr(),
+                    'circle-stroke-color': strokeColorExpr()
                 }
             });
             if (!m.getLayer(L_LABELS)) m.addLayer({
@@ -493,7 +602,16 @@
                 dragRotate: false,
                 pitchWithRotate: false,
                 maxZoom: 9,
-                maxBounds: [[-179, -85], [179, 85]]
+                maxBounds: [[-179, -85], [179, 85]],
+                // WebGL may discard the drawing buffer after each frame, which makes
+                // the canvas read back blank; this keeps it so the PNG export can
+                // read it. Costs a little memory, and is the only way to export.
+                preserveDrawingBuffer: true,
+                // MapLibre binds the arrow keys to panning. On a graph they are worth
+                // more as a way to walk between entities (see the keyboard walker
+                // below, which matches the knowledge graph's model), and +/-/0 still
+                // zoom, so nothing is lost by taking them.
+                keyboard: false
             });
             map.addControl(new window.maplibregl.NavigationControl({ showCompass: false }), 'top-right');
             map.on('load', function () { addAll(map); });
@@ -505,6 +623,12 @@
             });
             map.on('mousemove', L_NODES, showHover);
             map.on('mouseleave', L_NODES, hideHover);
+
+            // One tab stop, not two: the stage itself is the focusable thing (it owns
+            // the key handling), so MapLibre's inner canvas must not also be in the
+            // tab order behind it.
+            var inner = canvas.querySelector('.maplibregl-canvas');
+            if (inner) inner.setAttribute('tabindex', '-1');
 
             if (window.ResizeObserver) {
                 new ResizeObserver(function () { try { map.resize(); } catch (err) {} }).observe(canvas);
@@ -619,29 +743,60 @@
         searchWrap.appendChild(search); searchWrap.appendChild(results);
         toolbar.appendChild(searchWrap);
 
+        // Options rather than buttons, so the input can keep focus and drive the
+        // highlight through aria-activedescendant — the standard combobox pattern
+        // (ns.egUI.wireSearchKeys owns the keys and the ARIA state).
+        var hitSeq = 0;
+        function currentHits() {
+            return Array.prototype.slice.call(results.querySelectorAll('.deg-search-hit'));
+        }
+        function closeResults() { results.hidden = true; }
+        function takeHit(option) {
+            var idx = Number(option.dataset.index);
+            search.value = data.nodes[idx].label;
+            closeResults();
+            searchKeys.reset();
+            focusNode(idx);
+        }
+
+        var searchKeys = ns.egUI.wireSearchKeys(search, results, {
+            hits: currentHits,
+            onPick: takeHit,
+            onClose: closeResults
+        });
+
         search.addEventListener('input', function () {
             var q = fold(search.value.trim());
-            results.innerHTML = '';
-            if (q.length < 2) { results.hidden = true; return; }
+            ns.setChildren(results);
+            if (q.length < 2) { closeResults(); searchKeys.sync(); return; }
             var hits = [];
             for (var i = 0; i < data.nodes.length && hits.length < 8; i++) {
-                if (fold(data.nodes[i].label).indexOf(q) !== -1) hits.push(i);
+                // Only what the reader could actually navigate to: a hit filtered
+                // out by a type chip or an isolated cluster is a dead end.
+                if (visibleNode(i) && fold(data.nodes[i].label).indexOf(q) !== -1) hits.push(i);
             }
-            if (!hits.length) { results.hidden = true; return; }
+            if (!hits.length) { closeResults(); searchKeys.sync(); return; }
             hits.forEach(function (idx) {
                 var n = data.nodes[idx];
-                var item = el('button', 'deg-search-hit'); item.type = 'button';
+                var item = el('div', 'deg-search-hit');
+                item.id = 'deg-hit-' + (++hitSeq);
+                item.setAttribute('role', 'option');
+                item.setAttribute('aria-selected', 'false');
+                item.dataset.index = String(idx);
                 var sw = el('span', 'deg-swatch'); sw.style.background = typeColor(n.type);
                 item.appendChild(sw);
                 item.appendChild(el('span', 'deg-search-hit-name', n.label));
-                item.addEventListener('click', function () {
-                    search.value = n.label; results.hidden = true; focusNode(idx);
+                item.addEventListener('mousedown', function (ev) {
+                    // mousedown, not click: focusout would otherwise close the list
+                    // out from under the pointer before the click resolved.
+                    ev.preventDefault();
+                    takeHit(item);
                 });
                 results.appendChild(item);
             });
             results.hidden = false;
+            searchKeys.sync();
         });
-        search.addEventListener('blur', function () { setTimeout(function () { results.hidden = true; }, 150); });
 
         // Type filter chips ----------------------------------------------
         var chips = el('div', 'deg-chips');
@@ -689,9 +844,39 @@
             weightSelect = sel;
         }
 
+        // Isolate a cluster ----------------------------------------------
+        var clusterSelect = null;
+        if (clusters.length > 1) {
+            clusterSelect = ns.egUI.buildClusterSelect(clusters, function (id) {
+                commFilter = id;
+                // A cluster is a place, so go there — isolating one and leaving the
+                // camera across the map would just show empty space.
+                if (id != null && map) {
+                    var w = 180, s = 90, e2 = -180, n2 = -90, found = false;
+                    data.nodes.forEach(function (nd) {
+                        if (nd.community !== id) return;
+                        found = true;
+                        if (nd.lng < w) w = nd.lng; if (nd.lng > e2) e2 = nd.lng;
+                        if (nd.lat < s) s = nd.lat; if (nd.lat > n2) n2 = nd.lat;
+                    });
+                    if (found) {
+                        try {
+                            map.fitBounds([[w, s], [e2, n2]], { padding: 48, duration: 500, maxZoom: 7 });
+                        } catch (err) { /* degenerate bounds */ }
+                    }
+                }
+                // Drop a selection the filter just hid, rather than leaving the
+                // sidebar describing an entity that is no longer on screen.
+                if (selectedIndex != null && !visibleNode(selectedIndex)) selectIndex(null);
+                else applyFilters();
+            });
+            toolbar.appendChild(clusterSelect.el);
+        }
+
         // Clear filters --------------------------------------------------
-        // One click back to the default view: all types on, min-link at "All",
-        // search emptied and any selection dropped. Disabled while nothing is active.
+        // One click back to the default view: all types on, min-link at "All", every
+        // cluster shown, search emptied and any selection dropped. Disabled while
+        // nothing is active.
         var clearBtn = el('button', 'deg-btn deg-clear'); clearBtn.type = 'button';
         clearBtn.textContent = 'Clear filters';
         clearBtn.title = 'Reset the type, link-weight and selection filters';
@@ -704,8 +889,12 @@
             });
             weightMin = data.weightMin;
             if (weightSelect) weightSelect.value = String(data.weightMin);
+            commFilter = null;
+            if (clusterSelect) clusterSelect.reset();
             search.value = '';
             results.hidden = true;
+            searchKeys.reset();
+            setFocus(null);
             selectIndex(null); // resets selection + calls applyFilters() → updateClearState()
         });
         toolbar.appendChild(clearBtn);
@@ -752,15 +941,64 @@
         resetBtn.title = ns.t('resetView', 'Reset view');
         resetBtn.setAttribute('aria-label', ns.t('resetView', 'Reset view'));
         resetBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 9 8 9"/></svg>';
-        resetBtn.addEventListener('click', function () {
+        resetBtn.addEventListener('click', function () { resetView(); });
+        toolbar.appendChild(resetBtn);
+
+        function resetView() {
+            setFocus(null);
             selectIndex(null);
             if (map && bounds) {
                 try {
                     map.fitBounds([[bounds[0], bounds[1]], [bounds[2], bounds[3]]], { padding: 36, duration: 500 });
                 } catch (err) {}
             }
-        });
-        toolbar.appendChild(resetBtn);
+        }
+
+        // Fullscreen ------------------------------------------------------
+        // The whole block, not just the map: the toolbar, sidebar and legend are how
+        // a reader drives this graph. The stage's own ResizeObserver picks the new
+        // size up, so there is nothing to re-fit by hand.
+        var block = container.closest('.communities-block') || container;
+        toolbar.appendChild(ns.egUI.buildFullscreenButton(block, function () {
+            if (map) { try { map.resize(); } catch (err) {} }
+        }));
+
+        // Export ----------------------------------------------------------
+        ns.egUI.buildExportButtons({
+            name: 'entity-network',
+            png: function () { return map ? ns.mapPng(map) : null; },
+            rows: function () { return entityRows(); }
+        }).forEach(function (btn) { toolbar.appendChild(btn); });
+
+        /**
+         * The visible entities as CSV rows. The cluster and the dominant research
+         * section are computed by this precompute and published nowhere else, so the
+         * entity table — not the edge list, which is the picture on screen — is what
+         * is worth handing a reader for their own analysis.
+         */
+        function entityRows() {
+            var head = [
+                t('degLabel', 'Entity'), t('category', 'Type'),
+                t('items', 'Items'), t('degLinks', 'Links'), t('community', 'Cluster')
+            ];
+            if (sections.length) head.push(t('degSection', 'Section'));
+            head.push(t('degUrl', 'URL'));
+            var rows = [head];
+            data.nodes.forEach(function (n, i) {
+                if (!visibleNode(i)) return;
+                var row = [
+                    n.label, types[n.type] || '', n.count, n.degree,
+                    n.community >= 0 ? (n.community + 1) : ''
+                ];
+                if (sections.length) {
+                    row.push(n.section >= 0 ? sections[n.section]
+                        : (n.section === -2 ? t('degMultipleSections', 'Multiple sections') : ''));
+                }
+                row.push((siteBase && n.id) ? (siteBase + '/item/' + n.id) : '');
+                rows.push(row);
+            });
+            return rows;
+        }
 
         /* ------------------------------------------------------------------ */
         /*  Legend                                                             */
@@ -814,7 +1052,9 @@
             if (map && map.getLayer(L_NODES)) {
                 map.setPaintProperty('bg', 'background-color', theme().surface);
                 map.setPaintProperty(L_NODES, 'circle-color', nodeColorExpr());
-                map.setPaintProperty(L_NODES, 'circle-stroke-color', theme().surface);
+                // The expression, not a flat colour: it also carries the accent the
+                // keyboard focus ring is drawn in, which a flat value would erase.
+                map.setPaintProperty(L_NODES, 'circle-stroke-color', strokeColorExpr());
                 map.setPaintProperty(L_EDGES, 'line-color', theme().grid);
                 map.setPaintProperty(L_EDGES_HL, 'line-color', theme().accent);
                 if (map.getLayer(L_LABELS)) {
@@ -826,6 +1066,7 @@
                 if (chip._sw) chip._sw.style.background = typeColor(chip._i);
             });
             rebuildLegend();
+            if (listPanel) listPanel.refresh();   // its type swatches follow the theme
             if (selectedIndex != null) showDetail(selectedIndex); else showOverview();
         }
 
@@ -837,10 +1078,90 @@
             }).observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
         }
 
+        /* ------------------------------------------------------------------ */
+        /*  Text alternative                                                   */
+        /* ------------------------------------------------------------------ */
+
+        // A WebGL canvas is opaque to a screen reader and to Ctrl+F. This is the
+        // tabular fallback: every visible entity, grouped by type, as a real link.
+        listPanel = ns.egUI.buildListPanel({
+            groups: function () {
+                var byType = {};
+                data.nodes.forEach(function (n, i) {
+                    if (!visibleNode(i)) return;
+                    (byType[n.type] || (byType[n.type] = [])).push(n);
+                });
+                return types.map(function (label, i) {
+                    if (!byType[i]) return null;
+                    return {
+                        name: label,
+                        color: typeColor(i),
+                        // Hubs first, the same order the map gives labels to, so the
+                        // list reads in the order the picture emphasises.
+                        rows: byType[i].sort(function (a, b) { return a.rank - b.rank; })
+                            .map(function (n) {
+                                return {
+                                    label: n.label,
+                                    url: (siteBase && n.id) ? (siteBase + '/item/' + n.id) : null,
+                                    meta: n.count + ' ' + (n.count === 1 ? t('item', 'item') : t('items', 'items'))
+                                        + ' · ' + n.degree + ' '
+                                        + (n.degree === 1 ? t('degLink', 'link') : t('degLinks', 'links'))
+                                };
+                            })
+                    };
+                }).filter(Boolean);
+            }
+        });
+        container.appendChild(listPanel.el);
+
+        /* ------------------------------------------------------------------ */
+        /*  Keyboard                                                           */
+        /* ------------------------------------------------------------------ */
+
+        function attachKeyboard() {
+            keys = ns.egUI.attachKeyboard(canvas, {
+                // Hubs first (the precompute's own `rank`), so the walk starts where
+                // the graph is densest rather than at an arbitrary array position.
+                order: function () {
+                    var out = [];
+                    for (var i = 0; i < data.nodes.length; i++) if (visibleNode(i)) out.push(i);
+                    return out.sort(function (a, b) { return data.nodes[a].rank - data.nodes[b].rank; });
+                },
+                neighbours: function (i) {
+                    return (adjacency[i] || [])
+                        .filter(function (nb) { return visibleNode(nb.j) && nb.w >= weightMin; })
+                        .map(function (nb) { return nb.j; });
+                },
+                describe: function (i) {
+                    var n = data.nodes[i];
+                    return n.label + ', ' + (types[n.type] || '')
+                        + ', ' + n.count + ' ' + t('items', 'items')
+                        + ', ' + n.degree + ' ' + t('degLinks', 'links')
+                        + '. ' + t('degEnterToSelect', 'Press Enter to select.');
+                },
+                onFocus: setFocus,
+                onActivate: function (i) { selectIndex(i === selectedIndex ? null : i); },
+                // Report whether the key was consumed, so one Escape clears the
+                // selection and only a second leaves fullscreen.
+                onEscape: function () {
+                    if (selectedIndex == null) return false;
+                    selectIndex(null);
+                    return true;
+                },
+                onZoom: function (direction) {
+                    if (!map) return;
+                    try { map.zoomTo(map.getZoom() + (direction > 0 ? 0.6 : -0.6), { duration: 200 }); }
+                    catch (err) { /* ignore */ }
+                },
+                onFit: resetView
+            });
+        }
+
         /* -- go -- */
         rebuildLegend();
         showOverview();
         createMap();
+        attachKeyboard();
     }
 
     /* ------------------------------------------------------------------ */

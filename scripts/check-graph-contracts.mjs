@@ -143,6 +143,17 @@ if (!ns || typeof ns.entityColor !== 'function') {
       fail(`${f} colours an entity-type axis but does not use ns.entityColor`);
     }
   }
+
+  // Merely IMPORTING the registry is not enough: the Entity Network resolved its
+  // legend, chips and sidebar swatches through it while still painting the map
+  // circles by their position in `types`, so Organization, Location and Tag had a
+  // swatch in one hue and dots in another. The paint expression has to go through
+  // the same helper the swatches do.
+  const eg = readFileSync(join(ROOT, 'asset/js/entity-graph.js'), 'utf8');
+  if (!/expr\.push\(i,\s*typeColor\(i\)\)/.test(eg)) {
+    fail('entity-graph.js must build its type paint expression from typeColor(i), '
+      + 'so the map circles match the legend swatches beside them');
+  }
 }
 
 /* ------------------------------------------------------------------ */

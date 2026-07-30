@@ -183,6 +183,55 @@ graphCheck($graph['nodes'][0]['symbolSize'] === 45, 'the centre is the largest n
 graphCheck(count($graph['edges']) === 4, 'three spokes plus one cross edge');
 
 /* ------------------------------------------------------------------ */
+/*  Publications: the bibo: author/editor terms                        */
+/* ------------------------------------------------------------------ */
+
+// A publication credits its people through bibo:authorList / bibo:editorList, not
+// dcterms:creator. Until those terms were whitelisted, a publication's graph had no
+// people on it at all and a person's graph never reached the work they wrote.
+$pubItems = [
+    5 => ['title' => 'An article', 'class_label' => 'Article', 'class_term' => 'fabio:JournalArticle'],
+    20 => ['title' => 'An author'],
+    21 => ['title' => 'An editor'],
+    22 => ['title' => 'Another article by the same author', 'class_label' => 'Article'],
+];
+$pubLinks = [
+    5 => [
+        ['bibo:authorList', 'Author', 20],
+        ['bibo:editorList', 'Editor', 21],
+    ],
+    22 => [['bibo:authorList', 'Author', 20]],
+];
+// reverseLinks: resource => [term => [itemIds]]
+$pubReverse = KnowledgeGraphs::buildShareableReverse([
+    20 => ['bibo:authorList' => [5, 22]],
+]);
+graphCheck(isset($pubReverse[20][22]),
+    'bibo:authorList is shareable, so the reverse index reaches a second work by that author');
+$pubGraph = KnowledgeGraphs::buildGraph(5, $pubItems, $pubLinks, [], $pubReverse, [], []);
+
+graphCheck($pubGraph !== null, 'a publication with only bibo: people yields a graph');
+$pubCats = array_column($pubGraph['categories'] ?? [], 'name');
+$pubNames = array_column($pubGraph['nodes'] ?? [], 'name');
+graphCheck(in_array('An author', $pubNames, true) && in_array('An editor', $pubNames, true),
+    'bibo:authorList and bibo:editorList both put their person on the graph');
+graphCheck(in_array('Person', $pubCats, true) && !in_array('Editor', $pubCats, true),
+    'an editor is filed under Person — the edge label carries the role, not the category');
+$authorNode = null;
+foreach ($pubGraph['nodes'] as $n) {
+    if (($n['itemId'] ?? null) === 20) {
+        $authorNode = $n;
+    }
+}
+graphCheck($authorNode !== null && findEdge($pubGraph['edges'], 'item_5', $authorNode['id']) !== null,
+    'the author is joined to the publication');
+$authorEdge = findEdge($pubGraph['edges'], 'item_5', $authorNode['id']);
+graphCheck(($authorEdge['name'] ?? null) === 'Author',
+    'the edge is named by the property label, so Author and Editor stay distinguishable');
+graphCheck(in_array('Another article by the same author', $pubNames, true),
+    'bibo:authorList is shareable, so a second work by the same author co-occurs');
+
+/* ------------------------------------------------------------------ */
 /*  assignCommunities                                                  */
 /* ------------------------------------------------------------------ */
 
