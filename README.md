@@ -2,8 +2,6 @@
 
 An [Omeka S](https://omeka.org/s/) module that adds interactive visualizations to resource pages using [ECharts](https://echarts.apache.org/) and [MapLibre GL](https://maplibre.org/).
 
-> Counterpart to the sibling [**amira** dashboard](https://github.com/AM-Digital-Research-Environment/amira) over the same Africa Multiple research data — see [Related project](#related-project).
-
 Operational documentation: [administration](docs/ADMINISTRATION.md),
 [architecture](docs/ARCHITECTURE.md), [security and privacy](docs/SECURITY_AND_PRIVACY.md),
 [roadmap status](docs/ROADMAP_STATUS.md), [release procedure](docs/RELEASING.md),
