@@ -101,6 +101,11 @@ class EmbedController extends AbstractActionController
             'template' => 'spatial-exploration',
             'kind' => 'widget',
         ],
+        'semantic-map' => [
+            'label' => 'Semantic Map', // @translate
+            'template' => 'semantic-map',
+            'kind' => 'widget',
+        ],
         'network-explorer' => [
             'label' => 'Network Explorer', // @translate
             'template' => 'network-explorer',

@@ -98,6 +98,273 @@ body {
     --rv-lift-sm:    var(--lift-sm, -0.25rem);    /* -4px */
 }
 
+/* ------------------------------------------------------------------ */
+/*  Semantic map + cross-type recommendations                          */
+/* ------------------------------------------------------------------ */
+
+.semantic-map-intro,
+.semantic-similar-intro {
+    max-width: 72ch;
+    margin: 0 0 var(--rv-space-5);
+    color: var(--rv-text-color);
+}
+
+.semantic-map-toolbar {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(16rem, 28rem);
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--rv-space-4);
+    margin-bottom: var(--rv-space-4);
+}
+
+.semantic-map-mode {
+    display: inline-flex;
+    width: fit-content;
+    padding: var(--rv-space-1);
+    border: 1px solid var(--rv-border);
+    border-radius: var(--rv-radius-full);
+    background: var(--rv-bg-sunken);
+}
+
+button.semantic-map-mode__button {
+    min-height: 2.5rem;
+    padding: var(--rv-space-2) var(--rv-space-4);
+    border: 0;
+    border-radius: var(--rv-radius-full);
+    background: transparent;
+    box-shadow: none;
+    color: var(--rv-text-color);
+    font: inherit;
+    font-size: var(--rv-text-sm);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background var(--rv-transition-fast), color var(--rv-transition-fast), box-shadow var(--rv-transition-fast);
+}
+
+button.semantic-map-mode__button:hover {
+    color: var(--rv-text-strong);
+}
+
+button.semantic-map-mode__button.is-active {
+    background: var(--rv-bg-raised);
+    box-shadow: var(--rv-shadow-sm);
+    color: var(--rv-accent);
+}
+
+button.semantic-map-mode__button:focus-visible {
+    outline: none;
+    box-shadow: var(--rv-focus-ring);
+}
+
+.semantic-map-search {
+    position: relative;
+}
+
+.semantic-map-search__label {
+    display: grid;
+    gap: var(--rv-space-1);
+    color: var(--rv-text-strong);
+    font-size: var(--rv-text-xs);
+    font-weight: 700;
+}
+
+.semantic-map-search__input {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: var(--rv-space-2) var(--rv-space-3);
+    border: 1px solid var(--rv-border-strong);
+    border-radius: var(--rv-radius-sm);
+    background: var(--rv-bg);
+    color: var(--rv-text-strong);
+    font: inherit;
+    font-size: var(--rv-text-sm);
+}
+
+.semantic-map-search__input:focus-visible {
+    outline: none;
+    border-color: var(--rv-accent);
+    box-shadow: var(--rv-focus-ring);
+}
+
+.semantic-map-search__results {
+    position: absolute;
+    top: calc(100% + var(--rv-space-1));
+    right: 0;
+    left: 0;
+    z-index: 20;
+    max-height: 20rem;
+    overflow-y: auto;
+    margin: 0;
+    padding: var(--rv-space-1);
+    list-style: none;
+    border: 1px solid var(--rv-border);
+    border-radius: var(--rv-radius-sm);
+    background: var(--rv-bg-raised);
+    box-shadow: var(--rv-shadow);
+}
+
+.semantic-map-search__result {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--rv-space-3);
+    border-radius: var(--rv-radius-sm);
+}
+
+.semantic-map-search__result a {
+    padding: var(--rv-space-2) var(--rv-space-3);
+    color: var(--rv-text-strong);
+    font-size: var(--rv-text-sm);
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.semantic-map-search__result:has(a:hover),
+.semantic-map-search__result:has(a:focus-visible) {
+    background: var(--rv-bg-sunken);
+}
+
+.semantic-map-search__result a:focus-visible {
+    outline: none;
+    box-shadow: var(--rv-focus-ring);
+}
+
+.semantic-map-search__type {
+    padding-right: var(--rv-space-3);
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-2xs);
+    white-space: nowrap;
+}
+
+.semantic-map-search__empty {
+    padding: var(--rv-space-3);
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-sm);
+}
+
+.semantic-map-panel {
+    min-width: 0;
+}
+
+.chart-container.semantic-map-chart {
+    height: 38rem;
+    min-height: 28rem;
+}
+
+.semantic-map-status,
+.semantic-map-note {
+    margin: var(--rv-space-2) 0 0;
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-xs);
+}
+
+.semantic-map-status {
+    color: var(--rv-text-strong);
+    font-weight: 700;
+}
+
+.semantic-similar-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--rv-border);
+}
+
+.semantic-similar-item {
+    border-bottom: 1px solid var(--rv-border-light);
+}
+
+.semantic-similar-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--rv-space-4);
+    padding: var(--rv-space-3) var(--rv-space-2);
+    border-radius: var(--rv-radius-sm);
+    color: var(--rv-text-strong);
+    text-decoration: none;
+    transition: background var(--rv-transition-fast), color var(--rv-transition-fast);
+}
+
+.semantic-similar-link:hover {
+    background: var(--rv-bg-sunken);
+    color: var(--rv-accent);
+}
+
+.semantic-similar-link:focus-visible {
+    outline: none;
+    box-shadow: var(--rv-focus-ring);
+}
+
+.semantic-similar-copy {
+    display: grid;
+    justify-items: start;
+    gap: var(--rv-space-1);
+    min-width: 0;
+}
+
+.semantic-similar-type {
+    display: inline-block;
+    padding: 0.15em 0.65em;
+    border-radius: var(--rv-radius-full);
+    background: var(--rv-bg-sunken);
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-2xs);
+    font-weight: 750;
+    line-height: 1.45;
+}
+
+.semantic-similar-title {
+    overflow-wrap: anywhere;
+    font-size: var(--rv-text-base);
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.semantic-similar-score {
+    min-width: 3.4rem;
+    color: var(--rv-accent);
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    text-align: right;
+}
+
+@media (max-width: 700px) {
+    .semantic-map-toolbar {
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
+    }
+
+    .semantic-map-mode {
+        width: 100%;
+    }
+
+    button.semantic-map-mode__button {
+        flex: 1;
+        padding-inline: var(--rv-space-2);
+    }
+
+    .chart-container.semantic-map-chart {
+        height: 29rem;
+        min-height: 24rem;
+    }
+
+    .semantic-similar-link {
+        gap: var(--rv-space-2);
+        padding-inline: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    button.semantic-map-mode__button,
+    .semantic-similar-link {
+        transition: none;
+    }
+}
+
 /*
  * Dark fallbacks for NON-DRE host themes only. When the DRE theme is active it
  * already supplies dark values for --surface / --border / --ink-* / --primary,

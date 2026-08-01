@@ -1,0 +1,28 @@
+<?php
+/**
+ * Shared semantic-space site block. The committed map input is public-data only
+ * and lives outside the installation-generated snapshot.
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\SitePageBlockRepresentation $block
+ */
+
+$this->dashboardAssets(['cdn' => true, 'semanticMap' => true, 'controller' => 'semanticMap']);
+$siteSlug = $this->currentSite()->slug();
+?>
+
+<div class="resource-vis-block semantic-map-block">
+    <div class="semantic-map-container"
+         data-embed-slug="semantic-map"
+         data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"
+         data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $siteSlug) ?>">
+        <noscript>
+            <style>.semantic-map-container .rv-loading { display: none; }</style>
+            <div class="rv-no-data"><?= $this->translate('The semantic map requires JavaScript.') ?></div>
+        </noscript>
+        <div class="rv-loading">
+            <div class="rv-spinner"></div>
+            <span><?= $this->translate('Loading the semantic map…') ?></span>
+        </div>
+    </div>
+</div>

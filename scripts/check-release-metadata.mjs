@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ROOT = join(import.meta.dirname, '..');
-const CANONICAL = 'https://github.com/AM-Digital-Research-Environment/ResourceVisualizations';
+const CANONICAL = 'https://github.com/AM-Digital-Research-Environment/DRE-Visualizations';
 const failures = [];
 const read = (path) => readFileSync(join(ROOT, path), 'utf8');
 
@@ -53,8 +53,9 @@ for (const path of requiredReleaseFiles) {
   }
 }
 if (profile && profile.schemaVersion !== 1) failures.push('AMIRA profile schemaVersion must be 1');
-if (profile && (!profile.itemSets || !Array.isArray(profile.wordcloudCorpora))) {
-  failures.push('AMIRA profile is missing itemSets or wordcloudCorpora');
+if (profile && (!profile.itemSets || !profile.templates
+    || !Array.isArray(profile.wordcloudCorpora) || !Array.isArray(profile.embeddingCorpora))) {
+  failures.push('AMIRA profile is missing selectors or corpus configuration');
 } else if (profile) {
   const seen = new Set();
   for (const corpus of profile.wordcloudCorpora) {
@@ -66,8 +67,23 @@ if (profile && (!profile.itemSets || !Array.isArray(profile.wordcloudCorpora))) 
     }
     seen.add(corpus.id);
   }
+  const embeddingIds = new Set();
+  for (const corpus of profile.embeddingCorpora) {
+    const hasItemSet = corpus && typeof corpus.itemSetKey === 'string'
+      && Number.isInteger(profile.itemSets[corpus.itemSetKey]);
+    const hasTemplate = corpus && typeof corpus.templateKey === 'string'
+      && Number.isInteger(profile.templates[corpus.templateKey]);
+    if (!corpus || typeof corpus.id !== 'string' || embeddingIds.has(corpus.id)
+        || typeof corpus.label !== 'string' || !corpus.label.trim()
+        || hasItemSet === hasTemplate || !Array.isArray(corpus.textFields)
+        || !corpus.textFields.length) {
+      failures.push('AMIRA profile has an invalid or duplicate embedding corpus');
+      break;
+    }
+    embeddingIds.add(corpus.id);
+  }
 }
-for (const stale of ['DRE-Visualizations', '/ResourceVisualizations/archive/']) {
+for (const stale of ['/ResourceVisualizations', 'resource-visualizations']) {
   if (readme.includes(stale) || moduleIni.includes(stale) || JSON.stringify(packageJson).includes(stale)) {
     failures.push(`stale release/repository reference remains: ${stale}`);
   }

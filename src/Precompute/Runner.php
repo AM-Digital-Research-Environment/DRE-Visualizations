@@ -1386,6 +1386,20 @@ final class Runner
             $dashboard['transcriptWordcloud'] = $v;
         }
 
+        // The generic item aggregation already supplies the subject frequency
+        // cloud and location points. These richer derived views are cheap to
+        // build here and remain auto-hidden until the corresponding episode
+        // metadata has actually been curated.
+        if ($v = Aggregators::buildChord($ids, $this->links, $this->items)) {
+            $dashboard['chord'] = $v;
+        }
+        if ($v = Aggregators::buildSubjectTrends($ids, $this->links, $this->items, $this->itemYear)) {
+            $dashboard['subjectTrends'] = $v;
+        }
+        if ($v = Aggregators::buildChoropleth($ids, $this->links, $this->countryIndex)) {
+            $dashboard['choropleth'] = $v;
+        }
+
         // Co-appearance network — people (speakers / hosts / moderators) linked
         // when they feature on the same episode, clustered into communities.
         // Reuses the shared person-collaboration builder; minCooccurrence=1
@@ -1438,6 +1452,11 @@ final class Runner
             'timeline' => 'Episodes by Year',
             'series' => 'Episodes by Series',
             'speakerNetwork' => 'Who Appears Together',
+            'subjects' => 'Subjects',
+            'chord' => 'Subject Connections',
+            'subjectTrends' => 'Subjects over Time',
+            'locations' => 'Places Mentioned',
+            'choropleth' => 'Episodes by Country',
         ];
         $dashboard['descriptions'] = [
             'transcriptWordcloud' => 'Most frequent words across the episodes\' AI-generated transcripts (audio cues, speaker labels, and common English/French stop-words and filler removed).',
@@ -1446,6 +1465,11 @@ final class Runner
             'timeline' => 'Number of podcast episodes published per year.',
             'series' => 'Episodes grouped by the podcast series they belong to.',
             'speakerNetwork' => 'People who feature on the same episode are linked here, clustered into groups — a recurring host or guest becomes a hub.',
+            'subjects' => 'The curated subjects assigned to the podcast episodes.',
+            'chord' => 'Subjects assigned to the same episode are connected here.',
+            'subjectTrends' => 'How the most frequent curated subjects change across publication years.',
+            'locations' => 'The curated places associated with the podcast episodes.',
+            'choropleth' => 'Countries represented by the episodes\' curated place metadata.',
         ];
 
         $dashboard['resourceType'] = 'podcasts';

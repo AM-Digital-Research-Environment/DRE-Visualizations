@@ -18,6 +18,7 @@ return [
             'whatsNew' => Site\BlockLayout\WhatsNew::class,
             'photoBrowse' => Site\BlockLayout\PhotoBrowse::class,
             'featuredCollections' => Site\BlockLayout\FeaturedCollections::class,
+            'semanticMap' => Site\BlockLayout\SemanticMap::class,
         ],
     ],
     'resource_page_block_layouts' => [
@@ -26,6 +27,7 @@ return [
             'itemSetDashboard' => Site\ResourcePageBlockLayout\ItemSetDashboard::class,
             'linkedItemsDashboard' => Site\ResourcePageBlockLayout\LinkedItemsDashboard::class,
             'siblingItemsSparkline' => Site\ResourcePageBlockLayout\SiblingItemsSparkline::class,
+            'similarItems' => Site\ResourcePageBlockLayout\SimilarItems::class,
         ],
     ],
     'view_manager' => [

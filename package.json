@@ -1,6 +1,6 @@
 {
-  "name": "resource-visualizations",
-  "version": "2.23.0",
+  "name": "dre-visualizations",
+  "version": "2.24.0",
   "private": true,
   "description": "DRE Visualizations Omeka S module — ECharts/MapLibre dashboards and a d3-force knowledge graph, with a dependency-free release bundle.",
   "scripts": {
@@ -18,6 +18,6 @@
   "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AM-Digital-Research-Environment/ResourceVisualizations.git"
+    "url": "git+https://github.com/AM-Digital-Research-Environment/DRE-Visualizations.git"
   }
 }

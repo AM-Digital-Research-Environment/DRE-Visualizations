@@ -38,12 +38,15 @@ replaces `asset/data/current.json`. A failure leaves the previous generation
 active. The current and immediately previous generations are retained.
 After the first successful manifest-based generation, known legacy generated
 roots are removed so stale direct URLs cannot expose records that have since
-become private or left the canonical site. Static `geo/` and `wordclouds/`
-inputs are preserved.
+become private or left the canonical site. Static `geo/`, `wordclouds/`, and
+`embeddings/` inputs are preserved.
 
 The module directory must be writable by the Omeka background-job user. Static
-inputs under `asset/data/geo` and `asset/data/wordclouds` are not replaced by
-regeneration. Back up module settings and those inputs before upgrades.
+inputs under `asset/data/geo`, `asset/data/wordclouds`, and
+`asset/data/embeddings` are not replaced by regeneration. Back up module settings
+and those inputs before upgrades. Refresh semantic data through the manual **Build
+semantic embeddings** GitHub Action; it requires the repository's
+`GEMINI_API_KEY` secret and opens a bot pull request for the compact artifacts.
 
 After changing visibility, site assignment, relationships, templates, item-set
 membership, coordinates, or media, regenerate before expecting public charts

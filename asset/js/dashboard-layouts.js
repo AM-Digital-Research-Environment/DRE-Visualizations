@@ -224,9 +224,12 @@
         // the series breakdown. The word cloud spans full width; the rest pair up.
         podcasts: {
             order: ['transcriptWordcloud', 'speakerNetwork', 'contributors',
-                    'duration', 'timeline', 'series'],
-            wide:  ['transcriptWordcloud', 'speakerNetwork'],
-            tall:  ['transcriptWordcloud', 'speakerNetwork']
+                    'subjects', 'chord', 'subjectTrends', 'locations',
+                    'choropleth', 'duration', 'timeline', 'series'],
+            wide:  ['transcriptWordcloud', 'speakerNetwork', 'subjects', 'chord',
+                    'subjectTrends', 'locations', 'choropleth'],
+            tall:  ['transcriptWordcloud', 'speakerNetwork', 'chord',
+                    'subjectTrends', 'locations', 'choropleth']
         }
     };
 

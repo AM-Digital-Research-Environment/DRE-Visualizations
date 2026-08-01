@@ -24,6 +24,7 @@ the point; a static network is cheaper as an ECharts series.
 npm run check   # design-token contract + JS syntax sweep + registry/layout/embed contracts
 docker run --rm -v "$PWD:/m" php:8.4-cli php /m/tests/AggregatorsTest.php     # aggregator regressions
 docker run --rm -v "$PWD:/m" php:8.4-cli php /m/tests/KnowledgeGraphsTest.php # graph builder regressions
+python -m unittest discover -s tools/embeddings/tests -v                    # embedding contracts
 ```
 
 The aggregators are dependency-free and unit-tested — add a mock-data case for
@@ -139,24 +140,28 @@ All visualizations load from precomputed JSON under `asset/data/`:
 asset/data/
 ├── geo/countries.geojson    # Natural Earth boundaries (choropleth) — committed INPUT
 ├── wordclouds/              # Lemmatised frequencies from the CI Action — committed INPUT
+├── embeddings/              # Committed map/recommendations/report; vectors are release-only
 ├── communities/             # Multi-entity co-occurrence network (baked FA2 positions)
 ├── knowledge-graphs/        # One per item — gitignored, regenerated in-Omeka
 ├── photo-galleries/         # One per image-bearing item set — gitignored
 └── item-dashboards/         # Dashboards + {type}-index.json + publications/podcasts/youtube/…
 ```
 
-**Everything** regenerates inside Omeka via the admin **"Regenerate now"** button —
+Installation-specific dashboard data regenerates inside Omeka via the admin **"Regenerate now"** button —
 a pure-PHP engine under `src/Precompute/` (`DataLoader` → `Aggregators` /
-`KnowledgeGraphs` → `Runner`) that reuses Omeka's own database connection. No
-Python, shell access, or extra credentials — the module ships **zero** Python. The
+`KnowledgeGraphs` → `Runner`) that reuses Omeka's own database connection. It needs no
+Python, shell access, or extra credentials at runtime. The
 knowledge-graph JSON (~6,000 files) is **not committed**; until the first run the
 front-end falls back to a lighter live REST-API graph.
 
-Two static **inputs** are the exception, produced outside Omeka and committed like
+Static **inputs** are the exception, produced outside Omeka and committed like
 `countries.geojson`: the `wordclouds/` frequencies come from the **Build word
 clouds** GitHub Action (`tools/wordclouds/build_wordclouds.py`, spaCy
 lemmatisation — PHP can't do it), read back by `Runner::wordCloudInput()` with an
-in-PHP tokeniser fallback.
+in-PHP tokeniser fallback. The **Build semantic embeddings** Action runs the
+secret-backed Gemini precompute: only `map.json`, `similar.json`, and `report.json`
+are committed, while full vectors and their manifest are published as a versioned
+release. Its consumer contract is documented in `docs/SEMANTIC_EMBEDDINGS.md`.
 
 The JS is modular — one vanilla-JS IIFE per concern (chart builders, controllers,
 the `window.RV` core, registry, layouts). The authoritative per-file tree lives in

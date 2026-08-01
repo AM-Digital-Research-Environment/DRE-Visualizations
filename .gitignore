@@ -6,6 +6,7 @@ node_modules/
 .idea/
 .vscode/
 __pycache__/
+.codex/
 
 # Per-item knowledge-graph JSON (~6,000 files, ~188 MB) is regenerated in-Omeka
 # via the admin "Regenerate now" job — not committed. The front-end falls back to
@@ -33,3 +34,8 @@ asset/data/communities/
 # Additional install-specific outputs from the same precompute job.
 asset/data/network-explorer.json
 asset/data/featured-collections/
+
+# Semantic embeddings: compact public map/recommendation/report JSON is
+# committed, while the full-vector cache and release payload stay out of Git.
+asset/data/embeddings/cache.json
+asset/data/embeddings/release/

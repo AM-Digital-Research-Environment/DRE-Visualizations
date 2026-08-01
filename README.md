@@ -183,8 +183,9 @@ YouTube videos carry no `dcterms:type` of their own, so they don't appear in the
 Analytics for the cluster's curated **podcast episodes** — the manually-catalogued **Podcasts** item set configured as `itemSets.podcasts` in `config/amira-profile.json` (`fabio:AudioDocument`). Added as a **site-page block** (Admin > Sites > [site] > Pages), it loads `asset/data/item-dashboards/podcasts.json` and shows:
 
 - **summary stat cards** — episodes, series, distinct **speakers** (`marcrel:spk`), total **hours of audio** (with the average length), and the languages — the same reusable component as the Collection Overview;
-- **transcript word cloud** — the headline chart, from the episodes' AI-generated transcripts (`bibo:content`), with audio cues (`[music]`), `Speaker N:` labels and numbers stripped. **Lemmatised** when the [Word clouds](#word-clouds-lemmatised) Action has run; the in-PHP tokeniser (`Aggregators::buildTranscriptWordCloud`, a tunable EN+FR stop-word/filler list) is the fallback;
-- **speakers & hosts** (`marcrel:spk` / `hst` / `sde`), the **episode-length** distribution (`dcterms:extent`, ISO-8601, bucketed into bands by `Aggregators::buildDurationHistogram`), **episodes by year** (`dcterms:date`), and **episodes by series** (`dcterms:isPartOf`, clickable through to each series).
+- **transcript word cloud** — the headline chart, from the episodes' AI-generated transcripts (`bibo:content`), with audio cues (`[music]`), `Speaker N:` labels and numbers stripped. **Lemmatised** when the [Word clouds](#word-clouds-lemmatised) Action has run, with an accessible **All / English / French / German / Portuguese** language switch. The in-PHP fallback also collapses common English and French inflections in addition to its EN+FR stop-word/filler filtering;
+- **speakers & hosts** (`marcrel:spk` / `hst` / `sde`), the **episode-length** distribution (`dcterms:extent`, ISO-8601, bucketed into bands by `Aggregators::buildDurationHistogram`), **episodes by year** (`dcterms:date`), and **episodes by series** (`dcterms:isPartOf`, clickable through to each series);
+- **subjects and places** — ranked facets, subject trends, a subject co-occurrence chord, and an items-by-country choropleth using the same linked-value and geocoding rules as the other collection dashboards.
 
 Podcasts carry no `dcterms:type` of their own, so (like YouTube videos) they don't appear in the resource-type pie *here*; instead they fold into the **Collection Overview** under a single synthetic **Podcast** type (see above). Speakers and series are clickable through to their Omeka pages.
 
@@ -196,6 +197,12 @@ The text word clouds (Podcasts transcripts, Publications abstracts, YouTube capt
 - The **Build word clouds** GitHub Action (`.github/workflows/wordclouds.yml`, **manual** `workflow_dispatch`) runs the script and commits the regenerated inputs.
 - These are committed **static inputs** — like `geo/countries.geojson`, *not* the git-ignored generated dashboards. The precompute reads them via `Runner::wordCloudInput()` and folds the combined (`all`) frequencies into the dashboard; when a file is absent it **falls back** to the in-PHP tokeniser, so the clouds always render — just unlemmatised until the Action has run.
 - **Reusable:** add a corpus under `wordcloudCorpora` in `config/amira-profile.json` (item-set key + text property). The Python builder and PHP precompute share that profile, and the per-language buckets feed the word cloud's **language toggle** (shipped in v2.16.0).
+
+### Semantic Map & Similar Items
+
+The **Semantic Map** site-page block (Admin > Sites > [site] > Pages) places public podcasts, YouTube videos, publications, projects, research sections, and research items in one multilingual Gemini embedding space. Its UMAP scatter can be coloured by resource type or semantic cluster, searched by title, zoomed, and embedded like the other site blocks. Low-signal records remain visible as faint context but do not produce recommendations.
+
+The **Similar Items** resource-page block (Admin > Sites > [site] > Theme > Configure resource pages) adds up to six cross-type neighbours to an item page and stays hidden when no reliable recommendation exists. Both components read compact, committed public-only JSON from `asset/data/embeddings/`; the full 768-dimensional float32 vectors are kept out of Git and published as a versioned GitHub Release for downstream search systems. See [Semantic embeddings](docs/SEMANTIC_EMBEDDINGS.md) for the shared card, schema, refresh, and compatibility contract.
 
 ### What's New
 
@@ -261,12 +268,12 @@ Every embed shows a small **source** link back to the site, and the endpoint sen
 Download via Omeka S CLI:
 
 ```bash
-docker compose exec php omeka-s-cli module:download --base-path /var/www/html https://github.com/AM-Digital-Research-Environment/ResourceVisualizations/releases/latest/download/DreVisualizations.zip
+docker compose exec php omeka-s-cli module:download --base-path /var/www/html https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/releases/latest/download/DreVisualizations.zip
 ```
 
 Then activate in **Admin > Modules**.
 
-> **Module folder name.** Omeka loads this module from a directory named `DreVisualizations`, matching the PHP namespace. Official release archives already contain that top-level directory. For development installs, clone the `ResourceVisualizations` repository explicitly into it: `git clone https://github.com/AM-Digital-Research-Environment/ResourceVisualizations.git modules/DreVisualizations`.
+> **Module folder name.** Omeka loads this module from a directory named `DreVisualizations`, matching the PHP namespace. Official release archives already contain that top-level directory. For development installs, clone the `DRE-Visualizations` repository explicitly into it: `git clone https://github.com/AM-Digital-Research-Environment/DRE-Visualizations.git modules/DreVisualizations`.
 
 ### Configure Resource Pages
 
@@ -302,7 +309,7 @@ Watch progress and any errors at **Admin → Jobs → the job's log**. Re-run af
 To pull a new module **release** into the container:
 
 ```bash
-docker compose exec php omeka-s-cli module:download --base-path /var/www/html --force https://github.com/AM-Digital-Research-Environment/ResourceVisualizations/releases/latest/download/DreVisualizations.zip
+docker compose exec php omeka-s-cli module:download --base-path /var/www/html --force https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/releases/latest/download/DreVisualizations.zip
 docker compose restart php
 ```
 

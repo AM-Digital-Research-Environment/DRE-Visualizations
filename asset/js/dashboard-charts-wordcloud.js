@@ -21,7 +21,13 @@
 
     ns.charts = ns.charts || {};
 
-    var LANG_NAMES = { en: 'English', fr: 'French', de: 'German', pt: 'Portuguese' };
+    var LANG_NAMES = {
+        all: ['langAll', 'All'],
+        en: ['langEnglish', 'English'],
+        fr: ['langFrench', 'French'],
+        de: ['langGerman', 'German'],
+        pt: ['langPortuguese', 'Portuguese']
+    };
 
     var _wordCloudOk = null;
     function isWordCloudAvailable() {
@@ -117,17 +123,25 @@
         if (multi && langs.length > 1) {
             var langBar = document.createElement('div');
             langBar.className = 'rv-word-langs';
+            langBar.setAttribute('role', 'group');
+            langBar.setAttribute('aria-label', ns.t('language', 'Language'));
             langs.forEach(function (code) {
                 var b = document.createElement('button');
                 b.type = 'button';
                 b.className = 'rv-word-lang' + (code === curLang ? ' is-active' : '');
-                b.textContent = LANG_NAMES[code] || code.toUpperCase();
+                b.setAttribute('aria-pressed', code === curLang ? 'true' : 'false');
+                var langName = LANG_NAMES[code];
+                b.textContent = langName ? ns.t(langName[0], langName[1]) : code.toUpperCase();
                 b.addEventListener('click', function () {
                     if (code === curLang) return;
                     curLang = code;
                     entries = toEntries(rawFor());
-                    langBar.querySelectorAll('.rv-word-lang').forEach(function (x) { x.classList.remove('is-active'); });
+                    langBar.querySelectorAll('.rv-word-lang').forEach(function (x) {
+                        x.classList.remove('is-active');
+                        x.setAttribute('aria-pressed', 'false');
+                    });
                     b.classList.add('is-active');
+                    b.setAttribute('aria-pressed', 'true');
                     if (sliderInput) {
                         sliderInput.max = String(entries.length);
                         var n = Math.min(parseInt(sliderInput.value, 10), entries.length);
@@ -147,7 +161,7 @@
             var dc = defaultCount();
             var slider = document.createElement('div');
             slider.className = 'rv-word-slider';
-            slider.innerHTML = '<label><span class="rv-word-slider-caption">Words</span>'
+            slider.innerHTML = '<label><span class="rv-word-slider-caption">' + ns.escapeHtml(ns.t('words', 'Words')) + '</span>'
                 + '<input type="range" min="5" max="' + entries.length + '" value="' + dc + '" step="1">'
                 + '<span class="rv-word-slider-value">' + dc + '</span></label>';
             panel.insertBefore(slider, anchor);
