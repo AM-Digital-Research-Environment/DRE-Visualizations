@@ -93,6 +93,31 @@ final class AmiraProfile
         ], $this->data['wordcloudCorpora']);
     }
 
+    /**
+     * Public Omeka corpora that share the semantic embedding space. Each entry
+     * resolves exactly one selector: an item set for media/publications or a
+     * resource template for entity types spread across many sets.
+     *
+     * @return list<array{id:string,label:string,selector:string,selectorId:int,textFields:list<string>}>
+     */
+    public function embeddingCorpora(): array
+    {
+        return array_map(function (array $corpus): array {
+            $itemSetKey = $corpus['itemSetKey'] ?? null;
+            $selector = is_string($itemSetKey) ? 'itemSet' : 'template';
+            $selectorId = $selector === 'itemSet'
+                ? $this->itemSet($itemSetKey)
+                : $this->template($corpus['templateKey']);
+            return [
+                'id' => $corpus['id'],
+                'label' => $corpus['label'],
+                'selector' => $selector,
+                'selectorId' => $selectorId,
+                'textFields' => array_values($corpus['textFields']),
+            ];
+        }, $this->data['embeddingCorpora']);
+    }
+
     /** @return list<array> */
     public function featuredCollections(): array
     {
@@ -145,7 +170,7 @@ final class AmiraProfile
         foreach ($required as $section => $keys) {
             foreach ($keys as $key) $this->id($section, $key);
         }
-        foreach (['templateResourceTypes', 'syntheticTypes', 'universityLabels', 'externalCollections', 'clusterCategoryAuthorities', 'featuredCollections', 'wordcloudCorpora'] as $section) {
+        foreach (['templateResourceTypes', 'syntheticTypes', 'universityLabels', 'externalCollections', 'clusterCategoryAuthorities', 'featuredCollections', 'wordcloudCorpora', 'embeddingCorpora'] as $section) {
             if (!isset($this->data[$section]) || !is_array($this->data[$section]) || !$this->data[$section]) {
                 throw new RuntimeException('AMIRA profile section is missing or empty: ' . $section);
             }
@@ -208,6 +233,31 @@ final class AmiraProfile
             }
             $this->itemSet($itemSetKey);
             $corpusIds[$id] = true;
+        }
+
+        $embeddingIds = [];
+        foreach ($this->data['embeddingCorpora'] as $corpus) {
+            $id = is_array($corpus) ? ($corpus['id'] ?? null) : null;
+            $label = is_array($corpus) ? ($corpus['label'] ?? null) : null;
+            $itemSetKey = is_array($corpus) ? ($corpus['itemSetKey'] ?? null) : null;
+            $templateKey = is_array($corpus) ? ($corpus['templateKey'] ?? null) : null;
+            $textFields = is_array($corpus) ? ($corpus['textFields'] ?? null) : null;
+            $hasItemSet = is_string($itemSetKey) && isset($this->data['itemSets'][$itemSetKey]);
+            $hasTemplate = is_string($templateKey) && isset($this->data['templates'][$templateKey]);
+            if (!is_string($id) || !preg_match('/^[a-z][a-z0-9-]*$/', $id)
+                || isset($embeddingIds[$id])
+                || !is_string($label) || trim($label) === ''
+                || ($hasItemSet === $hasTemplate)
+                || !is_array($textFields) || !$textFields) {
+                throw new RuntimeException('AMIRA profile has an invalid embedding corpus.');
+            }
+            foreach ($textFields as $field) {
+                if (!is_string($field) || !preg_match('/^[a-z][a-z0-9]*:[A-Za-z][A-Za-z0-9]*$/', $field)) {
+                    throw new RuntimeException('AMIRA profile has an invalid embedding corpus text field.');
+                }
+            }
+            $hasItemSet ? $this->itemSet($itemSetKey) : $this->template($templateKey);
+            $embeddingIds[$id] = true;
         }
     }
 }

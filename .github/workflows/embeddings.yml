@@ -1,0 +1,117 @@
+name: Build semantic embeddings
+
+# Manual because the Gemini call is a paid, secret-backed precompute. Ordinary
+# pull-request CI tests every pure contract without a key; this workflow fetches
+# only the unauthenticated public Omeka API, incrementally refreshes vectors,
+# opens a bot PR for the compact artifacts, and publishes full vectors as a
+# versioned GitHub Release rather than committing them.
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: Embedding scope
+        required: true
+        type: choice
+        default: missing
+        options:
+          - missing
+          - all
+      publish_vectors:
+        description: Publish the full-vector GitHub Release
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: semantic-embeddings
+  cancel-in-progress: false
+
+env:
+  GEMINI_EMBEDDING_MODEL: gemini-embedding-2
+  GEMINI_EMBEDDING_DIMS: '768'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # actions/checkout v7.0.1, verified upstream 2026-07-31.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      # actions/setup-python v6.3.0, verified upstream 2026-07-31.
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: tools/embeddings/requirements.txt
+
+      # actions/cache v6.1.0, verified upstream 2026-07-31. A unique write key
+      # restores the newest compatible prefix and persists the refreshed cache.
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: asset/data/embeddings/cache.json
+          key: embeddings-${{ runner.os }}-${{ env.GEMINI_EMBEDDING_MODEL }}-${{ env.GEMINI_EMBEDDING_DIMS }}-${{ github.run_id }}
+          restore-keys: |
+            embeddings-${{ runner.os }}-${{ env.GEMINI_EMBEDDING_MODEL }}-${{ env.GEMINI_EMBEDDING_DIMS }}-
+
+      - name: Install pinned dependencies
+        run: python -m pip install -r tools/embeddings/requirements.txt
+
+      - name: Run embedding contract tests
+        run: |
+          python tools/embeddings/build_embeddings.py --validate-profile
+          python -m unittest discover -s tools/embeddings/tests -v
+
+      - name: Build public semantic artifacts
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python tools/embeddings/build_embeddings.py --scope "${{ inputs.scope }}"
+
+      - name: Validate generated artifact set
+        run: python tools/embeddings/build_embeddings.py --validate-artifacts
+
+      # Save even when a later API batch fails: build_embeddings.py flushes each
+      # paid successful batch, so the next run can resume instead of rebilling it.
+      - name: Persist the incremental embedding cache
+        if: always()
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: asset/data/embeddings/cache.json
+          key: embeddings-${{ runner.os }}-${{ env.GEMINI_EMBEDDING_MODEL }}-${{ env.GEMINI_EMBEDDING_DIMS }}-${{ github.run_id }}
+
+      - name: Open bot PR for derived map and recommendations
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add asset/data/embeddings/map.json asset/data/embeddings/similar.json asset/data/embeddings/report.json
+          if git diff --staged --quiet; then
+            echo "No semantic artifact changes."
+          else
+            branch="automation/embeddings-${GITHUB_RUN_ID}"
+            git switch -c "$branch"
+            git commit -m "Semantic embeddings: refresh public derived artifacts"
+            git push --set-upstream origin "$branch"
+            gh pr create --base main --head "$branch" \
+              --title "Semantic embeddings: refresh public artifacts" \
+              --body "Automated public-only semantic-map and recommendation refresh from workflow run ${GITHUB_RUN_ID}."
+          fi
+
+      - name: Publish versioned full-vector release
+        if: ${{ inputs.publish_vectors }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="semantic-embeddings-v1-${GITHUB_RUN_NUMBER}"
+          gh release create "$tag" \
+            asset/data/embeddings/release/vectors.f32 \
+            asset/data/embeddings/release/ids.json \
+            asset/data/embeddings/release/manifest.json \
+            --target "$GITHUB_SHA" \
+            --title "AMIRA semantic embeddings v1 · build ${GITHUB_RUN_NUMBER}" \
+            --notes "Public AMIRA vectors. Read manifest.json before indexing; embedding spaces are model-specific." \
+            --latest=false

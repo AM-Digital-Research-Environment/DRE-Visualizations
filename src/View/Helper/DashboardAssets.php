@@ -156,6 +156,7 @@ class DashboardAssets extends AbstractHelper
         'compare'     => ['js/dashboard-compare-unify.js', 'js/dashboard-compare.js'],
         'network'     => ['js/dashboard-network-explorer.js'],
         'whatsNew'    => ['js/dashboard-whats-new.js'],
+        'semanticMap' => ['js/semantic-map.js'],
     ];
 
     /**
@@ -270,6 +271,21 @@ class DashboardAssets extends AbstractHelper
             ], JSON_UNESCAPED_SLASHES) . ', window.RV_LIBS||{});');
             $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
             $headScript->appendFile($asset('js/spatial-exploration.js'), 'text/javascript', $defer);
+            return $this;
+        }
+
+        // Semantic Map block: one ECharts scatter and its own controller. Keep
+        // the word-cloud, MapLibre, d3-force and dashboard builder bundle out of
+        // this page; the controller lazy-loads ECharts when the block nears view.
+        if (!empty($options['semanticMap'])) {
+            $headLink->appendStylesheet($asset('css/dre-visualizations.css'));
+            $headScript->appendScript('window.RV_LIBS=Object.assign(' . json_encode([
+                'echarts' => $asset(self::ECHARTS_JS),
+            ], JSON_UNESCAPED_SLASHES) . ', window.RV_LIBS||{});');
+            $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
+            foreach (self::CONTROLLERS['semanticMap'] as $script) {
+                $headScript->appendFile($asset($script), 'text/javascript', $defer);
+            }
             return $this;
         }
 

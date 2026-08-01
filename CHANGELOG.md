@@ -2,6 +2,34 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.24.0 — 2026-07-31
+
+### Added
+
+- **One multilingual semantic space across six public corpora.** The manual,
+  secret-backed embedding workflow creates uniformly bounded cards for podcasts,
+  YouTube videos, publications, projects, research sections, and research items;
+  incrementally embeds changed cards with `gemini-embedding-2`; projects them with
+  deterministic UMAP; reports quality/low-signal coverage; commits the compact
+  map and recommendation contracts; and publishes normalized 768-dimensional
+  float32 vectors as a versioned GitHub Release.
+- **Semantic Map** site-page block and **Similar Items** resource-page block.
+  The map supports title search, resource-type/cluster colouring, accessible
+  controls, lazy ECharts loading, and embedding. Recommendations are progressive
+  enhancement and never surface low-signal records.
+- CI now validates the six-corpus profile, card construction, public filtering,
+  incremental cache behaviour, recommendation eligibility, and vector release
+  schema alongside the PHP and browser-contract matrices.
+
+### Changed
+
+- Podcasts now include linked subjects, subject trends/co-occurrence, locations,
+  and an items-by-country choropleth. Transcript word clouds expose translated,
+  accessible language controls, while the PHP fallback performs a curated layer
+  of English/French inflection folding when the spaCy-built input is unavailable.
+- Project and installation metadata use the canonical **DRE-Visualizations**
+  repository name throughout.
+
 ## 2.23.0 — 2026-07-30
 
 ### Fixed

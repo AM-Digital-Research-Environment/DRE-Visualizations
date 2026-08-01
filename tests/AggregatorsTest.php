@@ -398,6 +398,30 @@ foreach (($relNet['nodes'] ?? []) as $nd) { $roleOf[$nd['name']] = $nd['role']; 
 check(($roleOf['A'] ?? null) === 'author', 'coAuthorNetwork: A role is author');
 check(($roleOf['C'] ?? null) === 'both', 'coAuthorNetwork: C role is both (author and editor)');
 
+// --- media charts: duration bands + curated PHP word-form fallback ---
+$duration = A::buildDurationHistogram([0, 15 * 60, 25 * 60, 65 * 60]);
+check($duration === [
+    ['name' => 'Under 20 min', 'value' => 1],
+    ['name' => '20–30 min', 'value' => 1],
+    ['name' => '60 min +', 'value' => 1],
+], 'duration histogram drops invalid/empty bands and preserves natural order');
+$fallbackCloud = A::buildTranscriptWordCloud([
+    '[music] Speaker 1: Studies studying study. Work working works.',
+    'Études étude. Travaux travail. Communities community.',
+]);
+$fallbackCounts = [];
+foreach ($fallbackCloud ?? [] as $entry) {
+    $fallbackCounts[$entry['name']] = $entry['value'];
+}
+check(($fallbackCounts['study'] ?? null) === 3
+    && ($fallbackCounts['work'] ?? null) === 3
+    && ($fallbackCounts['étude'] ?? null) === 2
+    && ($fallbackCounts['travail'] ?? null) === 2
+    && ($fallbackCounts['community'] ?? null) === 2,
+    'transcript fallback merges curated English/French word forms into readable lemmas');
+check(!isset($fallbackCounts['speaker'], $fallbackCounts['music']),
+    'transcript fallback strips diarisation labels and audio cues');
+
 // --- knowledge graph (IDF-ranked shared-item discovery) ---
 $kgItems = [
     1 => ['title' => 'Center', 'class_label' => 'Article', 'class_term' => 'fabio:JournalArticle', 'template_id' => 11],

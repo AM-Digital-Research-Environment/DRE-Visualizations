@@ -63,7 +63,9 @@ trait MediaChartsTrait
      * Word-frequency cloud across a set of (plain-text) transcripts. Aggressive
      * cleanup: bracketed cues (`[music]`), diarisation labels (`Speaker 1:`),
      * tokens under three characters and a broad English + French stop-word and
-     * filler list are all removed; only the literal word forms survive. Returns
+     * filler list are all removed. A small curated EN/FR form map merges the
+     * common surface variants that matter in the fallback cloud; the committed
+     * CI-built inputs use full spaCy lemmatisation. Returns
      * the top `$topN` words as `[{name, value}]` (value = corpus frequency),
      * dropping words that occur only once; null when there is nothing left.
      *
@@ -76,6 +78,7 @@ trait MediaChartsTrait
             return null;
         }
         $stop = self::transcriptStopWords();
+        $lemmas = self::transcriptLemmaMap();
         $counts = [];
         foreach ($texts as $text) {
             if (!is_string($text) || $text === '') {
@@ -95,6 +98,7 @@ trait MediaChartsTrait
                 continue;
             }
             foreach ($tokens as $tok) {
+                $tok = $lemmas[$tok] ?? $tok;
                 if (mb_strlen($tok, 'UTF-8') < 3 || isset($stop[$tok])) {
                     continue;
                 }
@@ -116,6 +120,45 @@ trait MediaChartsTrait
             }
         }
         return $out ?: null;
+    }
+
+    /**
+     * Predictable concept-level merges for the dependency-free PHP fallback.
+     * This deliberately stays curated instead of pretending to be a general
+     * stemmer: visible labels remain real words, and adding one high-frequency
+     * variant cannot unexpectedly rewrite the rest of the vocabulary.
+     *
+     * @return array<string,string>
+     */
+    private static function transcriptLemmaMap(): array
+    {
+        return [
+            // English forms surfaced by the podcast/video transcript corpora.
+            'communities' => 'community',
+            'languages' => 'language',
+            'knowledges' => 'knowledge',
+            'projects' => 'project',
+            'researchers' => 'researcher',
+            'studied' => 'study',
+            'studies' => 'study',
+            'studying' => 'study',
+            'worked' => 'work',
+            'working' => 'work',
+            'works' => 'work',
+
+            // French forms kept equally explicit so labels stay readable.
+            'communautés' => 'communauté',
+            'connaissances' => 'connaissance',
+            'chercheuses' => 'chercheur',
+            'chercheurs' => 'chercheur',
+            'études' => 'étude',
+            'langues' => 'langue',
+            'projets' => 'projet',
+            'travailler' => 'travail',
+            'travaille' => 'travail',
+            'travaillent' => 'travail',
+            'travaux' => 'travail',
+        ];
     }
 
     /**

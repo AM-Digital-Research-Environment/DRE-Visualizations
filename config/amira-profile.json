@@ -133,5 +133,43 @@
     { "id": "podcasts", "itemSetKey": "podcasts", "field": "bibo:content" },
     { "id": "publications", "itemSetKey": "publications", "field": "bibo:abstract" },
     { "id": "youtube", "itemSetKey": "youtube", "field": "bibo:content" }
+  ],
+  "embeddingCorpora": [
+    {
+      "id": "podcasts",
+      "label": "Podcast",
+      "itemSetKey": "podcasts",
+      "textFields": ["dcterms:abstract", "bibo:content"]
+    },
+    {
+      "id": "youtube",
+      "label": "YouTube video",
+      "itemSetKey": "youtube",
+      "textFields": ["dcterms:abstract", "bibo:content"]
+    },
+    {
+      "id": "publications",
+      "label": "Publication",
+      "itemSetKey": "publications",
+      "textFields": ["bibo:abstract", "bibo:content"]
+    },
+    {
+      "id": "projects",
+      "label": "Project",
+      "templateKey": "projects",
+      "textFields": ["dcterms:abstract", "dcterms:description"]
+    },
+    {
+      "id": "sections",
+      "label": "Research section",
+      "templateKey": "sections",
+      "textFields": ["dcterms:abstract", "dcterms:description"]
+    },
+    {
+      "id": "research-items",
+      "label": "Research item",
+      "templateKey": "researchItems",
+      "textFields": ["bibo:abstract", "dcterms:abstract", "dcterms:description"]
+    }
   ]
 }

@@ -14,7 +14,8 @@ The public path is deliberately precompute-first:
 6. `dashboard-core.js` resolves all generated-data requests through that
    manifest; server-rendered galleries use `PublishedSnapshot`.
 
-Static inputs (`geo/`, `wordclouds/`) remain outside generated snapshots.
+Static inputs (`geo/`, `wordclouds/`, and the compact public `embeddings/`
+artifacts) remain outside generated snapshots.
 Generated roots are `item-dashboards`, `item-set-dashboards`, `communities`,
 `knowledge-graphs`, `photo-galleries`, `featured-collections`, and
 `network-explorer.json`.
@@ -43,10 +44,18 @@ immutable snapshot directly; the existing collection and media methods remain
 in the coordinator until they can be moved without changing artifact contracts.
 
 Installation-specific AMIRA identifiers used by precomputation, featured
-collections, and the word-cloud builder live in `config/amira-profile.json`.
+collections, the word-cloud builder, and the semantic corpus builder live in
+`config/amira-profile.json`.
 `AmiraProfile` validates the file before use, and both PHP and Python resolve
 corpus item sets through the same semantic keys. `FeaturedCollections\Registry`
 is now a normalised query facade over the same profile rather than a second
 source of database-local IDs. The coordinator also configures the pure
 aggregators with the profile's person/project templates and university labels;
 no executable aggregator constant assumes AMIRA database IDs.
+
+The semantic pipeline is deliberately separate from the in-Omeka snapshot. It
+reads only the unauthenticated public REST API, creates uniformly bounded archival
+cards for six profile-declared corpora, and embeds them in one multilingual model
+space. Compact UMAP coordinates and cross-type nearest neighbours are committed;
+the content-hash cache and full float32 vectors remain outside Git. See
+`docs/SEMANTIC_EMBEDDINGS.md` for the versioned interoperability contract.

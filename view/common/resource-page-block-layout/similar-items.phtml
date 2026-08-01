@@ -1,0 +1,28 @@
+<?php
+/**
+ * Cross-type semantic recommendations for one public item. The wrapper starts
+ * hidden and is revealed only when the item clears the signal threshold and has
+ * neighbours in the committed public artifact.
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\ItemRepresentation $resource
+ */
+
+$this->headScript()->appendFile(
+    $this->assetUrl('js/semantic-similar.js', 'DreVisualizations'),
+    'text/javascript',
+    ['defer' => true]
+);
+$siteSlug = $this->currentSite()->slug();
+?>
+
+<section class="resource-vis-block semantic-similar-block" hidden
+         aria-labelledby="semantic-similar-title-<?= $resource->id() ?>">
+    <h2 id="semantic-similar-title-<?= $resource->id() ?>"><?= $this->translate('Related by meaning') ?></h2>
+    <p class="semantic-similar-intro"><?= $this->translate('Explore records with similar subjects and descriptions, even when their language or resource type differs.') ?></p>
+    <div class="semantic-similar-container"
+         data-item-id="<?= $resource->id() ?>"
+         data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"
+         data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $siteSlug) ?>"
+         aria-live="polite"></div>
+</section>

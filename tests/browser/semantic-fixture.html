@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DRE semantic components fixture</title>
+    <link rel="stylesheet" href="/asset/css/dre-visualizations.css?v=3">
+    <style>
+        body { margin: 0; padding: 2rem; background: var(--rv-bg-sunken); color: var(--rv-text-strong); font-family: Arial, sans-serif; }
+        main { max-width: 76rem; margin: 0 auto; }
+        .semantic-similar-block { margin-top: 3rem; }
+        @media (max-width: 40rem) { body { padding: 1rem; } }
+    </style>
+    <script>
+        window.RV_LIBS = { echarts: '/asset/vendor/echarts.min.js' };
+        window.RV_I18N = {};
+        (function () {
+            var types = [
+                ['podcasts', 'Podcast'], ['youtube', 'YouTube video'],
+                ['publications', 'Publication'], ['projects', 'Research project'],
+                ['sections', 'Research section'], ['research-items', 'Research item']
+            ];
+            var items = Array.from({ length: 48 }, function (_, index) {
+                var type = types[index % types.length];
+                var angle = index * 0.73;
+                var radius = 1.5 + (index % 8) * 0.52;
+                return {
+                    id: index + 1,
+                    x: Math.cos(angle) * radius + (index % 3) * 1.8,
+                    y: Math.sin(angle) * radius + (index % 4) * 1.1,
+                    type: type[0], typeLabel: type[1], cluster: index % 7,
+                    lowSignal: index % 17 === 0,
+                    title: (index % 9 === 0 ? 'Migration and belonging' : 'Public collection record') + ' ' + (index + 1)
+                };
+            });
+            var catalog = {};
+            items.forEach(function (item) {
+                catalog[String(item.id)] = {
+                    title: item.title, type: item.type,
+                    typeLabel: item.typeLabel, lowSignal: item.lowSignal
+                };
+            });
+            var similar = [2, 3, 4, 5, 6, 8].map(function (id, index) {
+                return { id: id, score: 0.92 - index * 0.045 };
+            });
+            window.__SEMANTIC_FIXTURES__ = {
+                map: { schemaVersion: 1, items: items },
+                similar: { schemaVersion: 1, catalog: catalog, items: { '1': similar } }
+            };
+            var nativeFetch = window.fetch;
+            window.fetch = function (url, options) {
+                var key = String(url).indexOf('similar.json') !== -1 ? 'similar'
+                    : (String(url).indexOf('map.json') !== -1 ? 'map' : null);
+                if (!key) return nativeFetch(url, options);
+                return Promise.resolve({
+                    ok: true,
+                    json: function () { return Promise.resolve(window.__SEMANTIC_FIXTURES__[key]); }
+                });
+            };
+        })();
+    </script>
+    <script src="/asset/js/dashboard-core.js?v=3" defer></script>
+    <script src="/asset/js/semantic-map.js?v=3" defer></script>
+    <script src="/asset/js/semantic-similar.js?v=3" defer></script>
+</head>
+<body>
+<main>
+    <div class="resource-vis-block semantic-map-block">
+        <div class="semantic-map-container" data-base-path="" data-site-base="#"></div>
+    </div>
+    <section class="resource-vis-block semantic-similar-block" hidden aria-labelledby="fixture-related-title">
+        <h2 id="fixture-related-title">Related by meaning</h2>
+        <p class="semantic-similar-intro">Explore records with similar subjects and descriptions, even when their language or resource type differs.</p>
+        <div class="semantic-similar-container" data-item-id="1" data-base-path="" data-site-base="#" aria-live="polite"></div>
+    </section>
+</main>
+</body>
+</html>

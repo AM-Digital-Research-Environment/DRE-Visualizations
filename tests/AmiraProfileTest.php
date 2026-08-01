@@ -32,6 +32,18 @@ profileCheck(($corpora[0] ?? null) === [
     'itemSet' => $profile->itemSet('podcasts'),
     'field' => 'bibo:content',
 ], 'word-cloud corpora resolve the shared item-set key');
+$embeddingCorpora = $profile->embeddingCorpora();
+profileCheck(count($embeddingCorpora) === 6
+    && ($embeddingCorpora[0] ?? null) === [
+        'id' => 'podcasts',
+        'label' => 'Podcast',
+        'selector' => 'itemSet',
+        'selectorId' => $profile->itemSet('podcasts'),
+        'textFields' => ['dcterms:abstract', 'bibo:content'],
+    ]
+    && ($embeddingCorpora[5]['selector'] ?? null) === 'template'
+    && ($embeddingCorpora[5]['selectorId'] ?? null) === $profile->template('researchItems'),
+    'six embedding corpora resolve item-set and resource-template selectors');
 profileCheck(count($profile->featuredCollections()) === 6,
     'featured collections are loaded from the validated installation profile');
 profileCheck(($profile->universityLabels()['University Joseph Ki-Zerbo'] ?? null) === 'Université Joseph Ki-Zerbo',
@@ -51,6 +63,9 @@ $invalidCases = [
     'non-positive required id' => static function (array &$data): void { $data['itemSets']['youtube'] = 0; },
     'unknown corpus item-set key' => static function (array &$data): void { $data['wordcloudCorpora'][0]['itemSetKey'] = 'missing'; },
     'duplicate corpus id' => static function (array &$data): void { $data['wordcloudCorpora'][1]['id'] = $data['wordcloudCorpora'][0]['id']; },
+    'embedding corpus with both selectors' => static function (array &$data): void { $data['embeddingCorpora'][0]['templateKey'] = 'projects'; },
+    'embedding corpus with no text fields' => static function (array &$data): void { $data['embeddingCorpora'][0]['textFields'] = []; },
+    'duplicate embedding corpus id' => static function (array &$data): void { $data['embeddingCorpora'][1]['id'] = $data['embeddingCorpora'][0]['id']; },
     'duplicate featured collection slug' => static function (array &$data): void { $data['featuredCollections'][1]['slug'] = $data['featuredCollections'][0]['slug']; },
     'unknown featured item-set key' => static function (array &$data): void { $data['featuredCollections'][0]['itemSetKey'] = 'missing'; },
 ];
