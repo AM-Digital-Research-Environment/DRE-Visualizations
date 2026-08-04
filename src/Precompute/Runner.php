@@ -857,21 +857,28 @@ final class Runner
      * pairs the `key` with a lucide icon and renders the grid.
      *
      * Counts come from the per-entity index passes that already ran in run()
-     * (projects / people / organisations / subjects&tags / languages / resource
-     * types — each counting entities that have ≥1 linked item), so the cards
-     * equal what a reader gets by browsing each category. The Publications card is
-     * counted here from the fabio:-classed corpus. Cards with a zero count are
-     * dropped to keep the grid tidy in non-amira installs.
+     * (projects / people / organisations / subjects&tags / languages — each
+     * counting entities that have ≥1 linked item), so the cards equal what a
+     * reader gets by browsing each category. The Publications card is counted
+     * here from the fabio:-classed corpus. Cards with a zero count are dropped
+     * to keep the grid tidy in non-amira installs.
+     *
+     * Resource Types was dropped after v2.24: every other card answers "how much
+     * of X does the collection hold" and links to an authority page a reader can
+     * browse, but Type of Resource is a controlled vocabulary describing the
+     * other records rather than a corpus of its own — and it is the one key the
+     * theme's masthead has no route for, so it rendered as the single dead row
+     * in an otherwise navigable catalogue.
      *
      * @return list<array{key:string,label:string,value:int,subtitle?:string}>
      */
     private function buildOverviewStats(int $researchItemCount, int $countries): array
     {
-        // People, Organisations, Languages, Subjects & Tags, Resource Types,
-        // Research projects and Publications are the sizes of their
-        // authority item sets — the full curated count, not just entities linked
-        // to a research item. Locations stays as the "present in the collection"
-        // count gathered by its index pass.
+        // People, Organisations, Languages, Subjects & Tags, Research projects
+        // and Publications are the sizes of their authority item sets — the full
+        // curated count, not just entities linked to a research item. Locations
+        // stays as the "present in the collection" count gathered by its index
+        // pass.
         $setCount = fn (int $setId): int => count($this->itemSets[$setId] ?? []);
 
         // Assemble via the reusable component — it casts values, drops empty
@@ -885,7 +892,6 @@ final class Runner
                 'subtitle' => $countries > 0 ? ('in ' . $countries . ' ' . ($countries === 1 ? 'country' : 'countries')) : null],
             ['key' => 'languages', 'label' => 'Languages', 'value' => $setCount($this->profile->itemSet('language'))],
             ['key' => 'subjectsTags', 'label' => 'Subjects & Tags', 'value' => $setCount($this->profile->itemSet('subject'))],
-            ['key' => 'resourceTypes', 'label' => 'Resource Types', 'value' => $setCount($this->profile->itemSet('resourceType'))],
             ['key' => 'publications', 'label' => 'Publications', 'value' => $setCount($this->profile->itemSet('publications'))],
             ['key' => 'podcasts', 'label' => 'Podcasts', 'value' => $setCount($this->profile->itemSet('podcasts'))],
             ['key' => 'youtube', 'label' => 'YouTube videos', 'value' => $setCount($this->profile->itemSet('youtube'))],
