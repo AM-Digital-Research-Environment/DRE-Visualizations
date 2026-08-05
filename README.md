@@ -533,7 +533,8 @@ Self-hosted from committed vendored bundles under `asset/vendor/`:
 
 - [ECharts 6](https://echarts.apache.org/)
 - [echarts-wordcloud 2](https://github.com/ecomfe/echarts-wordcloud)
-- [MapLibre GL 5](https://maplibre.org/)
+- [MapLibre GL 6](https://maplibre.org/)
+- [d3-force 3](https://d3js.org/d3-force)
 
 ## Related project
 
@@ -545,6 +546,13 @@ The two are complementary and were brought to **analytical parity** over the sha
 - **amira** provides the broad cross-archive overviews as a standalone site.
 
 A reader should find roughly the same analytical toolkit on either side. The "how to add a visualization" recipes and architecture guardrails distilled from that initiative live in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Citation
+
+Machine-readable metadata lives in [CITATION.cff](CITATION.cff) — GitHub renders
+it as **Cite this repository** in the sidebar, and it exports to BibTeX and APA
+from there. Its `version` and `date-released` are checked against
+`config/module.ini` on every release, so a citation always names a real tag.
 
 ## License
 

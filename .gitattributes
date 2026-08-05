@@ -1,3 +1,13 @@
+# Store every text file with LF regardless of the contributor's platform, so
+# the release archive is byte-stable and a Windows checkout cannot commit CRLF
+# into PHP/JS that ships to a Linux container. Working copies keep native EOLs.
+* text=auto
+
+# Images are binary: no EOL conversion, no attempt to diff them.
+*.png -text -diff
+*.jpg -text -diff
+*.ico -text -diff
+
 # Vendored third-party libraries (self-hosted ECharts / MapLibre): keep them
 # byte-identical to upstream — no EOL conversion — and exclude from GitHub's
 # language statistics and diffs.
@@ -9,6 +19,7 @@ asset/fonts/**/*.pbf -text -diff linguist-vendored
 # Runtime release archives are built with `git archive`. Keep development and
 # CI-only material out while retaining README/licence/compliance documents.
 /.agents export-ignore
+/.codex export-ignore
 /.github export-ignore
 /reports export-ignore
 /scripts export-ignore

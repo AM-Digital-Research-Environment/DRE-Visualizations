@@ -15,6 +15,7 @@ const requiredReleaseFiles = [
   'THIRD_PARTY_NOTICES',
   'SECURITY.md',
   'CHANGELOG.md',
+  'CITATION.cff',
   'config/amira-profile.json',
   // The self-hosted basemap. Without these the maps silently lose their land,
   // borders and every label, so they are release-blocking assets.
@@ -42,6 +43,34 @@ if ((linkMatch && linkMatch[1]) !== CANONICAL) failures.push(`module_link must b
 if (packageJson.repository?.url !== `git+${CANONICAL}.git`) {
   failures.push('package.json repository URL is not canonical');
 }
+// CITATION.cff is the one metadata file nothing else reads, so it goes stale
+// silently — a "Cite this repository" button naming a version that was never
+// tagged. Pin it to module.ini and to the CHANGELOG entry for that version.
+// Flat scalars only, so regex rather than a YAML dependency.
+try {
+  const citation = read('CITATION.cff');
+  const field = (key) => {
+    const match = new RegExp(`^${key}:\\s*"?([^"\\n]+?)"?\\s*$`, 'm').exec(citation);
+    return match ? match[1] : '';
+  };
+  if (field('version') !== moduleVersion) {
+    failures.push(`CITATION.cff version ${field('version') || '(missing)'} != module.ini ${moduleVersion}`);
+  }
+  if (field('repository-code') !== CANONICAL) failures.push(`CITATION.cff repository-code must be ${CANONICAL}`);
+  if (!/^\s*(?:-\s*)?orcid:\s*"https:\/\/orcid\.org\/[\dX-]{19}"\s*$/m.test(citation)) {
+    failures.push('CITATION.cff author ORCID is missing or malformed');
+  }
+  const changelogDate = new RegExp(`^##\\s*${moduleVersion.replace(/\./g, '\\.')}\\s*[—-]\\s*(\\d{4}-\\d{2}-\\d{2})`, 'm')
+    .exec(read('CHANGELOG.md'));
+  if (!changelogDate) {
+    failures.push(`CHANGELOG.md has no dated entry for ${moduleVersion}`);
+  } else if (field('date-released') !== changelogDate[1]) {
+    failures.push(`CITATION.cff date-released ${field('date-released') || '(missing)'} != CHANGELOG ${changelogDate[1]}`);
+  }
+} catch (error) {
+  failures.push(`CITATION.cff check failed: ${error.message}`);
+}
+
 if (!readme.includes(`${CANONICAL}/releases/latest/download/DreVisualizations.zip`)) {
   failures.push('README does not install from the canonical DreVisualizations.zip release asset');
 }

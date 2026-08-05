@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+title: "DRE Visualizations"
+message: "If you use this software, please cite it using the metadata from this file."
+type: software
+abstract: >-
+  An Omeka S module that adds interactive visualizations to resource and site
+  pages: a draggable d3-force knowledge graph, per-entity dashboards of ECharts
+  charts, and MapLibre GL maps. Data is pre-computed in PHP inside Omeka and
+  served as static JSON, so the front end has no external service dependency and
+  the release archive is self-contained. Built for the Africa Multiple Cluster of
+  Excellence's Digital Research Environment (AMIRA).
+authors:
+  - given-names: Frédérick
+    family-names: Madore
+    orcid: "https://orcid.org/0000-0003-0959-2092"
+    affiliation: "University of Bayreuth"
+version: 2.26.1
+date-released: "2026-08-05"
+license: GPL-3.0-or-later
+repository-code: "https://github.com/AM-Digital-Research-Environment/DRE-Visualizations"
+url: "https://github.com/AM-Digital-Research-Environment/DRE-Visualizations"
+keywords:
+  - Omeka S
+  - data visualization
+  - knowledge graph
+  - digital humanities
+  - research data
+  - African studies
+  - ECharts
+  - MapLibre
+  - d3-force

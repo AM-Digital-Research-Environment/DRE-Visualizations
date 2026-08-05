@@ -2,6 +2,31 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.26.1 — 2026-08-05
+
+### Added
+
+- **`CITATION.cff`.** Machine-readable citation metadata (ORCID, affiliation,
+  licence, version), which GitHub renders as *Cite this repository* with BibTeX
+  and APA export. Release checks pin its `version` to `config/module.ini` and its
+  `date-released` to this file's entry for that version, and assert the author
+  ORCID is well-formed — nothing else reads the file, so it would otherwise go
+  stale silently and offer a citation naming a version that was never tagged.
+- A social preview card at `.github/social-preview.png` (1280×640, drawn in the
+  module's own dark-mode palette). Development-only: `.github/` is
+  `export-ignore`d, so it stays out of the runtime archive.
+
+### Changed
+
+- `.gitattributes` now normalises text to LF in the repository (`* text=auto`),
+  so a Windows checkout cannot commit CRLF into PHP/JS bound for a Linux
+  container, and marks images binary. `/.codex` joins the `export-ignore` list —
+  it is git-ignored, but `git add -f` bypasses that and the release archive
+  should not depend on it.
+- README: documented the citation metadata, and corrected the dependency list,
+  which still named MapLibre GL 5 after 2.26.0 shipped 6.1.0 and omitted
+  d3-force entirely.
+
 ## 2.26.0 — 2026-08-05
 
 ### Changed
