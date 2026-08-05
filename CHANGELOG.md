@@ -2,6 +2,34 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.26.0 — 2026-08-05
+
+### Changed
+
+- **MapLibre GL JS 5.24.0 → 6.1.0.** Version 6 ships ES modules only, so the
+  library is now imported rather than loaded as a classic script: `ns.ensureLibs`
+  dynamic-imports it and publishes the namespace as `window.maplibregl`, and the
+  eager dashboard surfaces (compare, explorer, network, what's new) do the same
+  from an inline module. Every map builder keeps the API it already used — no
+  call site changed. Brings upstream fixes for globe latitude precision on some
+  GPUs, terrain reconfiguration, 3D buildings near the horizon, and raster tile
+  error handling.
+- MapLibre is vendored by `npm run vendor:maplibre`, which verifies the npm
+  tarball against the registry's sha512 and rewrites exactly one import
+  specifier so the three ES-module files can ship under `.js` names (stock
+  nginx types no `.mjs`, and a module script served as the wrong type is
+  refused) with the library version stamped into the two chunks that Omeka's
+  `?v=` cache-buster cannot reach. Documented with hashes in
+  `THIRD_PARTY_NOTICES`; release checks now assert the file names stay in sync.
+
+### Compatibility
+
+- MapLibre 6 requires **WebGL2** — Baseline in every browser since Safari 15
+  (2021), but WebGL1-only clients will no longer render maps.
+- Administrator-configured third-party basemap styles are validated against
+  style-spec v25, which reports legacy expressions as errors. The self-hosted
+  default basemap is unaffected.
+
 ## 2.24.0 — 2026-07-31
 
 ### Added

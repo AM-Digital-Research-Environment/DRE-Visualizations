@@ -414,15 +414,16 @@ class Module extends AbstractModule
         // to render — on scroll into view, or once an async block resolves as
         // applicable. Mirrors the lazy 'dashboard' surface in DashboardAssets.
         $view->headScript()->appendScript('window.RV_LIBS=window.RV_LIBS||' . json_encode([
-            'echarts'     => $asset(DashboardAssets::ECHARTS_JS),
-            'wordcloud'   => $asset(DashboardAssets::WORDCLOUD_JS),
-            'maplibre'    => $asset(DashboardAssets::MAPLIBRE_JS),
-            'maplibreCss' => $asset(DashboardAssets::MAPLIBRE_CSS),
+            'echarts'        => $asset(DashboardAssets::ECHARTS_JS),
+            'wordcloud'      => $asset(DashboardAssets::WORDCLOUD_JS),
+            'maplibre'       => $asset(DashboardAssets::MAPLIBRE_JS),
+            'maplibreWorker' => $asset(DashboardAssets::MAPLIBRE_WORKER_JS),
+            'maplibreCss'    => $asset(DashboardAssets::MAPLIBRE_CSS),
             // The knowledge graph simulates with d3-force instead of ECharts, so
             // an item page carrying only that block pulls ~17 KiB rather than the
             // 1.1 MiB ECharts bundle. An ordered list: the loader executes it
             // sequentially because d3-force needs its deps on the `d3` global.
-            'd3'          => array_map($asset, DashboardAssets::D3_SCRIPTS),
+            'd3'             => array_map($asset, DashboardAssets::D3_SCRIPTS),
         ], JSON_UNESCAPED_SLASHES) . ';');
 
         // dashboard-core.js defines ns.ensureLibs + the shared chart helpers;

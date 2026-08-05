@@ -1,10 +1,11 @@
 {
   "name": "dre-visualizations",
-  "version": "2.25.0",
+  "version": "2.26.0",
   "private": true,
   "description": "DRE Visualizations Omeka S module — ECharts/MapLibre dashboards and a d3-force knowledge graph, with a dependency-free release bundle.",
   "scripts": {
     "build": "node scripts/build-frontend-bundles.mjs",
+    "vendor:maplibre": "node scripts/vendor-maplibre.mjs",
     "check:bundles": "node scripts/build-frontend-bundles.mjs --check",
     "lint:tokens": "node scripts/check-design-tokens.mjs",
     "check:js": "node scripts/check-js-syntax.mjs",

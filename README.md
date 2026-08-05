@@ -384,8 +384,9 @@ DreVisualizations/
 │   │   └── dashboard.js                          # Orchestrator: render + async/inline init
 │   ├── css/
 │   │   └── dre-visualizations.css # Styles with CSS custom properties
-│   ├── vendor/                    # Committed third-party bundles (byte-identical upstream)
-│   │   └── echarts.min.js, maplibre-gl.js, …   # ECharts + MapLibre (self-hosted)
+│   ├── vendor/                    # Committed third-party bundles (upstream; see THIRD_PARTY_NOTICES)
+│   │   └── echarts.min.js, maplibre-gl.js, …   # ECharts + MapLibre (self-hosted; MapLibre is ESM,
+│   │                                           # vendored by `npm run vendor:maplibre`)
 │   └── data/
 │       ├── geo/
 │       │   └── countries.geojson       # Natural Earth 110m boundaries (choropleth) — committed INPUT

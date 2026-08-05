@@ -331,7 +331,8 @@ $this->headScript()->appendFile(
          data-default-view="<?= $this->escapeHtmlAttr($defaultView) ?>"
          data-grouping="<?= $this->escapeHtmlAttr($issueMode ? 'issue' : 'photo') ?>"
          data-maplibre-css="<?= $this->escapeHtmlAttr($this->assetUrl(DashboardAssets::MAPLIBRE_CSS, 'DreVisualizations')) ?>"
-         data-maplibre-js="<?= $this->escapeHtmlAttr($this->assetUrl(DashboardAssets::MAPLIBRE_JS, 'DreVisualizations')) ?>">
+         data-maplibre-js="<?= $this->escapeHtmlAttr($this->assetUrl(DashboardAssets::MAPLIBRE_JS, 'DreVisualizations')) ?>"
+         data-maplibre-worker="<?= $this->escapeHtmlAttr($this->assetUrl(DashboardAssets::MAPLIBRE_WORKER_JS, 'DreVisualizations')) ?>">
 
         <div class="photo-browse-toolbar">
             <?php if (count($views) > 1): ?>

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ROOT = join(import.meta.dirname, '..');
@@ -83,6 +83,37 @@ if (profile && (!profile.itemSets || !profile.templates
     embeddingIds.add(corpus.id);
   }
 }
+// MapLibre 6 ships as three ES-module files whose names are coupled in two
+// directions: the entry point and the worker both import a version-stamped
+// shared chunk, and DashboardAssets names the version-stamped worker so it can
+// hand it to setWorkerUrl(). Bumping the library renames two of the three, and
+// every miss is a silent runtime 404 — a blank map, not a build error. Assert
+// the whole triangle resolves.
+try {
+  const vendored = new Set(readdirSync(join(ROOT, 'asset/vendor')));
+  const helper = read('src/View/Helper/DashboardAssets.php');
+  const workerMatch = /const MAPLIBRE_WORKER_JS\s*=\s*'vendor\/([^']+)'/.exec(helper);
+  if (!workerMatch) {
+    failures.push('DashboardAssets::MAPLIBRE_WORKER_JS is missing');
+  } else if (!vendored.has(workerMatch[1])) {
+    failures.push(`DashboardAssets::MAPLIBRE_WORKER_JS names asset/vendor/${workerMatch[1]}, which is not vendored`);
+  }
+  for (const entry of ['maplibre-gl.js', workerMatch?.[1]].filter(Boolean)) {
+    if (!vendored.has(entry)) {
+      failures.push(`asset/vendor/${entry} is missing`);
+      continue;
+    }
+    const chunk = /from"\.\/(maplibre-gl-shared[^"]*)"/.exec(read(`asset/vendor/${entry}`));
+    if (!chunk) {
+      failures.push(`asset/vendor/${entry} imports no MapLibre shared chunk — was it vendored unpatched (.mjs)?`);
+    } else if (!vendored.has(chunk[1])) {
+      failures.push(`asset/vendor/${entry} imports ${chunk[1]}, which is not vendored`);
+    }
+  }
+} catch (error) {
+  failures.push(`vendored MapLibre check failed: ${error.message}`);
+}
+
 for (const stale of ['/ResourceVisualizations', 'resource-visualizations']) {
   if (readme.includes(stale) || moduleIni.includes(stale) || JSON.stringify(packageJson).includes(stale)) {
     failures.push(`stale release/repository reference remains: ${stale}`);

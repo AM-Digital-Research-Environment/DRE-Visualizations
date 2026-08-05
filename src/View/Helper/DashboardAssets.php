@@ -29,11 +29,29 @@ class DashboardAssets extends AbstractHelper
     // caching, and no third-party dependency (consistent with the privacy-first
     // posture). Paths are relative to the module asset root: resolve with
     // assetUrl()/the $asset() helper before use. Pinned: echarts 6.1.0,
-    // echarts-wordcloud 2.1.0, maplibre-gl 5.24.0, d3-force 3.0.0.
+    // echarts-wordcloud 2.1.0, maplibre-gl 6.1.0, d3-force 3.0.0.
     const ECHARTS_JS   = 'vendor/echarts.min.js';
     const WORDCLOUD_JS = 'vendor/echarts-wordcloud.min.js';
     const MAPLIBRE_CSS = 'vendor/maplibre-gl.css';
-    const MAPLIBRE_JS  = 'vendor/maplibre-gl.js';
+
+    /**
+     * MapLibre 6 ships ES modules only, so `vendor/maplibre-gl.js` is an ESM
+     * entry point: it CANNOT be loaded with a classic <script> and it defines
+     * no global of its own. Everything here hands the URL to a module import
+     * that publishes the namespace as `window.maplibregl` — the shape every
+     * builder already expects — either through ns.ensureLibs (dashboard-core.js)
+     * or through the inline module shim on the eager surfaces below.
+     *
+     * The worker is a separate chunk. MapLibre would find it on its own from
+     * `import.meta.url`, but only under its upstream `.mjs` name, which no
+     * stock nginx knows how to type; scripts/vendor-maplibre.mjs renames it and
+     * stamps the library version into the file name, so it has to be handed
+     * over explicitly with setWorkerUrl(). Doing that also means the worker
+     * carries Omeka's `?v=` cache-buster, which the relative resolution
+     * upstream would have dropped along with the query string.
+     */
+    const MAPLIBRE_JS        = 'vendor/maplibre-gl.js';
+    const MAPLIBRE_WORKER_JS = 'vendor/maplibre-gl-worker-6.1.0.js';
 
     /**
      * The d3-force layout stack the knowledge graph simulates with, in LOAD
@@ -219,8 +237,9 @@ class DashboardAssets extends AbstractHelper
         if (!empty($options['graph'])) {
             $headLink->appendStylesheet($asset('css/dre-visualizations.css'));
             $headScript->appendScript('window.RV_LIBS=Object.assign(' . json_encode([
-                'maplibre'    => $asset(self::MAPLIBRE_JS),
-                'maplibreCss' => $asset(self::MAPLIBRE_CSS),
+                'maplibre'       => $asset(self::MAPLIBRE_JS),
+                'maplibreWorker' => $asset(self::MAPLIBRE_WORKER_JS),
+                'maplibreCss'    => $asset(self::MAPLIBRE_CSS),
             ], JSON_UNESCAPED_SLASHES) . ', window.RV_LIBS||{});');
             $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
             // Chrome before controller: deferred scripts run in append order, so
@@ -266,8 +285,9 @@ class DashboardAssets extends AbstractHelper
         if (!empty($options['spatial'])) {
             $headLink->appendStylesheet($asset('css/dre-visualizations.css'));
             $headScript->appendScript('window.RV_LIBS=Object.assign(' . json_encode([
-                'maplibre'    => $asset(self::MAPLIBRE_JS),
-                'maplibreCss' => $asset(self::MAPLIBRE_CSS),
+                'maplibre'       => $asset(self::MAPLIBRE_JS),
+                'maplibreWorker' => $asset(self::MAPLIBRE_WORKER_JS),
+                'maplibreCss'    => $asset(self::MAPLIBRE_CSS),
             ], JSON_UNESCAPED_SLASHES) . ', window.RV_LIBS||{});');
             $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
             $headScript->appendFile($asset('js/spatial-exploration.js'), 'text/javascript', $defer);
@@ -303,15 +323,16 @@ class DashboardAssets extends AbstractHelper
                 // Object.assign-merge (not ||) so an Entity Network graph block's
                 // partial RV_LIBS on the same page can't shadow these (and vice-versa).
                 $headScript->appendScript('window.RV_LIBS=Object.assign(' . json_encode([
-                    'echarts'     => $asset(self::ECHARTS_JS),
-                    'wordcloud'   => $asset(self::WORDCLOUD_JS),
-                    'maplibre'    => $asset(self::MAPLIBRE_JS),
-                    'maplibreCss' => $asset(self::MAPLIBRE_CSS),
+                    'echarts'        => $asset(self::ECHARTS_JS),
+                    'wordcloud'      => $asset(self::WORDCLOUD_JS),
+                    'maplibre'       => $asset(self::MAPLIBRE_JS),
+                    'maplibreWorker' => $asset(self::MAPLIBRE_WORKER_JS),
+                    'maplibreCss'    => $asset(self::MAPLIBRE_CSS),
                     // The co-occurrence networks (co-author, speakers) simulate with
                     // d3-force rather than an ECharts series. An ordered list: the
                     // loader executes it sequentially because d3-force resolves its
                     // dependencies off the shared `d3` global.
-                    'd3'          => array_map($asset, self::D3_SCRIPTS),
+                    'd3'             => array_map($asset, self::D3_SCRIPTS),
                 ], JSON_UNESCAPED_SLASHES) . ', window.RV_LIBS||{});');
                 $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
             } else {
@@ -325,7 +346,19 @@ class DashboardAssets extends AbstractHelper
                 $headScript->appendFile($asset(self::ECHARTS_JS), 'text/javascript', $defer);
                 $headScript->appendFile($asset(self::WORDCLOUD_JS), 'text/javascript', $defer);
                 $headLink->appendStylesheet($asset(self::MAPLIBRE_CSS));
-                $headScript->appendFile($asset(self::MAPLIBRE_JS), 'text/javascript', $defer);
+                // MapLibre 6 is ESM: a classic <script defer> cannot load it, and
+                // the bundle defines no global. Import it from an inline module
+                // instead and publish the namespace as window.maplibregl. Module
+                // scripts and deferred classic scripts share ONE execution list,
+                // ordered by document position, so dashboard-core.js and the
+                // builder bundle appended below still find maplibregl ready —
+                // the same ordering guarantee the classic <script defer> gave.
+                $headScript->appendScript(
+                    'import * as m from ' . self::jsString($asset(self::MAPLIBRE_JS)) . ';'
+                    . 'm.setWorkerUrl(' . self::jsString($asset(self::MAPLIBRE_WORKER_JS)) . ');'
+                    . 'window.maplibregl=m;',
+                    'module'
+                );
                 foreach (self::D3_SCRIPTS as $script) {
                     $headScript->appendFile($asset($script), 'text/javascript', $defer);
                 }
@@ -350,5 +383,19 @@ class DashboardAssets extends AbstractHelper
         }
 
         return $this;
+    }
+
+    /**
+     * A URL as a quoted JavaScript string literal, safe to inline in a <script>.
+     * Same escaping the RV_LIBS / RV_I18N payloads above get from json_encode:
+     * slashes readable, but `<`, `&`, `'` and `"` hex-escaped so no value can
+     * close the element or break out of the literal.
+     */
+    private static function jsString(string $value): string
+    {
+        return json_encode(
+            $value,
+            JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        );
     }
 }

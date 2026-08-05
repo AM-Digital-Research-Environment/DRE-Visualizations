@@ -33,12 +33,35 @@ d3-force 3.0.0 and its runtime dependencies
     d3-timer.min.js     911ceda305f014b6b53ca68d5c896a9a387da120cfd56a421a2c60cca2fc9b36
   Replace them only from a named d3 release and update these hashes.
 
-MapLibre GL JS 5.24.0
-  Files: asset/vendor/maplibre-gl.js, asset/vendor/maplibre-gl.css
+MapLibre GL JS 6.1.0 — MODIFIED, see below
+  Files: asset/vendor/maplibre-gl.js (dist/maplibre-gl.mjs),
+         asset/vendor/maplibre-gl-shared-6.1.0.js (dist/maplibre-gl-shared.mjs),
+         asset/vendor/maplibre-gl-worker-6.1.0.js (dist/maplibre-gl-worker.mjs),
+         asset/vendor/maplibre-gl.css
   Primary license: BSD-3-Clause; the upstream distribution also contains
   notices for incorporated Mapbox GL JS, glfx.js, and d3-color code.
   Project and full notices:
-  https://github.com/maplibre/maplibre-gl-js/blob/v5.24.0/LICENSE.txt
+  https://github.com/maplibre/maplibre-gl-js/blob/v6.1.0/LICENSE.txt
+
+  MODIFICATIONS. MapLibre 6 ships ES modules only, under the .mjs extension
+  and with the shared chunk resolved relative to the entry point. Neither
+  survives the way an Omeka module is served — stock nginx types no .mjs, and
+  module assets are cached immutably with a query string the relative import
+  drops — so scripts/vendor-maplibre.mjs renames the three files as listed
+  above and rewrites ONE string in two of them: the import specifier
+  "./maplibre-gl-shared.mjs" becomes "./maplibre-gl-shared-6.1.0.js". No other
+  byte is altered; the shared chunk and the stylesheet are verbatim upstream.
+
+  SHA-256, as shipped:
+    maplibre-gl.js                8c55f72090bad5d070f712938328fc3dbf4772fed7abd11dd6693fc675dad55f
+    maplibre-gl-shared-6.1.0.js   ce66c617187b6956d878d3961aceeb7c335eec3f76ee8d80737a917d8e989860
+    maplibre-gl-worker-6.1.0.js   26494077b3229035c056d809874e7fe50b265d84a4ba6ebd3618ac0949cffc50
+    maplibre-gl.css               b00645d776ad42d89f26216d2fefb256ecb1268cec95fc09edf0e65c699b0b56
+  SHA-256, upstream and unmodified, for the two rewritten files:
+    dist/maplibre-gl.mjs          1f714cf1df5c1aba7cdf8e1099cd8d2951b8fe888f3d99b2b35b9dd9c9b3e9ac
+    dist/maplibre-gl-worker.mjs   5a77b4637ea5ae64f0b1f208e4b1f4d9c681e2575d96e592f2074925597224c6
+  Re-vendor with `npm run vendor:maplibre`, which verifies the npm tarball
+  against the registry's own sha512 before extracting, then update these.
 
 Noto Sans Regular (MapLibre SDF glyph ranges)
   Files: asset/fonts/Noto Sans Regular/*.pbf

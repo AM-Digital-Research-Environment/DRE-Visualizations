@@ -49,23 +49,26 @@
     /*  Lazy MapLibre loader (shared across every gallery on the page)     */
     /* ------------------------------------------------------------------ */
 
+    // This block renders without dashboard-core.js, so it cannot borrow
+    // ns.ensureLibs and keeps its own loader. MapLibre 6 is ESM: a <script> tag
+    // would fetch the file, fail to parse `import` as a classic script and still
+    // fire load, leaving `maplibregl` undefined — so it has to be import()ed,
+    // and the namespace published under the name the map code below uses.
     var _maplibrePromise = null;
-    function loadMapLibre(cssUrl, jsUrl) {
+    function loadMapLibre(cssUrl, jsUrl, workerUrl) {
         if (window.maplibregl) return Promise.resolve();
         if (_maplibrePromise) return _maplibrePromise;
-        _maplibrePromise = new Promise(function (resolve, reject) {
-            if (cssUrl && !document.querySelector('link[href="' + cssUrl + '"]')) {
-                var link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = cssUrl;
-                document.head.appendChild(link);
-            }
-            var s = document.createElement('script');
-            s.src = jsUrl;
-            s.async = true;
-            s.onload = function () { resolve(); };
-            s.onerror = function () { reject(new Error('MapLibre failed to load')); };
-            document.head.appendChild(s);
+        if (cssUrl && !document.querySelector('link[href="' + cssUrl + '"]')) {
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = cssUrl;
+            document.head.appendChild(link);
+        }
+        _maplibrePromise = import(jsUrl).then(function (mod) {
+            window.maplibregl = mod;
+            // Version-stamped worker chunk, named explicitly because the vendored
+            // file names differ from the ones MapLibre derives from import.meta.url.
+            if (workerUrl && typeof mod.setWorkerUrl === 'function') mod.setWorkerUrl(workerUrl);
         });
         return _maplibrePromise;
     }
@@ -91,6 +94,7 @@
         var grouping = container.dataset.grouping || 'photo';
         var mlCss = container.dataset.maplibreCss || '';
         var mlJs = container.dataset.maplibreJs || '';
+        var mlWorker = container.dataset.maplibreWorker || '';
 
         var lightbox = makeLightbox(container, photos);
         var toc = grouping === 'issue' ? makeTocModal(container) : null;
@@ -585,7 +589,7 @@
         });
         var fc = { type: 'FeatureCollection', features: geo };
 
-        loadMapLibre(mlCss, mlJs).then(function () {
+        loadMapLibre(mlCss, mlJs, mlWorker).then(function () {
             createMap();
         }).catch(function () {
             mapEl.innerHTML = '<div class="rv-empty">Map unavailable.</div>';

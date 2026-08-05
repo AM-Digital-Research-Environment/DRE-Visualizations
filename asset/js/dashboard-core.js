@@ -321,6 +321,29 @@
             return ns._libPromises[key];
         }
 
+        /**
+         * The ESM counterpart of loadScript, for libraries that ship as modules
+         * rather than as a global-defining classic script (MapLibre 6 and up).
+         *
+         * A dynamic import() is legal inside this classic script and the browser's
+         * own module map de-duplicates by resolved URL, so the injected-<script>
+         * bookkeeping loadScript needs has no equivalent here: `isReady` covers
+         * the case where an eager surface already imported it (DashboardAssets
+         * emits an inline module shim there), and ns._libPromises covers repeat
+         * callers within this page. `register` runs once, before any caller sees
+         * the promise settle, and is where the namespace becomes a global.
+         */
+        function loadModule(key, src, isReady, register) {
+            if (isReady && isReady()) return Promise.resolve();
+            if (ns._libPromises[key]) return ns._libPromises[key];
+            ns._libPromises[key] = !src
+                ? Promise.resolve()
+                : import(src).then(function (mod) {
+                    if (register) register(mod);
+                });
+            return ns._libPromises[key];
+        }
+
         function loadStyle(href) {
             if (!href || head.querySelector('link[href="' + href + '"]')) return;
             var l = document.createElement('link');
@@ -354,7 +377,20 @@
 
         if (required.maplibre) {
             loadStyle(cfg.maplibreCss);
-            work.push(loadScript('maplibre', cfg.maplibre, maplibreReady));
+            work.push(loadModule('maplibre', cfg.maplibre, maplibreReady, function (mod) {
+                // MapLibre 6 is ESM and defines no global; publish the namespace
+                // under the name every builder already reaches for.
+                window.maplibregl = mod;
+                // The worker is a separate chunk. MapLibre resolves it from
+                // import.meta.url by default, but only under its upstream `.mjs`
+                // name — scripts/vendor-maplibre.mjs renames it and stamps the
+                // library version in, so it has to be named explicitly. This must
+                // happen before the first Map is constructed, which it does: no
+                // caller sees the promise resolve until this returns.
+                if (cfg.maplibreWorker && typeof mod.setWorkerUrl === 'function') {
+                    mod.setWorkerUrl(cfg.maplibreWorker);
+                }
+            }));
         }
         if (required.echarts) {
             var echartsPromise = loadScript('echarts', cfg.echarts, echartsReady);
