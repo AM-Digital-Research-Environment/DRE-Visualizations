@@ -55,6 +55,26 @@ All notable changes are documented here. Versions follow Semantic Versioning.
   style-spec v25, which reports legacy expressions as errors. The self-hosted
   default basemap is unaffected.
 
+## 2.25.0 — 2026-08-04
+
+### Changed
+
+- **Collection Overview drops the Type of Resource card.** Every other overview
+  card answers "how much of X does the collection hold" and links to an authority
+  page a reader can browse. Type of Resource is a controlled vocabulary
+  describing the *other* records rather than a corpus of its own, and it is the
+  one key the theme's masthead has no route for — so it rendered as the single
+  dead row in an otherwise navigable catalogue. Ten cards now: research items,
+  projects, people, organisations, locations, languages, subjects & tags,
+  publications, podcasts, YouTube videos. The metric set changes in the
+  precompute's `stats` array rather than in either renderer, because that array
+  is what the theme reads from `collection-overview.json` to render the
+  masthead's "In AMIRA" column. The `resourceTypes` entry stays in
+  `dashboard-stat-cards.js`'s icon map — the `types` and `genres` aliases of
+  other dashboards still resolve through it. **Needs a regeneration:** the
+  published generation is what readers see, so the card only disappears after a
+  precompute run.
+
 ## 2.24.0 — 2026-07-31
 
 ### Added
