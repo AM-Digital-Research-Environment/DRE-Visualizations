@@ -28,10 +28,10 @@
         'dcterms:creator': 'Person', 'dcterms:contributor': 'Person', 'foaf:member': 'Person',
         'dcterms:subject': 'Subject', 'dcterms:spatial': 'Location', 'dcterms:provenance': 'Location',
         'dcterms:isPartOf': 'Project', 'dcterms:format': 'Genre', 'frapo:isFundedBy': 'Institution',
-        'dcterms:relation': 'Related Item', 'dcterms:hasPart': 'Related Item',
-        'dcterms:replaces': 'Related Item', 'dcterms:isReplacedBy': 'Related Item',
-        'dcterms:hasVersion': 'Related Item', 'dcterms:isVersionOf': 'Related Item',
-        'dcterms:hasFormat': 'Related Item'
+        'dcterms:relation': 'Related item', 'dcterms:hasPart': 'Related item',
+        'dcterms:replaces': 'Related item', 'dcterms:isReplacedBy': 'Related item',
+        'dcterms:hasVersion': 'Related item', 'dcterms:isVersionOf': 'Related item',
+        'dcterms:hasFormat': 'Related item'
     };
 
     function getCat(term) {

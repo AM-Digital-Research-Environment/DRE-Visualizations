@@ -23,7 +23,7 @@
  *     region, the text alternative, the cluster filter, export + fullscreen)
  *
  * Data (compact row arrays, see EntityGraphTrait::buildEntityGraph):
- *   { types: ['Person','Organization','Location','Subject','Tag'],
+ *   { types: ['Person','Organisation','Location','Subject','Tag'],
  *     sections: ['Knowledges', 'Learning', ...],   // research-section overlay labels
  *     nodes: [[id, label, type, count, degree, community, section, lng, lat, rank], ...],
  *     edges: [[sourceIndex, targetIndex, weight], ...],
@@ -89,7 +89,7 @@
     }
     // Resolved through the type NAME via the shared registry, so Person here is the
     // same hue as Person on an item's knowledge graph and on a contributor network.
-    // Indexing the palette by the position in `types` used to make Organization the
+    // Indexing the palette by the position in `types` used to make Organisation the
     // project colour. `_types` is set by build() once the payload is decoded.
     var _types = [];
     function typeColor(typeIdx) {
@@ -145,17 +145,19 @@
 
         /* -- header + description -- */
         var header = el('div', 'dashboard-header');
-        header.appendChild(el('h3', null, 'Entity Network'));
+        header.appendChild(el('h3', null, 'Entity network'));
         header.appendChild(el('span', 'dashboard-total',
             data.nodes.length + ' entities · ' + data.edges.length + ' links'
-            + (data.communityCount ? (' · ' + data.communityCount + ' clusters') : '')));
+            + (data.communityCount ? (' · ' + data.communityCount + ' groups') : '')));
         container.appendChild(header);
 
         container.appendChild(el('p', 'chart-description',
-            'People, organisations, places, subjects and tags that co-occur across the '
-            + 'collection, laid out by force-directed clustering. Drag to pan, scroll to '
-            + 'zoom, hover to isolate an entity’s links, and click an entity for '
-            + 'details and its page.'));
+            'People, organisations, places, subjects and tags are linked here when they '
+            + 'are recorded on the same research item. The more often two of them appear '
+            + 'together, the closer they sit, so the map falls into groups of entities '
+            + 'that share a research context. Drag to pan and scroll to zoom; hover over '
+            + 'an entity to pick out its links, or click it for a summary and a link to '
+            + 'its page.'));
 
         /* -- toolbar -- */
         var toolbar = el('div', 'deg-toolbar');
@@ -166,8 +168,9 @@
         var canvas = el('div', 'deg-canvas');
         canvas.setAttribute('role', 'application');
         canvas.tabIndex = 0;
-        canvas.setAttribute('aria-label', ns.t('degCanvasLabel', 'Entity co-occurrence network. '
-            + 'Use the arrow keys to move between connected entities and Enter to select one.'));
+        canvas.setAttribute('aria-label', ns.t('degCanvasLabel', 'Network of entities that '
+            + 'appear on the same research items. Use the arrow keys to move between '
+            + 'connected entities and Enter to select one.'));
         var sidebar = el('div', 'deg-sidebar');
         stage.appendChild(canvas);
         stage.appendChild(sidebar);
@@ -295,7 +298,7 @@
             }
             // Through the shared registry, exactly like the legend, the type chips
             // and the sidebar swatches (typeColor). Painting the circles by their
-            // position in `types` instead put Organization, Location and Tag in
+            // position in `types` instead put Organisation, Location and Tag in
             // hues their own swatches did not use — the same defect 2.22.1 fixed for
             // the categories, still live in the paint expression.
             expr = ['match', ['get', 'type']];
@@ -655,7 +658,7 @@
                 list.appendChild(row);
             });
             sidebar.appendChild(list);
-            sidebar.appendChild(el('p', 'deg-side-hint', 'Hover or click an entity to focus its connections.'));
+            sidebar.appendChild(el('p', 'deg-side-hint', 'Hover over an entity, or click it, to see what it is connected to.'));
         }
 
         function showDetail(index) {
@@ -695,7 +698,7 @@
             var nbrs = adjacency[index] || [];
             if (nbrs.length) {
                 sidebar.appendChild(el('div', 'deg-detail-subhead',
-                    'Top connections (' + Math.min(nbrs.length, 15) + ' of ' + nbrs.length + ')'));
+                    'Strongest connections (' + Math.min(nbrs.length, 15) + ' of ' + nbrs.length + ')'));
                 var ul = el('div', 'deg-neighbors');
                 nbrs.slice(0, 15).forEach(function (nb) {
                     var ni = data.nodes[nb.j];
@@ -712,7 +715,7 @@
             }
 
             if (siteBase && info.id) {
-                var open = el('a', 'deg-open', 'Open page →');
+                var open = el('a', 'deg-open', 'Open this entity’s page →');
                 open.href = siteBase + '/item/' + info.id;
                 sidebar.appendChild(open);
             }
@@ -829,10 +832,10 @@
         });
         if (steps.length > 1) {
             var wWrap = el('label', 'deg-weight');
-            wWrap.appendChild(el('span', null, 'Min. link'));
+            wWrap.appendChild(el('span', null, 'Shared items'));
             var sel = el('select', 'deg-weight-select');
             steps.forEach(function (v, idx) {
-                var o = el('option', null, idx === 0 ? 'All' : ('≥ ' + v));
+                var o = el('option', null, idx === 0 ? 'Any' : (v + ' or more'));
                 o.value = String(v); sel.appendChild(o);
             });
             sel.addEventListener('change', function () {
@@ -844,12 +847,12 @@
             weightSelect = sel;
         }
 
-        // Isolate a cluster ----------------------------------------------
+        // Isolate a group ------------------------------------------------
         var clusterSelect = null;
         if (clusters.length > 1) {
             clusterSelect = ns.egUI.buildClusterSelect(clusters, function (id) {
                 commFilter = id;
-                // A cluster is a place, so go there — isolating one and leaving the
+                // A group occupies a region of the map, so go there — isolating one and leaving the
                 // camera across the map would just show empty space.
                 if (id != null && map) {
                     var w = 180, s = 90, e2 = -180, n2 = -90, found = false;
@@ -879,7 +882,7 @@
         // nothing is active.
         var clearBtn = el('button', 'deg-btn deg-clear'); clearBtn.type = 'button';
         clearBtn.textContent = 'Clear filters';
-        clearBtn.title = 'Reset the type, link-weight and selection filters';
+        clearBtn.title = 'Show every entity again and drop the current selection';
         clearBtn.disabled = true;
         clearBtn.addEventListener('click', function () {
             types.forEach(function (_t, i) { enabledTypes[i] = true; });
@@ -903,13 +906,13 @@
 
         // Colour-by control (type / cluster / section) -------------------
         var colorModes = [{ id: 'type', label: 'Type' }];
-        if (data.communityCount > 0) colorModes.push({ id: 'community', label: 'Cluster' });
+        if (data.communityCount > 0) colorModes.push({ id: 'community', label: 'Group' });
         if (sections.length) colorModes.push({ id: 'section', label: 'Section' });
         if (colorModes.length > 1) {
             var modeWrap = el('div', 'deg-colormode');
             modeWrap.setAttribute('role', 'group');
-            modeWrap.setAttribute('aria-label', 'Colour nodes by');
-            modeWrap.appendChild(el('span', 'deg-colormode-label', 'Colour'));
+            modeWrap.setAttribute('aria-label', 'Colour entities by');
+            modeWrap.appendChild(el('span', 'deg-colormode-label', 'Colour by'));
             var modeBtns = {};
             var setMode = function (id) {
                 if (colorMode === id) return;
@@ -926,7 +929,7 @@
             colorModes.forEach(function (m) {
                 var b = el('button', 'deg-btn deg-mode-btn'); b.type = 'button';
                 b.textContent = m.label;
-                b.title = 'Colour nodes by ' + m.label.toLowerCase();
+                b.title = 'Colour the entities by ' + m.label.toLowerCase();
                 b.classList.toggle('is-on', colorMode === m.id);
                 b.setAttribute('aria-pressed', String(colorMode === m.id));
                 b.addEventListener('click', function () { setMode(m.id); });
@@ -979,7 +982,7 @@
         function entityRows() {
             var head = [
                 t('degLabel', 'Entity'), t('category', 'Type'),
-                t('items', 'Items'), t('degLinks', 'Links'), t('community', 'Cluster')
+                t('items', 'Items'), t('degLinks', 'Links'), t('community', 'Group')
             ];
             if (sections.length) head.push(t('degSection', 'Section'));
             head.push(t('degUrl', 'URL'));
@@ -1008,7 +1011,8 @@
             legend.innerHTML = '';
             if (colorMode === 'community') {
                 legend.appendChild(el('span', 'deg-legend-note',
-                    'Node colour = co-occurrence cluster · grey = unclustered'));
+                    'Each colour is a group of entities that keep appearing together. '
+                    + 'Grey entities belong to no group.'));
                 return;
             }
             if (colorMode === 'section') {
@@ -1182,17 +1186,17 @@
         ]).then(function (res) {
             var data = decode(res[0]);
             if (!data.nodes.length) {
-                container.innerHTML = '<div class="rv-no-data">No entity-network data available yet.</div>';
+                container.innerHTML = '<div class="rv-no-data">There is no entity network to show yet.</div>';
                 return;
             }
             if (typeof window.maplibregl === 'undefined') {
-                container.innerHTML = '<div class="rv-error">Map library failed to load.</div>';
+                container.innerHTML = '<div class="rv-error">The entity network could not be loaded. Please try again.</div>';
                 return;
             }
             build(container, data, { basePath: basePath, siteBase: siteBase });
         }).catch(function (err) {
             console.error('DreVisualizations entity-graph:', err);
-            container.innerHTML = '<div class="rv-error">Could not load the entity network.</div>';
+            container.innerHTML = '<div class="rv-error">The entity network could not be loaded. Please try again.</div>';
         });
     }
 

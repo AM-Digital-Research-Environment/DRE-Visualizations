@@ -45,7 +45,7 @@
 
         if (props.itemId && siteBase) {
             h += '<a class="rv-popup-location-link" href="' + esc(siteBase) + '/item/'
-                + encodeURIComponent(props.itemId) + '">View location page \u2192</a>';
+                + encodeURIComponent(props.itemId) + '">Open this place\u2019s page \u2192</a>';
         }
 
         h += '</div>';

@@ -146,7 +146,7 @@ if (!ns || typeof ns.entityColor !== 'function') {
 
   // Merely IMPORTING the registry is not enough: the Entity Network resolved its
   // legend, chips and sidebar swatches through it while still painting the map
-  // circles by their position in `types`, so Organization, Location and Tag had a
+  // circles by their position in `types`, so Organisation, Location and Tag had a
   // swatch in one hue and dots in another. The paint expression has to go through
   // the same helper the swatches do.
   const eg = readFileSync(join(ROOT, 'asset/js/entity-graph.js'), 'utf8');

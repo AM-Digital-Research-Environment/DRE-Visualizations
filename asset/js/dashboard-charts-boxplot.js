@@ -57,7 +57,7 @@
                     axisLine: { lineStyle: { color: THEME.grid } }
                 },
                 yAxis: {
-                    type: 'value', name: 'Items / project', min: 0,
+                    type: 'value', name: 'Items per project', min: 0,
                     nameTextStyle: { color: THEME.textMuted, fontSize: THEME.fontSize },
                     axisLabel: { color: THEME.textMuted, fontSize: THEME.fontSize },
                     splitLine: { lineStyle: { color: THEME.gridLight } }

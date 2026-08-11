@@ -381,8 +381,9 @@
             coverImg.src = rep.thumb || '';
             coverImg.alt = group.label || '';
             titleEl.textContent = group.label || 'Table of contents';
-            countEl.textContent = group.items.length
-                + (group.items.length === 1 ? ' article' : ' articles') + ' in this issue.';
+            countEl.textContent = group.items.length === 1
+                ? '1 article in this issue.'
+                : group.items.length + ' articles in this issue.';
 
             var items = group.items.slice().sort(function (a, b) {
                 var pa = startPage(a.pages), pb = startPage(b.pages);
@@ -592,7 +593,7 @@
         loadMapLibre(mlCss, mlJs, mlWorker).then(function () {
             createMap();
         }).catch(function () {
-            mapEl.innerHTML = '<div class="rv-empty">Map unavailable.</div>';
+            mapEl.innerHTML = '<div class="rv-empty">The map could not be loaded. Please try again.</div>';
         });
 
         function createMap() {

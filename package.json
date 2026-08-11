@@ -1,6 +1,6 @@
 {
   "name": "dre-visualizations",
-  "version": "2.26.1",
+  "version": "2.27.0",
   "private": true,
   "description": "DRE Visualizations Omeka S module — ECharts/MapLibre dashboards and a d3-force knowledge graph, with a dependency-free release bundle.",
   "scripts": {

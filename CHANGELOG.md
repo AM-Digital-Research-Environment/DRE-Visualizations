@@ -2,6 +2,59 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.27.0 — 2026-08-11
+
+### Changed
+
+- **Every reader-facing string was copy-edited** for a visitor who does not work
+  in digital humanities. Chart titles move to sentence case, which they were only
+  half in before (`Items by Year and Type` beside `Subjects & Tags` beside
+  `By Resource Template`), and the symbols that stood in for words are spelled
+  out: `Resource Type × Language` is now "Resource type by language" and
+  `Contributor → Project → Type` is "From contributor to project to resource
+  type". A screen reader read those as "times" and "rightwards arrow".
+- Chart descriptions no longer explain the data model to people who did not ask
+  about it. The subjects chart described itself as *"dcterms:subject covers both
+  controlled LCSH subjects and free tags"* and now says the controlled headings
+  and the free-text tags are counted together; "cross-tabulation" is an item
+  count for each combination; "LCSH" is spelled out as Library of Congress
+  subject headings; "lemmatised" is glossed as reduced to a base form. The
+  cluster-partners map carried *"Toggle categories in the legend"* as its entire
+  description — an instruction in the slot where the reader expects to be told
+  what they are looking at.
+- Error and empty states say what happened and what to do next. `Map library
+  failed to load.` and `No spatial data available yet.` were written for whoever
+  would read the stack trace.
+- Interface labels that only made sense from inside the code are gone: the entity
+  network's `Min. link` is "Shared items", the knowledge graph's `Max.
+  commonality` is "Hide the most common links", and the semantic map's
+  `low-signal` records are "only lightly described".
+- One vocabulary per concept. Community detection was variously `Cluster`,
+  `Community` and `Group` across three blocks, and "cluster" collides with the
+  Africa Multiple Cluster of Excellence on this very site; everything now says
+  "group". The entity network's legend said `Organization` while the map beside
+  it said `Organisation` — British spelling throughout now, including
+  `visualization` in the admin maintenance page, and `Related Item` is
+  `Related item`.
+- Featured-collection copy: descriptions rewritten, and a Portuguese agreement
+  error corrected in a public title (*Memória Periféricas* → *Memórias
+  Periféricas*, which the slug and the English gloss both already had as plural).
+- A single-chart embed titled its browser tab with the raw chart key
+  (`stackedTimeline`); the key is now spelled out as words, since that title is
+  also the iframe's accessible name.
+
+### Compatibility
+
+- The Entity Network's entity-type labels are baked into
+  `communities/entity-graph.json`, so its legend and type filter keep saying
+  `Organization` until the next **Regenerate**. Nothing breaks in the meantime —
+  both spellings resolve to the same palette slot, so the colours are unchanged.
+  The same applies to the per-dashboard titles the precompute writes for
+  Publications, YouTube and Podcasts.
+- No translation catalogues ship with the module, so the changed source strings
+  fall through to English as before. A downstream catalogue keyed to the old
+  strings will need re-extracting.
+
 ## 2.26.1 — 2026-08-05
 
 ### Added

@@ -19,8 +19,8 @@
 
         var header = document.createElement('div');
         header.className = 'dashboard-header';
-        header.innerHTML = "<h2>What's New</h2>"
-            + '<span class="dashboard-total">as of ' + escapeHtml(data.reference) + '</span>';
+        header.innerHTML = "<h2>What's new</h2>"
+            + '<span class="dashboard-total">up to ' + escapeHtml(data.reference) + '</span>';
         container.appendChild(header);
 
         var sw = document.createElement('div');
@@ -51,7 +51,7 @@
             if (active.topProjects && active.topProjects.length) {
                 var panel = document.createElement('div');
                 panel.className = 'chart-panel chart-panel-wide';
-                panel.innerHTML = '<h3>Most active projects</h3>';
+                panel.innerHTML = '<h3>Projects that added the most</h3>';
                 var el = document.createElement('div');
                 el.className = 'chart-container';
                 panel.appendChild(el);
@@ -78,7 +78,7 @@
                 grid.appendChild(card);
             });
             if (!grid.children.length) {
-                grid.innerHTML = '<div class="rv-no-data">No items in this window.</div>';
+                grid.innerHTML = '<div class="rv-no-data">Nothing was added in this period.</div>';
             }
             body.appendChild(grid);
         }
@@ -92,12 +92,12 @@
         ns.basePath = basePath;
         ns.fetchDataJson('item-dashboards/whats-new.json').then(function (data) {
             if (!data || !data.windows || !data.windows.length) {
-                container.innerHTML = '<div class="rv-no-data">No recent additions.</div>';
+                container.innerHTML = '<div class="rv-no-data">Nothing has been added recently.</div>';
                 return;
             }
             render(container, data, siteBase);
         }).catch(function () {
-            container.innerHTML = '<div class="rv-error">Could not load recent additions.</div>';
+            container.innerHTML = '<div class="rv-error">Recent additions could not be loaded. Please try again.</div>';
         });
     }
 

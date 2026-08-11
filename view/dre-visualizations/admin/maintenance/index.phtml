@@ -21,7 +21,7 @@ echo $this->pageTitle($translate('DRE Visualizations: maintenance'), 1);
 ?>
 
 <p class="description">
-    <?= $translate('Rebuild all precomputed visualization data directly from the Omeka database — no shell access or external tools required. Runs as a background job; track progress in the Jobs admin page.') ?>
+    <?= $translate('Rebuild all precomputed visualisation data directly from the Omeka database — no shell access or external tools required. Runs as a background job; track progress in the Jobs admin page.') ?>
 </p>
 
 <div style="margin-top:1.5rem;max-width:640px;">
@@ -44,7 +44,7 @@ echo $this->pageTitle($translate('DRE Visualizations: maintenance'), 1);
         </p>
         <p>
             <strong><?= $translate('When to run:') ?></strong>
-            <?= $translate('After importing or substantially editing items, so the visualizations reflect the current data. Existing JSON keeps serving until the job finishes.') ?>
+            <?= $translate('After importing or substantially editing items, so the visualisations reflect the current data. Existing JSON keeps serving until the job finishes.') ?>
         </p>
         <?= $this->form()->openTag($form) ?>
             <?= $this->formCollection($form) ?>
@@ -59,9 +59,9 @@ echo $this->pageTitle($translate('DRE Visualizations: maintenance'), 1);
 <?php if ($sites): ?>
 <div style="margin-top:1.5rem;max-width:640px;">
     <section style="border:1px solid #ddd;border-radius:6px;padding:1.5rem;background:#fff;">
-        <h3 style="margin-top:0;"><?= $translate('Embed visualizations') ?></h3>
+        <h3 style="margin-top:0;"><?= $translate('Embed visualisations') ?></h3>
         <p>
-            <?= $translate('Each site has a public embed gallery with copy-paste iframe snippets for every visualization block — and, for dashboards, for each individual chart. Open it to preview a block and grab its code.') ?>
+            <?= $translate('Each site has a public embed gallery with copy-paste iframe snippets for every visualisation block — and, for dashboards, for each individual chart. Open it to preview a block and grab its code.') ?>
         </p>
         <ul>
             <?php foreach ($sites as $site): ?>

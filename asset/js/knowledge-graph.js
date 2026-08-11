@@ -71,8 +71,8 @@
             forces: kgData.buildForces(maxStrength),
             tooltip: kgUI.tooltipRows(categories, colorOf),
             announce: kgUI.announcer(categories),
-            ariaLabel: t('kgCanvasLabel', 'Knowledge graph. Use the arrow keys to move between '
-                + 'connected entities and Enter to select one.')
+            ariaLabel: t('kgCanvasLabel', 'A graph of everything this record is connected to. Use the '
+                + 'arrow keys to move between connected entities and Enter to select one.')
             // No onActivate: a click selects rather than navigates. The link to the
             // record lives in the detail card, so leaving the page is always a
             // second, deliberate act — and works identically on a finger.
@@ -134,17 +134,17 @@
 
         ns.kgData.load(container).then(function (data) {
             if (!data || !data.nodes || data.nodes.length < 2) {
-                showMessage(container, 'rv-no-data', t('kgNoRelationships', 'No relationships found.'));
+                showMessage(container, 'rv-no-data', t('kgNoRelationships', 'This record has no connections to show.'));
                 return;
             }
             if (typeof d3 === 'undefined' || !d3.forceSimulation) {
-                showMessage(container, 'rv-error', t('kgNoEngine', 'Graph library failed to load.'));
+                showMessage(container, 'rv-error', t('kgNoEngine', 'The graph could not be loaded. Please try again.'));
                 return;
             }
             build(container, data, siteBase, seed);
         }).catch(function (err) {
             console.error('DreVisualizations:', err);
-            showMessage(container, 'rv-error', t('kgLoadError', 'Failed to load knowledge graph.'));
+            showMessage(container, 'rv-error', t('kgLoadError', 'The graph could not be loaded. Please try again.'));
         });
     }
 
@@ -160,7 +160,7 @@
                 .then(function () { initKnowledgeGraph(container); })
                 .catch(function (err) {
                     console.error('DreVisualizations:', err);
-                    showMessage(container, 'rv-error', t('kgNoEngine', 'Graph library failed to load.'));
+                    showMessage(container, 'rv-error', t('kgNoEngine', 'The graph could not be loaded. Please try again.'));
                 });
         };
         if (!('IntersectionObserver' in window)) { run(); return; }

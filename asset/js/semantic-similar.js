@@ -37,7 +37,7 @@
 
             var score = Math.max(0, Math.min(100, Math.round(Number(neighbour.score || 0) * 100)));
             var measure = node('span', 'semantic-similar-score', score + '%');
-            measure.setAttribute('aria-label', score + '% ' + ns.t('semanticSimilarity', 'similar'));
+            measure.setAttribute('aria-label', score + '% ' + ns.t('semanticSimilarity', 'match'));
 
             link.appendChild(copy);
             link.appendChild(measure);

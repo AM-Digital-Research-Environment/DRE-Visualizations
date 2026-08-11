@@ -32,7 +32,11 @@ use DreVisualizations\Precompute\ForceLayout;
 trait EntityGraphTrait
 {
     /** Entity-type indices (also the order of the emitted `types` array). */
-    private const ENTITY_TYPES = ['Person', 'Organization', 'Location', 'Subject', 'Tag'];
+    // Reader-facing legend/filter labels for the Entity Network, so British
+    // spelling — the Spatial Exploration picker and the site's own vocabulary
+    // both say "Organisation". Both spellings resolve to the same palette slot
+    // in dashboard-core.js, so the colour is unaffected.
+    private const ENTITY_TYPES = ['Person', 'Organisation', 'Location', 'Subject', 'Tag'];
     private const ET_PERSON = 0;
     private const ET_ORG = 1;
     private const ET_LOCATION = 2;

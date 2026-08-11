@@ -143,7 +143,7 @@
         // key): leave a quiet note instead of a blank frame.
         if (chartOnly && !container.querySelector('[data-chart]')) {
             container.innerHTML = '<p class="rv-embed-empty">'
-                + ns.escapeHtml(ns.t('noVisualizationData', 'No data available for this visualization.')) + '</p>';
+                + ns.escapeHtml(ns.t('noVisualizationData', 'There is no data for this chart.')) + '</p>';
         }
 
         // Live-site only: add a copy-embed-code button to each chart on an

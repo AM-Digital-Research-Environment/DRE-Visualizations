@@ -116,7 +116,7 @@ $dashboardData = json_encode([
 ?>
 
 <div class="dashboard-header">
-    <h2><?= $this->translate('Dashboard') ?></h2>
+    <h2><?= $this->translate('Visualisations') ?></h2>
     <span class="dashboard-total">
         <?= sprintf($this->translatePlural('%d item', '%d items', count($items)), count($items)) ?>
     </span>
@@ -127,14 +127,14 @@ $dashboardData = json_encode([
     <div class="dashboard-charts">
         <?php if (!empty($timeline)): ?>
         <div class="chart-panel chart-panel-wide">
-            <h3><?= $this->translate('Timeline') ?></h3>
+            <h3><?= $this->translate('Items by year') ?></h3>
             <div class="chart-container" data-chart="timeline"></div>
         </div>
         <?php endif; ?>
 
         <?php if (!empty($types)): ?>
         <div class="chart-panel">
-            <h3><?= $this->translate('Resource Types') ?></h3>
+            <h3><?= $this->translate('Resource types') ?></h3>
             <div class="chart-container" data-chart="types"></div>
         </div>
         <?php endif; ?>
@@ -155,7 +155,7 @@ $dashboardData = json_encode([
 
         <?php if (!empty($contributors)): ?>
         <div class="chart-panel">
-            <h3><?= $this->translate('Top Contributors') ?></h3>
+            <h3><?= $this->translate('People linked most often') ?></h3>
             <div class="chart-container" data-chart="contributors"></div>
         </div>
         <?php endif; ?>

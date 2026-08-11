@@ -297,7 +297,7 @@ if ($issueMode) {
         count($photos)
     );
 } elseif ($capped) {
-    $countLabel = sprintf($this->translate('First %d images'), count($photos));
+    $countLabel = sprintf($this->translate('Showing the first %d images'), count($photos));
 } else {
     $countLabel = sprintf(
         $this->translatePlural('%d image', '%d images', count($photos)),
@@ -336,7 +336,7 @@ $this->headScript()->appendFile(
 
         <div class="photo-browse-toolbar">
             <?php if (count($views) > 1): ?>
-            <div class="photo-view-toggle" role="tablist" aria-label="<?= $this->escapeHtmlAttr($this->translate('Photo view')) ?>">
+            <div class="photo-view-toggle" role="tablist" aria-label="<?= $this->escapeHtmlAttr($this->translate('How to browse the images')) ?>">
                 <?php foreach ($views as $v): ?>
                 <button type="button" role="tab"
                         class="photo-view-btn<?= $v === $defaultView ? ' is-active' : '' ?>"
@@ -353,7 +353,7 @@ $this->headScript()->appendFile(
         <div class="photo-browse-stage">
             <div class="rv-loading">
                 <div class="rv-spinner"></div>
-                <span><?= $this->translate('Loading photos…') ?></span>
+                <span><?= $this->translate('Loading the images…') ?></span>
             </div>
         </div>
 

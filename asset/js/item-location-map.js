@@ -93,8 +93,8 @@
             legend.appendChild(dot);
             legend.appendChild(ns.el('span', null, ' ' + label + ' '));
         }
-        if (origins.length) addKey(ns.THEME.accent, ns.t('origin', 'Origin'));
-        if (current.length) addKey(ns.COLORS[1], ns.t('currentLocation', 'Current location'));
+        if (origins.length) addKey(ns.THEME.accent, ns.t('origin', 'Comes from here'));
+        if (current.length) addKey(ns.COLORS[1], ns.t('currentLocation', 'Held here today'));
         wrapper.appendChild(legend);
 
         var mapEl = ns.el('div', 'rv-item-map-container');

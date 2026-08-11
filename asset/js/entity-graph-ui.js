@@ -242,16 +242,16 @@
      */
     function buildClusterSelect(clusters, onChange) {
         var wrap = el('label', 'deg-weight deg-cluster');
-        wrap.appendChild(el('span', null, t('degCluster', 'Cluster')));
+        wrap.appendChild(el('span', null, t('degCluster', 'Group')));
         var sel = el('select', 'deg-weight-select deg-cluster-select');
 
-        var all = el('option', null, t('degAllClusters', 'All'));
+        var all = el('option', null, t('degAllClusters', 'All groups'));
         all.value = '';
         sel.appendChild(all);
         clusters.forEach(function (c) {
             var name = c.anchor
                 ? (c.anchor + ' (' + c.size + ')')
-                : (t('community', 'Community') + ' ' + (c.id + 1) + ' (' + c.size + ')');
+                : (t('community', 'Group') + ' ' + (c.id + 1) + ' (' + c.size + ')');
             var o = el('option', null, ns.truncateLabel(name, 34));
             o.value = String(c.id);
             sel.appendChild(o);
@@ -280,7 +280,7 @@
      * @returns {HTMLElement[]}
      */
     function buildExportButtons(spec) {
-        var png = ns.iconButton(ICON.save, t('saveImage', 'Save as image'), t('saveImage', 'Save as image'));
+        var png = ns.iconButton(ICON.save, t('saveImage', 'Save this graph as an image'), t('saveImage', 'Save this graph as an image'));
         png.addEventListener('click', function () {
             var url = spec.png();
             if (!url) return;
@@ -290,8 +290,8 @@
             a.click();
         });
 
-        var csv = ns.iconButton(ICON.csv, t('downloadCsv', 'Download chart data as CSV'),
-            t('degCsvTitle', 'Download the visible entities as CSV'));
+        var csv = ns.iconButton(ICON.csv, t('downloadCsv', 'Download the data'),
+            t('degCsvTitle', 'Download the entities you can see as a spreadsheet (CSV)'));
         csv.addEventListener('click', function () {
             // Reuses the module's one CSV writer (BOM + CRLF + quoting) through the
             // renderer-supplied-rows path in ns.chartCsvRows.
@@ -353,7 +353,7 @@
      */
     function buildListPanel(spec) {
         var details = el('details', 'rv-kg-list deg-list');
-        var summary = el('summary', null, t('degListToggle', 'Entities as a list'));
+        var summary = el('summary', null, t('degListToggle', 'See these entities as a list'));
         details.appendChild(summary);
 
         function rebuild() {

@@ -633,7 +633,7 @@
             var dc = defaultCount();
             var slider = document.createElement('div');
             slider.className = 'rv-word-slider';
-            slider.innerHTML = '<label><span class="rv-word-slider-caption">' + ns.escapeHtml(ns.t('words', 'Words')) + '</span>'
+            slider.innerHTML = '<label><span class="rv-word-slider-caption">' + ns.escapeHtml(ns.t('words', 'Number of words')) + '</span>'
                 + '<input type="range" min="5" max="' + entries.length + '" value="' + dc + '" step="1">'
                 + '<span class="rv-word-slider-value">' + dc + '</span></label>';
             panel.insertBefore(slider, anchor);
@@ -1128,7 +1128,7 @@
             grid: { left: 160, right: 30, top: 20, bottom: 40 },
             xAxis: {
                 type: 'value',
-                name: 'Start Year',
+                name: 'Start year',
                 nameLocation: 'center',
                 nameGap: 25,
                 min: minVal - 1,
@@ -1225,7 +1225,7 @@
 
         if (props.itemId && siteBase) {
             h += '<a class="rv-popup-location-link" href="' + esc(siteBase) + '/item/'
-                + encodeURIComponent(props.itemId) + '">View location page \u2192</a>';
+                + encodeURIComponent(props.itemId) + '">Open this place\u2019s page \u2192</a>';
         }
 
         h += '</div>';
@@ -2649,7 +2649,7 @@
             catIndex[c.id] = i;
             var label = c.anchor
                 ? (c.anchor + ' (' + c.size + ')')
-                : (t('community', 'Community') + ' ' + (c.id + 1));
+                : (t('community', 'Group') + ' ' + (c.id + 1));
             return { name: truncateLabel(label, 28), community: c.id };
         });
         function categoryOf(node) {
@@ -2756,8 +2756,8 @@
                 return [
                     d.value ? (d.value + ' ' + unit) : null,
                     node.deg ? (node.deg + ' ' + (node.deg === 1
-                        ? t('kgConnection', 'connection in view')
-                        : t('kgConnections', 'connections in view'))) : null,
+                        ? t('kgConnection', 'connection shown')
+                        : t('kgConnections', 'connections shown'))) : null,
                     roleLabel(d),
                     node.pinned ? t('kgPinnedHint', 'Pinned — Alt-click to release') : null
                 ];
@@ -2812,12 +2812,12 @@
                 if (d.value) rows.push(el('span', 'rv-kg-tip-meta', d.value + ' ' + unit));
                 if (node.deg) {
                     rows.push(el('span', 'rv-kg-tip-meta', node.deg + ' ' + (node.deg === 1
-                        ? t('kgConnection', 'connection in view')
-                        : t('kgConnections', 'connections in view'))));
+                        ? t('kgConnection', 'connection shown')
+                        : t('kgConnections', 'connections shown'))));
                 }
                 var role = roleLabel(d);
                 if (role) rows.push(el('span', 'rv-kg-tip-meta', role));
-                rows.push(el('span', 'rv-kg-tip-meta', t('kgClickToFocus', 'Click to focus')));
+                rows.push(el('span', 'rv-kg-tip-meta', t('kgClickToFocus', 'Click for details')));
                 return rows;
             }
             if (link) {
@@ -2833,7 +2833,7 @@
         function announce(node) {
             var cat = categories[node.category];
             return node.name + (cat ? ', ' + cat.name : '')
-                + ', ' + (node.deg || 0) + ' ' + t('kgConnections', 'connections in view')
+                + ', ' + (node.deg || 0) + ' ' + t('kgConnections', 'connections shown')
                 + '. ' + t('kgEnterToOpen', 'Press Enter to select.');
         }
 
@@ -2850,7 +2850,7 @@
             csvRows: function () {
                 var rows = [[
                     t('source', 'Source'), t('target', 'Target'),
-                    t('value', 'Value'), t('community', 'Community')
+                    t('value', 'Value'), t('community', 'Group')
                 ].concat(hasRel ? [t('relationship', 'Relationship')] : [])];
                 data.links.forEach(function (l) {
                     var s = byName[l.source];
@@ -2930,7 +2930,7 @@
                     axisLine: { lineStyle: { color: THEME.grid } }
                 },
                 yAxis: {
-                    type: 'value', name: 'Items / project', min: 0,
+                    type: 'value', name: 'Items per project', min: 0,
                     nameTextStyle: { color: THEME.textMuted, fontSize: THEME.fontSize },
                     axisLabel: { color: THEME.textMuted, fontSize: THEME.fontSize },
                     splitLine: { lineStyle: { color: THEME.gridLight } }
@@ -3238,116 +3238,124 @@
         'projects':            c.buildBarChart
     };
 
+    // Chart titles are written in sentence case and in plain words: visitors who
+    // do not work in digital humanities read them, and each one doubles as the
+    // panel heading, the embed-gallery entry and the saved-image filename.
+    // Symbols that a screen reader announces as "times" or "rightwards arrow"
+    // (×, →) are spelled out.
     ns.CHART_LABELS = {
         'selfLocation':        'Location',
-        'stackedTimeline':     'Items by Year and Type',
-        'timeline':            'Timeline',
-        'gantt':               'Project Timelines',
-        'beeswarm':            'Projects by Year',
-        'types':               'Resource Types',
-        'heatmap':             'Resource Type \u00d7 Language',
+        'stackedTimeline':     'Items by year and type',
+        'timeline':            'Items by year',
+        'gantt':               'Project timelines',
+        'beeswarm':            'Projects by start year',
+        'types':               'Resource types',
+        'heatmap':             'Resource type by language',
         'languages':           'Languages',
-        'subjects':            'Subjects & Tags',
-        'subjectTrends':       'Subject Trends over Time',
-        'languageTimeline':    'Languages over Time',
-        'treemap':             'Project \u00d7 Type Breakdown',
-        'chord':               'Subject Co-occurrence',
-        'collabNetwork':       'Collaboration Network',
-        'contributorNetwork':  'Contributor Network',
-        'affiliationNetwork':  'Affiliation Network',
-        'affiliationMap':      'Affiliation Locations',
-        'roles':               'Contributor Roles',
+        'subjects':            'Subjects and tags',
+        'subjectTrends':       'Subjects over time',
+        'languageTimeline':    'Languages over time',
+        'treemap':             'Items by project and resource type',
+        'chord':               'Subjects that appear together',
+        'collabNetwork':       'Collaboration network',
+        'contributorNetwork':  'Contributor network',
+        'affiliationNetwork':  'Affiliation network',
+        'affiliationMap':      'Where affiliated institutions are',
+        'roles':               'Contributor roles',
         'genres':              'Genres',
         'topLanguages':        'Languages',
-        'topResourceTypes':    'Resource Types',
-        'topAudiences':        'Target Audiences',
-        'topPersons':          'Top Persons',
-        'topInstitutions':     'Top Institutions',
-        'topGroups':           'Top Groups',
-        'topSubjects':         'Top LCSH Subjects',
-        'topTags':             'Top Tags',
-        'topProjects':         'Top Projects',
-        'contributors':        'Top Associated Persons',
-        'sankey':              'Contributor \u2192 Project \u2192 Type',
-        'sunburst':            'Type \u2192 Language \u2192 Subject',
-        'locations':           'Geographic Origins & Current Locations',
-        'choropleth':          'Items by Country',
-        'clusterPartners':     'Africa Multiple Research Centres (AMRCs) and its partners',
-        'sectionsBar':         'Research Sections',
-        'sectionUniversity':   'Research Section × University',
+        'topResourceTypes':    'Resource types',
+        'topAudiences':        'Target audiences',
+        'topPersons':          'People with the most items',
+        'topInstitutions':     'Institutions with the most items',
+        'topGroups':           'Groups with the most items',
+        'topSubjects':         'Subject headings with the most items',
+        'topTags':             'Tags with the most items',
+        'topProjects':         'Projects with the most items',
+        'contributors':        'People linked most often',
+        'sankey':              'From contributor to project to resource type',
+        'sunburst':            'From resource type to language to subject',
+        'locations':           'Places of origin and current locations',
+        'choropleth':          'Items by country',
+        'clusterPartners':     'Africa Multiple Research Centres (AMRCs) and partners',
+        'sectionsBar':         'Research sections',
+        'sectionUniversity':   'Research section by university',
         'radar':               'Profile',
-        'templates':           'By Resource Template',
-        'topVenues':           'Top Venues',
-        'topAuthors':          'Top Authors',
+        'templates':           'Records by description template',
+        'topVenues':           'Journals and book series',
+        'topAuthors':          'Most published authors',
         'funders':             'Funders',
-        'playlists':           'Videos by Playlist',
-        'duration':            'Episode Length',
-        'series':              'Episodes by Series',
-        'transcriptWordcloud': 'Transcript Word Cloud',
-        'abstractWordcloud':   'Abstract Word Cloud',
-        'coAuthorNetwork':     'Co-author Network',
-        'speakerNetwork':      'Who Appears Together',
-        'boxplot':             'Items per Project (distribution)',
-        'timeChord':           'Subject Co-occurrence over Time',
+        'playlists':           'Videos by playlist',
+        'duration':            'Episode length',
+        'series':              'Episodes by series',
+        'transcriptWordcloud': 'Words in the transcripts',
+        'abstractWordcloud':   'Words in the abstracts',
+        'coAuthorNetwork':     'Co-author network',
+        'speakerNetwork':      'Who appears together',
+        'boxplot':             'Spread of items per project',
+        'timeChord':           'Subjects that appear together, year by year',
         'coAuthors':           'Co-authors',
-        'coSubjects':          'Co-occurring Subjects',
-        'projects':            'Items per Project'
+        'coSubjects':          'Subjects that appear alongside',
+        'projects':            'Items per project'
     };
 
+    // One plain sentence saying what the reader is looking at, and a second only
+    // where the interaction is not obvious from the chart itself. No property
+    // names and no vocabulary abbreviations: say what the data means instead.
     ns.CHART_DESCRIPTIONS = {
-        'timeline':            'Number of research items collected per year.',
-        'types':               'Distribution of items by resource type (audio, text, image, etc.).',
-        'languages':           'Languages represented across all research items.',
-        'subjects':            'Most frequent subjects and tags across all items (dcterms:subject covers both controlled LCSH subjects and free tags).',
+        'timeline':            'Research items collected each year.',
+        'types':               'The mix of resource types: audio, text, image, and so on.',
+        'languages':           'The languages recorded across the research items.',
+        'subjects':            'The subjects and tags used most often. Controlled subject headings and free-text tags are counted together.',
         'selfLocation':        '',
-        'stackedTimeline':     'Items per year, broken down by resource type.',
-        'gantt':               'Duration of each project within this research section.',
-        'beeswarm':            'Each dot is a project \u2014 position shows start year, size indicates number of research items.',
-        'heatmap':             'Cross-tabulation showing item counts for each type-language combination.',
-        'sankey':              'Flow from contributors through projects to resource types.',
-        'sunburst':            'Hierarchical view: resource type, then language, then top subjects.',
-        'treemap':             'Proportional view of items grouped by project and resource type.',
-        'subjectTrends':       'How the top research subjects evolve over time.',
-        'languageTimeline':    'How the language distribution of research items changes over years.',
-        'locations':           'Geographic origins of research items and their current locations, with flow lines showing movement.',
-        'choropleth':          'Number of items by country of origin.',
-        'clusterPartners':     'Toggle categories in the legend.',
-        'sectionsBar':         'Number of research projects in each thematic research section.',
-        'sectionUniversity':   'Research items by research section and university.',
-        'radar':               'Breadth profile across items, languages, subjects, people, types and year span, scaled to the largest of its kind.',
-        'templates':           'Distribution of items by resource template (Article, Book, Research Item, etc.).',
-        'topVenues':           'Journals and book series in which these publications most often appear.',
-        'topAuthors':          'Authors credited on the most publications (matched persons and external names).',
-        'funders':             'Funding bodies credited on these publications.',
-        'playlists':           'Number of videos in each playlist on the channel.',
-        'duration':            'Distribution of episode lengths, grouped into bands.',
-        'series':              'Number of episodes in each podcast series.',
-        'transcriptWordcloud': 'Most frequent words across the episode transcripts.',
-        'abstractWordcloud':   'Most frequent words across the publication abstracts.',
-        'coAuthorNetwork':     'Authors linked when they appear together on a publication, clustered into collaboration communities.',
-        'speakerNetwork':      'People who feature on the same episode, clustered into groups.',
-        'boxplot':             'Distribution of items-per-project across research sections (min/quartiles/median/max).',
-        'timeChord':           'Subjects that co-occur, year by year — press play or drag the slider.',
-        'chord':               'Subjects that frequently appear together across research items.',
-        'collabNetwork':       'Institutions connected through shared research items.',
-        'contributorNetwork':  'Persons linked to projects they contributed to.',
-        'affiliationNetwork':  'Persons connected to the institutions they are affiliated with.',
-        'affiliationMap':      'Affiliated institutions that have known coordinates.',
-        'roles':               'Distribution of contributor roles (author, collector, photographer, etc.).',
-        'genres':              'Most frequent genre classifications across research items.',
-        'topLanguages':        'Languages ranked by number of associated research items.',
-        'topResourceTypes':    'Resource types ranked by number of associated items.',
-        'topAudiences':        'Target audiences ranked by number of associated items.',
-        'topPersons':          'Persons ranked by number of associated research items.',
-        'topInstitutions':     'Institutions ranked by number of associated research items.',
-        'topGroups':           'Groups ranked by number of associated research items.',
-        'topSubjects':         'LCSH subjects ranked by number of associated research items.',
-        'topTags':             'Tags ranked by number of associated research items.',
-        'topProjects':         'Research projects ranked by number of associated items.',
-        'contributors':        'Persons most frequently associated with research items.',
-        'coAuthors':           'Persons who most frequently appear alongside this person.',
-        'coSubjects':          'Subjects that most frequently appear alongside this one.',
-        'projects':            'Number of research items collected per project in this section.'
+        'stackedTimeline':     'Items collected each year, split by resource type.',
+        'gantt':               'How long each project in this research section ran.',
+        'beeswarm':            'Each dot is a project. Its position marks the start year; its size shows the number of research items.',
+        'heatmap':             'Item counts for every combination of resource type and language.',
+        'sankey':              'Items traced from the people who contributed them, through projects, to resource types.',
+        'sunburst':            'Items grouped by resource type, then by language, then by their most common subjects.',
+        'treemap':             'The share of items held by each project, split by resource type.',
+        'subjectTrends':       'How the most common subjects rise and fall over the years.',
+        'languageTimeline':    'The changing mix of languages from year to year.',
+        'locations':           'Where research items come from and where they are held today, with lines linking the two.',
+        'choropleth':          'Items counted by country of origin.',
+        'clusterPartners':     'The research centres and partner institutions behind the collection. Use the legend to show or hide a category.',
+        'sectionsBar':         'Research projects counted by thematic research section.',
+        'sectionUniversity':   'Research items counted by research section and university.',
+        'radar':               'A profile across six measures: items, languages, subjects, people, resource types and year span. Each is scaled against the largest of its kind.',
+        'templates':           'Records counted by the description template they use: Article, Book, Research Item, and so on.',
+        'topVenues':           'The journals and book series these publications appear in most often.',
+        'topAuthors':          'The authors credited on the most publications, whether they have a record here or appear as a name only.',
+        'funders':             'The funding bodies credited on these publications.',
+        'playlists':           'Videos counted by the playlist they belong to.',
+        'duration':            'Episode lengths, grouped into bands.',
+        'series':              'Episodes counted by the series they belong to.',
+        'transcriptWordcloud': 'The words that come up most often across the episode transcripts.',
+        'abstractWordcloud':   'The words that come up most often across the publication abstracts.',
+        'coAuthorNetwork':     'Authors are linked when they appear on the same publication. Colour marks groups who publish together.',
+        'speakerNetwork':      'People are linked when they feature on the same episode. Colour marks groups who appear together often.',
+        'boxplot':             'How widely project sizes vary within each research section: the smallest and largest project, the middle value, and the quarter marks in between.',
+        'timeChord':           'Subjects assigned to the same item, year by year. Press play or drag the slider.',
+        'chord':               'Subjects that are often assigned to the same research item.',
+        'collabNetwork':       'Institutions are linked when they share research items.',
+        'contributorNetwork':  'People are linked to the projects they contributed to.',
+        'affiliationNetwork':  'People are linked to the institutions they are affiliated with.',
+        'affiliationMap':      'Affiliated institutions whose location is known.',
+        'roles':               'The roles people are credited in: author, collector, photographer, and so on.',
+        'genres':              'The genres assigned most often across the research items.',
+        'topLanguages':        'Languages ranked by the number of research items recorded in them.',
+        'topResourceTypes':    'Resource types ranked by the number of items they cover.',
+        'topAudiences':        'Target audiences ranked by the number of items addressed to them.',
+        'topPersons':          'People ranked by the number of research items they are linked to.',
+        'topInstitutions':     'Institutions ranked by the number of research items they are linked to.',
+        'topGroups':           'Groups ranked by the number of research items they are linked to.',
+        'topSubjects':         'Library of Congress subject headings ranked by the number of research items that carry them.',
+        'topTags':             'Tags ranked by the number of research items that carry them.',
+        'topProjects':         'Research projects ranked by the number of items they hold.',
+        'contributors':        'The people linked to research items most often.',
+        'coAuthors':           'The people who appear alongside this person most often.',
+        'coSubjects':          'The subjects that appear alongside this one most often.',
+        'projects':            'Research items counted by project within this section.'
     };
 })();
 ;

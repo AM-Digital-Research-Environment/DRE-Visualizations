@@ -71,7 +71,7 @@
 
         var placeholder = document.createElement('option');
         placeholder.value = '';
-        placeholder.textContent = 'Select a project…';
+        placeholder.textContent = 'Choose a project…';
         placeholder.disabled = true;
         if (!selectedId) placeholder.selected = true;
         select.appendChild(placeholder);
@@ -125,7 +125,7 @@
 
             var header = document.createElement('div');
             header.className = 'dashboard-header';
-            header.innerHTML = '<h2>Project Explorer</h2>';
+            header.innerHTML = '<h2>Project explorer</h2>';
             container.appendChild(header);
 
             var controls = document.createElement('div');
@@ -192,7 +192,7 @@
                     content.setAttribute('aria-busy', 'false');
                     if (!data || !data.totalItems) {
                         content.innerHTML = '<div class="rv-no-data">'
-                            + ns.escapeHtml(ns.t('noProjectData', 'No data for this project.')) + '</div>';
+                            + ns.escapeHtml(ns.t('noProjectData', 'This project has nothing to visualise yet.')) + '</div>';
                         return;
                     }
                     ns.renderInto(content, data, siteBase);
@@ -201,7 +201,7 @@
                     if (requestId !== dashboardRequestId) return;
                     content.setAttribute('aria-busy', 'false');
                     content.innerHTML = '<div class="rv-error">'
-                        + ns.escapeHtml(ns.t('projectLoadError', 'Could not load this project.')) + '</div>';
+                        + ns.escapeHtml(ns.t('projectLoadError', 'This project could not be loaded. Please try again.')) + '</div>';
                 });
             }
 
@@ -213,10 +213,10 @@
                 load(selectedId);
             } else {
                 content.innerHTML = '<div class="rv-no-data">'
-                    + 'Select a project to explore its visualisations.</div>';
+                    + 'Choose a project above to see its visualisations.</div>';
             }
         }).catch(function () {
-            container.innerHTML = '<div class="rv-error">Could not load project data.</div>';
+            container.innerHTML = '<div class="rv-error">The list of projects could not be loaded. Please try again.</div>';
         });
     }
 

@@ -135,22 +135,22 @@
         }
 
         addSlider('maxCommonality',
-            t('kgMaxCommonality', 'Max. commonality'),
-            t('kgMaxCommonalityHelp', 'Hide connections through resources shared by too many items'),
+            t('kgMaxCommonality', 'Hide the most common links'),
+            t('kgMaxCommonalityHelp', 'Leave out subjects, places and the like that almost every record shares, since they say little about this one'),
             1, Math.ceil(maxFreq), state.maxCommonality, '%');
 
         if (hasShared) {
             // Round up so the whole range stays reachable.
             addSlider('minStrength',
-                t('kgMinStrength', 'Min. connection strength'),
-                t('kgMinStrengthHelp', 'Only show shared items with strong distinctive links'),
+                t('kgMinStrength', 'Keep only the strongest links'),
+                t('kgMinStrengthHelp', 'Show only the records that have a distinctive amount in common with this one'),
                 0, Math.max(1, Math.ceil(maxStr)), 0, '');
         }
 
         if (data.nodes.length > 10) {
             addSlider('maxNodes',
-                t('kgMaxNeighbours', 'Max. neighbours'),
-                t('kgMaxNeighboursHelp', 'Limit the number of visible nodes'),
+                t('kgMaxNeighbours', 'Number of connections shown'),
+                t('kgMaxNeighboursHelp', 'Limit how much the graph draws at once'),
                 5, data.nodes.length, data.nodes.length, '');
         }
 
@@ -230,7 +230,7 @@
         var details = document.createElement('details');
         details.className = 'rv-kg-list';
         var summary = document.createElement('summary');
-        summary.textContent = t('kgListToggle', 'Relationships as a list');
+        summary.textContent = t('kgListToggle', 'See these connections as a list');
         details.appendChild(summary);
 
         function rebuild() {
@@ -325,18 +325,17 @@
                 if (text) meta.appendChild(el('li', null, text));
             }
             addMeta(node.deg
-                ? node.deg + ' ' + (node.deg === 1 ? t('kgConnection', 'connection in view')
-                    : t('kgConnections', 'connections in view'))
+                ? node.deg + ' ' + (node.deg === 1 ? t('kgConnection', 'connection shown')
+                    : t('kgConnections', 'connections shown'))
                 : null);
             if (d.freqPct !== undefined && d.freqPct !== null) {
-                addMeta(t('kgSharedBy', 'Shared by') + ' ' + d.freqPct + '% ' + t('kgOfItems', 'of items'));
+                addMeta(t('kgSharedBy', 'Also on') + ' ' + d.freqPct + '% ' + t('kgOfItems', 'of all records'));
             }
             if (d.strength !== undefined) {
                 addMeta(d.sharedCount + ' '
-                    + (d.sharedCount > 1 ? t('kgSharedLinks', 'shared links') : t('kgSharedLink', 'shared link'))
-                    + ' (' + t('kgStrength', 'strength') + ' ' + d.strength + ')');
+                    + (d.sharedCount > 1 ? t('kgSharedLinks', 'things in common') : t('kgSharedLink', 'thing in common')));
             }
-            if (node.pinned) addMeta(t('kgPinnedHint', 'Pinned — Alt-click to release'));
+            if (node.pinned) addMeta(t('kgPinnedHint', 'Held in place. Alt-click to let it go'));
 
             // Name the relationships this entity actually participates in, so the
             // reader gets the *kind* of connection without chasing each edge label.
@@ -347,7 +346,7 @@
                 if (name && !seen[name]) { seen[name] = true; names.push(name); }
             });
             rels.textContent = names.length
-                ? t('kgVia', 'Connected via') + ': ' + names.slice(0, 6).join(', ')
+                ? t('kgVia', 'Connected through') + ': ' + names.slice(0, 6).join(', ')
                     + (names.length > 6 ? '…' : '')
                 : '';
 
@@ -387,32 +386,31 @@
                 }
                 if (node.deg) {
                     rows.push(el('span', 'rv-kg-tip-meta', node.deg + ' ' + (node.deg === 1
-                        ? t('kgConnection', 'connection in view')
-                        : t('kgConnections', 'connections in view'))));
+                        ? t('kgConnection', 'connection shown')
+                        : t('kgConnections', 'connections shown'))));
                 }
                 if (d.freqPct !== undefined && d.freqPct !== null) {
                     rows.push(el('span', 'rv-kg-tip-meta',
-                        t('kgSharedBy', 'Shared by') + ' ' + d.freqPct + '% ' + t('kgOfItems', 'of items')));
+                        t('kgSharedBy', 'Also on') + ' ' + d.freqPct + '% ' + t('kgOfItems', 'of all records')));
                 }
                 if (d.strength !== undefined) {
                     rows.push(el('span', 'rv-kg-tip-meta', d.sharedCount + ' '
-                        + (d.sharedCount > 1 ? t('kgSharedLinks', 'shared links') : t('kgSharedLink', 'shared link'))
-                        + ' (' + t('kgStrength', 'strength') + ' ' + d.strength + ')'));
+                        + (d.sharedCount > 1 ? t('kgSharedLinks', 'things in common') : t('kgSharedLink', 'thing in common'))));
                 }
                 if (node.pinned) {
-                    rows.push(el('span', 'rv-kg-tip-meta', t('kgPinnedHint', 'Pinned — Alt-click to release')));
+                    rows.push(el('span', 'rv-kg-tip-meta', t('kgPinnedHint', 'Held in place. Alt-click to let it go')));
                 }
                 // A click no longer navigates, so say what it actually does. The
                 // link to the record lives in the detail card the click opens.
-                rows.push(el('span', 'rv-kg-tip-meta', t('kgClickToFocus', 'Click to focus')));
+                rows.push(el('span', 'rv-kg-tip-meta', t('kgClickToFocus', 'Click for details')));
                 return rows;
             }
             if (link) {
                 var e = link.data || {};
                 rows.push(el('strong', null, link.name || ''));
                 if (link.weak && e.freqPct !== undefined) {
-                    rows.push(el('span', 'rv-kg-tip-meta', t('kgResourceSharedBy', 'Resource shared by')
-                        + ' ' + e.freqPct + '% ' + t('kgOfItems', 'of items')));
+                    rows.push(el('span', 'rv-kg-tip-meta', t('kgResourceSharedBy', 'Also on')
+                        + ' ' + e.freqPct + '% ' + t('kgOfItems', 'of all records')));
                 }
                 return rows;
             }
@@ -425,7 +423,7 @@
         return function (node) {
             var cat = categories[node.category];
             return node.name + (cat ? ', ' + cat.name : '')
-                + ', ' + (node.deg || 0) + ' ' + t('kgConnections', 'connections in view')
+                + ', ' + (node.deg || 0) + ' ' + t('kgConnections', 'connections shown')
                 + '. ' + t('kgEnterToOpen', 'Press Enter to open.');
         };
     }
@@ -462,7 +460,7 @@
 
         /* -- labels -- */
         var labelBtn = ns.iconButton(ICON.label, t('kgLabelsLabel', 'Show every label'),
-            t('kgLabelsTitle', 'Show every label — otherwise labels are placed where they fit'));
+            t('kgLabelsTitle', 'Name everything on the graph. Otherwise names appear only where they fit'));
         labelBtn.setAttribute('aria-pressed', 'false');
         labelBtn.addEventListener('click', function () {
             var on = graph.toggleLabels();
@@ -473,7 +471,7 @@
 
         /* -- edge labels -- */
         var edgeBtn = ns.iconButton(ICON.edgeLabel, t('kgEdgeLabelsLabel', 'Name every connection'),
-            t('kgEdgeLabelsTitle', 'Name every connection — otherwise only the selected entity’s are named'));
+            t('kgEdgeLabelsTitle', 'Name every connection. Otherwise only the connections of the entity you select are named'));
         edgeBtn.setAttribute('aria-pressed', 'false');
         edgeBtn.addEventListener('click', function () {
             var on = graph.toggleEdgeLabels();
@@ -484,8 +482,8 @@
 
         /* -- community halos -- */
         if ((data.stats || {}).communityCount > 0) {
-            var haloBtn = ns.iconButton(ICON.halo, t('kgHalosLabel', 'Toggle community colours'),
-                t('kgHalosTitle', 'Community colours — rings group entities that co-occur'));
+            var haloBtn = ns.iconButton(ICON.halo, t('kgHalosLabel', 'Show groups in colour'),
+                t('kgHalosTitle', 'Colour the rings to group entities that keep appearing together'));
             haloBtn.classList.add('rv-btn-active');
             haloBtn.setAttribute('aria-pressed', 'true');
             haloBtn.addEventListener('click', function () {
@@ -499,7 +497,7 @@
         /* -- freeze / resume the layout -- */
         if (!graph.reducedMotion) {
             var freezeBtn = ns.iconButton(ICON.freeze, t('kgFreezeLabel', 'Freeze the layout'),
-                t('kgFreezeTitle', 'Freeze the layout — stops the nodes settling'));
+                t('kgFreezeTitle', 'Stop the graph moving and leave everything where it is'));
             freezeBtn.setAttribute('aria-pressed', 'false');
             freezeBtn.addEventListener('click', function () {
                 var frozen = graph.toggleFrozen();
@@ -514,8 +512,8 @@
         }
 
         /* -- release the dragged nodes (appears once something is pinned) -- */
-        var unpinBtn = ns.iconButton(ICON.unpin, t('kgUnpinLabel', 'Release all pinned nodes'),
-            t('kgUnpinTitle', 'Release every node you dragged'));
+        var unpinBtn = ns.iconButton(ICON.unpin, t('kgUnpinLabel', 'Let go of everything'),
+            t('kgUnpinTitle', 'Let go of everything you have dragged into place'));
         unpinBtn.hidden = true;
         unpinBtn.addEventListener('click', function () { graph.unpinAll(); });
         add(unpinBtn);
@@ -527,7 +525,7 @@
         add(resetBtn);
 
         /* -- save as PNG -- */
-        var saveBtn = ns.iconButton(ICON.save, t('saveImage', 'Save as image'), t('saveImage', 'Save as image'));
+        var saveBtn = ns.iconButton(ICON.save, t('saveImage', 'Save this graph as an image'), t('saveImage', 'Save this graph as an image'));
         saveBtn.addEventListener('click', function () {
             var a = document.createElement('a');
             a.href = graph.toDataURL();
@@ -556,9 +554,9 @@
     /** The gesture hint that sits under the graph. */
     function buildHint() {
         return el('p', 'rv-kg-hint', t('kgHint',
-            'Click an entity to focus it and name its connections; the panel that opens links to '
-            + 'its record. Drag to rearrange — a dragged node stays where you put it (Alt-click to '
-            + 'release). Double-click the background or Ctrl + scroll to zoom.'));
+            'Click an entity to see what it is connected to; the panel that opens links to its '
+            + 'record. Drag an entity to move it, and it stays where you put it (Alt-click to let '
+            + 'it go). Double-click the background, or hold Ctrl and scroll, to zoom.'));
     }
 
     ns.kgUI = {

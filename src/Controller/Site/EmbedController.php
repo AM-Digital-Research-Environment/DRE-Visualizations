@@ -38,7 +38,7 @@ class EmbedController extends AbstractActionController
      * as the directory-traversal guard for the rendered partial, since only the
      * `template` value here — never user input — is fed to partial().
      *
-     *   label    Human label for the gallery card and <title>.
+     *   label    Reader-facing label for the gallery card and <title>.
      *   template The `common/block-layout/<template>` partial rendered verbatim
      *            for a whole-block embed (identical to the on-page block).
      *   kind     'dashboard' — built by dashboard.js from a layout of chart keys,
@@ -57,14 +57,14 @@ class EmbedController extends AbstractActionController
      */
     const BLOCKS = [
         'collection-overview' => [
-            'label' => 'Collection Overview', // @translate
+            'label' => 'Collection overview', // @translate
             'template' => 'collection-overview',
             'kind' => 'dashboard',
             'itemId' => 'collection-overview',
             'layout' => 'collectionOverview',
         ],
         'collection-dashboard' => [
-            'label' => 'Collection Dashboard', // @translate
+            'label' => 'Collection dashboard', // @translate
             'template' => 'collection-dashboard',
             'kind' => 'dashboard',
             'itemId' => 'collection-overview',
@@ -92,42 +92,42 @@ class EmbedController extends AbstractActionController
             'layout' => 'podcasts',
         ],
         'discursive-communities' => [
-            'label' => 'Discursive Communities', // @translate
+            'label' => 'Discursive communities (entity network)', // @translate
             'template' => 'discursive-communities',
             'kind' => 'widget',
         ],
         'spatial-exploration' => [
-            'label' => 'Spatial Exploration', // @translate
+            'label' => 'Spatial exploration (map of places)', // @translate
             'template' => 'spatial-exploration',
             'kind' => 'widget',
         ],
         'semantic-map' => [
-            'label' => 'Semantic Map', // @translate
+            'label' => 'Records by similarity', // @translate
             'template' => 'semantic-map',
             'kind' => 'widget',
         ],
         'network-explorer' => [
-            'label' => 'Network Explorer', // @translate
+            'label' => 'Network explorer', // @translate
             'template' => 'network-explorer',
             'kind' => 'widget',
         ],
         'compare-entity' => [
-            'label' => 'Compare (any entity)', // @translate
+            'label' => 'Compare two of anything', // @translate
             'template' => 'compare-entity',
             'kind' => 'widget',
         ],
         'compare-genres' => [
-            'label' => 'Compare Genres', // @translate
+            'label' => 'Compare two genres', // @translate
             'template' => 'compare-genres',
             'kind' => 'widget',
         ],
         'project-explorer' => [
-            'label' => 'Project Explorer', // @translate
+            'label' => 'Project explorer', // @translate
             'template' => 'project-explorer',
             'kind' => 'widget',
         ],
         'whats-new' => [
-            'label' => "What's New", // @translate
+            'label' => "What's new", // @translate
             'template' => 'whats-new',
             'kind' => 'widget',
         ],
@@ -189,9 +189,13 @@ class EmbedController extends AbstractActionController
             $primary = '';
         }
 
+        // The single-chart title is read in a browser tab and announced as the
+        // iframe's accessible name, so spell the camelCase chart key out as words
+        // ("stackedTimeline" → "Stacked timeline") rather than leaking the identifier.
         $title = $info['label'];
         if ($viz !== '') {
-            $title .= ' — ' . $viz;
+            $words = strtolower(trim(preg_replace('/(?<!^)[A-Z]/', ' $0', $viz)));
+            $title .= ' — ' . ucfirst($words);
         }
 
         $this->layout()->setTemplate('dre-visualizations/layout/embed');

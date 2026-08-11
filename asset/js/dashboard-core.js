@@ -1161,8 +1161,8 @@
         document.querySelectorAll('[data-action="decal"]').forEach(function (btn) {
             btn.classList.toggle('rv-toolbar-btn-active', ns._decalEnabled);
             btn.title = ns._decalEnabled
-                ? ns.t('hidePatterns', 'Hide patterns')
-                : ns.t('showPatterns', 'Show patterns');
+                ? ns.t('hidePatterns', 'Hide the fill patterns')
+                : ns.t('showPatterns', 'Tell the colours apart with fill patterns');
         });
     };
 
@@ -1220,10 +1220,10 @@
         if (!chart || !chart.getDataURL) return;
         var showDecal = !chart._noDecal;
         var decalTitle = ns._decalEnabled
-            ? ns.t('hidePatterns', 'Hide patterns')
-            : ns.t('showPatterns', 'Show patterns');
-        var saveTitle = ns.t('saveImage', 'Save as image');
-        var csvTitle = ns.t('downloadCsv', 'Download chart data as CSV');
+            ? ns.t('hidePatterns', 'Hide the fill patterns')
+            : ns.t('showPatterns', 'Tell the colours apart with fill patterns');
+        var saveTitle = ns.t('saveImage', 'Save this chart as an image');
+        var csvTitle = ns.t('downloadCsv', 'Download this chart’s data as a spreadsheet (CSV)');
         var hasCsv = ns.chartCsvRows(chart).length > 1;
         var bar = document.createElement('span');
         bar.className = 'rv-chart-toolbar';
@@ -1344,7 +1344,7 @@
         if (labelTxt) btn.dataset.embedLabel = labelTxt;
         var baseHtml = EMBED_ICON + (labelTxt ? '<span>' + ns.escapeHtml(labelTxt) + '</span>' : '');
         btn.innerHTML = baseHtml;
-        var copyTitle = ns.t('copyEmbed', 'Copy embed code');
+        var copyTitle = ns.t('copyEmbed', 'Copy the code to put this on another website');
         btn.title = copyTitle;
         btn.setAttribute('aria-label', copyTitle);
         btn.addEventListener('click', function (e) {
@@ -1414,7 +1414,7 @@
                     src: ns.embedUrl(host.getAttribute('data-site-base') || '', host.getAttribute('data-embed-slug')),
                     title: document.title || host.getAttribute('data-embed-slug'),
                     height: 600,
-                    label: 'Embed'
+                    label: 'Embed this'
                 }));
                 wrap.insertBefore(bar, wrap.firstChild);
             })(hosts[i]);

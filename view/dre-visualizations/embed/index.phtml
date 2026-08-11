@@ -175,9 +175,9 @@ $basePath = $this->basePath();
 </style>
 
 <div class="dre-embed-wrap">
-    <h1><?= $escapeHtml($this->translate('Embed DRE visualizations')) ?></h1>
+    <h1><?= $escapeHtml($this->translate('Embed a visualisation')) ?></h1>
     <p class="lede"><?= $escapeHtml($this->translate(
-        'Copy a snippet below to embed any visualization on another website. Each iframe loads live from this site, follows the theme, and resizes itself to fit. Dashboard blocks also let you embed a single chart.'
+        'Any visualisation on this site can be placed on another website. Copy the snippet under the one you want and paste it into your page. It loads live from here, so it stays up to date, matches the look of this site, and adjusts its height to fit. Where a page holds several charts, you can also embed a single one.'
     )) ?></p>
 
     <?php foreach ($blocks as $slug => $info): ?>
@@ -212,7 +212,7 @@ $basePath = $this->basePath();
     <?php endforeach; ?>
 
     <p class="dre-embed-note"><?= $this->translate(
-        'Tip: embeds render light by default — append <code>?theme=dark</code> for dark mode, or <code>?primary=2b6cb0</code> to override the brand colour.'
+        'Embeds use the light theme by default. Add <code>?theme=dark</code> to the address for the dark theme, or <code>?primary=2b6cb0</code> to set your own accent colour.'
     ) ?></p>
 </div>
 
@@ -222,9 +222,9 @@ $basePath = $this->basePath();
     var basePath = <?= json_encode($basePath, JSON_UNESCAPED_SLASHES) ?>;
     var embedBase = <?= json_encode($embedBase, JSON_UNESCAPED_SLASHES) ?>;
     var copyLabel = <?= json_encode($this->translate('Copy')) ?>;
-    var doneLabel = <?= json_encode($this->translate('Copied!')) ?>;
+    var doneLabel = <?= json_encode($this->translate('Copied')) ?>;
     var previewLabel = <?= json_encode($this->translate('Preview')) ?>;
-    var chartsHeading = <?= json_encode($this->translate('Individual charts')) ?>;
+    var chartsHeading = <?= json_encode($this->translate('Or embed a single chart')) ?>;
     function hasData(d) {
         return Array.isArray(d) ? d.length > 0 : (!!d && typeof d === 'object' && Object.keys(d).length > 0);
     }

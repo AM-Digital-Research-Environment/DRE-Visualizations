@@ -13,9 +13,9 @@
     var TABS = [
         {
             id: 'contributors',
-            label: 'Contributors ↔ Projects',
+            label: 'People and projects',
             title: 'Who contributes to which project',
-            description: 'People linked to the research projects they contributed items to.',
+            description: 'People are linked to the research projects they contributed items to.',
             builder: function () { return ns.charts && ns.charts.buildContributorNetwork; },
             stats: function (g) {
                 return [
@@ -28,22 +28,22 @@
         {
             id: 'collaboration',
             label: 'Co-authorship',
-            title: 'Who co-authors with whom',
-            description: 'People linked when they appear together on the same research item.',
+            title: 'Who works with whom',
+            description: 'People are linked when they appear on the same research item. Colour marks groups who work together often.',
             builder: function () { return ns.charts && ns.charts.buildCommunities; },
             stats: function (g) {
                 return [
                     { key: 'people', label: 'People', value: nodeCount(g) },
-                    { key: 'contributors', label: 'Collaboration edges', value: linkCount(g) },
-                    { key: 'subjectsTags', label: 'Communities', value: (g.communities || []).length }
+                    { key: 'contributors', label: 'Links between them', value: linkCount(g) },
+                    { key: 'subjectsTags', label: 'Groups', value: (g.communities || []).length }
                 ];
             }
         },
         {
             id: 'affiliations',
-            label: 'People ↔ Institutions',
+            label: 'People and institutions',
             title: 'Which institutions each person belongs to',
-            description: 'People linked to the institutions recorded as their affiliations.',
+            description: 'People are linked to the institutions recorded as their affiliations.',
             builder: function () { return ns.charts && ns.charts.buildAffiliationNetwork; },
             stats: function (g) {
                 return [
@@ -55,15 +55,15 @@
         },
         {
             id: 'institutions',
-            label: 'Institution collaborations',
-            title: 'Institution collaboration network',
-            description: 'Institutions linked when they co-occur through shared items, contributors, or projects.',
+            label: 'Institutions',
+            title: 'Which institutions work together',
+            description: 'Institutions are linked when they share research items, contributors or projects.',
             builder: function () { return ns.charts && ns.charts.buildCollabNetwork; },
             stats: function (g) {
                 return [
                     { key: 'institutions', label: 'Institutions', value: nodeCount(g) },
-                    { key: 'projects', label: 'Collaboration links', value: linkCount(g) },
-                    { key: 'items', label: 'Shared weight', value: sumLinks(g) }
+                    { key: 'projects', label: 'Links between them', value: linkCount(g) },
+                    { key: 'items', label: 'Things they share', value: sumLinks(g) }
                 ];
             }
         }
@@ -113,7 +113,7 @@
         var wrap = document.createElement('div');
         wrap.className = 'compare-type-switcher network-type-switcher';
         wrap.setAttribute('role', 'tablist');
-        wrap.setAttribute('aria-label', 'Network view');
+        wrap.setAttribute('aria-label', 'Choose a network');
 
         TABS.forEach(function (tab) {
             var btn = document.createElement('button');
@@ -145,7 +145,7 @@
 
         var header = document.createElement('div');
         header.className = 'dashboard-header';
-        header.innerHTML = '<h2>Network Explorer</h2>'
+        header.innerHTML = '<h2>Network explorer</h2>'
             + '<span class="dashboard-total">' + esc(tab.label) + '</span>';
         container.appendChild(header);
 
@@ -156,7 +156,7 @@
         if (!graph || !graph.nodes || !graph.links || !graph.links.length) {
             var empty = document.createElement('div');
             empty.className = 'rv-no-data';
-            empty.textContent = 'No network data available for this view.';
+            empty.textContent = 'There is nothing to show in this network yet.';
             container.appendChild(empty);
             return;
         }
@@ -182,7 +182,7 @@
             var builder = tab.builder();
             if (!el) return;
             if (!builder) {
-                el.innerHTML = '<div class="rv-error">Network chart builder is unavailable.</div>';
+                el.innerHTML = '<div class="rv-error">This network could not be drawn. Please try again.</div>';
                 return;
             }
             var chart = builder(el, graph, siteBase);
@@ -199,13 +199,13 @@
         ns.basePath = basePath;
         ns.fetchDataJson('network-explorer.json').then(function (payload) {
             if (!payload || typeof payload !== 'object') {
-                container.innerHTML = '<div class="rv-no-data">No network explorer data available yet.</div>';
+                container.innerHTML = '<div class="rv-no-data">There are no networks to show yet.</div>';
                 return;
             }
             render(container, payload, firstAvailable(payload), siteBase);
         }).catch(function (err) {
             console.error('DreVisualizations network-explorer:', err);
-            container.innerHTML = '<div class="rv-error">Could not load the network explorer.</div>';
+            container.innerHTML = '<div class="rv-error">The network explorer could not be loaded. Please try again.</div>';
         });
     }
 

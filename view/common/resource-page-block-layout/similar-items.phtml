@@ -18,8 +18,8 @@ $siteSlug = $this->currentSite()->slug();
 
 <section class="resource-vis-block semantic-similar-block" hidden
          aria-labelledby="semantic-similar-title-<?= $resource->id() ?>">
-    <h2 id="semantic-similar-title-<?= $resource->id() ?>"><?= $this->translate('Related by meaning') ?></h2>
-    <p class="semantic-similar-intro"><?= $this->translate('Explore records with similar subjects and descriptions, even when their language or resource type differs.') ?></p>
+    <h2 id="semantic-similar-title-<?= $resource->id() ?>"><?= $this->translate('Records on similar topics') ?></h2>
+    <p class="semantic-similar-intro"><?= $this->translate('These records share subjects and descriptions with this one, even where the language or the resource type is different. The percentage shows how close the match is.') ?></p>
     <div class="semantic-similar-container"
          data-item-id="<?= $resource->id() ?>"
          data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"

@@ -884,16 +884,16 @@ final class Runner
         // Assemble via the reusable component — it casts values, drops empty
         // cards (Research Items aside, always > 0) and clears null subtitles.
         return Aggregators::buildStatCards([
-            ['key' => 'researchItems', 'label' => 'Research Items', 'value' => $researchItemCount],
+            ['key' => 'researchItems', 'label' => 'Research items', 'value' => $researchItemCount],
             ['key' => 'projects', 'label' => 'Research projects', 'value' => $setCount($this->profile->itemSet('project'))],
             ['key' => 'people', 'label' => 'People', 'value' => $setCount($this->profile->itemSet('person'))],
             ['key' => 'organisations', 'label' => 'Organisations', 'value' => $setCount($this->profile->itemSet('institution'))],
             ['key' => 'locations', 'label' => 'Locations', 'value' => $this->statCounts['locations'] ?? 0,
                 'subtitle' => $countries > 0 ? ('in ' . $countries . ' ' . ($countries === 1 ? 'country' : 'countries')) : null],
             ['key' => 'languages', 'label' => 'Languages', 'value' => $setCount($this->profile->itemSet('language'))],
-            ['key' => 'subjectsTags', 'label' => 'Subjects & Tags', 'value' => $setCount($this->profile->itemSet('subject'))],
+            ['key' => 'subjectsTags', 'label' => 'Subjects and tags', 'value' => $setCount($this->profile->itemSet('subject'))],
             ['key' => 'publications', 'label' => 'Publications', 'value' => $setCount($this->profile->itemSet('publications'))],
-            ['key' => 'podcasts', 'label' => 'Podcasts', 'value' => $setCount($this->profile->itemSet('podcasts'))],
+            ['key' => 'podcasts', 'label' => 'Podcast episodes', 'value' => $setCount($this->profile->itemSet('podcasts'))],
             ['key' => 'youtube', 'label' => 'YouTube videos', 'value' => $setCount($this->profile->itemSet('youtube'))],
         ]);
     }
@@ -1232,15 +1232,15 @@ final class Runner
             ['key' => 'peerReviewed', 'label' => 'Peer-reviewed', 'value' => $peerReviewed,
                 'subtitle' => 'of ' . count($pubs) . ' publications'],
             ['key' => 'fullText', 'label' => 'Full texts', 'value' => $fullTexts,
-                'subtitle' => 'open-access PDFs attached'],
-            ['key' => 'types', 'label' => 'Types', 'value' => count($dashboard['types'] ?? [])],
+                'subtitle' => 'open-access PDFs you can read here'],
+            ['key' => 'types', 'label' => 'Publication types', 'value' => count($dashboard['types'] ?? [])],
             ['key' => 'languages', 'label' => 'Languages', 'value' => count($dashboard['languages'] ?? [])],
-            ['key' => 'people', 'label' => 'Authors & Editors', 'value' => count($peopleIds)],
+            ['key' => 'people', 'label' => 'Authors and editors', 'value' => count($peopleIds)],
             ['key' => 'venues', 'label' => 'Venues', 'value' => $venueCount,
-                'subtitle' => 'journals & book series'],
+                'subtitle' => 'journals and book series'],
             ['key' => 'publishers', 'label' => 'Publishers', 'value' => $publisherCount],
-            ['key' => 'places', 'label' => 'Places of Publication', 'value' => count($dashboard['locations'] ?? []),
-                'subtitle' => 'on the map'],
+            ['key' => 'places', 'label' => 'Places of publication', 'value' => count($dashboard['locations'] ?? []),
+                'subtitle' => 'shown on the map'],
         ]);
 
         // Publications-specific chart wording, plus the Languages pie. The shared
@@ -1249,29 +1249,29 @@ final class Runner
         // and swap Languages to a pie. Read by renderDashboard() in dashboard.js.
         $dashboard['builders'] = ['languages' => 'buildPieChart'];
         $dashboard['labels'] = [
-            'types' => 'Publication Types',
-            'stackedTimeline' => 'Publications by Year and Type',
-            'locations' => 'Places of Publication',
+            'types' => 'Publication types',
+            'stackedTimeline' => 'Publications by year and type',
+            'locations' => 'Places of publication',
             'funders' => 'Funders',
-            'coAuthorNetwork' => 'Collaboration Network',
-            'chord' => 'Keyword Co-occurrence',
+            'coAuthorNetwork' => 'Collaboration network',
+            'chord' => 'Keywords that appear together',
             'subjects' => 'Keywords',
-            'subjectTrends' => 'Keyword Trends over Time',
-            'abstractWordcloud' => 'Abstract Word Cloud',
+            'subjectTrends' => 'Keywords over time',
+            'abstractWordcloud' => 'Words in the abstracts',
         ];
         $dashboard['descriptions'] = [
-            'types' => 'Breakdown of publications by type (article, book, chapter, thesis, …).',
-            'languages' => 'Languages the publications are written in.',
-            'stackedTimeline' => 'Publications per year, broken down by type.',
-            'locations' => 'Cities where these publications appeared, sized by the number of publications issued there. Click a bubble to list them.',
-            'funders' => 'Funding bodies credited on these publications. Click a bar to open the funder\'s page.',
-            'topVenues' => 'Journals and book series in which these publications most often appear.',
-            'topAuthors' => 'Authors credited on the most publications.',
-            'coAuthorNetwork' => 'Authors and editors linked when they appear together on a publication. Edge colour marks the relationship: co-authorship, author–editor, or co-editorship.',
-            'chord' => 'Keywords that frequently appear together across these publications.',
-            'subjects' => 'Most frequent keywords assigned to these publications.',
-            'subjectTrends' => 'How the most frequent keywords evolve over time.',
-            'abstractWordcloud' => 'Most frequent words across the publication abstracts (lemmatised; common stop-words removed).',
+            'types' => 'The mix of publication types: article, book, chapter, thesis, and so on.',
+            'languages' => 'The languages the publications are written in.',
+            'stackedTimeline' => 'Publications issued each year, split by type.',
+            'locations' => 'The cities these publications appeared in. Each bubble is sized by the number of publications issued there; click one to list them.',
+            'funders' => 'The funding bodies credited on these publications. Click a bar to open a funder\'s page.',
+            'topVenues' => 'The journals and book series these publications appear in most often.',
+            'topAuthors' => 'The authors credited on the most publications.',
+            'coAuthorNetwork' => 'Authors and editors are linked when they appear on the same publication. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.',
+            'chord' => 'Keywords that are often assigned to the same publication.',
+            'subjects' => 'The keywords assigned to these publications most often.',
+            'subjectTrends' => 'How the most frequent keywords rise and fall over the years.',
+            'abstractWordcloud' => 'The words that come up most often across the publication abstracts. Words are reduced to their base form, and everyday words such as "the" and "of" are left out.',
         ];
 
         $dashboard['resourceType'] = 'publications';
@@ -1338,16 +1338,16 @@ final class Runner
         // research items; these retitle them for the channel. Read by
         // renderDashboard() in dashboard.js.
         $dashboard['labels'] = [
-            'timeline' => 'Videos by Year',
+            'timeline' => 'Videos by year',
             'contributors' => 'Speakers',
         ];
         $dashboard['descriptions'] = [
-            'timeline' => 'Number of videos uploaded per year.',
-            'languages' => 'Languages spoken across the channel\'s videos.',
-            'languageTimeline' => 'How the language mix of the uploads shifts over time.',
-            'contributors' => 'People credited as speakers in the videos.',
-            'transcriptWordcloud' => 'Most frequent words across the videos\' transcripts (captions; common stop-words and filler removed).',
-            'speakerNetwork' => 'People who appear in the same video, clustered into groups. Grows as speaker credits are curated.',
+            'timeline' => 'Videos uploaded each year.',
+            'languages' => 'The languages spoken across the channel\'s videos.',
+            'languageTimeline' => 'How the mix of languages in the uploads shifts over time.',
+            'contributors' => 'The people credited as speakers in the videos.',
+            'transcriptWordcloud' => 'The words that come up most often in the video captions. Everyday words and filler such as "um" are left out.',
+            'speakerNetwork' => 'People are linked when they appear in the same video, and colour marks groups who appear together often. The picture fills out as more speaker credits are added.',
         ];
 
         $dashboard['resourceType'] = 'youtube';
@@ -1439,7 +1439,7 @@ final class Runner
             $cards[] = [
                 'key' => 'duration', 'label' => 'Hours of audio',
                 'value' => (int) round($totalSeconds / 3600),
-                'subtitle' => 'avg ' . (int) round($totalSeconds / count($durations) / 60) . ' min',
+                'subtitle' => (int) round($totalSeconds / count($durations) / 60) . ' minutes per episode on average',
             ];
         }
         $cards[] = [
@@ -1452,30 +1452,30 @@ final class Runner
         // Podcast-specific chart wording (the shared registry titles charts for
         // research items). Read by renderDashboard() in dashboard.js.
         $dashboard['labels'] = [
-            'transcriptWordcloud' => 'Transcript Word Cloud',
-            'contributors' => 'Speakers & Hosts',
-            'duration' => 'Episode Length',
-            'timeline' => 'Episodes by Year',
-            'series' => 'Episodes by Series',
-            'speakerNetwork' => 'Who Appears Together',
+            'transcriptWordcloud' => 'Words in the transcripts',
+            'contributors' => 'Speakers and hosts',
+            'duration' => 'Episode length',
+            'timeline' => 'Episodes by year',
+            'series' => 'Episodes by series',
+            'speakerNetwork' => 'Who appears together',
             'subjects' => 'Subjects',
-            'chord' => 'Subject Connections',
-            'subjectTrends' => 'Subjects over Time',
-            'locations' => 'Places Mentioned',
-            'choropleth' => 'Episodes by Country',
+            'chord' => 'Subjects that appear together',
+            'subjectTrends' => 'Subjects over time',
+            'locations' => 'Places the episodes are about',
+            'choropleth' => 'Episodes by country',
         ];
         $dashboard['descriptions'] = [
-            'transcriptWordcloud' => 'Most frequent words across the episodes\' AI-generated transcripts (audio cues, speaker labels, and common English/French stop-words and filler removed).',
-            'contributors' => 'People credited as speakers, hosts or moderators across the episodes.',
+            'transcriptWordcloud' => 'The words that come up most often across the episode transcripts, which are generated automatically from the audio. Audio cues, speaker names and everyday English and French words are left out.',
+            'contributors' => 'The people credited as speakers, hosts or moderators across the episodes.',
             'duration' => 'How long the episodes run, grouped into length bands.',
-            'timeline' => 'Number of podcast episodes published per year.',
-            'series' => 'Episodes grouped by the podcast series they belong to.',
-            'speakerNetwork' => 'People who feature on the same episode are linked here, clustered into groups — a recurring host or guest becomes a hub.',
-            'subjects' => 'The curated subjects assigned to the podcast episodes.',
-            'chord' => 'Subjects assigned to the same episode are connected here.',
-            'subjectTrends' => 'How the most frequent curated subjects change across publication years.',
-            'locations' => 'The curated places associated with the podcast episodes.',
-            'choropleth' => 'Countries represented by the episodes\' curated place metadata.',
+            'timeline' => 'Podcast episodes published each year.',
+            'series' => 'Episodes counted by the series they belong to.',
+            'speakerNetwork' => 'People are linked when they feature on the same episode, and colour marks groups who appear together often. A recurring host or guest sits at the centre of many links.',
+            'subjects' => 'The subjects assigned to the podcast episodes by the editors.',
+            'chord' => 'Subjects that are often assigned to the same episode.',
+            'subjectTrends' => 'How the most frequent subjects change from one year of episodes to the next.',
+            'locations' => 'The places the episodes are associated with.',
+            'choropleth' => 'Episodes counted by the country of the places they are associated with.',
         ];
 
         $dashboard['resourceType'] = 'podcasts';

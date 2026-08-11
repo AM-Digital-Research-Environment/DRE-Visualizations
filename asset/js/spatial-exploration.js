@@ -110,15 +110,16 @@
 
         /* -- header + description -- */
         var header = el('div', 'dashboard-header');
-        header.appendChild(el('h3', null, 'Spatial Exploration'));
+        header.appendChild(el('h3', null, 'Spatial exploration'));
         header.appendChild(el('span', 'dashboard-total',
             fmtNum(data.locations.length) + ' places · ' + data.countries.length + ' countries'));
         container.appendChild(header);
         container.appendChild(el('p', 'chart-description',
-            'Every place the research items reference, as bubbles sized by how many items mention them — '
-            + 'split into places of origin and current locations. Toggle a layer in the legend, pick an '
-            + 'entity on the left to see only its places, choose a country to zoom in, or click a bubble to '
-            + 'open that location’s page.'));
+            'Every place the research items refer to, shown as a bubble sized by the number '
+            + 'of items that mention it. Places are split between where items come from and '
+            + 'where they are held today. Use the legend to show or hide either layer, pick '
+            + 'a project or person on the left to see only its places, choose a country to '
+            + 'zoom in, or click a bubble to open that place’s page.'));
 
         /* -- stage: sidebar + map -- */
         var stage = el('div', 'rv-spatial-stage');
@@ -139,18 +140,18 @@
         originChip.type = 'button';
         originChip.setAttribute('aria-pressed', 'true');
         originChip.appendChild(originSwatch);
-        originChip.appendChild(el('span', null, 'Place of origin'));
+        originChip.appendChild(el('span', null, 'Comes from here'));
         var currentChip = el('button', 'rv-spatial-legend-chip', null);
         currentChip.type = 'button';
         currentChip.setAttribute('aria-pressed', 'true');
         currentChip.appendChild(currentSwatch);
-        currentChip.appendChild(el('span', null, 'Current location'));
+        currentChip.appendChild(el('span', null, 'Held here today'));
         legend.appendChild(originChip);
         legend.appendChild(currentChip);
         toolbar.appendChild(legend);
 
         var focusLabel = el('label', 'rv-spatial-focus');
-        focusLabel.appendChild(el('span', 'rv-spatial-focus-cap', 'Country'));
+        focusLabel.appendChild(el('span', 'rv-spatial-focus-cap', 'Zoom to country'));
         var focusSelect = el('select', 'rv-spatial-focus-select');
         var allOpt = el('option', null, 'Whole collection'); allOpt.value = '';
         focusSelect.appendChild(allOpt);
@@ -174,7 +175,7 @@
         /* -- map canvas -- */
         var canvas = el('div', 'rv-spatial-canvas');
         canvas.setAttribute('role', 'application');
-        canvas.setAttribute('aria-label', 'Map of places referenced by the collection');
+        canvas.setAttribute('aria-label', 'Map of the places the collection refers to');
         main.appendChild(canvas);
 
         /* -- sidebar skeleton -- */
@@ -189,11 +190,11 @@
 
         var searchInput = el('input', 'rv-spatial-search');
         searchInput.type = 'search';
-        searchInput.placeholder = 'Search…';
-        searchInput.setAttribute('aria-label', 'Search entities');
+        searchInput.placeholder = 'Search by name…';
+        searchInput.setAttribute('aria-label', 'Search by name');
         var listEl = el('div', 'rv-spatial-list');
         listEl.setAttribute('role', 'listbox');
-        var pickGroup = group('Pick an entity', searchInput);
+        var pickGroup = group('Then pick one', searchInput);
         pickGroup.appendChild(listEl);
         sidebar.appendChild(pickGroup);
 
@@ -260,8 +261,8 @@
 
         function rolesLine(oc, cc) {
             var parts = [];
-            if (oc > 0) parts.push(fmtNum(oc) + ' as origin');
-            if (cc > 0) parts.push(fmtNum(cc) + ' as current');
+            if (oc > 0) parts.push(fmtNum(oc) + ' from here');
+            if (cc > 0) parts.push(fmtNum(cc) + ' held here');
             return parts.join(' · ');
         }
 
@@ -284,7 +285,7 @@
             var h = '<div class="rv-popup-content"><strong>' + escapeHtml(p.name) + '</strong>'
                 + '<span class="rv-popup-count">' + meta.join(' · ') + '</span>';
             if (siteBase) {
-                h += '<a class="rv-popup-location-link" href="' + siteBase + '/item/' + p.id + '">View location page →</a>';
+                h += '<a class="rv-popup-location-link" href="' + siteBase + '/item/' + p.id + '">Open this place’s page →</a>';
             }
             return h + '</div>';
         }
@@ -550,7 +551,8 @@
                 listEl.appendChild(pickerRow(rows[i]));
             }
             if (shown === 0) {
-                listEl.appendChild(el('div', 'rv-spatial-muted', q ? 'No matches' : 'No mapped entities'));
+                listEl.appendChild(el('div', 'rv-spatial-muted',
+                    q ? 'Nothing matches that search' : 'Nothing of this kind has a place on the map'));
             }
         }
 
@@ -558,7 +560,8 @@
             selBox.innerHTML = '';
             if (!selection) {
                 selBox.appendChild(el('p', 'rv-spatial-hint',
-                    'Pick an entity to filter the map to its places, or browse the whole collection.'));
+                    'Pick something from the list to see only its places, or leave it as it is '
+                    + 'to browse the whole collection.'));
                 return;
             }
             var chip = el('button', 'rv-spatial-chip', selection.label + ' ×');
@@ -570,7 +573,7 @@
             selBox.appendChild(el('p', 'rv-spatial-summary',
                 fmtNum(n) + ' mapped place' + (n === 1 ? '' : 's')));
             if (siteBase) {
-                var a = el('a', 'rv-spatial-link', 'View ' + selection.type.toLowerCase() + ' page →');
+                var a = el('a', 'rv-spatial-link', 'Open this ' + selection.type.toLowerCase() + '’s page →');
                 a.href = siteBase + '/item/' + selection.id;
                 selBox.appendChild(a);
             }
@@ -579,7 +582,7 @@
         function renderTopPlaces(places) {
             topBox.innerHTML = '';
             if (!places.length) return;
-            topBox.appendChild(el('div', 'rv-spatial-label', 'Top places'));
+            topBox.appendChild(el('div', 'rv-spatial-label', 'Most mentioned places'));
             var ul = el('ul', 'rv-spatial-top-list');
             places.slice().sort(function (a, b) { return (b.oc + b.cc) - (a.oc + a.cc); })
                 .slice(0, TOP_PLACES).forEach(function (p) {
@@ -653,17 +656,17 @@
         ]).then(function (res) {
             var data = decode(res[0]);
             if (!data.locations.length) {
-                container.innerHTML = '<div class="rv-no-data">No spatial data available yet.</div>';
+                container.innerHTML = '<div class="rv-no-data">There are no mapped places yet.</div>';
                 return;
             }
             if (typeof window.maplibregl === 'undefined') {
-                container.innerHTML = '<div class="rv-error">Map library failed to load.</div>';
+                container.innerHTML = '<div class="rv-error">The map could not be loaded. Please try again.</div>';
                 return;
             }
             build(container, data, { basePath: basePath, siteBase: siteBase });
         }).catch(function (err) {
             console.error('DreVisualizations spatial-exploration:', err);
-            container.innerHTML = '<div class="rv-error">Could not load the spatial exploration.</div>';
+            container.innerHTML = '<div class="rv-error">The map could not be loaded. Please try again.</div>';
         });
     }
 

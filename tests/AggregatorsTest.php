@@ -580,7 +580,7 @@ for ($k = 0; $k < 5; $k++) { $egAdd([['dcterms:creator', 'Creator', 101], ['dcte
 for ($k = 0; $k < 2; $k++) { $egAdd([['dcterms:subject', 'Subject', 10], ['dcterms:subject', 'Subject', 11]]); } // bridge
 $eg = A::buildEntityGraph(range(1000, $rid - 1), $egLinks, $egItems, [10, 11], 2);
 check($eg !== null, 'buildEntityGraph returns a graph');
-check($eg['types'] === ['Person', 'Organization', 'Location', 'Subject', 'Tag'], 'buildEntityGraph emits the five entity types');
+check($eg['types'] === ['Person', 'Organisation', 'Location', 'Subject', 'Tag'], 'buildEntityGraph emits the five entity types');
 $egById = [];
 foreach ($eg['nodes'] as $nd) { $egById[$nd[0]] = $nd; } // row: [id, label, type, count, degree, community, section, lng, lat, rank]
 check(count($eg['nodes']) === 7, 'buildEntityGraph: 7 entity nodes (incl. affiliated org)');

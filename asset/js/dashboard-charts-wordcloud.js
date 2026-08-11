@@ -161,7 +161,7 @@
             var dc = defaultCount();
             var slider = document.createElement('div');
             slider.className = 'rv-word-slider';
-            slider.innerHTML = '<label><span class="rv-word-slider-caption">' + ns.escapeHtml(ns.t('words', 'Words')) + '</span>'
+            slider.innerHTML = '<label><span class="rv-word-slider-caption">' + ns.escapeHtml(ns.t('words', 'Number of words')) + '</span>'
                 + '<input type="range" min="5" max="' + entries.length + '" value="' + dc + '" step="1">'
                 + '<span class="rv-word-slider-value">' + dc + '</span></label>';
             panel.insertBefore(slider, anchor);

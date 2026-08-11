@@ -41,7 +41,7 @@ $title = $title ?? null;
          data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $siteSlug) ?>">
         <noscript>
             <style>.dashboard-async-container .rv-loading { display: none; }</style>
-            <div class="rv-no-data"><?= $this->translate('These interactive visualisations require JavaScript.') ?></div>
+            <div class="rv-no-data"><?= $this->translate('These interactive charts need JavaScript to work. Please turn it on, or use the collection’s search and browse pages instead.') ?></div>
         </noscript>
         <div class="rv-loading">
             <div class="rv-spinner"></div>

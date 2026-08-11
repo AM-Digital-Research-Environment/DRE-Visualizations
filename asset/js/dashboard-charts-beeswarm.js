@@ -97,7 +97,7 @@
             grid: { left: 160, right: 30, top: 20, bottom: 40 },
             xAxis: {
                 type: 'value',
-                name: 'Start Year',
+                name: 'Start year',
                 nameLocation: 'center',
                 nameGap: 25,
                 min: minVal - 1,

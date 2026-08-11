@@ -18,11 +18,11 @@ $siteSlug = $this->currentSite()->slug();
          data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $siteSlug) ?>">
         <noscript>
             <style>.semantic-map-container .rv-loading { display: none; }</style>
-            <div class="rv-no-data"><?= $this->translate('The semantic map requires JavaScript.') ?></div>
+            <div class="rv-no-data"><?= $this->translate('This map needs JavaScript to work. Please turn it on, or use the collection’s search and browse pages instead.') ?></div>
         </noscript>
         <div class="rv-loading">
             <div class="rv-spinner"></div>
-            <span><?= $this->translate('Loading the semantic map…') ?></span>
+            <span><?= $this->translate('Loading the map…') ?></span>
         </div>
     </div>
 </div>

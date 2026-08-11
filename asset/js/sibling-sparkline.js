@@ -46,7 +46,7 @@
         var years = Object.keys(timeline).sort();
         block.hidden = false;
         container.innerHTML = '<div class="sibling-sparkline-head"><h2>'
-            + escapeHtml(projectName || 'Project') + ' — items per year</h2></div>'
+            + escapeHtml(projectName || 'This project') + ': items per year</h2></div>'
             + '<div class="sibling-sparkline-chart"></div>';
 
         var head = container.querySelector('.sibling-sparkline-head h2');

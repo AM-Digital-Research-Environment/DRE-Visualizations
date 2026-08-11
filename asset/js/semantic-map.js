@@ -34,7 +34,7 @@
             var rows = groups[key];
             return {
                 name: mode === 'cluster'
-                    ? ns.t('semanticCluster', 'Semantic cluster') + ' ' + (Number(key) + 1)
+                    ? ns.t('semanticClusterName', 'Group') + ' ' + (Number(key) + 1)
                     : (rows[0].typeLabel || key),
                 type: 'scatter',
                 large: true,
@@ -97,7 +97,7 @@
         group.setAttribute('aria-label', ns.t('semanticColorBy', 'Colour by'));
         var mode = chart._semanticMode || 'type';
 
-        [['type', 'semanticType', 'Resource type'], ['cluster', 'semanticCluster', 'Semantic cluster']]
+        [['type', 'semanticType', 'Resource type'], ['cluster', 'semanticCluster', 'Group of similar records']]
             .forEach(function (config) {
                 var button = node('button', 'semantic-map-mode__button', ns.t(config[1], config[2]));
                 button.type = 'button';
@@ -127,7 +127,7 @@
         var label = node('label', 'semantic-map-search__label', ns.t('semanticSearch', 'Find a record on the map'));
         var input = node('input', 'semantic-map-search__input');
         input.type = 'search';
-        input.placeholder = ns.t('semanticSearchPlaceholder', 'Search titles');
+        input.placeholder = ns.t('semanticSearchPlaceholder', 'Search by title…');
         input.autocomplete = 'off';
         label.appendChild(input);
         wrap.appendChild(label);
@@ -146,7 +146,7 @@
                 return String(item.title || '').toLocaleLowerCase().indexOf(query) !== -1;
             }).slice(0, 8);
             if (!matches.length) {
-                results.appendChild(node('li', 'semantic-map-search__empty', ns.t('semanticNoSearchResults', 'No matching records.')));
+                results.appendChild(node('li', 'semantic-map-search__empty', ns.t('semanticNoSearchResults', 'No records match that search.')));
             } else {
                 matches.forEach(function (item) {
                     var li = node('li', 'semantic-map-search__result');
@@ -167,21 +167,21 @@
         var items = payload && payload.items;
         if (!Array.isArray(items) || !items.length) throw new Error('Semantic map is empty');
 
-        var heading = node('h2', '', ns.t('semanticMapTitle', 'Semantic map'));
+        var heading = node('h2', '', ns.t('semanticMapTitle', 'Records by similarity'));
         var intro = node('p', 'semantic-map-intro',
-            ns.t('semanticMapIntro', 'Nearby records use similar language, subjects, places, and descriptions. The map joins every resource type in one multilingual space.'));
+            ns.t('semanticMapIntro', 'Every public record in the collection is placed on this map by what it is about. Records whose subjects, places and descriptions are close in meaning sit close together, whatever their language or resource type. Distance is the only thing the map shows: there is no north or south, and the axes carry no units.'));
         var toolbar = node('div', 'semantic-map-toolbar');
         var chartPanel = node('section', 'chart-panel chart-panel-wide semantic-map-panel');
-        var chartHeading = node('h3', '', ns.t('semanticSharedSpace', 'Shared semantic space'));
+        var chartHeading = node('h3', '', ns.t('semanticSharedSpace', 'The whole collection at a glance'));
         var chartEl = node('div', 'chart-container semantic-map-chart');
-        var chartLabel = ns.t('semanticMapAria', 'Semantic map of public collection records. Nearby points have similar metadata and descriptions.');
+        var chartLabel = ns.t('semanticMapAria', 'A map of the public records in the collection. Records placed close together are similar in what they are about.');
         chartEl.setAttribute('role', 'img');
         chartEl.setAttribute('aria-label', chartLabel);
         var status = node('p', 'semantic-map-status');
         var lowSignal = items.filter(function (item) { return item.lowSignal; }).length;
         status.textContent = ns.formatNumber(items.length) + ' ' + ns.t('semanticRecords', 'records')
-            + ' · ' + ns.formatNumber(lowSignal) + ' ' + ns.t('semanticLowSignalCount', 'low-signal');
-        var note = node('p', 'semantic-map-note', ns.t('semanticLowSignal', 'Faint points have too little descriptive metadata for recommendations.'));
+            + ' · ' + ns.formatNumber(lowSignal) + ' ' + ns.t('semanticLowSignalCount', 'only lightly described');
+        var note = node('p', 'semantic-map-note', ns.t('semanticLowSignal', 'The faint points are records with too little description for the map to place them reliably.'));
 
         chartPanel.appendChild(chartHeading);
         chartPanel.appendChild(chartEl);
@@ -217,7 +217,7 @@
     function showError(container) {
         ns.setChildren(container, [node('div', 'rv-no-data', ns.t(
             'semanticLoadError',
-            'The semantic map is not available yet. Run the embeddings workflow and try again.'
+            'This map is not available yet. It is rebuilt when the collection is next processed.'
         ))]);
     }
 

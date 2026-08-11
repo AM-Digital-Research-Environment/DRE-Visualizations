@@ -176,7 +176,7 @@
                 if (name && !seen[name]) { seen[name] = true; names.push(name); }
             });
             rels.textContent = names.length
-                ? t('kgVia', 'Connected via') + ': ' + names.slice(0, 6).join(', ')
+                ? t('kgVia', 'Connected through') + ': ' + names.slice(0, 6).join(', ')
                     + (names.length > 6 ? '…' : '')
                 : '';
 

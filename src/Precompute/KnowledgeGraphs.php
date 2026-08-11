@@ -33,10 +33,10 @@ final class KnowledgeGraphs
         'dcterms:isPartOf' => 'Project',
         'dcterms:format' => 'Genre',
         'frapo:isFundedBy' => 'Institution',
-        'dcterms:relation' => 'Related Item', 'dcterms:hasPart' => 'Related Item',
-        'dcterms:replaces' => 'Related Item', 'dcterms:isReplacedBy' => 'Related Item',
-        'dcterms:hasVersion' => 'Related Item', 'dcterms:isVersionOf' => 'Related Item',
-        'dcterms:hasFormat' => 'Related Item',
+        'dcterms:relation' => 'Related item', 'dcterms:hasPart' => 'Related item',
+        'dcterms:replaces' => 'Related item', 'dcterms:isReplacedBy' => 'Related item',
+        'dcterms:hasVersion' => 'Related item', 'dcterms:isVersionOf' => 'Related item',
+        'dcterms:hasFormat' => 'Related item',
     ];
 
     /**
@@ -54,7 +54,7 @@ final class KnowledgeGraphs
     ];
 
     /** Priority order for direct relationships when capping. */
-    private const CAT_PRIORITY = ['Person', 'Contributor', 'Subject', 'Project', 'Location', 'Institution', 'Genre', 'Related Item'];
+    private const CAT_PRIORITY = ['Person', 'Contributor', 'Subject', 'Project', 'Location', 'Institution', 'Genre', 'Related item'];
 
     // Node budgets. Raised in v2.22 when the front end moved off the ECharts graph
     // series onto the d3-force canvas renderer: it lays out with Barnes–Hut plus a

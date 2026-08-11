@@ -82,7 +82,7 @@
       "slug": "international-library-of-african-music-ilam",
       "itemSetKey": "ilam",
       "title": "International Library of African Music (ILAM)",
-      "description": "An external collection sourced from the International Library of African Music (ILAM), Africa’s foremost repository of music — ethnomusicological recordings, journals and photographic materials from across the continent.",
+      "description": "Ethnomusicological recordings, journals and photographic material from across the continent, held by the International Library of African Music (ILAM), one of Africa’s leading music archives.",
       "partner": "Published in collaboration with Rhodes University",
       "views": { "map": false },
       "grouping": "issue",
@@ -92,41 +92,41 @@
       "slug": "memorias-perifericas-capoeira-angola-salvador",
       "itemSetKey": "museuAfroDigital",
       "identifierPrefix": "APMESTRENO",
-      "title": "Memória Periféricas da Capoeira Angola de Salvador",
-      "description": "Peripheral Memories of Capoeira Angola in Salvador — the personal archive of Mestre Nô.",
-      "partner": "Part of the Museu Afro-Digital — Universidade Federal da Bahia"
+      "title": "Memórias Periféricas da Capoeira Angola de Salvador",
+      "description": "Peripheral Memories of Capoeira Angola in Salvador: the personal archive of Mestre Nô.",
+      "partner": "Part of the Museu Afro-Digital, Universidade Federal da Bahia"
     },
     {
       "slug": "trabalhadores-na-da-bahia",
       "itemSetKey": "museuAfroDigital",
       "identifierPrefix": "TRABNEGRBA",
       "title": "Trabalhadores na/da Bahia",
-      "description": "Workers in/from Bahia — Black labour in the city and the Recôncavo.",
-      "partner": "Part of the Museu Afro-Digital — Universidade Federal da Bahia"
+      "description": "Workers in and from Bahia: Black labour in the city and in the Recôncavo.",
+      "partner": "Part of the Museu Afro-Digital, Universidade Federal da Bahia"
     },
     {
       "slug": "orixas-fundacao-gregorio-de-mattos",
       "itemSetKey": "museuAfroDigital",
       "identifierPrefix": "ORIXAFGM",
-      "title": "Orixás - Fundação Gregório de Mattos",
-      "description": "Orishas — from the Gregório de Mattos Foundation.",
-      "partner": "Part of the Museu Afro-Digital — Universidade Federal da Bahia"
+      "title": "Orixás – Fundação Gregório de Mattos",
+      "description": "Orishas, from the Gregório de Mattos Foundation.",
+      "partner": "Part of the Museu Afro-Digital, Universidade Federal da Bahia"
     },
     {
       "slug": "decca",
       "itemSetKey": "beyondDigitalReturn",
       "externalFilter": { "propertyKey": "productionCompany", "resourceKey": "deccaProducer" },
       "title": "DECCA",
-      "description": "A record label whose Nigerian Yoruba popular-music recordings — Waka, Apala, Highlife and more — were digitised from the Ghana Broadcasting Corporation Gramophone Library.",
-      "partner": "Part of “Beyond the Digital Return” · University of Bayreuth"
+      "description": "Nigerian Yoruba popular music issued by the DECCA label: waka, apala, highlife and other styles, digitised from the Gramophone Library of the Ghana Broadcasting Corporation.",
+      "partner": "Part of the “Beyond the Digital Return” project at the University of Bayreuth"
     },
     {
       "slug": "jambo",
       "itemSetKey": "beyondDigitalReturn",
       "externalFilter": { "propertyKey": "productionCompany", "resourceKey": "jamboProducer" },
       "title": "Jambo",
-      "description": "An East African record label whose Swahili and Ganda recordings — including The Kiko Kids — were digitised from the Ghana Broadcasting Corporation Gramophone Library.",
-      "partner": "Part of “Beyond the Digital Return” · University of Bayreuth"
+      "description": "Swahili and Ganda recordings issued by the East African label Jambo, among them The Kiko Kids, digitised from the Gramophone Library of the Ghana Broadcasting Corporation.",
+      "partner": "Part of the “Beyond the Digital Return” project at the University of Bayreuth"
     }
   ],
   "wordcloudCorpora": [

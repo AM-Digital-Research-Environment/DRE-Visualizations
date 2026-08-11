@@ -99,7 +99,7 @@
             catIndex[c.id] = i;
             var label = c.anchor
                 ? (c.anchor + ' (' + c.size + ')')
-                : (t('community', 'Community') + ' ' + (c.id + 1));
+                : (t('community', 'Group') + ' ' + (c.id + 1));
             return { name: truncateLabel(label, 28), community: c.id };
         });
         function categoryOf(node) {
@@ -206,8 +206,8 @@
                 return [
                     d.value ? (d.value + ' ' + unit) : null,
                     node.deg ? (node.deg + ' ' + (node.deg === 1
-                        ? t('kgConnection', 'connection in view')
-                        : t('kgConnections', 'connections in view'))) : null,
+                        ? t('kgConnection', 'connection shown')
+                        : t('kgConnections', 'connections shown'))) : null,
                     roleLabel(d),
                     node.pinned ? t('kgPinnedHint', 'Pinned — Alt-click to release') : null
                 ];
@@ -262,12 +262,12 @@
                 if (d.value) rows.push(el('span', 'rv-kg-tip-meta', d.value + ' ' + unit));
                 if (node.deg) {
                     rows.push(el('span', 'rv-kg-tip-meta', node.deg + ' ' + (node.deg === 1
-                        ? t('kgConnection', 'connection in view')
-                        : t('kgConnections', 'connections in view'))));
+                        ? t('kgConnection', 'connection shown')
+                        : t('kgConnections', 'connections shown'))));
                 }
                 var role = roleLabel(d);
                 if (role) rows.push(el('span', 'rv-kg-tip-meta', role));
-                rows.push(el('span', 'rv-kg-tip-meta', t('kgClickToFocus', 'Click to focus')));
+                rows.push(el('span', 'rv-kg-tip-meta', t('kgClickToFocus', 'Click for details')));
                 return rows;
             }
             if (link) {
@@ -283,7 +283,7 @@
         function announce(node) {
             var cat = categories[node.category];
             return node.name + (cat ? ', ' + cat.name : '')
-                + ', ' + (node.deg || 0) + ' ' + t('kgConnections', 'connections in view')
+                + ', ' + (node.deg || 0) + ' ' + t('kgConnections', 'connections shown')
                 + '. ' + t('kgEnterToOpen', 'Press Enter to select.');
         }
 
@@ -300,7 +300,7 @@
             csvRows: function () {
                 var rows = [[
                     t('source', 'Source'), t('target', 'Target'),
-                    t('value', 'Value'), t('community', 'Community')
+                    t('value', 'Value'), t('community', 'Group')
                 ].concat(hasRel ? [t('relationship', 'Relationship')] : [])];
                 data.links.forEach(function (l) {
                     var s = byName[l.source];
