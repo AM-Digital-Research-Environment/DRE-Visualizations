@@ -65,7 +65,7 @@
                 series: [{
                     type: 'boxplot', data: boxes,
                     itemStyle: {
-                        color: cssColor('--primary-muted', '#b2dfdb'),
+                        color: cssColor('--primary-muted', '#e4f0e6'),
                         borderColor: cssColor('--primary', THEME.accent)
                     },
                     tooltip: {

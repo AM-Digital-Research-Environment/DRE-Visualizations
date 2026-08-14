@@ -34,7 +34,7 @@
                     // Project affiliation maps carry the affiliated members; the
                     // per-person map omits this field, so the block is skipped there.
                     if (org.members && org.members.length) {
-                        html += '<br/><span style="font-size:12px;color:var(--muted,#666)">'
+                        html += '<br/><span style="font-size:12px;color:var(--muted, #716a66)">'
                             + (org.members.length === 1 ? 'Member: ' : 'Members: ')
                             + esc(org.members.join(', ')) + '</span>';
                     }

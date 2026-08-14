@@ -99,7 +99,7 @@ $sourceLabel = $this->translate('Source') . ': ' . ($site ? $site->title() : 'Af
     <?= $this->headStyle() ?>
     <style>
         html, body { margin: 0; padding: 0; }
-        body.dre-embed-body { background: var(--background, #fff); display: block; -webkit-text-size-adjust: 100%; }
+        body.dre-embed-body { background: var(--background, #f8f6f1); display: block; -webkit-text-size-adjust: 100%; }
         /* On a site page the block inherits the theme's content-column gutters; the
            bare frame has none, so give the whole-block embed a small inset instead
            of jamming its header, controls and canvas against the iframe edges. The
@@ -108,9 +108,9 @@ $sourceLabel = $this->translate('Source') . ': ' . ($site ? $site->title() : 'Af
         .dre-embed-body .resource-vis-block { margin: 0; padding: var(--space-5, 1.25rem) var(--space-6, 1.5rem); }
         .dre-embed-body .resource-vis-block.dre-embed-single { padding: 0; }
         .dre-embed-body .dre-embed-wrap { padding-inline: 0; }
-        .dre-embed-source { margin: 0; padding: var(--space-2, 0.5rem) var(--space-4, 1rem); text-align: right; font-size: var(--text-xs, 0.8125rem); border-top: 1px solid var(--border-light, #ece9e3); background: var(--surface, #fff); }
-        .dre-embed-source a { color: var(--ink-light, #595650); text-decoration: none; }
-        .dre-embed-source a:hover { color: var(--primary, #009260); text-decoration: underline; }
+        .dre-embed-source { margin: 0; padding: var(--space-2, 0.5rem) var(--space-4, 1rem); text-align: right; font-size: var(--text-xs, 0.8125rem); border-top: 1px solid var(--border-light, #eae8e3); background: var(--surface, #fdfcf9); }
+        .dre-embed-source a { color: var(--ink-light, #5f5650); text-decoration: none; }
+        .dre-embed-source a:hover { color: var(--primary, #007a50); text-decoration: underline; }
     </style>
     <?php if ($primary !== ''): ?>
     <style>

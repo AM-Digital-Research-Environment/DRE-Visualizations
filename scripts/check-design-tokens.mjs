@@ -1,148 +1,104 @@
 #!/usr/bin/env node
 /**
- * Design-token contract lint — the DRE-theme check, ported to this module so the
- * "no raw colour in CSS" rule (see the DESIGN CONTRACT header in
- * asset/css/dre-visualizations.css) cannot quietly regress. Mirrors
- * DRE-theme/scripts/check-design-tokens.mjs.
+ * Design-token contract lint — this module's CONFIG for the shared rule set.
  *
- *   node scripts/check-design-tokens.mjs        (also: npm run lint:tokens)
+ *   node scripts/check-design-tokens.mjs                    (npm run lint:tokens)
+ *   node scripts/check-design-tokens.mjs --update-allowlist
  *
- * Checks every CSS source under asset/css:
- *   1. Raw hex colours outside var(--x, #hex) fallback position.
- *   2. Coloured border-left/right wider than 1px (the "accent side-stripe" AI
- *      tell). CSS-triangle/chevron borders are allowlisted by file.
- *   3. Gradient text (background-clip: text).
- *   4. Off-scale type: a raw px/rem font-size instead of --rv-text-* / --text-*.
- *   5. Off-scale spacing: a raw rem margin/padding/gap instead of
- *      --rv-space-* / --space-*. (em is intentional — it scales with the
- *      element's own text, e.g. pill badges — and the photo-browser's px hairline
- *      gaps are their own sub-grid idiom, so neither is flagged. var() fallbacks
- *      for non-DRE hosts are always allowed.)
+ * The rules themselves are in scripts/lib/token-rules.mjs, vendored verbatim
+ * from DRE-theme (refresh with `npm run vendor:lint` over there). This file used
+ * to be a hand-written port that opened by claiming it mirrored the theme's
+ * check — it did not, and neither did the search client's. Each repo had
+ * hardened the rules it happened to need: this one enforced off-scale spacing
+ * and radius that the theme did not, the theme measured contrast that no module
+ * did, and the search client had no rem check at all. Three rule sets, and the
+ * differences were undocumented. Now there is one, and the differences that
+ * remain are this config, in the open.
  *
- * DESIGN.md §9 rule 4 — "Don't invent parallel scales" — is what rules 4 & 5
- * enforce: the module's spacing & type must ride the theme's --space-* / --text-*
- * (via the --rv-* aliases), never a hand-set literal that drifts off the scale.
- *
- * The canvas colour palettes (ns.COLORS / ns.HALO) live in JS, not CSS: ECharts
- * and the knowledge-graph canvas cannot parse oklch(), so they are intentionally
- * literal there and are out of scope for this CSS contract.
+ * The scale values are read from scripts/lib/dre-tokens-fallback.json — also
+ * vendored from the theme, generated from its OKLCH source — so "off-scale"
+ * means off the theme's actual scale rather than off a list copied by hand.
  *
  * Exit code 1 on any finding; prints file:line for each.
  */
-import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
-import { join, relative, sep } from 'node:path';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { runRules, report, parseAllowlist, formatAllowlist } from './lib/token-rules.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
-const CSS = join(ROOT, 'asset', 'css');
+const ALLOWLIST = join(ROOT, 'scripts', 'design-token-allowlist.txt');
+const table = JSON.parse(readFileSync(join(ROOT, 'scripts', 'lib', 'dre-tokens-fallback.json'), 'utf8'));
+const updateAllowlist = process.argv.includes('--update-allowlist');
 
-// Files allowed to hold raw colour values, with the reason on record.
-const HEX_ALLOW = [];
+const SCAN = {
+  root: ROOT,
+  dirs: ['asset/css', 'asset/js', 'view'],
+  extensions: ['.css', '.js', '.phtml'],
+  table,
+  // This module aliases the theme tokens into --rv-* on `body` (DESIGN.md §9
+  // rule 2), so its own namespace is not a theme token and must not be reported
+  // as a missing one.
+  localPrefixes: ['--rv-'],
+};
 
-// Achromatic legibility anchors — true black / white, NOT brand colours. The
-// audit sanctioned these for imagery contexts only: the photo-lightbox backdrop
-// and its frosted controls over unknown user photos (DESIGN-ROADMAP V3) and the
-// map-label halos (V4). Any *coloured* raw hex is still flagged; this carve-out
-// permits #000 / #fff alone.
-const HEX_VALUE_ALLOW = new Set(['#000', '#fff', '#000000', '#ffffff']);
+// Exempt BY DESIGN, as opposed to the ratchet in design-token-allowlist.txt,
+// which is work not yet done.
+const BASE_RULES = {
+  // The categorical chart palettes (ns.COLORS / ns.HALO) are DATA colour, not
+  // chrome: ECharts and the graph canvas cannot parse oklch(), so the twelve
+  // brand-derived stops and their dark-lifted twins are necessarily literal
+  // here. DESIGN.md §9 "The data-colour contract" governs them instead, and
+  // requires stops 1–6 to track --brand-* exactly.
+  hex: {
+    allow: [
+      'asset/js/dashboard-core.js',
+      'asset/js/entity-graph.js',
+      'asset/js/graph-canvas.js',
+      'asset/js/knowledge-graph.js',
+      // Omeka's ADMIN theme styles these, not the DRE theme, so the DRE tokens
+      // are not defined on the page at all.
+      'view/dre-visualizations/admin/',
+    ],
+  },
+  // A 0.6rem square with two 2px borders is a CSS chevron caret — construction,
+  // not the "accent side-stripe" tell. The theme allowlists the same idiom in
+  // _linked-resources.scss and _navigation.scss.
+  stripe: { allow: ['asset/css/dre-visualizations.css'] },
+  radius: { allow: ['view/dre-visualizations/admin/'] },
+  // Page geometry in JS is layout maths (canvas sizes, force-graph radii), not
+  // CSS, and the px rules do not apply to it.
+  pxGeometry: { allow: ['asset/js/', 'view/'] },
+  fontSize: { allow: ['asset/js/'] },
+  spacing: { allow: ['asset/js/'] },
+  radius: { allow: ['asset/js/'] },
+  leading: { allow: ['asset/js/'] },
+  zindex: { allow: ['asset/js/'] },
+};
 
-// border-left/right >1px that are construction, not decoration. The module's one
-// hit is a CSS chevron caret (border-right + border-bottom + rotate(45deg) — a
-// rotated corner, not an accent side-stripe), mirroring the theme's chevron
-// allowlist.
-const STRIPE_ALLOW = ['dre-visualizations.css'];
-
-const findings = [];
-
-function* cssFiles(dir) {
-  if (!existsSync(dir)) return;
-  for (const name of readdirSync(dir)) {
-    const p = join(dir, name);
-    if (statSync(p).isDirectory()) yield* cssFiles(p);
-    else if (name.endsWith('.css')) yield p;
-  }
+if (updateAllowlist) {
+  const all = runRules({ ...SCAN, rules: BASE_RULES });
+  writeFileSync(
+    ALLOWLIST,
+    formatAllowlist(
+      all,
+      `# GENERATED baseline for scripts/check-design-tokens.mjs — the RATCHET.\n` +
+        `#\n` +
+        `# Each line exempts one rule in one file. This is a backlog, not a set of\n` +
+        `# exemptions: every line is a conversion someone still owes. Lines should\n` +
+        `# only ever be REMOVED. Regenerate with --update-allowlist after a pass,\n` +
+        `# and check the diff — a new line means new drift got in.\n` +
+        `#\n` +
+        `# Rules exempt by design (the data-colour palettes, JS layout maths) live\n` +
+        `# in the script.`
+    )
+  );
+  console.log(`Wrote ${all.length} allowlist entr(ies) to scripts/design-token-allowlist.txt`);
+  process.exit(0);
 }
 
-// Strip comments while carrying the open-block state across lines, so prose
-// inside a multi-line /* … */ (this file has plenty) can never trip a rule.
-function stripComments(raw, inBlock) {
-  let out = '';
-  for (let i = 0; i < raw.length; ) {
-    if (inBlock) {
-      const end = raw.indexOf('*/', i);
-      if (end === -1) { i = raw.length; } else { inBlock = false; i = end + 2; }
-    } else if (raw[i] === '/' && raw[i + 1] === '/') {
-      break;                                  // line comment — drop the rest
-    } else if (raw[i] === '/' && raw[i + 1] === '*') {
-      inBlock = true; i += 2;
-    } else {
-      out += raw[i]; i++;
-    }
-  }
-  return { code: out, inBlock };
-}
+const findings = runRules({
+  ...SCAN,
+  rules: parseAllowlist(readFileSync(ALLOWLIST, 'utf8'), BASE_RULES),
+});
 
-for (const file of cssFiles(CSS)) {
-  const rel = relative(ROOT, file).split(sep).join('/');
-  const relCss = relative(CSS, file).split(sep).join('/');
-  const lines = readFileSync(file, 'utf8').split(/\r?\n/);
-
-  let inBlock = false;
-  lines.forEach((raw, i) => {
-    const stripped = stripComments(raw, inBlock);
-    const line = stripped.code;
-    inBlock = stripped.inBlock;
-    const loc = `${rel}:${i + 1}`;
-
-    // Drop var(--x, fallback) so the rules only ever see the *active* value, not
-    // the on-brand fallback a non-DRE host would use.
-    const noFallbacks = line.replace(/var\(\s*--[\w-]+\s*,[^)]*\)/g, '');
-
-    // 1. Raw hex outside allowlist and outside var() fallback position.
-    if (!HEX_ALLOW.includes(relCss)) {
-      const noDataUri = noFallbacks.replace(/url\([^)]*\)/g, '').replace(/%23[0-9a-fA-F]{3,6}/g, '');
-      const hex = noDataUri.match(/#[0-9a-fA-F]{3,8}\b/);
-      if (hex && !HEX_VALUE_ALLOW.has(hex[0].toLowerCase())) {
-        findings.push(`${loc}  raw hex outside fallback position: ${hex[0]}`);
-      }
-    }
-
-    // 2. Side-stripe accents.
-    if (!STRIPE_ALLOW.includes(relCss)) {
-      if (/border-(left|right)\s*:\s*([2-9]|\d{2,})px\s+\w+\s+(var\(|#|oklch|rgb)/.test(line)) {
-        findings.push(`${loc}  coloured side-stripe border: ${line.trim()}`);
-      }
-    }
-
-    // 3. Gradient text.
-    if (/background-clip\s*:\s*text/.test(line)) {
-      findings.push(`${loc}  gradient text (background-clip: text)`);
-    }
-
-    // 4. Off-scale type — a raw px/rem font-size (var() fallbacks excepted).
-    const fontVal = noFallbacks.match(/font-size\s*:\s*([^;{}]*)/i);
-    if (fontVal && /-?\d*\.?\d+(px|rem)\b/.test(fontVal[1])) {
-      findings.push(`${loc}  raw font-size — use --rv-text-* / --text-*: ${line.trim()}`);
-    }
-
-    // 5. Off-scale spacing — a raw rem margin/padding/gap (em / px-grid excepted).
-    const spaceVal = noFallbacks.match(/(?:^|[\s;{])(?:margin|padding|gap|row-gap|column-gap)(?:-[a-z]+)?\s*:\s*([^;{}]*)/i);
-    if (spaceVal && /-?\d*\.?\d+rem\b/.test(spaceVal[1])) {
-      findings.push(`${loc}  raw rem spacing — use --rv-space-* / --space-*: ${line.trim()}`);
-    }
-
-    // 6. Off-scale radius — border-radius must use --rv-radius* / --radius-* (or the
-    //    full round). 50% circles and 0 are not on the radius scale and are allowed.
-    const radVal = noFallbacks.match(/border-radius\s*:\s*([^;{}]*)/i);
-    if (radVal && /-?\d*\.?\d+(px|rem)\b/.test(radVal[1])) {
-      findings.push(`${loc}  raw border-radius — use --rv-radius* / --radius-*: ${line.trim()}`);
-    }
-  });
-}
-
-if (findings.length) {
-  console.error(`Design-token contract: ${findings.length} finding(s)\n`);
-  for (const f of findings) console.error('  ' + f);
-  process.exit(1);
-} else {
-  console.log('Design-token contract: clean.');
-}
+report('Design-token contract', findings);

@@ -605,11 +605,11 @@
             // warm-accent pins; both get a surface-coloured "moat" ring that lifts
             // them cleanly off the basemap in light and dark.
             var green       = ns.cssColor('--primary', '#007a50');
-            var greenDark   = ns.cssColor('--primary-hover', '#00633f');
-            var greenDeep   = ns.cssColor('--primary-active', '#004d30');
-            var clusterText = ns.cssColor('--primary-contrast', '#ffffff');
-            var pointFill   = ns.cssColor('--accent', '#d57912');
-            var moat        = ns.cssColor('--surface', '#ffffff');
+            var greenDark   = ns.cssColor('--primary-hover', '#006743');
+            var greenDeep   = ns.cssColor('--primary-active', '#005536');
+            var clusterText = ns.cssColor('--primary-contrast', '#fcfcf9');
+            var pointFill   = ns.cssColor('--accent', '#ca7210');
+            var moat        = ns.cssColor('--surface', '#fdfcf9');
 
             var map = new maplibregl.Map({
                 container: mapEl,

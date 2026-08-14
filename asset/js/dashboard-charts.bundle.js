@@ -1817,7 +1817,7 @@
                     // Project affiliation maps carry the affiliated members; the
                     // per-person map omits this field, so the block is skipped there.
                     if (org.members && org.members.length) {
-                        html += '<br/><span style="font-size:12px;color:var(--muted,#666)">'
+                        html += '<br/><span style="font-size:12px;color:var(--muted, #716a66)">'
                             + (org.members.length === 1 ? 'Member: ' : 'Members: ')
                             + esc(org.members.join(', ')) + '</span>';
                     }
@@ -2306,11 +2306,11 @@
     function buildRamp() {
         var isDark = ns.isDark();
         var accent = parseRGB(THEME.accent);
-        var base = parseRGB(ns.cssColor('--surface', isDark ? 'rgb(30,30,30)' : 'rgb(255,255,255)'));
+        var base = parseRGB(ns.cssColor('--surface', isDark ? '#0e1612' : '#fdfcf9'));
         var ratios = [0.82, 0.62, 0.42, 0.22, 0]; // mix toward base; 0 = full accent
         return {
             stops: ratios.map(function (r) { return mix(accent, base, r); }),
-            empty: ns.cssColor('--border-light', isDark ? 'rgb(42,42,42)' : 'rgb(235,235,235)')
+            empty: ns.cssColor('--border-light', isDark ? '#1e2622' : '#eae8e3')
         };
     }
 
@@ -2938,7 +2938,7 @@
                 series: [{
                     type: 'boxplot', data: boxes,
                     itemStyle: {
-                        color: cssColor('--primary-muted', '#b2dfdb'),
+                        color: cssColor('--primary-muted', '#e4f0e6'),
                         borderColor: cssColor('--primary', THEME.accent)
                     },
                     tooltip: {

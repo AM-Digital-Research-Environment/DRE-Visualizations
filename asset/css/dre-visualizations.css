@@ -33,31 +33,31 @@
 
 body {
     /* Surfaces — warm stone (mirrors the DRE light theme, never cold grey) */
-    --rv-bg:              var(--surface, #fdfcfa);          /* cards, panels      */
-    --rv-bg-raised:       var(--surface-raised, #fffefb);   /* hovered / floating */
-    --rv-bg-sunken:       var(--surface-sunken, #f1ede6);   /* wells, chips       */
-    --rv-overlay:         var(--surface-overlay, rgba(253, 252, 250, 0.92));
+    --rv-bg:              var(--surface, #fdfcf9);          /* cards, panels      */
+    --rv-bg-raised:       var(--surface-raised, #faf8f4);   /* hovered / floating */
+    --rv-bg-sunken:       var(--surface-sunken, #f3f0eb);   /* wells, chips       */
+    --rv-overlay:         var(--surface-overlay, rgba(253, 252, 249, 0.92));
 
     /* Borders — warm low-chroma neutrals */
-    --rv-border:          var(--border, #dcd6cb);
-    --rv-border-light:    var(--border-light, #eae5dd);
-    --rv-border-strong:   var(--border-strong, #c3b9a9);
+    --rv-border:          var(--border, #dbd7d1);
+    --rv-border-light:    var(--border-light, #eae8e3);
+    --rv-border-strong:   var(--border-strong, #bfbab3);
 
     /* Text — warm near-neutral inks */
-    --rv-heading-color:   var(--ink-strong, #33291f);
-    --rv-text-strong:     var(--ink, #473e33);
-    --rv-text-color:      var(--ink-light, #6c6357);
+    --rv-heading-color:   var(--ink-strong, #261d15);
+    --rv-text-strong:     var(--ink, #3c342d);
+    --rv-text-color:      var(--ink-light, #5f5650);
 
     /* Brand accent (Uni-Grün via the theme; the fallback IS Uni-Grün) */
     --rv-accent:          var(--primary, #007a50);
-    --rv-accent-hover:    var(--primary-hover, #00633f);
-    --rv-accent-contrast: var(--primary-contrast, #fffef9);
+    --rv-accent-hover:    var(--primary-hover, #006743);
+    --rv-accent-contrast: var(--primary-contrast, #fcfcf9);
 
     /* Radii, shadows, focus — straight from the theme's token set */
-    --rv-radius:          var(--radius-lg, 12px);
-    --rv-radius-sm:       var(--radius-sm, 6px);
-    --rv-shadow:          var(--shadow-lg, 0 4px 16px rgba(0, 0, 0, 0.12));
-    --rv-shadow-sm:       var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.12));
+    --rv-radius:          var(--radius-lg, 0.75rem);
+    --rv-radius-sm:       var(--radius-sm, 0.375rem);
+    --rv-shadow:          var(--shadow-lg, 0 10px 15px -3px rgba(42, 28, 16, 0.14), 0 4px 6px -4px rgba(52, 37, 26, 0.07));
+    --rv-shadow-sm:       var(--shadow-sm, 0 1px 3px 0  rgba(42, 28, 16, 0.14), 0 1px 2px -1px rgba(52, 37, 26, 0.07));
     --rv-focus-ring:      var(--ring-focus, 0 0 0 3px rgba(0, 122, 80, 0.32));
 
     /* Type scale — rides the theme's modular --text-* scale (DESIGN.md §9 rule 4:
@@ -94,8 +94,32 @@ body {
        instead of hand-set 0.15s/0.18s/0.2s/120ms durations and raw translateY. */
     --rv-transition-fast: var(--transition-fast, 150ms cubic-bezier(0.25, 1, 0.5, 1));
     --rv-transition-base: var(--transition-base, 200ms cubic-bezier(0.25, 1, 0.5, 1));
+    --rv-transition-slow: var(--transition-slow, 320ms cubic-bezier(0.25, 1, 0.5, 1));
     --rv-lift-xs:    var(--lift-xs, -0.125rem);   /* -2px — card hover lift */
-    --rv-lift-sm:    var(--lift-sm, -0.25rem);    /* -4px */
+    /* --rv-lift-sm is gone: it aliased --lift-sm, which DRE-theme retired in
+       v2.22, so it was permanently on its fallback — a hard-coded -4px wearing
+       a token's name. Nothing referenced it; --rv-lift-xs is the one lift. */
+
+    /* Rhythm — the theme's --leading-* scale. The dashboards previously carried
+       twelve distinct raw line-heights (including a `24px`) and referenced the
+       tokens nowhere, so a dashboard block and a browse list on the same page
+       were set in the same family at the same size with different rhythm. */
+    --rv-leading-tight:   var(--leading-tight, 1.1);
+    --rv-leading-snug:    var(--leading-snug, 1.25);
+    --rv-leading-normal:  var(--leading-normal, 1.6);
+    --rv-leading-relaxed: var(--leading-relaxed, 1.75);
+
+    /* Stacking — the theme's page-layer scale. These replace sixteen hand-set
+       values, two of which were 9999: a fullscreen chart stage that sat above
+       the theme's sticky header (250), drawer (280), modal (300) AND tooltip
+       (500), i.e. above chrome it should never cover. --rv-z-stage is the
+       theme's own name for that layer and lands between drawer and modal.
+       Purely local sibling ordering inside a component stays a small integer:
+       it is not a page layer and does not belong on the scale. */
+    --rv-z-banner:   var(--z-banner, 10);
+    --rv-z-dropdown: var(--z-dropdown, 100);
+    --rv-z-stage:    var(--z-stage, 290);
+    --rv-z-modal:    var(--z-modal, 300);
 }
 
 /* ------------------------------------------------------------------ */
@@ -194,7 +218,7 @@ button.semantic-map-mode__button:focus-visible {
     top: calc(100% + var(--rv-space-1));
     right: 0;
     left: 0;
-    z-index: 20;
+    z-index: var(--rv-z-dropdown);
     max-height: 20rem;
     overflow-y: auto;
     margin: 0;
@@ -314,14 +338,14 @@ button.semantic-map-mode__button:focus-visible {
     color: var(--rv-text-color);
     font-size: var(--rv-text-2xs);
     font-weight: 750;
-    line-height: 1.45;
+    line-height: var(--rv-leading-normal);
 }
 
 .semantic-similar-title {
     overflow-wrap: anywhere;
     font-size: var(--rv-text-base);
     font-weight: 700;
-    line-height: 1.35;
+    line-height: var(--rv-leading-snug);
 }
 
 .semantic-similar-score {
@@ -332,7 +356,7 @@ button.semantic-map-mode__button:focus-visible {
     text-align: right;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 767px) {
     .semantic-map-toolbar {
         grid-template-columns: minmax(0, 1fr);
         align-items: stretch;
@@ -372,40 +396,48 @@ button.semantic-map-mode__button:focus-visible {
  * never used. They simply keep the module usable (and dark-aware) if dropped
  * into a theme that lacks the DRE token set but honours prefers-color-scheme.
  *
- * ►► DELIBERATELY FROZEN — DO NOT "tidy" or sync to the theme. ◄◄
- * These literals are a deliberately frozen snapshot of the DRE forest-dark
- * surfaces, kept ONLY as the dark fallback after each `var(--token, …)` for a
- * non-DRE host. Under the DRE theme they are 100% inert (the token always wins),
- * so they CANNOT drift the live UI — the only thing that "drifts" is what an
- * isolated/non-DRE dark render shows, which is cosmetic. Resist the urge to
- * delete the block as "duplication" (a non-DRE dark host would then get the
- * light fallbacks) or to chase the theme's exact dark hexes (pointless churn on
- * inert values). They live in `var()` fallback position, so the token linter
- * already permits them — no lint exception is required. This is the same
- * fallback-on-brand contract as DESIGN.md §9 rule 3, doubled for dark.
+ * ►► GENERATED VALUES — do not hand-edit; run the theme's generator. ◄◄
+ * Every literal below is the theme's own dark resolution, taken from
+ * DRE-theme's `asset/css/dre-tokens-fallback.json` and checked on every lint
+ * run by the shared `fallback literal matches the token` rule.
+ *
+ * This block used to say the opposite — that the literals were a deliberately
+ * frozen snapshot and that syncing them to the theme was "pointless churn on
+ * inert values", on the grounds that the token always wins under the DRE theme.
+ * The premise was true and the conclusion was the mechanism of the drift: being
+ * unobservable is exactly why every one of these numbers came loose from the
+ * palette (the 2026-08 design review found --border here two full steps off,
+ * and --muted rendered as four different greys in the sibling repo). A fallback
+ * is what a maintainer reads and what an isolated render paints, so it is part
+ * of the design system whether or not a browser ever composites it.
+ *
+ * Keeping them right now costs nothing, because nobody types them: they are
+ * derived from the same OKLCH source as the live tokens. This is the
+ * fallback-on-brand contract of DESIGN.md §9 rule 3, doubled for dark — and
+ * enforced rather than asserted.
  */
 @media (prefers-color-scheme: dark) {
     body {
         /* Forest-dark (mirrors the DRE dark theme), lifted green accent. */
-        --rv-bg:            var(--surface, #1b211e);
-        --rv-bg-raised:     var(--surface-raised, #212724);
-        --rv-bg-sunken:     var(--surface-sunken, #161b18);
-        --rv-overlay:       var(--surface-overlay, rgba(27, 33, 30, 0.92));
+        --rv-bg:            var(--surface, #0e1612);
+        --rv-bg-raised:     var(--surface-raised, #151d19);
+        --rv-bg-sunken:     var(--surface-sunken, #070d0a);
+        --rv-overlay:       var(--surface-overlay, rgba(14, 22, 18, 0.92));
 
-        --rv-border:        var(--border, #39423d);
-        --rv-border-light:  var(--border-light, #2c3531);
-        --rv-border-strong: var(--border-strong, #4c554f);
+        --rv-border:        var(--border, #2c3531);
+        --rv-border-light:  var(--border-light, #1e2622);
+        --rv-border-strong: var(--border-strong, #49534e);
 
-        --rv-heading-color: var(--ink-strong, #f3f1ec);
-        --rv-text-strong:   var(--ink, #e3e0d9);
-        --rv-text-color:    var(--ink-light, #aaa498);
+        --rv-heading-color: var(--ink-strong, #f6f5f1);
+        --rv-text-strong:   var(--ink, #e3e1db);
+        --rv-text-color:    var(--ink-light, #b0aea7);
 
-        --rv-accent:          var(--primary, #3fb488);
-        --rv-accent-hover:    var(--primary-hover, #5cc49d);
-        --rv-accent-contrast: var(--primary-contrast, #14201a);
+        --rv-accent:          var(--primary, #4da67b);
+        --rv-accent-hover:    var(--primary-hover, #6ab38e);
+        --rv-accent-contrast: var(--primary-contrast, #05100b);
 
-        --rv-shadow:    var(--shadow-lg, 0 4px 16px rgba(0, 0, 0, 0.5));
-        --rv-shadow-sm: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.45));
+        --rv-shadow:    var(--shadow-lg, 0 12px 28px -8px rgba(0, 0, 0, 0.4), 0 8px 16px -8px rgba(0, 0, 0, 0.24));
+        --rv-shadow-sm: var(--shadow-sm, 0 2px 6px -1px rgba(0, 0, 0, 0.22), 0 2px 4px -2px rgba(0, 0, 0, 0.14));
     }
 }
 
@@ -517,7 +549,7 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     position: absolute;
     top: 0;
     right: 0;
-    z-index: 10;
+    z-index: var(--rv-z-banner);
     display: flex;
     gap: var(--rv-space-1);
 }
@@ -582,7 +614,7 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     box-shadow: var(--rv-shadow-sm);
     color: var(--rv-text-strong);
     font-size: var(--rv-text-xs);
-    line-height: 1.45;
+    line-height: var(--rv-leading-normal);
     pointer-events: none;
 }
 
@@ -632,7 +664,7 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     margin: 0 var(--rv-space-6) var(--rv-space-1) 0;
     color: var(--rv-heading-color);
     font-size: var(--rv-text-sm);
-    line-height: 1.3;
+    line-height: var(--rv-leading-snug);
 }
 
 .rv-kg-card-type {
@@ -781,7 +813,7 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
 .knowledge-graph-block.rv-fullscreen {
     position: fixed;
     inset: 0;
-    z-index: 9999;
+    z-index: var(--rv-z-stage);
     margin: 0;
     padding: var(--rv-space-4);
     background: var(--rv-bg);
@@ -831,7 +863,7 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
 }
 
 .knowledge-graph-block .knowledge-graph-toolbar {
-    top: 1.6rem;
+    top: var(--rv-space-6, 1.5rem);
     right: 0.5rem;
 }
 
@@ -868,7 +900,7 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     border: 1px solid var(--rv-border);
     border-radius: var(--rv-radius);
     box-shadow: var(--rv-shadow);
-    z-index: 20;
+    z-index: var(--rv-z-dropdown);
 }
 
 /* Each slider block: label row on top, slider row below, description last. */
@@ -955,7 +987,7 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     font-size: var(--rv-text-2xs);
     color: var(--rv-text-color);
     margin-top: var(--rv-space-1);
-    line-height: 1.35;
+    line-height: var(--rv-leading-snug);
 }
 
 /* Reset action at the foot of the knowledge-graph filter panel. A text button
@@ -1107,7 +1139,7 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     font-size: var(--rv-text-xs);
     color: var(--rv-text-color);
     margin: 0 0 var(--rv-space-2);
-    line-height: 1.4;
+    line-height: var(--rv-leading-snug);
 }
 
 /* Word-count slider for wordcloud panels. */
@@ -1579,7 +1611,7 @@ button.rv-toolbar-btn:focus-visible,
 
 .rv-popup-content {
     font-size: var(--rv-text-xs);
-    line-height: 1.4;
+    line-height: var(--rv-leading-snug);
     max-width: 300px;
 }
 
@@ -1636,7 +1668,7 @@ button.rv-toolbar-btn:focus-visible,
     color: var(--rv-text-strong);
     font: inherit;
     font-size: var(--rv-text-xs);
-    line-height: 1.4;
+    line-height: var(--rv-leading-snug);
     cursor: pointer;
     border-radius: var(--rv-radius-sm);
     transition: opacity var(--rv-transition-fast), color var(--rv-transition-fast);
@@ -1814,7 +1846,7 @@ button.rv-toolbar-btn:focus-visible,
 
 .rv-combobox-list {
     position: absolute;
-    z-index: 30;
+    z-index: var(--rv-z-dropdown);
     top: calc(100% + 4px);
     left: 0;
     right: 0;
@@ -1890,7 +1922,7 @@ button.rv-toolbar-btn:focus-visible,
     padding: var(--rv-space-2) var(--rv-space-3);
     font-size: var(--rv-text-xs);
     font-weight: 500;
-    line-height: 1.2;
+    line-height: var(--rv-leading-tight);
     color: var(--rv-text-strong);
     background: var(--rv-bg);
     border: 1px solid var(--rv-border);
@@ -2009,7 +2041,7 @@ button.rv-toolbar-btn:focus-visible,
     margin-top: var(--rv-space-3);
     max-width: 70ch;
     font-size: var(--rv-text-sm);
-    line-height: 1.65;
+    line-height: var(--rv-leading-relaxed);
     color: var(--rv-text-color);
 }
 
@@ -2062,7 +2094,7 @@ button.rv-toolbar-btn:focus-visible,
     color: var(--rv-heading-color);
     font-weight: 600;
     font-size: var(--rv-text-sm);
-    line-height: 1.3;
+    line-height: var(--rv-leading-snug);
 }
 
 .whats-new-card-date {
@@ -2126,7 +2158,7 @@ button.rv-toolbar-btn:focus-visible,
     font-size: var(--rv-text-xl);
     font-weight: 700;
     color: var(--rv-heading-color);
-    line-height: 1.2;
+    line-height: var(--rv-leading-tight);
     font-variant-numeric: tabular-nums;
 }
 
@@ -2288,7 +2320,7 @@ button.rv-toolbar-btn:focus-visible,
     }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 599px) {
     .rv-stat-cards {
         grid-template-columns: 1fr;
     }
@@ -2494,7 +2526,7 @@ button.rv-toolbar-btn:focus-visible,
     /* Fade the image in once it has decoded (engine adds .is-loaded) so it
        eases over the muted placeholder instead of popping. */
     opacity: 0;
-    transition: opacity 0.4s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity var(--rv-transition-slow), transform var(--rv-transition-slow);
 }
 .photo-card-img.is-loaded {
     opacity: 1;
@@ -2514,7 +2546,7 @@ button.rv-toolbar-btn:focus-visible,
     margin: 0;
     font-size: var(--rv-text-xs);
     font-weight: 600;
-    line-height: 1.3;
+    line-height: var(--rv-leading-snug);
     color: var(--rv-heading-color);
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -2660,7 +2692,7 @@ button.rv-toolbar-btn:focus-visible,
 .photo-timeline-cap {
     margin-top: 5px;
     font-size: var(--rv-text-2xs);
-    line-height: 1.3;
+    line-height: var(--rv-leading-snug);
     color: var(--rv-text-color);
     white-space: nowrap;
     overflow: hidden;
@@ -2675,7 +2707,7 @@ body.photo-lightbox-open {
 .photo-lightbox {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: var(--rv-z-modal);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2733,7 +2765,7 @@ body.photo-lightbox-open {
     margin: 0 0 14px;
     color: var(--rv-heading-color);
     font-size: var(--rv-text-base);
-    line-height: 1.35;
+    line-height: var(--rv-leading-snug);
 }
 
 .photo-lightbox-fields {
@@ -2843,7 +2875,7 @@ body.photo-lightbox-open {
 .photo-lightbox-close svg { width: 20px; height: 20px; }
 .photo-lightbox-nav svg { width: 26px; height: 26px; }
 
-@media (max-width: 680px) {
+@media (max-width: 767px) {
     .photo-lightbox-body {
         flex-direction: column;
         max-height: 94vh;
@@ -2885,7 +2917,7 @@ body.photo-lightbox-open {
 .photo-toc {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: var(--rv-z-modal);
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -3005,7 +3037,7 @@ body.photo-lightbox-open {
     font-size: var(--rv-text-xs);
     font-weight: 500;
     color: var(--rv-text-strong);
-    line-height: 1.3;
+    line-height: var(--rv-leading-snug);
 }
 .photo-toc-item-creator {
     margin: 2px 0 0;
@@ -3045,7 +3077,7 @@ body.photo-lightbox-open {
 }
 .photo-toc-close:hover { background: var(--rv-border); }
 
-@media (max-width: 720px) {
+@media (max-width: 767px) {
     .photo-toc-frame { grid-template-columns: 1fr; }
     .photo-toc-cover { max-height: 240px; }
 }
@@ -3083,7 +3115,7 @@ body.photo-lightbox-open {
     grid-template-columns: 1fr;
     gap: 20px;
 }
-@media (min-width: 720px) {
+@media (min-width: 768px) {
     .featured-collections { grid-template-columns: repeat(2, 1fr); }
 }
 
@@ -3118,7 +3150,7 @@ body.photo-lightbox-open {
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.4s ease;
+    transition: transform var(--rv-transition-slow);
 }
 .collection-card:hover .collection-card-cover img {
     transform: scale(1.03);
@@ -3175,7 +3207,7 @@ body.photo-lightbox-open {
 .collection-card-desc {
     margin: 0;
     font-size: var(--rv-text-xs);
-    line-height: 1.5;
+    line-height: var(--rv-leading-normal);
     color: var(--rv-text-color);
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -3267,7 +3299,7 @@ body.photo-lightbox-open {
 .deg-search-input:focus-visible { outline: none; border-color: var(--rv-accent); box-shadow: var(--rv-focus-ring); }
 .deg-search-results {
     position: absolute;
-    z-index: 30;
+    z-index: var(--rv-z-dropdown);
     top: calc(100% + 2px);
     left: 0;
     right: 0;
@@ -3339,7 +3371,7 @@ body.photo-lightbox-open {
     background: var(--rv-bg);
     color: var(--rv-text-strong);
     font-size: var(--rv-text-xs);
-    line-height: 1.2;
+    line-height: var(--rv-leading-tight);
     cursor: pointer;
     appearance: auto;
     -webkit-appearance: auto;
@@ -3417,7 +3449,7 @@ body.photo-lightbox-open {
 .deg-type-row { display: flex; align-items: center; gap: var(--rv-space-2); }
 .deg-type-name { flex: 1 1 auto; }
 .deg-type-val { font-variant-numeric: tabular-nums; color: var(--rv-text-color); }
-.deg-side-hint { margin: var(--rv-space-3) 0 0; color: var(--rv-text-color); font-size: var(--rv-text-xs); line-height: 1.4; }
+.deg-side-hint { margin: var(--rv-space-3) 0 0; color: var(--rv-text-color); font-size: var(--rv-text-xs); line-height: var(--rv-leading-snug); }
 
 /* Sidebar — selected entity */
 .deg-detail-type { font-size: var(--rv-text-2xs); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; }
@@ -3523,7 +3555,7 @@ body.photo-lightbox-open {
 .communities-block.rv-fullscreen {
     position: fixed;
     inset: 0;
-    z-index: 9999;
+    z-index: var(--rv-z-stage);
     margin: 0;
     padding: var(--rv-space-4);
     background: var(--rv-bg);
@@ -3557,7 +3589,7 @@ body.photo-lightbox-open {
 }
 
 /* Stack the sidebar under the canvas on narrow viewports */
-@media (max-width: 720px) {
+@media (max-width: 767px) {
     .deg-stage { grid-template-columns: 1fr; height: auto; }
     .deg-canvas { height: 60vh; }
     .deg-sidebar { max-height: 280px; }
@@ -3607,7 +3639,11 @@ body.photo-lightbox-open {
  * cascades in — reset each property so it sits flush on the row, exactly as
  * .deg-weight-select / .compare-select do. */
 .rv-spatial-toolbar {
-    --rv-spatial-control-h: 2rem;
+    /* 2rem (32px) was under the theme's own stated 44px touch target, on a map
+       toolbar — precisely where a thumb lands. --size-control-lg IS that target;
+       it was declared here, 3500 lines below the alias block, which is how it
+       came to be a number rather than a token in the first place. */
+    --rv-spatial-control-h: var(--size-control-lg, 2.75rem);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -3633,7 +3669,7 @@ body.photo-lightbox-open {
     background: var(--rv-bg);
     color: var(--rv-text-strong);
     font-size: var(--rv-text-xs);
-    line-height: 1.2;
+    line-height: var(--rv-leading-tight);
     cursor: pointer;
     appearance: auto;
     -webkit-appearance: auto;
@@ -3744,7 +3780,7 @@ body.photo-lightbox-open {
 
 /* Selection chip + summary */
 .rv-spatial-selection { margin-bottom: var(--rv-space-4); }
-.rv-spatial-hint { margin: 0; color: var(--rv-text-color); font-size: var(--rv-text-xs); line-height: 1.4; }
+.rv-spatial-hint { margin: 0; color: var(--rv-text-color); font-size: var(--rv-text-xs); line-height: var(--rv-leading-snug); }
 .rv-spatial-chip {
     display: inline-flex;
     align-items: center;
@@ -3764,7 +3800,7 @@ body.photo-lightbox-open {
 .rv-spatial-link:hover { text-decoration: underline; }
 
 /* Stack the sidebar above the map on narrow viewports */
-@media (max-width: 720px) {
+@media (max-width: 767px) {
     .rv-spatial-stage { grid-template-columns: 1fr; height: auto; }
     .rv-spatial-sidebar { max-height: 320px; order: 2; }
     .rv-spatial-main { order: 1; }

@@ -2,6 +2,74 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.28.0 — 2026-08-14
+
+### Changed
+
+- **One reflow.** The dashboards carried their own breakpoint ladder — 420, 600,
+  680, 700, 720 and 768px — against the theme's 600 · 768 · 1024 · 1200 · 1460.
+  The 720/768 pair left a 48px band in which a dashboard block had changed layout
+  and the header around it had not. Every `@media` width now sits on the shared
+  ladder (`max-width` one pixel below a step, as the convention has it), so a page
+  carrying the theme's header, a facet panel and a dashboard turns at once.
+- **One rhythm.** Twelve distinct raw line-heights, including a `24px`, with the
+  theme's `--leading-*` tokens referenced nowhere. All 21 now read
+  `--rv-leading-tight/-snug/-normal/-relaxed`.
+- **Stacking is on the scale.** Sixteen hand-set `z-index` values, two of them
+  `9999` — a fullscreen chart stage sitting above the theme's sticky header,
+  drawer, modal layer *and* tooltip, i.e. above chrome it should never cover. The
+  nine that are page layers now read `--rv-z-banner/-dropdown/-stage/-modal`;
+  DRE-theme publishes `--z-stage` (290) for exactly this. Small integers that
+  order siblings inside one component stay raw — they are not page layers.
+- **Entity-type colour comes from the theme.** Person, Project, Organisation,
+  Subject, Location and the rest were a private registry here, while DRE Search
+  reached for a CSS variable nothing defined — two encodings of one meaning, so a
+  Person chip in search results and a Person node in a graph could not be
+  guaranteed the same hue. `ns.entityColor()` now resolves DRE-theme's published
+  `--entity-*` family, with the existing palette slot as the fallback. The values
+  are unchanged, so nothing re-colours.
+- A map toolbar's `--rv-spatial-control-h` was `2rem` — 32px, under the 44px
+  touch target the theme states as `--size-control-lg`, on the one surface where
+  a thumb actually lands. It reads that token now.
+
+### Fixed
+
+- **The guard palettes were a shadow brand.** `ns.THEME`'s placeholders and
+  `entity-graph.js`'s `THEME_FALLBACK` carried a teal accent (`#22817b`, not
+  Uni-Grün), Material's `#b2dfdb`, the cold greys `#333` / `#666` / `#e0e0e0` /
+  `#f0f0f0`, and a categorical fallback of stock Material purple, pink, blue and
+  brown — all named as anti-patterns in DESIGN.md. They only paint before
+  `dashboard-core` resolves, which is precisely how they came loose from the
+  palette. They are the theme's own generated values now.
+- Six `cssColor()` bridge fallbacks were off, including `--primary-contrast` and
+  `--surface` falling back to `#ffffff` — the literal the theme retired `--white`
+  to prevent — and `--accent` to the raw Braun pigment rather than `#ca7210`.
+- 88 `var(--token, literal)` fallbacks corrected against the theme's resolved
+  values, in both the light and the dark alias blocks. The dark block's header
+  argued that syncing them was "pointless churn on inert values"; being
+  unobservable is why they drifted, not a reason to let them, and they cost
+  nothing to keep right now that they are generated rather than typed.
+- `--rv-lift-sm` aliased `--lift-sm`, which DRE-theme retired in v2.22, so it was
+  permanently on its fallback — a hard-coded `-4px` wearing a token's name.
+  Nothing referenced it; it is gone.
+- Two interaction transitions read `--rv-transition-slow` instead of hand-set
+  `0.4s`/`0.3s`. The looping shimmer and spin placeholders keep their own
+  durations — they are not interactions.
+
+### Internal
+
+- `scripts/check-design-tokens.mjs` is now a thin config over
+  `scripts/lib/token-rules.mjs`, vendored verbatim from DRE-theme. It opened by
+  claiming it mirrored the theme's check and did not: this repo enforced
+  off-scale spacing and radius the theme did not, the theme measured contrast no
+  module did, and all three stripped `var(--x, …)` before applying any rule, so
+  no fallback was ever checked. Four rules are new — fallback literals (including
+  `cssColor()` bridge arguments), `--leading-*`, the z-index scale, and `@media`
+  widths against the shared ladder.
+- `scripts/design-token-allowlist.txt` records what is not yet converted, per rule
+  per file — a backlog, not exemptions. 10 lines today, 8 of them the canvas
+  palettes that DESIGN.md's data-colour contract governs instead.
+
 ## 2.27.0 — 2026-08-11
 
 ### Changed

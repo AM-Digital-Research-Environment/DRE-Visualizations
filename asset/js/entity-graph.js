@@ -72,17 +72,24 @@
     /*  Theme bridge (dashboard-core.js) — concrete RGB, mutated in place  */
     /* ------------------------------------------------------------------ */
 
+    // Only reached if dashboard-core hasn't resolved, so it never paints in
+    // practice — which is precisely how it came to hold a teal accent, cold
+    // greys and, below, four stock Material hues. The guard path is still part
+    // of the design system: these are the DRE theme's own light values, from
+    // its generated dre-tokens-fallback.json.
     var THEME_FALLBACK = {
-        text: '#333', textMuted: '#666', accent: '#22817b', surface: '#fff',
-        grid: '#e0e0e0', gridLight: '#f0f0f0',
-        fontFamily: 'system-ui, sans-serif'
+        text: '#3c342d', textMuted: '#5f5650', accent: '#007a50', surface: '#fdfcf9',
+        grid: '#dbd7d1', gridLight: '#eae8e3',
+        fontFamily: '"Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif'
     };
     function theme() { return ns.THEME || THEME_FALLBACK; }
     function isDark() { return typeof ns.isDark === 'function' ? ns.isDark() : false; }
 
     function colors() {
+        // The cluster brand palette (_PALETTE_LIGHT in dashboard-core), not the
+        // stock Material purple/pink/blue/brown this used to fall back to.
         return (ns.COLORS && ns.COLORS.length) ? ns.COLORS
-            : ['#22817b', '#f59c08', '#7e57c2', '#2e7d32', '#c2185b', '#0277bd', '#5d4037'];
+            : ['#009260', '#f59c08', '#44b8f2', '#d57912', '#00268a', '#cca352', '#0e7c71'];
     }
     function halo() {
         return (ns.HALO && ns.HALO.length) ? ns.HALO : colors();

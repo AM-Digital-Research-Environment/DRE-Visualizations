@@ -1,0 +1,25 @@
+# GENERATED baseline for scripts/check-design-tokens.mjs — the RATCHET.
+#
+# Each line exempts one rule in one file. This is a backlog, not a set of
+# exemptions: every line is a conversion someone still owes. Lines should
+# only ever be REMOVED. Regenerate with --update-allowlist after a pass,
+# and check the diff — a new line means new drift got in.
+#
+# Rules exempt by design (the data-colour palettes, JS layout maths) live
+# in the script.
+
+# hex — 8 file(s)
+hex  asset/css/dre-visualizations.css
+hex  asset/js/dashboard-charts-boxplot.js
+hex  asset/js/dashboard-charts-choropleth.js
+hex  asset/js/dashboard-charts-map.js
+hex  asset/js/item-set-photo-views.js
+hex  asset/js/sibling-sparkline.js
+hex  asset/js/spatial-exploration.js
+hex  view/dre-visualizations/layout/embed.phtml
+
+# pxGeometry — 1 file(s)
+pxGeometry  asset/css/dre-visualizations.css
+
+# radius — 1 file(s)
+radius  view/dre-visualizations/admin/maintenance/index.phtml

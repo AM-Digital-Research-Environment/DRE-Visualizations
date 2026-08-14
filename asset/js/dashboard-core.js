@@ -163,28 +163,54 @@
         return slot === undefined ? ENTITY_SLOT_FALLBACK : slot;
     };
 
+    // Slot → the DRE theme's published entity-type token. The family used to
+    // live here and nowhere else, as a private registry, while DRE Search
+    // authored against a CSS variable (--type-entity-term) that nothing defined
+    // — so a Person chip in search results and a Person node in a graph could
+    // not be guaranteed to be the same hue. The theme now publishes the family
+    // (see DESIGN.md §9), which makes it one name per meaning across all three
+    // repositories; the palette slot stays as the fallback for a non-DRE host.
+    var ENTITY_TOKEN = [
+        '--entity-person', '--entity-project', '--entity-organisation',
+        '--entity-subject', '--entity-location', '--entity-genre',
+        '--entity-language', '--entity-contributor', '--entity-item',
+        '--entity-item-related', '--entity-item-shared', '--entity-grouping'
+    ];
+
     /** The stable colour for an entity-type label, in the active theme. */
     ns.entityColor = function (name) {
-        return ns.COLORS[ns.entityColorIndex(name) % ns.COLORS.length];
+        var slot = ns.entityColorIndex(name);
+        var swatch = ns.COLORS[slot % ns.COLORS.length];
+        var token = ENTITY_TOKEN[slot];
+        return token ? ns.cssColor(token, swatch) : swatch;
     };
 
     // Shared design tokens. Colour values are placeholders here; readTheme()
     // overwrites them in place (so modules that captured `ns.THEME` see updates)
     // from the DRE theme's CSS variables on load and on every theme change.
+    // These are the values readTheme() overwrites, so they only ever paint in
+    // the guard path — before the theme has resolved, or on a host without it.
+    // They were nonetheless a whole second palette: a teal accent (#22817b, not
+    // Uni-Grün), Material's #b2dfdb, and the cold greys #333 / #666 / #e0e0e0 /
+    // #f0f0f0 that DESIGN.md names as an anti-pattern. A safety net is exactly
+    // where a design system quietly stores a different design, so these are now
+    // the theme's own generated light values (dre-tokens-fallback.json) and the
+    // shared lint checks them.
     ns.THEME = {
-        accent: '#22817b',        // ← --primary
-        accentDark: '#1a655f',    // ← --primary-hover
-        accentLight: '#b2dfdb',   // ← --primary-muted
-        gradientEnd: '#b2dfdb',   // ← --primary-muted (bar/area gradient tail)
-        text: '#333',             // ← --ink (primary chart text)
-        textMuted: '#666',        // ← --ink-light (axis labels, secondary)
-        heading: '#222',          // ← --ink-strong
-        border: '#fff',           // ← --surface (segment gaps, marker strokes)
-        grid: '#e0e0e0',          // ← --border (axis lines)
-        gridLight: '#f0f0f0',     // ← --border-light (split lines)
-        surface: '#fafafa',       // ← --surface (export background)
-        fontFamily: 'system-ui, sans-serif',  // ← --font-body (in-chart UI text)
-        fontDisplay: 'Georgia, serif',        // ← --font-display (in-canvas titles)
+        accent: '#007a50',        // ← --primary
+        accentDark: '#006743',    // ← --primary-hover
+        accentLight: '#e4f0e6',   // ← --primary-muted
+        gradientEnd: '#e4f0e6',   // ← --primary-muted (bar/area gradient tail)
+        text: '#3c342d',          // ← --ink (primary chart text)
+        textMuted: '#5f5650',     // ← --ink-light (axis labels, secondary)
+        heading: '#261d15',       // ← --ink-strong
+        border: '#fdfcf9',        // ← --surface (segment gaps, marker strokes)
+        grid: '#dbd7d1',          // ← --border (axis lines)
+        gridLight: '#eae8e3',     // ← --border-light (split lines)
+        surface: '#fdfcf9',       // ← --surface (export background)
+        // ← --font-body (in-chart UI text) / --font-display (in-canvas titles)
+        fontFamily: '"Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif',
+        fontDisplay: '"Spectral", Georgia, "Times New Roman", serif',
         fontSize: 12,   // Hanken sits visually smaller than the canvas default at 11
         fontSizeTitle: 14,
         fontSizeEmphasis: 13,
@@ -506,7 +532,7 @@
      * the ramp follows light / dark instead of being locked to a light palette.
      */
     ns.accentRamp = function () {
-        var base = ns.cssColor('--surface', ns._darkMode ? '#1e1e1e' : '#ffffff');
+        var base = ns.cssColor('--surface', ns._darkMode ? '#0e1612' : '#fdfcf9');
         return [0.86, 0.65, 0.44, 0.22, 0].map(function (r) {
             return ns.mix(ns.THEME.accent, base, r);
         });
@@ -746,7 +772,7 @@
 
     /** Background colour to use when exporting a chart as a PNG. */
     ns.exportBg = function () {
-        return ns.cssColor('--surface', ns._darkMode ? '#1e1e1e' : '#ffffff');
+        return ns.cssColor('--surface', ns._darkMode ? '#0e1612' : '#fdfcf9');
     };
 
     /**
@@ -811,16 +837,16 @@
             layers: [
                 {
                     id: 'background', type: 'background',
-                    paint: { 'background-color': ns.cssColor('--surface-sunken', dark ? '#1a1a1a' : '#f1ede6') }
+                    paint: { 'background-color': ns.cssColor('--surface-sunken', dark ? '#070d0a' : '#f3f0eb') }
                 },
                 {
                     id: 'dre-country-fill', type: 'fill', source: 'dre-countries',
-                    paint: { 'fill-color': ns.cssColor('--surface', dark ? '#242424' : '#fdfcfa') }
+                    paint: { 'fill-color': ns.cssColor('--surface', dark ? '#0e1612' : '#fdfcf9') }
                 },
                 {
                     id: 'dre-country-line', type: 'line', source: 'dre-countries',
                     paint: {
-                        'line-color': ns.cssColor('--border-strong', dark ? '#4a4a4a' : '#c3b9a9'),
+                        'line-color': ns.cssColor('--border-strong', dark ? '#49534e' : '#bfbab3'),
                         'line-width': 0.6
                     }
                 },
@@ -837,8 +863,8 @@
                         'text-padding': 6
                     },
                     paint: {
-                        'text-color': ns.cssColor('--ink-light', dark ? '#a49c91' : '#6c6357'),
-                        'text-halo-color': ns.cssColor('--surface', dark ? '#242424' : '#fdfcfa'),
+                        'text-color': ns.cssColor('--ink-light', dark ? '#b0aea7' : '#5f5650'),
+                        'text-halo-color': ns.cssColor('--surface', dark ? '#0e1612' : '#fdfcf9'),
                         'text-halo-width': 1.2
                     }
                 }
