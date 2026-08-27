@@ -29,6 +29,9 @@ $this->dashboardAssets(['cdn' => true]);
 $siteSlug = $this->currentSite()->slug();
 $layout = $layout ?? null;
 $title = $title ?? null;
+$readyStatus = $this->translate('Visualisations ready.');
+$emptyStatus = $this->translate('No visualisations are available.');
+$errorStatus = $this->translate('Visualisations are unavailable.');
 ?>
 
 <div class="resource-vis-block dashboard-block">
@@ -37,15 +40,26 @@ $title = $title ?? null;
          <?php if ($layout !== null): ?>data-layout="<?= $this->escapeHtmlAttr($layout) ?>"<?php endif; ?>
          data-embed-slug="<?= $this->escapeHtmlAttr($slug) ?>"
          <?php if ($title !== null): ?>data-title="<?= $this->escapeHtmlAttr($title) ?>"<?php endif; ?>
+         data-ready-status="<?= $this->escapeHtmlAttr($readyStatus) ?>"
+         data-empty-status="<?= $this->escapeHtmlAttr($emptyStatus) ?>"
+         data-error-status="<?= $this->escapeHtmlAttr($errorStatus) ?>"
          data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"
          data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $siteSlug) ?>">
-        <noscript>
-            <style>.dashboard-async-container .rv-loading { display: none; }</style>
-            <div class="rv-no-data"><?= $this->translate('These interactive charts need JavaScript to work. Please turn it on, or use the collection’s search and browse pages instead.') ?></div>
-        </noscript>
-        <div class="rv-loading">
-            <div class="rv-spinner"></div>
-            <span><?= $this->escapeHtml($loading) ?></span>
+        <p class="rv-dashboard-status" role="status" aria-live="polite" aria-atomic="true">
+            <?= $this->escapeHtml($loading) ?>
+        </p>
+        <div class="rv-dashboard-content">
+            <noscript>
+                <style>
+                    .dashboard-async-container .rv-loading,
+                    .dashboard-async-container .rv-dashboard-status { display: none; }
+                </style>
+                <div class="rv-no-data"><?= $this->translate('These interactive charts need JavaScript to work. Please turn it on, or use the collection’s search and browse pages instead.') ?></div>
+            </noscript>
+            <div class="rv-loading">
+                <div class="rv-spinner"></div>
+                <span aria-hidden="true"><?= $this->escapeHtml($loading) ?></span>
+            </div>
         </div>
     </div>
 </div>

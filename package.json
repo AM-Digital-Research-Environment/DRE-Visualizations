@@ -11,9 +11,10 @@
     "check:js": "node scripts/check-js-syntax.mjs",
     "check:registry": "node scripts/check-registry-contracts.mjs",
     "check:html": "node scripts/check-html-safety.mjs",
+    "check:a11y": "node scripts/check-accessibility-contracts.mjs",
     "check:release": "node scripts/check-release-metadata.mjs",
     "check:graph": "node scripts/check-graph-contracts.mjs",
-    "check": "npm run check:bundles && npm run lint:tokens && npm run check:js && npm run check:registry && npm run check:html && npm run check:graph && npm run check:release"
+    "check": "npm run check:bundles && npm run lint:tokens && npm run check:js && npm run check:registry && npm run check:html && npm run check:a11y && npm run check:graph && npm run check:release"
   },
   "author": "Frédérick Madore",
   "license": "GPL-3.0-or-later",

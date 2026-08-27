@@ -96,7 +96,7 @@
                 ? descOverrides[key]
                 : ((ns.CHART_DESCRIPTIONS && ns.CHART_DESCRIPTIONS[key]) || '');
             chartsHtml += '<div class="chart-panel' + wide + '">'
-                + '<h3>' + escapeHtml(label) + '</h3>'
+                + '<div class="rv-chart-heading"><h3>' + escapeHtml(label) + '</h3></div>'
                 + (desc ? '<p class="chart-description">' + escapeHtml(desc) + '</p>' : '')
                 + '<div class="chart-container' + tall + '" data-chart="' + key + '"></div>'
                 + '</div>';
@@ -168,15 +168,30 @@
         var itemId = container.dataset.itemId;
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
+        var content = container.querySelector('.rv-dashboard-content') || container;
+        var status = container.querySelector('.rv-dashboard-status');
+        var finish = function (message) {
+            container.setAttribute('aria-busy', 'false');
+            if (status) status.textContent = message;
+        };
+        container.setAttribute('aria-busy', 'true');
         ns.basePath = basePath; // expose for builders that load module assets (e.g. choropleth GeoJSON)
         var directory = /^[a-z0-9-]+$/.test(container.dataset.dashboardDir || '')
             ? container.dataset.dashboardDir : 'item-dashboards';
 
         ns.fetchDataJson(directory + '/' + encodeURIComponent(itemId) + '.json').then(function (data) {
-            if (!data || !data.totalItems) { container.innerHTML = ''; return; }
-            container.innerHTML = '';
-            renderDashboard(container, data, siteBase, true);
-        }).catch(function () { container.innerHTML = ''; });
+            if (!data || !data.totalItems) {
+                content.innerHTML = '';
+                finish(container.dataset.emptyStatus || ns.t('noData', 'Nothing to show'));
+                return;
+            }
+            content.innerHTML = '';
+            renderDashboard(content, data, siteBase, true);
+            finish(container.dataset.readyStatus || ns.t('visualizationsReady', 'Visualisations ready.'));
+        }).catch(function () {
+            content.innerHTML = '';
+            finish(container.dataset.errorStatus || ns.t('visualizationsUnavailable', 'Visualisations are unavailable.'));
+        });
     }
 
     /* ------------------------------------------------------------------ */

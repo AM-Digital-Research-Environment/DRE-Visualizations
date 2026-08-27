@@ -2,6 +2,22 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## Unreleased
+
+### Fixed
+
+- Dashboard action buttons now live in a named sibling toolbar instead of
+  inside each chart heading. Heading navigation therefore announces only the
+  chart title, while every icon-only action has an explicit accessible name.
+- Async dashboards keep a persistent polite status region and expose
+  `aria-busy` while data loads. Ready, empty, and unavailable outcomes are
+  announced without moving focus or removing the readable page around a chart.
+
+### Internal
+
+- `npm run check` now pins the dashboard heading, toolbar, control-name, and
+  live-status contracts with a dependency-free accessibility check.
+
 ## 2.28.0 — 2026-08-14
 
 ### Changed

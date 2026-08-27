@@ -1251,22 +1251,27 @@
         var saveTitle = ns.t('saveImage', 'Save this chart as an image');
         var csvTitle = ns.t('downloadCsv', 'Download this chart’s data as a spreadsheet (CSV)');
         var hasCsv = ns.chartCsvRows(chart).length > 1;
-        var bar = document.createElement('span');
+        var title = panel.querySelector('h3');
+        var panelTitle = title ? (title.textContent || '').trim() : '';
+        var toolbarLabel = ns.t('chartActions', 'Chart actions');
+        var bar = document.createElement('div');
         bar.className = 'rv-chart-toolbar';
+        bar.setAttribute('role', 'toolbar');
+        bar.setAttribute('aria-label', panelTitle ? toolbarLabel + ': ' + panelTitle : toolbarLabel);
         bar.innerHTML = (showDecal
-            ? '<button type="button" class="rv-toolbar-btn' + (ns._decalEnabled ? ' rv-toolbar-btn-active' : '') + '" data-action="decal" title="' + ns.escapeHtml(decalTitle) + '">'
+            ? '<button type="button" class="rv-toolbar-btn' + (ns._decalEnabled ? ' rv-toolbar-btn-active' : '') + '" data-action="decal" title="' + ns.escapeHtml(decalTitle) + '" aria-label="' + ns.escapeHtml(decalTitle) + '">'
             + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><line x1="4" y1="14" x2="14" y2="4"/><line x1="4" y1="8" x2="8" y2="4"/><line x1="10" y1="20" x2="20" y2="10"/><line x1="16" y1="20" x2="20" y2="16"/></svg>'
             + '</button>'
             : '')
-            + '<button type="button" class="rv-toolbar-btn" data-action="save" title="' + ns.escapeHtml(saveTitle) + '">'
+            + '<button type="button" class="rv-toolbar-btn" data-action="save" title="' + ns.escapeHtml(saveTitle) + '" aria-label="' + ns.escapeHtml(saveTitle) + '">'
             + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
             + '</button>'
             + (hasCsv
-                ? '<button type="button" class="rv-toolbar-btn" data-action="csv" title="' + ns.escapeHtml(csvTitle) + '">'
+                ? '<button type="button" class="rv-toolbar-btn" data-action="csv" title="' + ns.escapeHtml(csvTitle) + '" aria-label="' + ns.escapeHtml(csvTitle) + '">'
                 + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/></svg></button>'
                 : '');
-        var title = panel.querySelector('h3');
-        if (title) title.appendChild(bar);
+        var heading = panel.querySelector('.rv-chart-heading');
+        if (heading) heading.appendChild(bar);
         bar.addEventListener('click', function (e) {
             var btn = e.target.closest('[data-action]');
             if (!btn) return;
@@ -1394,10 +1399,12 @@
         // Per-chart embeds are a dashboard-only surface (the standard async render
         // path). Widgets that reuse ns.renderInto must not get per-chart buttons —
         // their /dre-embed/<slug>/<chart> URL has no single-chart route and 404s.
-        if (!container.classList.contains('dashboard-async-container')) return;
-        var slug = container.getAttribute('data-embed-slug');
+        var dashboard = container.classList.contains('dashboard-async-container')
+            ? container : container.closest('.dashboard-async-container');
+        if (!dashboard) return;
+        var slug = dashboard.getAttribute('data-embed-slug');
         if (!slug) return;
-        var siteBase = container.getAttribute('data-site-base') || '';
+        var siteBase = dashboard.getAttribute('data-site-base') || '';
         var panels = container.querySelectorAll('.chart-panel');
         for (var i = 0; i < panels.length; i++) {
             (function (panel) {
@@ -1405,11 +1412,14 @@
                 var h3 = panel.querySelector('h3');
                 if (!cc || !h3) return;
                 var key = cc.getAttribute('data-chart');
-                var bar = h3.querySelector('.rv-chart-toolbar');
+                var heading = panel.querySelector('.rv-chart-heading');
+                var bar = panel.querySelector('.rv-chart-toolbar');
                 if (!bar) {
-                    bar = document.createElement('span');
+                    bar = document.createElement('div');
                     bar.className = 'rv-chart-toolbar';
-                    h3.appendChild(bar);
+                    bar.setAttribute('role', 'toolbar');
+                    bar.setAttribute('aria-label', ns.t('chartActions', 'Chart actions') + ': ' + (h3.textContent || '').trim());
+                    if (heading) heading.appendChild(bar);
                 }
                 bar.appendChild(ns.makeEmbedButton({
                     src: ns.embedUrl(siteBase, slug, key),
