@@ -1536,6 +1536,32 @@ button.rv-toolbar-btn:focus-visible,
     background: var(--rv-bg-sunken);
 }
 
+/* MapLibre's native controls are 29px and its popup close button is 24px.
+   Preserve that compact desktop geometry, but make the actual controls—not an
+   overlapping pseudo-element—44px on touch devices. Extra popup padding keeps
+   the enlarged close control clear of the content. */
+@media (pointer: coarse) {
+    .resource-vis-block .maplibregl-ctrl button,
+    .rv-item-map-panel .maplibregl-ctrl button,
+    .resource-vis-block .maplibregl-popup-close-button,
+    .rv-item-map-panel .maplibregl-popup-close-button {
+        width: var(--size-control-lg, 2.75rem);
+        height: var(--size-control-lg, 2.75rem);
+        min-width: var(--size-control-lg, 2.75rem);
+        min-height: var(--size-control-lg, 2.75rem);
+    }
+
+    .resource-vis-block .maplibregl-popup-close-button,
+    .rv-item-map-panel .maplibregl-popup-close-button {
+        line-height: var(--size-control-lg, 2.75rem);
+    }
+
+    .resource-vis-block .maplibregl-popup-content,
+    .rv-item-map-panel .maplibregl-popup-content {
+        padding-inline-end: calc(var(--size-control-lg, 2.75rem) + var(--rv-space-2));
+    }
+}
+
 /* Map legend — rendered BELOW the map (appended to the .chart-panel by
    ns.mountMapLegend), never overlaid on the basemap, so it can't cover
    countries, markers or their labels. The cluster-partner map's toggleable

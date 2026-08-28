@@ -12,11 +12,15 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 - Async dashboards keep a persistent polite status region and expose
   `aria-busy` while data loads. Ready, empty, and unavailable outcomes are
   announced without moving focus or removing the readable page around a chart.
+- On coarse pointers, native MapLibre navigation and popup-close controls now
+  use the shared 44px touch-target token. Popup content reserves enough space
+  for the enlarged close action, while fine-pointer layouts stay compact.
 
 ### Internal
 
-- `npm run check` now pins the dashboard heading, toolbar, control-name, and
-  live-status contracts with a dependency-free accessibility check.
+- `npm run check` now pins the dashboard heading, toolbar, control-name,
+  live-status, and MapLibre touch-target contracts with a dependency-free
+  accessibility check.
 
 ## 2.28.0 — 2026-08-14
 

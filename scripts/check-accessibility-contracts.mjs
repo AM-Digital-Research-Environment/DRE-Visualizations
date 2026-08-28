@@ -97,6 +97,26 @@ requireFragment(
   '.rv-dashboard-status {',
   'the persistent dashboard status needs a visually hidden treatment',
 );
+requireFragment(
+  css,
+  '.resource-vis-block .maplibregl-ctrl button,',
+  'touch maps must include MapLibre navigation controls in the module boundary',
+);
+requireFragment(
+  css,
+  '.rv-item-map-panel .maplibregl-popup-close-button {',
+  'item-map popup close controls must be included in the touch-target contract',
+);
+requireFragment(
+  css,
+  'min-height: var(--size-control-lg, 2.75rem);',
+  'MapLibre touch controls must use the shared 44px control token',
+);
+requireFragment(
+  css,
+  'padding-inline-end: calc(var(--size-control-lg, 2.75rem) + var(--rv-space-2));',
+  'touch popups must reserve content space for the enlarged close control',
+);
 
 if (failures.length) {
   console.error(`Accessibility contracts: ${failures.length} finding(s)`);
@@ -104,4 +124,6 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Accessibility contracts: clean (headings, toolbars, and async status).');
+console.log(
+  'Accessibility contracts: clean (headings, toolbars, async status, and map touch targets).',
+);
