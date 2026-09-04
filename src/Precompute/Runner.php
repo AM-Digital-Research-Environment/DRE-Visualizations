@@ -758,9 +758,11 @@ final class Runner
             return;
         }
         // Combined corpus, de-duplicated. Research items are template 10,
-        // publications templates 11–20, podcasts template 21 and YouTube videos
-        // template 22 (disjoint item sets), but flatten through array_flip to
-        // guard against overlap anyway.
+        // publications templates 11-20 and 24-32 (a non-contiguous range that
+        // grows with each new EP3 type, which is why publicationIds() selects
+        // by item set, never by template), podcasts template 21 and YouTube
+        // videos template 22 (disjoint item sets), but flatten through
+        // array_flip to guard against overlap anyway.
         $overviewItems = array_keys(array_flip(array_merge($researchItems, $publications, $podcasts, $youtube)));
         // Each publication / podcast / YouTube video is folded under one synthetic
         // resource type (overriding its own dcterms:type, if any) so it appears as a

@@ -2,6 +2,21 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.28.2 — 2026-09-04
+
+### Documentation
+
+- The Collection Overview comment described the cluster bibliography as
+  "templates 11–20". It now spans 11–20 **and** 24–32, a non-contiguous range
+  that grows whenever a new upstream EP3 publication type appears. No code
+  change: `publicationIds()` selects by the Publications item set and
+  `buildTemplates()` reads its labels from `resource_template` at runtime, so
+  nine new templates and 285 new publications flowed in with nothing to
+  register in `config/amira-profile.json`.
+
+> Run **Regenerate now** after upgrading — the upstream harvest grew from 277
+> to 562 publications, and every dashboard renders precomputed JSON.
+
 ## 2.28.1 — 2026-08-28
 
 ### Fixed
