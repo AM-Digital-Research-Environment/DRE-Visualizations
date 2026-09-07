@@ -2,6 +2,19 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.28.3 — 2026-09-07
+
+### Fixed
+
+- Preserve configured dashboard titles and layouts during asynchronous rendering.
+- Show accessible empty/error states and a reload action, and isolate chart failures so other charts remain usable.
+- Refresh a pruned snapshot generation once before retrying a missing artifact.
+- Use the optional DRESearch 1.21.0 public corpus-count service for overview totals, including configured extra sources and public site membership. Omit country subtitles from canonical location totals.
+
+### Upgrade
+
+Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then run **Regenerate now**. Preserve the installation's asset/data directory when upgrading; generated snapshots are intentionally not bundled in release archives. Without the new Search service, existing fallback count definitions remain in use.
+
 ## 2.28.2 — 2026-09-04
 
 ### Documentation
