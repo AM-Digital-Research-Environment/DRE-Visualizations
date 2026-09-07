@@ -2,6 +2,14 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.28.4 — 2026-09-07
+
+### Fixed
+
+- Spatial Exploration uses a named group of native toggle buttons instead of incomplete listbox semantics. Selection is always a boolean, and keyboard focus survives result-list updates.
+- Underline MapLibre attribution links so they remain identifiable without colour perception.
+- No data schema change or regeneration is needed for this patch. Preserve asset/data when replacing the module; see the theme's release-deployment guide and snapshot health gate.
+
 ## 2.28.3 — 2026-09-07
 
 ### Fixed

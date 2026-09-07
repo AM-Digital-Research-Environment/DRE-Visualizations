@@ -557,3 +557,13 @@ from there. Its `version` and `date-released` are checked against
 ## License
 
 GPL-3.0-or-later
+
+### Preserve generated data during release updates
+
+Before replacing this module directory, preserve the complete published data
+pointer and generations outside it. Restore generated files with the correct
+web-server ownership, without replacing newer static inputs from the release.
+A persistent data volume avoids losing generations during module replacement.
+Follow the [release deployment procedure and executable health gate](https://github.com/AM-Digital-Research-Environment/DRE-theme/blob/master/docs/RELEASE-DEPLOYMENT.md).
+Do not consider an update complete until the snapshot gate and live smoke suite
+pass. Patch 2.28.4 changes only the interface and does not require regeneration.

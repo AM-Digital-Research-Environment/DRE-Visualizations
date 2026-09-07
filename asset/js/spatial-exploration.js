@@ -193,7 +193,8 @@
         searchInput.placeholder = 'Search by name…';
         searchInput.setAttribute('aria-label', 'Search by name');
         var listEl = el('div', 'rv-spatial-list');
-        listEl.setAttribute('role', 'listbox');
+        listEl.setAttribute('role', 'group');
+        listEl.setAttribute('aria-label', ns.t('searchEntities', 'Search entities'));
         var pickGroup = group('Then pick one', searchInput);
         pickGroup.appendChild(listEl);
         sidebar.appendChild(pickGroup);
@@ -528,10 +529,10 @@
             var id = row[0], label = row[1], placeCount = row[2];
             var btn = el('button', 'rv-spatial-item');
             btn.type = 'button';
-            btn.setAttribute('role', 'option');
-            var active = selection && selection.id === id;
+            btn.dataset.entityId = String(id);
+            var active = !!selection && selection.id === id;
             if (active) btn.classList.add('is-active');
-            btn.setAttribute('aria-selected', String(active));
+            btn.setAttribute('aria-pressed', String(active));
             btn.appendChild(el('span', 'rv-spatial-item-name', label));
             btn.appendChild(el('span', 'rv-spatial-item-count', fmtNum(placeCount)));
             btn.addEventListener('click', function () {
@@ -541,6 +542,8 @@
         }
 
         function renderList() {
+            var focusedId = listEl.contains(document.activeElement)
+                ? document.activeElement.dataset.entityId : null;
             listEl.innerHTML = '';
             var rows = data.pickers[entityType] || [];
             var q = fold(searchInput.value.trim());
@@ -548,7 +551,9 @@
             for (var i = 0; i < rows.length && shown < LIST_CAP; i++) {
                 if (q && fold(rows[i][1]).indexOf(q) === -1) continue;
                 shown++;
-                listEl.appendChild(pickerRow(rows[i]));
+                var row = pickerRow(rows[i]);
+                listEl.appendChild(row);
+                if (focusedId === row.dataset.entityId) row.focus({ preventScroll: true });
             }
             if (shown === 0) {
                 listEl.appendChild(el('div', 'rv-spatial-muted',

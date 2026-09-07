@@ -3923,3 +3923,9 @@ body.photo-lightbox-open {
     justify-content: center;
     color: var(--ink, #3c342d);
 }
+
+/* Attribution must remain identifiable without colour perception. */
+.maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-inner a {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+}
