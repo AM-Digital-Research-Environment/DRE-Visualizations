@@ -45,13 +45,18 @@ class PrecomputeDashboards extends AbstractJob
             $moduleConfig = parse_ini_file($moduleRoot . '/config/module.ini');
             $moduleVersion = is_array($moduleConfig) ? (string) ($moduleConfig['version'] ?? '') : '';
             $profile = AmiraProfile::fromFile($moduleRoot . '/config/amira-profile.json');
+            $countsService = 'DRESearch\Search\CorpusCounts';
+            $corpusStats = $services->has($countsService)
+                ? $services->get($countsService)->forSite($siteId)
+                : null;
             $publisher = new SnapshotPublisher($dataDir, $siteId, $moduleVersion);
             $manifest = $publisher->publish(static function (string $generationDir) use (
                 $connection,
                 $siteId,
                 $dataDir,
                 $logger,
-                $profile
+                $profile,
+                $corpusStats
             ): array {
                 $runner = new Runner(
                     $connection,
@@ -65,7 +70,8 @@ class PrecomputeDashboards extends AbstractJob
                     $generationDir . '/featured-collections',
                     $generationDir . '/item-set-dashboards',
                     $dataDir . '/wordclouds',
-                    static fn (string $message) => $logger->info($message)
+                    static fn (string $message) => $logger->info($message),
+                    $corpusStats
                 );
                 return $runner->run();
             });

@@ -82,6 +82,7 @@ final class Runner
         private readonly string $itemSetDashboardsDir,
         private readonly string $wordcloudsDir,
         ?callable $logFn = null,
+        private readonly ?array $corpusStats = null,
     ) {
         $this->logFn = $logFn;
         $this->artifacts = new JsonArtifactWriter();
@@ -876,6 +877,15 @@ final class Runner
      */
     private function buildOverviewStats(int $researchItemCount, int $countries): array
     {
+        if ($this->corpusStats !== null) {
+            return Aggregators::buildStatCards(array_map(
+                static fn (array $stat): array => [
+                    'key' => $stat['k'], 'label' => $stat['l'], 'value' => $stat['n'],
+                ],
+                $this->corpusStats
+            ));
+        }
+
         // People, Organisations, Languages, Subjects & Tags, Research projects
         // and Publications are the sizes of their authority item sets — the full
         // curated count, not just entities linked to a research item. Locations
