@@ -44,6 +44,7 @@ jobs:
           php tests/AmiraProfileTest.php
           php tests/CorpusSnapshotTest.php
           php tests/SnapshotPublisherTest.php
+          php tests/LinkedItemsDashboardTest.php
           php tests/AggregatorsTest.php
           php tests/KnowledgeGraphsTest.php
 

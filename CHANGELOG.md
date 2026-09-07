@@ -2,6 +2,15 @@
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
+## 2.28.5 — 2026-09-07
+
+### Fixed
+
+- Only render an item's optional aggregate dashboard when its artifact exists in the published snapshot. Research records such as item 32328 retain their separate knowledge graph without requesting a dashboard that the generator never creates.
+- Resolve availability through the current generation pointer, retaining legacy flat-data compatibility without using stale flat artifacts when an authoritative generation lacks the file.
+- Add executable block-rendering regressions for missing, generated, graph-only, legacy and stale-generation data. Collection dashboards and the deployment health gate still expose snapshot outages.
+- No regeneration is required. Preserve published data while replacing the module.
+
 ## 2.28.4 — 2026-09-07
 
 ### Fixed
