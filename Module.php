@@ -168,6 +168,9 @@ class Module extends AbstractModule
     public static function clientTranslations($view): array
     {
         return [
+            'reloadPage' => $view->translate('Reload page'),
+            'visualizationsUnavailable' => $view->translate('Visualisations are unavailable.'),
+            'visualizationsPartial' => $view->translate('Some visualisations could not be loaded.'),
             'loading' => $view->translate('Loading…'),
             'loadingComparison' => $view->translate('Loading comparison…'),
             'noData' => $view->translate('No data'),

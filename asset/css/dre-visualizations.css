@@ -3904,3 +3904,22 @@ body.photo-lightbox-open {
         display: none !important;
     }
 }
+
+/* Keep recovery visible while the separate live region announces its state. */
+.rv-dashboard-message {
+    flex-direction: column;
+    gap: 1rem;
+}
+.rv-dashboard-message p { margin: 0; }
+.rv-dashboard-reload {
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+    font: inherit;
+    cursor: pointer;
+}
+.rv-chart-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink, #3c342d);
+}

@@ -30,12 +30,14 @@
     /*  Render dashboard                                                   */
     /* ------------------------------------------------------------------ */
 
-    function renderDashboard(container, data, siteBase, collapsible) {
+    function renderDashboard(container, data, siteBase, collapsible, host) {
+        // The host owns configuration; the inner content owns replaceable markup.
+        host = host || container;
         // A block template may pin a specific layout via `data-layout` (e.g. the
         // curated "Collection Overview" sets data-layout="collectionOverview" so
         // it renders a trimmed subset of the same JSON the full "Collection
         // Dashboard" shows). Otherwise fall back to the data's own resourceType.
-        var layoutKey = (container && container.dataset && container.dataset.layout) || data.resourceType;
+        var layoutKey = (host && host.dataset && host.dataset.layout) || data.resourceType;
         var layout = (ns.LAYOUTS && ns.LAYOUTS[layoutKey]) || ns.DEFAULT_LAYOUT;
         var chartKeys = layout.order;
 
@@ -44,7 +46,7 @@
         // with no stat cards, dashboard header, or collapsible accordion. The key
         // need not be in this layout's order; the builder loop below still resolves
         // it from the registry and renders it if the JSON carries its data.
-        var chartOnly = (container && container.dataset && container.dataset.chartOnly) || '';
+        var chartOnly = (host && host.dataset && host.dataset.chartOnly) || '';
         if (chartOnly) {
             chartKeys = [chartOnly];
             collapsible = false;
@@ -71,7 +73,7 @@
         // Collection Dashboard, item-page dashboards) unless the block template
         // pins its own via `data-title` — the curated "Collection Overview"
         // names itself "Collection overview" so its heading matches the block.
-        var headTitle = (container && container.dataset && container.dataset.title) || 'Visualisations';
+        var headTitle = (host && host.dataset && host.dataset.title) || 'Visualisations';
         var headInner = '<h2>' + escapeHtml(headTitle) + '</h2>';
 
         var chartsHtml = '<div class="dashboard-charts' + (chartOnly ? ' dashboard-charts--single' : '') + '">';
@@ -125,6 +127,7 @@
                 + chartsHtml;
         }
 
+        var failures = 0;
         chartKeys.forEach(function (key) {
             var el = container.querySelector('[data-chart="' + key + '"]');
             if (!el || !data[key]) return;
@@ -132,10 +135,15 @@
             var builderName = builderOverrides[key];
             var builder = (builderName && ns.charts && ns.charts[builderName])
                 || (ns.CHART_MAP && ns.CHART_MAP[key]);
-            if (!builder) return;
-            var chart = builder(el, data[key], siteBase, data);
-            if (chart) {
-                ns.attachToolbar(el.closest('.chart-panel'), chart);
+            try {
+                if (!builder) throw new Error('No builder registered for ' + key);
+                var chart = builder(el, data[key], siteBase, data);
+                if (chart) ns.attachToolbar(el.closest('.chart-panel'), chart);
+            } catch (error) {
+                failures++;
+                el.textContent = ns.t('visualizationsUnavailable', 'Visualisations are unavailable.');
+                el.classList.add('rv-chart-error');
+                console.warn('[DreVisualizations] Chart failed: ' + key, error);
             }
         });
 
@@ -149,11 +157,11 @@
         // Live-site only: add a copy-embed-code button to each chart on an
         // embeddable dashboard (no-op elsewhere). Shared impl in dashboard-core.js.
         if (ns.addEmbedButtons) ns.addEmbedButtons(container);
-
         // Window resizing + light/dark theme changes are handled globally in
         // dashboard-core.js (ns.refresh / the global resize handler). Re-fitting
         // charts after a collapsed panel re-opens is handled by the `toggle`
         // listener there too.
+        return failures;
     }
 
     // Expose the render loop so other controllers (e.g. Project Explorer) reuse
@@ -163,6 +171,30 @@
     /* ------------------------------------------------------------------ */
     /*  Async dashboard (precomputed JSON)                                 */
     /* ------------------------------------------------------------------ */
+
+    function showMessage(container, message, state) {
+        var content = container.querySelector('.rv-dashboard-content') || container;
+        var status = container.querySelector('.rv-dashboard-status');
+        container.setAttribute('aria-busy', 'false');
+        container.dataset.state = state;
+        if (status) status.textContent = message;
+        content.replaceChildren();
+        var notice = document.createElement('div');
+        notice.className = 'rv-no-data rv-dashboard-message';
+        var text = document.createElement('p');
+        text.textContent = message;
+        notice.appendChild(text);
+        if (state === 'error') {
+            // A reload also retries failed ESM/library requests and the manifest.
+            var retry = document.createElement('button');
+            retry.type = 'button';
+            retry.className = 'rv-dashboard-reload';
+            retry.textContent = ns.t('reloadPage', 'Reload page');
+            retry.addEventListener('click', function () { window.location.reload(); });
+            notice.appendChild(retry);
+        }
+        content.appendChild(notice);
+    }
 
     function initAsyncDashboard(container) {
         var itemId = container.dataset.itemId;
@@ -175,22 +207,24 @@
             if (status) status.textContent = message;
         };
         container.setAttribute('aria-busy', 'true');
+        container.dataset.state = 'loading';
         ns.basePath = basePath; // expose for builders that load module assets (e.g. choropleth GeoJSON)
         var directory = /^[a-z0-9-]+$/.test(container.dataset.dashboardDir || '')
             ? container.dataset.dashboardDir : 'item-dashboards';
 
-        ns.fetchDataJson(directory + '/' + encodeURIComponent(itemId) + '.json').then(function (data) {
+        return ns.fetchDataJson(directory + '/' + encodeURIComponent(itemId) + '.json').then(function (data) {
             if (!data || !data.totalItems) {
-                content.innerHTML = '';
-                finish(container.dataset.emptyStatus || ns.t('noData', 'Nothing to show'));
+                var emptyMessage = container.dataset.emptyStatus || ns.t('noData', 'Nothing to show');
+                showMessage(container, emptyMessage, 'empty');
+                finish(emptyMessage);
                 return;
             }
             content.innerHTML = '';
-            renderDashboard(content, data, siteBase, true);
-            finish(container.dataset.readyStatus || ns.t('visualizationsReady', 'Visualisations ready.'));
-        }).catch(function () {
-            content.innerHTML = '';
-            finish(container.dataset.errorStatus || ns.t('visualizationsUnavailable', 'Visualisations are unavailable.'));
+            var failures = renderDashboard(content, data, siteBase, true, container);
+            container.dataset.state = failures ? 'partial' : 'ready';
+            finish(failures
+                ? ns.t('visualizationsPartial', 'Some visualisations could not be loaded.')
+                : (container.dataset.readyStatus || ns.t('visualizationsReady', 'Visualisations ready.')));
         });
     }
 
@@ -219,7 +253,13 @@
     // observer at once and ensureLibs resolves immediately — unchanged there.
     function mountWhenVisible(container, render) {
         var run = function () {
-            (ns.ensureLibs ? ns.ensureLibs() : Promise.resolve()).then(render).catch(function () {});
+            Promise.resolve().then(function () {
+                return ns.ensureLibs ? ns.ensureLibs() : undefined;
+            }).then(render).catch(function (error) {
+                console.warn('[DreVisualizations] Dashboard failed', error);
+                showMessage(container, container.dataset.errorStatus
+                    || ns.t('visualizationsUnavailable', 'Visualisations are unavailable.'), 'error');
+            });
         };
         if (!('IntersectionObserver' in window)) { run(); return; }
         var io = new IntersectionObserver(function (entries) {
@@ -233,7 +273,7 @@
     function init() {
         var async = document.querySelectorAll('.dashboard-async-container');
         for (var i = 0; i < async.length; i++) {
-            (function (c) { mountWhenVisible(c, function () { initAsyncDashboard(c); }); })(async[i]);
+            (function (c) { mountWhenVisible(c, function () { return initAsyncDashboard(c); }); })(async[i]);
         }
         var inline = document.querySelectorAll('.dashboard-container');
         for (var j = 0; j < inline.length; j++) {

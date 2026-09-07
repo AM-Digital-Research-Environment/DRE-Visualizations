@@ -263,11 +263,28 @@
 
     /** Central JSON loader for every generated dashboard artifact. */
     ns.fetchDataJson = function (path, options) {
-        return ns.dataAsset(path).then(function (url) {
-            var requestOptions = Object.assign({ credentials: 'same-origin' }, options || {});
+        var requestOptions = Object.assign({ credentials: 'same-origin' }, options || {});
+        function read(url) {
             return fetch(url, requestOptions).then(function (response) {
-                if (!response.ok) throw new Error('Generated data not found (' + response.status + ')');
+                if (!response.ok) {
+                    var error = new Error('Generated data not found (' + response.status + '): ' + url);
+                    error.status = response.status;
+                    throw error;
+                }
                 return response.json();
+            });
+        }
+        return ns.dataAsset(path).then(function (url) {
+            var manifest = ns._dataManifestPromise;
+            return read(url).catch(function (error) {
+                if (error.status !== 404) throw error;
+                // A long-lived page may point at a pruned generation. Concurrent
+                // failures share a single refreshed manifest; retry only a new URL.
+                if (ns._dataManifestPromise === manifest) ns._dataManifestPromise = null;
+                return ns.dataAsset(path).then(function (freshUrl) {
+                    if (freshUrl === url) throw error;
+                    return read(freshUrl);
+                });
             });
         }).then(function (payload) {
             if (!payload || typeof payload !== 'object') {
