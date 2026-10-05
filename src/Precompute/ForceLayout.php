@@ -11,8 +11,7 @@ namespace DreVisualizations\Precompute;
  *
  * The port mirrors graphology's `iterate.js` exactly for the configuration the
  * front end used via `inferSettings(order)` on a sub-2000-node graph:
- *   - linear repulsion, O(n²) (Barnes-Hut kicks in above 2000 nodes there, and
- *     can be added here when the graph grows to include document nodes);
+ *   - exact repulsion for small graphs, Barnes-Hut above 128 nodes;
  *   - strong-gravity mode, gravity 0.05, scaling ratio 10;
  *   - linear attraction with edge-weight influence 1;
  *   - the per-node "convergence" speed in the apply step;
@@ -93,6 +92,7 @@ final class ForceLayout
         $linearEdge = ($edgeInfluence === 1.0);
 
         for ($iter = 0; $iter < $iterations; $iter++) {
+            if (isset($opts['checkpoint'])) ($opts['checkpoint'])();
             // 1) Save previous forces, reset accumulators.
             for ($i = 0; $i < $n; $i++) {
                 $odx[$i] = $dx[$i];
@@ -101,7 +101,13 @@ final class ForceLayout
                 $dy[$i] = 0.0;
             }
 
-            // 2) Repulsion — linear, O(n²). factor = coef·m₁·m₂ / dist².
+            // Approximate distant cells above 128 nodes; retain the exact small-graph path.
+            if ($n > 128 && ($opts['barnesHut'] ?? true)) {
+                $tree = new RepulsionTree($x, $y, $mass);
+                for ($a = 0; $a < $n; $a++) [$dx[$a], $dy[$a]] = $tree->force($a, $coef);
+                unset($tree);
+            } else {
+            // Exact repulsion: factor = coef·m₁·m₂ / dist².
             for ($a = 0; $a < $n; $a++) {
                 $xa = $x[$a];
                 $ya = $y[$a];
@@ -124,6 +130,8 @@ final class ForceLayout
                 }
                 $dx[$a] += $accX;
                 $dy[$a] += $accY;
+            }
+
             }
 
             // 3) Gravity — strong mode pulls to origin with distance-independent force.

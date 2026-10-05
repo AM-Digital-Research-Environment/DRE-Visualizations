@@ -14,6 +14,8 @@ use DreVisualizations\View\Helper\DashboardAssets;
 
 class Module extends AbstractModule
 {
+    /** API request id => shared source-write lock, released after the corresponding write. */
+    private array $sourceWriteLocks = [];
     public const SETTING_SITE_ID = 'dre_visualizations_site_id';
     public const SETTING_BASEMAP_LIGHT = 'dre_visualizations_basemap_light';
     public const SETTING_BASEMAP_DARK = 'dre_visualizations_basemap_dark';
@@ -35,8 +37,17 @@ class Module extends AbstractModule
         }
     }
 
+    public function upgrade($oldVersion, $newVersion, ServiceLocatorInterface $serviceLocator)
+    {
+        $this->withdrawSnapshots();
+        // Old module versions exposed these paths directly. Purge them on upgrade.
+        $publisher = new Precompute\SnapshotPublisher(__DIR__ . '/asset/data', 1, (string) $newVersion);
+        $publisher->purgePublicOutputs();
+    }
+
     public function uninstall(ServiceLocatorInterface $serviceLocator)
     {
+        $this->withdrawSnapshots();
         $settings = $serviceLocator->get('Omeka\Settings');
         foreach ([
             self::SETTING_SITE_ID,
@@ -147,6 +158,7 @@ class Module extends AbstractModule
         }
 
         $settings = $this->getServiceLocator()->get('Omeka\Settings');
+        if ((int) $settings->get(self::SETTING_SITE_ID, 0) !== $siteId) $this->withdrawSnapshots();
         $settings->set(self::SETTING_SITE_ID, $siteId);
         $settings->set(self::SETTING_BASEMAP_LIGHT, $light);
         $settings->set(self::SETTING_BASEMAP_DARK, $dark);
@@ -168,6 +180,8 @@ class Module extends AbstractModule
     public static function clientTranslations($view): array
     {
         return [
+            'retry' => $view->translate('Try again'),
+            'comparisonLoadError' => $view->translate('The comparison could not be loaded.'),
             'reloadPage' => $view->translate('Reload page'),
             'visualizationsUnavailable' => $view->translate('Visualisations are unavailable.'),
             'visualizationsPartial' => $view->translate('Some visualisations could not be loaded.'),
@@ -314,7 +328,7 @@ class Module extends AbstractModule
         // must be reachable by everyone — including anonymous visitors. Grant the
         // null (all) role access to the site-facing embed controller only; the
         // public site route itself still scopes it to a published site.
-        $acl->allow(null, [Controller\Site\EmbedController::class]);
+        $acl->allow(null, [Controller\Site\EmbedController::class, Controller\Site\DataController::class]);
 
         // Allow that widget to be framed cross-origin (slides, project sites, …):
         // on the /dre-embed routes only, swap the site's X-Frame-Options for a
@@ -362,6 +376,15 @@ class Module extends AbstractModule
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
     {
+        // Invalidate before AND after writes, so an overlapping job cannot publish a mixed snapshot.
+        foreach (['Item', 'Media', 'ItemSet', 'Site', 'ValueAnnotation', 'ResourceTemplate', 'Property', 'ResourceClass'] as $resource) {
+            foreach (['create', 'update', 'delete', 'batch_create', 'batch_update', 'batch_delete'] as $operation) {
+                foreach (['pre', 'post'] as $phase) {
+                    $sharedEventManager->attach('Omeka\\Api\\Adapter\\' . $resource . 'Adapter',
+                        'api.' . $operation . '.' . $phase, [$this, 'invalidateForApiWrite']);
+                }
+            }
+        }
         $sharedEventManager->attach(
             'Omeka\Controller\Site\Item',
             'view.show.before',
@@ -374,68 +397,29 @@ class Module extends AbstractModule
         );
     }
 
+    public function withdrawSnapshots(): void
+    {
+        (new Precompute\SnapshotStore(Precompute\SnapshotStore::defaultDirectory()))->withdraw();
+    }
+
+    public function invalidateForApiWrite($event): void
+    {
+        $request = $event->getParam('request');
+        $key = is_object($request) ? spl_object_id($request) : 0;
+        $store = new Precompute\SnapshotStore(Precompute\SnapshotStore::defaultDirectory());
+        if (str_ends_with($event->getName(), '.pre')) {
+            $this->sourceWriteLocks[$key] = $store->beginWrite();
+        } elseif (isset($this->sourceWriteLocks[$key])) {
+            $lock = $this->sourceWriteLocks[$key];
+            unset($this->sourceWriteLocks[$key]);
+            $store->endWrite($lock);
+        } else {
+            $store->withdraw();
+        }
+    }
+
     public function addAssets($event)
     {
-        $view = $event->getTarget();
-        $asset = function ($path) use ($view) {
-            return $view->assetUrl($path, 'DreVisualizations');
-        };
-
-        $view->headScript()->appendScript('window.RV_MAP_CONFIG=Object.assign('
-            . json_encode([
-                'lightStyle' => (string) $view->setting(self::SETTING_BASEMAP_LIGHT, ''),
-                'darkStyle' => (string) $view->setting(self::SETTING_BASEMAP_DARK, ''),
-                'glyphs' => (string) $view->setting(self::SETTING_MAP_GLYPHS, ''),
-                'attribution' => (string) $view->setting(self::SETTING_BASEMAP_ATTRIBUTION, ''),
-            ], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)
-            . ',window.RV_MAP_CONFIG||{});');
-
-        // One translated client dictionary for labels created after page load.
-        // Server-rendered loading states already use translate() in their views.
-        $view->headScript()->appendScript('window.RV_I18N=Object.assign('
-            . json_encode(self::clientTranslations($view),
-                JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)
-            . ',window.RV_I18N||{});');
-
-        // dre-visualizations.css styles the (below-the-fold) viz blocks and their
-        // loading spinner. Inject it non-render-blocking via the media="print"→
-        // "all" swap so it never sits on the item page's critical render path.
-        // The viz blocks need JS to render anyway, so a JS-gated stylesheet costs
-        // no real no-script fallback.
-        $cssHref = json_encode($asset('css/dre-visualizations.css'), JSON_UNESCAPED_SLASHES);
-        $view->headScript()->appendScript(
-            '(function(){var l=document.createElement("link");l.rel="stylesheet";'
-            . 'l.media="print";l.href=' . $cssHref . ';'
-            . 'l.onload=function(){this.onload=null;this.media="all";};'
-            . 'document.head.appendChild(l);})();'
-        );
-
-        // Hand the heavy library URLs to the front end instead of eager-loading
-        // ~660 KiB of ECharts + MapLibre on every item/item-set page. The viz
-        // controllers (dashboard.js, knowledge-graph.js, sibling-sparkline.js)
-        // call ns.ensureLibs() to pull them in only when a block actually needs
-        // to render — on scroll into view, or once an async block resolves as
-        // applicable. Mirrors the lazy 'dashboard' surface in DashboardAssets.
-        $view->headScript()->appendScript('window.RV_LIBS=window.RV_LIBS||' . json_encode([
-            'echarts'        => $asset(DashboardAssets::ECHARTS_JS),
-            'wordcloud'      => $asset(DashboardAssets::WORDCLOUD_JS),
-            'maplibre'       => $asset(DashboardAssets::MAPLIBRE_JS),
-            'maplibreWorker' => $asset(DashboardAssets::MAPLIBRE_WORKER_JS),
-            'maplibreCss'    => $asset(DashboardAssets::MAPLIBRE_CSS),
-            // The knowledge graph simulates with d3-force instead of ECharts, so
-            // an item page carrying only that block pulls ~17 KiB rather than the
-            // 1.1 MiB ECharts bundle. An ordered list: the loader executes it
-            // sequentially because d3-force needs its deps on the `d3` global.
-            'd3'             => array_map($asset, DashboardAssets::D3_SCRIPTS),
-        ], JSON_UNESCAPED_SLASHES) . ';');
-
-        // dashboard-core.js defines ns.ensureLibs + the shared chart helpers;
-        // deferred so it never blocks first paint, and it pulls in no heavy
-        // library on its own. Blocks append their builder chain (and controller)
-        // after it via the DashboardAssets helper; deferred scripts run in append
-        // order, so the registry is built before any controller's init() fires.
-        $view->headScript()->appendFile(
-            $asset('js/dashboard-core.js'), 'text/javascript', ['defer' => true]
-        );
+        $event->getTarget()->dashboardAssets(['cdn' => true, 'controller' => '', 'preludeOnly' => true]);
     }
 }

@@ -13,7 +13,7 @@ namespace DreVisualizations\Precompute\Aggregators;
  */
 trait NetworkChartsTrait
 {
-    private static function isPersonContributionTerm(string $term): bool
+    private function isPersonContributionTerm(string $term): bool
     {
         return str_starts_with($term, 'marcrel:')
             || $term === 'dcterms:creator'
@@ -23,7 +23,7 @@ trait NetworkChartsTrait
     }
 
     /** Build a co-occurrence chord diagram for a given property. */
-    public static function buildChord(array $itemIds, array $links, array $items, string $termFilter = 'dcterms:subject', int $maxNodes = 20, int $minCooccurrence = 2): ?array
+    public function buildChord(array $itemIds, array $links, array $items, string $termFilter = 'dcterms:subject', int $maxNodes = 20, int $minCooccurrence = 2): ?array
     {
         $itemValues = [];
         $valueTitles = [];
@@ -62,7 +62,7 @@ trait NetworkChartsTrait
             }
         }
 
-        self::sortCounts($nodeCounts);
+        $this->sortCounts($nodeCounts);
         $topNodes = array_slice(array_keys($nodeCounts), 0, $maxNodes);
         $topSet = array_flip($topNodes);
 
@@ -87,7 +87,7 @@ trait NetworkChartsTrait
     }
 
     /** Build contributor -> project -> resource type Sankey flow. */
-    public static function buildSankey(array $itemIds, array $links, array $items): ?array
+    public function buildSankey(array $itemIds, array $links, array $items): ?array
     {
         $flows = [];
         foreach ($itemIds as $iid) {
@@ -126,7 +126,7 @@ trait NetworkChartsTrait
             [$c] = explode("\0", $k);
             $contribCounts[$c] = ($contribCounts[$c] ?? 0) + $v;
         }
-        self::sortCounts($contribCounts);
+        $this->sortCounts($contribCounts);
         $topContribs = array_flip(array_slice(array_keys($contribCounts), 0, 10));
 
         $linkMap = [];
@@ -156,7 +156,7 @@ trait NetworkChartsTrait
     }
 
     /** Build person -> project force graph from research items. */
-    public static function buildContributorNetwork(int $entityId, string $entityTitle, array $itemIds, array $items, array $links, array $childrenOf, int $maxNodes = 30): ?array
+    public function buildContributorNetwork(int $entityId, string $entityTitle, array $itemIds, array $items, array $links, array $childrenOf, int $maxNodes = 30): ?array
     {
         $personProject = [];
         $personCounts = [];
@@ -166,11 +166,11 @@ trait NetworkChartsTrait
             $itemProject = null;
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
                 if (str_starts_with($term, 'marcrel:') || $term === 'dcterms:creator' || $term === 'dcterms:contributor') {
-                    if (($items[$vrid]['template_id'] ?? null) === self::personTemplateId()) {
+                    if (($items[$vrid]['template_id'] ?? null) === $this->personTemplateId()) {
                         $itemPersons[] = $vrid;
                     }
                 } elseif ($term === 'dcterms:isPartOf') {
-                    if (($items[$vrid]['template_id'] ?? null) === self::projectTemplateId()) {
+                    if (($items[$vrid]['template_id'] ?? null) === $this->projectTemplateId()) {
                         $itemProject = $vrid;
                     }
                 }
@@ -187,9 +187,9 @@ trait NetworkChartsTrait
             return null;
         }
 
-        self::sortCounts($personCounts);
+        $this->sortCounts($personCounts);
         $topPersons = array_flip(array_slice(array_keys($personCounts), 0, $maxNodes));
-        self::sortCounts($projectCounts);
+        $this->sortCounts($projectCounts);
         $topProjects = array_flip(array_slice(array_keys($projectCounts), 0, 15));
 
         $nodes = [];
@@ -225,7 +225,7 @@ trait NetworkChartsTrait
      * Same chart shape as buildContributorNetwork(), but without anchoring the
      * graph to one entity. This backs the Network Explorer page block.
      */
-    public static function buildGlobalContributorNetwork(array $itemIds, array $items, array $links, int $maxPersons = 120, int $maxProjects = 80): ?array
+    public function buildGlobalContributorNetwork(array $itemIds, array $items, array $links, int $maxPersons = 120, int $maxProjects = 80): ?array
     {
         $personProject = [];
         $personCounts = [];
@@ -235,12 +235,12 @@ trait NetworkChartsTrait
             $itemPersons = [];
             $itemProject = null;
             foreach ($links[$iid] ?? [] as [$term, , $vrid]) {
-                if (self::isPersonContributionTerm($term)) {
-                    if (($items[$vrid]['template_id'] ?? null) === self::personTemplateId()) {
+                if ($this->isPersonContributionTerm($term)) {
+                    if (($items[$vrid]['template_id'] ?? null) === $this->personTemplateId()) {
                         $itemPersons[$vrid] = true;
                     }
                 } elseif ($term === 'dcterms:isPartOf') {
-                    if (($items[$vrid]['template_id'] ?? null) === self::projectTemplateId()) {
+                    if (($items[$vrid]['template_id'] ?? null) === $this->projectTemplateId()) {
                         $itemProject = $vrid;
                     }
                 }
@@ -258,8 +258,8 @@ trait NetworkChartsTrait
             return null;
         }
 
-        self::sortCounts($personCounts);
-        self::sortCounts($projectCounts);
+        $this->sortCounts($personCounts);
+        $this->sortCounts($projectCounts);
         $topPersons = array_flip(array_slice(array_keys($personCounts), 0, $maxPersons));
         $topProjects = array_flip(array_slice(array_keys($projectCounts), 0, $maxProjects));
 
@@ -299,7 +299,7 @@ trait NetworkChartsTrait
      * weighted PageRank are computed so the existing community graph builder can
      * render the result.
      */
-    public static function buildPersonCollaborationNetwork(array $itemIds, array $items, array $links, int $minCooccurrence = 2, int $maxNodes = 120): ?array
+    public function buildPersonCollaborationNetwork(array $itemIds, array $items, array $links, int $minCooccurrence = 2, int $maxNodes = 120): ?array
     {
         $pairCounts = [];
         $nodeCounts = [];
@@ -308,10 +308,10 @@ trait NetworkChartsTrait
         foreach ($itemIds as $iid) {
             $persons = [];
             foreach ($links[$iid] ?? [] as [$term, , $vrid]) {
-                if (!self::isPersonContributionTerm($term)) {
+                if (!$this->isPersonContributionTerm($term)) {
                     continue;
                 }
-                if (($items[$vrid]['template_id'] ?? null) === self::personTemplateId()) {
+                if (($items[$vrid]['template_id'] ?? null) === $this->personTemplateId()) {
                     $persons[$vrid] = true;
                     $titles[$vrid] = $items[$vrid]['title'] ?? ('Person ' . $vrid);
                 }
@@ -352,7 +352,7 @@ trait NetworkChartsTrait
         }
 
         $m = array_sum($deg) / 2.0;
-        $rawComm = self::louvain($adj, $deg, $m);
+        $rawComm = $this->louvain($adj, $deg, $m);
         $relabel = [];
         $next = 0;
         $commOf = [];
@@ -363,9 +363,9 @@ trait NetworkChartsTrait
             $commOf[$node] = $relabel[$c];
         }
 
-        $pr = self::weightedPagerank($adj, $deg);
+        $pr = $this->weightedPagerank($adj, $deg);
         $rankNodes = array_keys($adj);
-        usort($rankNodes, static fn ($x, $y) => (($pr[$y] ?? 0) <=> ($pr[$x] ?? 0))
+        usort($rankNodes, fn ($x, $y) => (($pr[$y] ?? 0) <=> ($pr[$x] ?? 0))
             ?: strnatcasecmp((string) $x, (string) $y));
         $ranked = array_slice($rankNodes, 0, $maxNodes);
         $topSet = array_flip($ranked);
@@ -410,21 +410,21 @@ trait NetworkChartsTrait
         foreach ($summary as $s) {
             $communitiesList[] = ['id' => $s['id'], 'size' => $s['size'], 'anchor' => $s['anchor']];
         }
-        usort($communitiesList, static fn ($a, $b) => ($b['size'] <=> $a['size'])
+        usort($communitiesList, fn ($a, $b) => ($b['size'] <=> $a['size'])
             ?: ((int) $a['id'] <=> (int) $b['id']));
 
         return ['nodes' => $nodes, 'links' => $outLinks, 'communities' => $communitiesList];
     }
 
     /** Build a collection-wide person -> institution affiliation network. */
-    public static function buildGlobalAffiliationNetwork(array $items, array $links, int $maxPersons = 120, int $maxInstitutions = 80): ?array
+    public function buildGlobalAffiliationNetwork(array $items, array $links, int $maxPersons = 120, int $maxInstitutions = 80): ?array
     {
         $personAffiliations = [];
         $personCounts = [];
         $institutionCounts = [];
 
         foreach ($items as $pid => $info) {
-            if (($info['template_id'] ?? null) !== self::personTemplateId()) {
+            if (($info['template_id'] ?? null) !== $this->personTemplateId()) {
                 continue;
             }
             $affiliations = [];
@@ -446,8 +446,8 @@ trait NetworkChartsTrait
             return null;
         }
 
-        self::sortCounts($personCounts);
-        self::sortCounts($institutionCounts);
+        $this->sortCounts($personCounts);
+        $this->sortCounts($institutionCounts);
         $topPersons = array_flip(array_slice(array_keys($personCounts), 0, $maxPersons));
         $topInstitutions = array_flip(array_slice(array_keys($institutionCounts), 0, $maxInstitutions));
 
@@ -491,7 +491,7 @@ trait NetworkChartsTrait
      * organisation links, contributor affiliations on the same item, or project
      * funding organisations associated with that item's project.
      */
-    public static function buildGlobalInstitutionCollaborationNetwork(array $itemIds, array $items, array $links, int $minShared = 1, int $maxNodes = 80): ?array
+    public function buildGlobalInstitutionCollaborationNetwork(array $itemIds, array $items, array $links, int $minShared = 1, int $maxNodes = 80): ?array
     {
         $pairCounts = [];
         $nodeCounts = [];
@@ -502,11 +502,11 @@ trait NetworkChartsTrait
             $projectId = null;
             foreach ($links[$iid] ?? [] as [$term, , $vrid]) {
                 $isOrg = ($items[$vrid]['class_term'] ?? '') === 'foaf:Organization';
-                if ($term === 'dcterms:isPartOf' && ($items[$vrid]['template_id'] ?? null) === self::projectTemplateId()) {
+                if ($term === 'dcterms:isPartOf' && ($items[$vrid]['template_id'] ?? null) === $this->projectTemplateId()) {
                     $projectId = $vrid;
                 } elseif ($isOrg && ($term === 'frapo:isFundedBy' || $term === 'dcterms:provenance' || str_starts_with($term, 'marcrel:'))) {
                     $institutions[$vrid] = true;
-                } elseif (self::isPersonContributionTerm($term) && ($items[$vrid]['template_id'] ?? null) === self::personTemplateId()) {
+                } elseif ($this->isPersonContributionTerm($term) && ($items[$vrid]['template_id'] ?? null) === $this->personTemplateId()) {
                     foreach ($links[$vrid] ?? [] as [$pTerm, , $affId]) {
                         if ($pTerm === 'dcterms:isPartOf' && ($items[$affId]['class_term'] ?? '') === 'foaf:Organization') {
                             $institutions[$affId] = true;
@@ -543,7 +543,7 @@ trait NetworkChartsTrait
             return null;
         }
 
-        self::sortCounts($nodeCounts);
+        $this->sortCounts($nodeCounts);
         $topInstitutions = array_flip(array_slice(array_keys($nodeCounts), 0, $maxNodes));
         $nodes = [];
         $nodeNames = [];
@@ -572,12 +572,12 @@ trait NetworkChartsTrait
     }
 
     /** Build person -> institution affiliation network centred on an institution. */
-    public static function buildAffiliationNetwork(int $instId, string $instTitle, array $items, array $links, array $reverseLinks, int $maxNodes = 30): ?array
+    public function buildAffiliationNetwork(int $instId, string $instTitle, array $items, array $links, array $reverseLinks, int $maxNodes = 30): ?array
     {
         $affiliated = $reverseLinks[$instId]['dcterms:isPartOf'] ?? [];
         $affiliatedPersons = [];
         foreach ($affiliated as $pid) {
-            if (($items[$pid]['template_id'] ?? null) === self::personTemplateId()) {
+            if (($items[$pid]['template_id'] ?? null) === $this->personTemplateId()) {
                 $affiliatedPersons[] = $pid;
             }
         }
@@ -598,7 +598,7 @@ trait NetworkChartsTrait
             $personAffl[$pid] = $affls;
         }
 
-        self::sortCounts($instCounts);
+        $this->sortCounts($instCounts);
         $topInsts = array_flip(array_slice(array_keys($instCounts), 0, $maxNodes));
         $topInsts[$instId] = true;
 
@@ -635,7 +635,7 @@ trait NetworkChartsTrait
     }
 
     /** Build institution collaboration network from shared research items. */
-    public static function buildCollabNetwork(int $instId, string $instTitle, array $itemIds, array $items, array $links, array $reverseLinks, array $instSet, array $instTerms, int $maxNodes = 25): ?array
+    public function buildCollabNetwork(int $instId, string $instTitle, array $itemIds, array $items, array $links, array $reverseLinks, array $instSet, array $instTerms, int $maxNodes = 25): ?array
     {
         $collabCounts = [];
         $instTermsSet = array_flip($instTerms);
@@ -649,7 +649,7 @@ trait NetworkChartsTrait
         if (!$collabCounts) {
             return null;
         }
-        self::sortCounts($collabCounts);
+        $this->sortCounts($collabCounts);
         $topCollabs = array_slice($collabCounts, 0, $maxNodes, true);
         $topIds = array_keys($topCollabs);
 
@@ -667,7 +667,7 @@ trait NetworkChartsTrait
 
         $collabItems = [];
         foreach ($topIds as $cid) {
-            $collabItems[$cid] = array_flip(self::findItemsLinkingTo($cid, $reverseLinks, $instTerms));
+            $collabItems[$cid] = array_flip($this->findItemsLinkingTo($cid, $reverseLinks, $instTerms));
         }
         $n = count($topIds);
         for ($i = 0; $i < $n; $i++) {
@@ -700,7 +700,7 @@ trait NetworkChartsTrait
      *
      * @return array{nodes:list<array>,links:list<array>,communities:list<array>}|null
      */
-    public static function buildCoAuthorNetwork(array $itemIds, array $links, array $literals, array $items, int $minCooccurrence = 1, int $maxNodes = 60): ?array
+    public function buildCoAuthorNetwork(array $itemIds, array $links, array $literals, array $items, int $minCooccurrence = 1, int $maxNodes = 60): ?array
     {
         // Map each distinct contributor name to an integer node id so the integer-
         // keyed louvain()/weightedPagerank() helpers apply unchanged. Each node
@@ -712,7 +712,7 @@ trait NetworkChartsTrait
         $personId = [];
         $roleMask = [];
         $next = 0;
-        $ensure = static function (string $name) use (&$nameId, &$idName, &$matched, &$roleMask, &$next): int {
+        $ensure = function (string $name) use (&$nameId, &$idName, &$matched, &$roleMask, &$next): int {
             if (!isset($nameId[$name])) {
                 $nameId[$name] = $next;
                 $idName[$next] = $name;
@@ -814,7 +814,7 @@ trait NetworkChartsTrait
         }
 
         $m = array_sum($deg) / 2.0;
-        $rawComm = self::louvain($adj, $deg, $m);
+        $rawComm = $this->louvain($adj, $deg, $m);
         $relabel = [];
         $nextC = 0;
         $commOf = [];
@@ -825,14 +825,14 @@ trait NetworkChartsTrait
             $commOf[$node] = $relabel[$c];
         }
 
-        $pr = self::weightedPagerank($adj, $deg);
+        $pr = $this->weightedPagerank($adj, $deg);
         $rankNodes = array_keys($adj);
-        usort($rankNodes, static fn ($x, $y) => (($pr[$y] ?? 0) <=> ($pr[$x] ?? 0))
+        usort($rankNodes, fn ($x, $y) => (($pr[$y] ?? 0) <=> ($pr[$x] ?? 0))
             ?: strnatcasecmp((string) $x, (string) $y));
         $ranked = array_slice($rankNodes, 0, $maxNodes);
         $topSet = array_flip($ranked);
 
-        $roleName = static function (int $mask): string {
+        $roleName = function (int $mask): string {
             if ($mask === 3) {
                 return 'both';
             }
@@ -861,7 +861,7 @@ trait NetworkChartsTrait
             if (isset($topSet[$a], $topSet[$b])) {
                 // Dominant relationship across the publications this pair shares.
                 $rels = $pairRel[$key] ?? [];
-                self::sortCounts($rels);
+                $this->sortCounts($rels);
                 $relation = $rels ? (string) array_key_first($rels) : 'coauthor';
                 $outLinks[] = ['source' => $idName[$a], 'target' => $idName[$b], 'value' => $w, 'relation' => $relation];
             }
@@ -883,7 +883,7 @@ trait NetworkChartsTrait
         foreach ($summary as $s) {
             $communitiesList[] = ['id' => $s['id'], 'size' => $s['size'], 'anchor' => $s['anchor']];
         }
-        usort($communitiesList, static fn ($a, $b) => ($b['size'] <=> $a['size'])
+        usort($communitiesList, fn ($a, $b) => ($b['size'] <=> $a['size'])
             ?: ((int) $a['id'] <=> (int) $b['id']));
 
         return ['nodes' => $nodes, 'links' => $outLinks, 'communities' => $communitiesList];

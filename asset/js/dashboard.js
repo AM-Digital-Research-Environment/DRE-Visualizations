@@ -31,6 +31,7 @@
     /* ------------------------------------------------------------------ */
 
     function renderDashboard(container, data, siteBase, collapsible, host) {
+        if (ns.disposeWithin) ns.disposeWithin(container);
         // The host owns configuration; the inner content owns replaceable markup.
         host = host || container;
         // A block template may pin a specific layout via `data-layout` (e.g. the
@@ -219,12 +220,14 @@
                 finish(emptyMessage);
                 return;
             }
+            return Promise.resolve(ns.ensureLibs ? ns.ensureLibs(ns.chartLibraries ? ns.chartLibraries(data) : { echarts: true }) : undefined).then(function () {
             content.innerHTML = '';
             var failures = renderDashboard(content, data, siteBase, true, container);
             container.dataset.state = failures ? 'partial' : 'ready';
             finish(failures
                 ? ns.t('visualizationsPartial', 'Some visualisations could not be loaded.')
                 : (container.dataset.readyStatus || ns.t('visualizationsReady', 'Visualisations ready.')));
+            });
         });
     }
 
@@ -238,7 +241,9 @@
         var data;
         try { data = JSON.parse(raw); } catch (e) { return; }
         var siteBase = container.dataset.siteBase || '';
-        renderDashboard(container.parentElement || container, data, siteBase);
+        return Promise.resolve(ns.ensureLibs ? ns.ensureLibs(ns.chartLibraries ? ns.chartLibraries(data) : { echarts: true }) : undefined).then(function () {
+            renderDashboard(container.parentElement || container, data, siteBase);
+        });
     }
 
     /* ------------------------------------------------------------------ */
@@ -253,9 +258,7 @@
     // observer at once and ensureLibs resolves immediately — unchanged there.
     function mountWhenVisible(container, render) {
         var run = function () {
-            Promise.resolve().then(function () {
-                return ns.ensureLibs ? ns.ensureLibs() : undefined;
-            }).then(render).catch(function (error) {
+            Promise.resolve().then(render).catch(function (error) {
                 console.warn('[DreVisualizations] Dashboard failed', error);
                 showMessage(container, container.dataset.errorStatus
                     || ns.t('visualizationsUnavailable', 'Visualisations are unavailable.'), 'error');
@@ -277,7 +280,7 @@
         }
         var inline = document.querySelectorAll('.dashboard-container');
         for (var j = 0; j < inline.length; j++) {
-            (function (c) { mountWhenVisible(c, function () { initInlineDashboard(c); }); })(inline[j]);
+            (function (c) { mountWhenVisible(c, function () { return initInlineDashboard(c); }); })(inline[j]);
         }
     }
 

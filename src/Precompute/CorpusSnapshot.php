@@ -28,6 +28,7 @@ final class CorpusSnapshot
         public readonly array $literals,
         public readonly array $primaryMedia,
         public readonly array $scope,
+        public readonly array $mediaItems = [],
     ) {
         $this->validate();
     }
@@ -59,6 +60,7 @@ final class CorpusSnapshot
             $data['literals'],
             $data['primaryMedia'],
             $data['scope'],
+            $data['mediaItems'] ?? [],
         );
     }
 
@@ -89,7 +91,7 @@ final class CorpusSnapshot
                 throw new InvalidArgumentException('Corpus snapshot contains a non-public item.');
             }
         }
-        foreach (['itemYear', 'itemDate', 'temporal', 'geo', 'literals', 'primaryMedia'] as $name) {
+        foreach (['itemYear', 'itemDate', 'temporal', 'geo', 'literals', 'primaryMedia', 'mediaItems'] as $name) {
             foreach (array_keys($this->{$name}) as $itemId) {
                 if (!isset($allowed[(int) $itemId])) {
                     throw new InvalidArgumentException($name . ' contains an out-of-scope item.');

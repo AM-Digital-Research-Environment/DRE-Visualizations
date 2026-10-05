@@ -7,7 +7,7 @@ Runs in CI (see .github/workflows/wordclouds.yml), NOT in Omeka. It reads each
 corpus's text straight from the **public** Omeka REST API (public reads, no auth
 or VPN), groups items by language (the declared dcterms:language, else
 auto-detected), lemmatises each with the matching spaCy model, and writes a
-per-corpus frequency file to ``asset/data/wordclouds/<corpus>.json``.
+per-corpus frequency file to ``data/wordclouds/<corpus>.json``.
 
 The corpora are multilingual (English, French, German, Portuguese), so a single
 mixed cloud would be meaningless — each language is kept in its own bucket and
@@ -64,8 +64,11 @@ MIN_COUNT = 2     # drop per-language hapax
 MIN_LEN = 3       # drop very short lemmas
 
 # repo-root paths — this file is tools/wordclouds/build_wordclouds.py
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from scoped_source import read_scope, verify_scope, read_json, encode_json
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
-OUT_DIR = REPO_ROOT / "asset" / "data" / "wordclouds"
+OUT_DIR = REPO_ROOT / "data" / "wordclouds"
 PROFILE_PATH = REPO_ROOT / "config" / "amira-profile.json"
 
 
@@ -184,12 +187,12 @@ def fetch_json(url: str, attempts: int = 4):
             time.sleep(3 * attempt)
 
 
-def fetch_items(item_set: int) -> list[dict]:
+def fetch_items(item_set: int, scope: dict) -> list[dict]:
     """All items of an item set from the public REST API (paginated)."""
     items: list[dict] = []
     page = 1
     while True:
-        q = urlencode({"item_set_id": item_set, "per_page": 100, "page": page})
+        q = urlencode({"item_set_id": item_set, "site_id": scope["siteId"], "is_public": 1, "per_page": 100, "page": page})
         batch = fetch_json(f"{API_BASE}/api/items?{q}")
         if not batch:
             break
@@ -248,15 +251,18 @@ def main() -> int:
         for w in EXTRA_STOP:
             nlp.vocab[w].is_stop = True
 
+    scope = read_scope(fetch_json, API_BASE, PROFILE_PATH)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for corpus in CORPORA:
         cid, field, item_set = corpus["id"], corpus["field"], corpus["item_set"]
         print(f"== {cid}: fetching item set {item_set} …")
-        items = fetch_items(item_set)
+        items = fetch_items(item_set, scope)
         counts = {c: Counter() for c in SUPPORTED}
         lang_items = {c: 0 for c in SUPPORTED}
         skipped = 0
         for it in items:
+            if it.get("o:is_public") is not True:
+                continue
             text = clean(text_of(it, field))
             if not text.strip():
                 skipped += 1
@@ -269,11 +275,12 @@ def main() -> int:
             lang_items[code] += 1
 
         present = sorted((c for c in SUPPORTED if counts[c]), key=lambda c: -lang_items[c])
-        output_path = OUT_DIR / f"{cid}.json"
+        output_path = OUT_DIR / f"{cid}.php"
         payload = {
             "corpus": cid,
             "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "source": API_BASE,
+            "scope": scope,
             "models": MODELS,
             "languages": present,
             "items": {"total": len(items), "skipped": skipped, **{c: lang_items[c] for c in present}},
@@ -284,17 +291,18 @@ def main() -> int:
         # the workflow opening timestamp-only commits.
         if output_path.is_file():
             try:
-                previous = json.loads(output_path.read_text(encoding="utf-8"))
+                previous = read_json(output_path)
                 previous_semantic = {k: v for k, v in previous.items() if k != "generated_utc"}
                 current_semantic = {k: v for k, v in payload.items() if k != "generated_utc"}
                 if previous_semantic == current_semantic and previous.get("generated_utc"):
                     payload["generated_utc"] = previous["generated_utc"]
             except (OSError, ValueError, TypeError):
                 pass
+        verify_scope(scope, fetch_json, API_BASE, PROFILE_PATH)
         output_path.write_text(
-            json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+            encode_json(output_path, payload, ensure_ascii=False, indent=2), encoding="utf-8"
         )
-        print(f"   wrote asset/data/wordclouds/{cid}.json: languages={present} "
+        print(f"   wrote data/wordclouds/{cid}.json: languages={present} "
               f"items={{{', '.join(f'{c}={lang_items[c]}' for c in present)}}} skipped={skipped}")
     return 0
 

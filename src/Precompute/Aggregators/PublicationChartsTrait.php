@@ -19,7 +19,7 @@ trait PublicationChartsTrait
      *
      * @return list<array{name:string,value:int}>|null
      */
-    public static function buildTopLiteral(array $itemIds, array $literals, string $term, int $topN = 20): ?array
+    public function buildTopLiteral(array $itemIds, array $literals, string $term, int $topN = 20): ?array
     {
         $counts = [];
         foreach ($itemIds as $iid) {
@@ -38,7 +38,7 @@ trait PublicationChartsTrait
         foreach ($counts as $name => $c) {
             $out[] = ['name' => (string) $name, 'value' => $c];
         }
-        return array_slice(self::sortByValueDesc($out), 0, $topN);
+        return array_slice($this->sortByValueDesc($out), 0, $topN);
     }
 
     /**
@@ -48,7 +48,7 @@ trait PublicationChartsTrait
      *
      * @return list<array{name:string,value:int,itemId:int}>|null
      */
-    public static function buildTopLinked(array $itemIds, array $links, array $items, string $term, int $topN = 20): ?array
+    public function buildTopLinked(array $itemIds, array $links, array $items, string $term, int $topN = 20): ?array
     {
         $counts = [];
         foreach ($itemIds as $iid) {
@@ -69,7 +69,7 @@ trait PublicationChartsTrait
         if (!$counts) {
             return null;
         }
-        return array_slice(self::sortByValueDesc(array_values($counts)), 0, $topN);
+        return array_slice($this->sortByValueDesc(array_values($counts)), 0, $topN);
     }
 
     /**
@@ -77,7 +77,7 @@ trait PublicationChartsTrait
      * normalisation as buildTopLiteral) — e.g. how many different venues or
      * publishers a bibliography spans. Feeds stat cards.
      */
-    public static function countDistinctLiterals(array $itemIds, array $literals, string $term): int
+    public function countDistinctLiterals(array $itemIds, array $literals, string $term): int
     {
         $seen = [];
         foreach ($itemIds as $iid) {
@@ -97,7 +97,7 @@ trait PublicationChartsTrait
      * to the "Peer reviewed" authority record. Each item counts once. Feeds
      * stat cards.
      */
-    public static function countItemsLinkedTo(array $itemIds, array $links, array $items, string $term, string $title): int
+    public function countItemsLinkedTo(array $itemIds, array $links, array $items, string $term, string $title): int
     {
         $n = 0;
         foreach ($itemIds as $iid) {
@@ -121,7 +121,7 @@ trait PublicationChartsTrait
      *
      * @return list<array{name:string,value:int,matched:bool,itemId?:int}>|null
      */
-    public static function buildTopAuthors(array $itemIds, array $links, array $literals, array $items, int $topN = 20): ?array
+    public function buildTopAuthors(array $itemIds, array $links, array $literals, array $items, int $topN = 20): ?array
     {
         $counts = [];
         $matched = [];
@@ -163,6 +163,6 @@ trait PublicationChartsTrait
             }
             $out[] = $row;
         }
-        return array_slice(self::sortByValueDesc($out), 0, $topN);
+        return array_slice($this->sortByValueDesc($out), 0, $topN);
     }
 }

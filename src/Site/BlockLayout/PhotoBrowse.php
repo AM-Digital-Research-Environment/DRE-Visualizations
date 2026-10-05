@@ -97,6 +97,8 @@ class PhotoBrowse extends AbstractBlockLayout
     public function render(PhpRenderer $view, SitePageBlockRepresentation $block,
         $templateViewScript = 'common/block-layout/photo-browse')
     {
+        $site = $view->currentSite();
+        if (!$site || !$site->isPublic() || $site->id() !== (int) $view->setting(\DreVisualizations\Module::SETTING_SITE_ID, 0)) return '';
         // A featured collection wins over an explicit item set.
         $entry = null;
         $slug = (string) $block->dataValue('featured_collection', '');
@@ -152,7 +154,7 @@ class PhotoBrowse extends AbstractBlockLayout
             'itemSetId'       => $itemSetId,
             'heading'         => $heading,
             'defaultView'     => $defaultView,
-            'precomputed'     => $itemSetId ? $this->loadGallery($itemSetId) : null,
+            'precomputed'     => $itemSetId ? $this->loadGallery($entry ? 'collection-' . $entry['slug'] : (string) $itemSetId) : null,
             'identifierPrefix' => $prefix,
             'grouping'        => $grouping,
             'partner'         => $partner,
@@ -161,17 +163,14 @@ class PhotoBrowse extends AbstractBlockLayout
     }
 
     /**
-     * Load the precomputed gallery for an item set, or null when absent — in
-     * which case the view falls back to resolving the gallery live (so a newly
-     * added block still works before the next "Regenerate"). Written by the
-     * precompute job to asset/data/photo-galleries/{itemSetId}.json.
+     * Load a current protected gallery, or null when publication is unavailable.
      *
      * @return array{total:int,photos:array<int,array<string,mixed>>}|null
      */
-    private function loadGallery(int $itemSetId): ?array
+    private function loadGallery(string $itemSetId): ?array
     {
         // src/Site/BlockLayout/PhotoBrowse.php → module root is three levels up.
-        $dataDir = dirname(__DIR__, 3) . '/asset/data';
+        $dataDir = \DreVisualizations\Precompute\SnapshotStore::defaultDirectory();
         $data = PublishedSnapshot::readJson($dataDir, 'photo-galleries/' . $itemSetId . '.json');
         return (is_array($data) && isset($data['photos']) && is_array($data['photos'])) ? $data : null;
     }

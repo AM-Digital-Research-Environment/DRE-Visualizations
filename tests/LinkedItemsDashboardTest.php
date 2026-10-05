@@ -23,6 +23,7 @@ namespace Omeka\Site\ResourcePageBlockLayout {
     interface ResourcePageBlockLayoutInterface {}
 }
 namespace {
+    require_once __DIR__ . '/bootstrap.php';
     require __DIR__ . '/../src/Precompute/PublishedSnapshot.php';
     require __DIR__ . '/../src/Site/ResourcePageBlockLayout/LinkedItemsDashboard.php';
 
@@ -50,7 +51,7 @@ namespace {
         $check($block->render($view, $item) === '', 'Missing data must not create a loader.');
         $check($view->calls === 0, 'Ineligible items must not render the asset-loading partial.');
 
-        file_put_contents($root . '/current.json', json_encode(['generationId' => $generation]));
+        file_put_contents($root . '/current.json', json_encode(['generationId' => $generation, 'revision' => (new \DreVisualizations\Precompute\SnapshotStore($root))->revision()]));
         file_put_contents($published . '/knowledge-graphs/32328.json', '{"nodes":[]}');
         $check($block->render($view, $item) === '', 'A knowledge graph does not imply a dashboard.');
 
@@ -65,11 +66,13 @@ namespace {
         $check($block->render($view, $item) === '', 'Removal from the current snapshot must take effect immediately.');
 
         unlink($root . '/current.json');
-        $check($block->render($view, $item) === 'dashboard:32328', 'Legacy flat publication remains supported.');
+        $check($block->render($view, $item) === '', 'Missing manifest never exposes legacy flat publication.');
         echo "LinkedItemsDashboard: $checks checks passed.\n";
     } finally {
         foreach ([
             $root . '/current.json',
+            $root . '/revision.json',
+            $root . '/.policy.lock',
             $published . '/knowledge-graphs/32328.json',
             $published . '/item-dashboards/32328.json',
             $root . '/item-dashboards/32328.json',

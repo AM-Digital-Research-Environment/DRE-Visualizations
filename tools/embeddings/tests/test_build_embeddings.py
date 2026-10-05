@@ -44,6 +44,20 @@ class EmbeddingBuildTests(unittest.TestCase):
             corpora[-1].id, corpora[-1].selector, corpora[-1].selector_id
         ))
 
+    def test_scope_revision_and_guarded_envelope(self):
+        from unittest.mock import patch
+        import scoped_source
+        expected = {"siteId": 1, "revision": "revision-1", "profile": emb.hashlib.sha256(emb.PROFILE_PATH.read_bytes().replace(b"\r\n", b"\n")).hexdigest()}
+        with patch.dict(emb.os.environ, {"OMEKA_SITE_URL": emb.API_BASE + "/s/test"}):
+            self.assertEqual(expected, scoped_source.read_scope(lambda _: expected, emb.API_BASE, emb.PROFILE_PATH))
+            with self.assertRaises(ValueError):
+                scoped_source.verify_scope(expected, lambda _: dict(expected, revision="revision-2"), emb.API_BASE, emb.PROFILE_PATH)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "guarded.php"
+            emb.compact_json(path, {"scope": expected, "items": []})
+            self.assertTrue(path.read_text().startswith(scoped_source.PREFIX))
+            self.assertEqual(expected, emb.read_json(path)["scope"])
+
     def test_value_precedence_and_public_fetch_pagination(self):
         self.assertEqual("Linked title", emb.value_text({
             "display_title": "Linked title", "@value": "Literal", "@id": "https://example.test"
@@ -55,10 +69,12 @@ class EmbeddingBuildTests(unittest.TestCase):
             calls.append(url)
             return [item(i, f"Project {i}") for i in range(1, 101)] if len(calls) == 1 else []
 
-        rows = emb.fetch_corpus(corpus, fetch)
+        rows = emb.fetch_corpus(corpus, fetch, scope={"siteId": 1})
         self.assertEqual(100, len(rows))
         self.assertEqual(2, len(calls))
         self.assertIn("resource_template_id=5", calls[0])
+        self.assertIn("site_id=1", calls[0])
+        self.assertIn("is_public=1", calls[0])
 
     def test_card_uses_project_section_context_and_caps_long_text(self):
         section = item(20, "Knowledges")
@@ -91,7 +107,7 @@ class EmbeddingBuildTests(unittest.TestCase):
         # Keep the fake response to one page.
         original = emb.fetch_corpus
         try:
-            emb.fetch_corpus = lambda _corpus, _fetcher: fetch("")
+            emb.fetch_corpus = lambda _corpus, _fetcher, _scope: fetch("")
             cards, counts = emb.load_cards([corpus], fetch)
         finally:
             emb.fetch_corpus = original
@@ -206,8 +222,8 @@ class EmbeddingBuildTests(unittest.TestCase):
                     },
                     {"embedded": 2, "reused": 0, "staleRemoved": 0},
                 )
-                map_data = json.loads((Path(directory) / "map.json").read_text())
-                similar_data = json.loads((Path(directory) / "similar.json").read_text())
+                map_data = emb.read_json(Path(directory) / "map.php")
+                similar_data = emb.read_json(Path(directory) / "similar.php")
                 self.assertEqual(1, map_data["schemaVersion"])
                 self.assertEqual(
                     {"id", "x", "y", "type", "typeLabel", "cluster", "lowSignal", "title"},

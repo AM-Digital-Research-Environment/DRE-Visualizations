@@ -225,10 +225,7 @@
         ns.basePath = container.getAttribute('data-base-path') || '';
         Promise.all([
             ns.ensureLibs({ echarts: true }),
-            fetch(ns.moduleAsset('data/embeddings/map.json'), { credentials: 'same-origin' }).then(function (response) {
-                if (!response.ok) throw new Error('Semantic map not found');
-                return response.json();
-            })
+            ns.fetchDataJson('embeddings/map.json')
         ]).then(function (values) {
             if (!values[1] || values[1].schemaVersion !== 1) throw new Error('Unsupported semantic map schema');
             render(container, values[1]);

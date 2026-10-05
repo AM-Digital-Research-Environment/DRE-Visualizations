@@ -466,9 +466,11 @@
     }
 
     function flushPendingCharts() {
+        var charts = pendingCharts;
+        pendingCharts = [];
         requestAnimationFrame(function () {
-            pendingCharts.forEach(function (p) {
-                if (ns.CHART_MAP && ns.CHART_MAP[p.key]) {
+            charts.forEach(function (p) {
+                if (p.el.isConnected && ns.CHART_MAP && ns.CHART_MAP[p.key]) {
                     var chart = ns.CHART_MAP[p.key](p.el, p.data, p.siteBase);
                     if (chart) ns.attachToolbar(p.panel, chart);
                 }
@@ -500,12 +502,15 @@
         var activeType = TYPES[fixedType] ? fixedType : 'projects';
         var typeController = null;
         var typeRequestId = 0;
+        var disposeType = function () {};
 
         container.innerHTML = '<div class="rv-loading"><div class="rv-spinner"></div>'
             + '<span>' + escapeHtml(ns.t('loading', 'Loading…')) + '</span></div>';
         loadType(activeType);
 
         function loadType(type) {
+            disposeType();
+            if (ns.disposeWithin) ns.disposeWithin(container);
             activeType = type;
             var cfg = TYPES[type];
             if (typeController) typeController.abort();
@@ -532,6 +537,14 @@
             var leftEntry = null, rightEntry = null;
             var dashboardControllers = { left: null, right: null };
             var dashboardRequests = { left: 0, right: 0 };
+            var errors = { left: false, right: false };
+            var currentTypeRequest = typeRequestId;
+            disposeType = function () {
+                ['left', 'right'].forEach(function (side) {
+                    dashboardRequests[side]++;
+                    if (dashboardControllers[side]) dashboardControllers[side].abort();
+                });
+            };
 
             var header = document.createElement('div');
             header.className = 'dashboard-header';
@@ -545,6 +558,7 @@
             var selectors = document.createElement('div');
             selectors.className = 'compare-selectors';
             selectors.appendChild(buildSelector(entries, 'left', cfg, function (id, entry) {
+                errors.left = false;
                 leftId = id; leftEntry = entry; leftData = null;
                 renderComparison();
                 fetchDashboard('left', id, function (data) { leftData = data; renderComparison(); });
@@ -554,6 +568,7 @@
             vsSpan.textContent = 'vs';
             selectors.appendChild(vsSpan);
             selectors.appendChild(buildSelector(entries, 'right', cfg, function (id, entry) {
+                errors.right = false;
                 rightId = id; rightEntry = entry; rightData = null;
                 renderComparison();
                 fetchDashboard('right', id, function (data) { rightData = data; renderComparison(); });
@@ -562,11 +577,15 @@
 
             var content = document.createElement('div');
             content.className = 'compare-content';
+            content.setAttribute('aria-live', 'polite');
             container.appendChild(content);
             renderComparison();
 
             function renderComparison() {
+                if (currentTypeRequest !== typeRequestId || !container.isConnected) return;
+                if (ns.disposeWithin) ns.disposeWithin(content);
                 content.innerHTML = '';
+                content.setAttribute('aria-busy', 'false');
                 if (!leftId && !rightId) {
                     content.innerHTML = '<div class="rv-no-data">Choose two '
                         + cfg.label.toLowerCase() + ' above to compare them side by side.</div>';
@@ -577,7 +596,27 @@
                         + cfg.singular.toLowerCase() + ' to compare with.</div>';
                     return;
                 }
+                if (errors.left || errors.right) {
+                    var notice = document.createElement('div');
+                    notice.className = 'rv-error';
+                    notice.setAttribute('role', 'alert');
+                    notice.textContent = ns.t('comparisonLoadError', 'The comparison could not be loaded.');
+                    var retry = document.createElement('button');
+                    retry.type = 'button';
+                    retry.textContent = ns.t('retry', 'Try again');
+                    retry.addEventListener('click', function () {
+                        var retryLeft = errors.left, retryRight = errors.right;
+                        errors.left = errors.right = false;
+                        renderComparison();
+                        if (retryLeft) fetchDashboard('left', leftId, function (data) { leftData = data; renderComparison(); });
+                        if (retryRight) fetchDashboard('right', rightId, function (data) { rightData = data; renderComparison(); });
+                    });
+                    notice.appendChild(retry);
+                    content.appendChild(notice);
+                    return;
+                }
                 if (!leftData || !rightData) {
+                    content.setAttribute('aria-busy', 'true');
                     content.innerHTML = '<div class="rv-loading"><div class="rv-spinner"></div>'
                         + '<span>' + escapeHtml(ns.t('loadingComparison', 'Loading the comparison…')) + '</span></div>';
                     return;
@@ -625,16 +664,19 @@
 
             function fetchDashboard(side, id, callback) {
                 if (dashboardControllers[side]) dashboardControllers[side].abort();
+                ++dashboardRequests[side];
                 if (!id) { callback(null); return; }
                 var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
                 dashboardControllers[side] = controller;
                 var requestId = ++dashboardRequests[side];
                 ns.fetchDataJson('item-dashboards/' + encodeURIComponent(id) + '.json',
                     controller ? { signal: controller.signal } : {}).then(function (data) {
+                    return ns.ensureLibs(ns.chartLibraries(data)).then(function () { return data; });
+                }).then(function (data) {
                     if (requestId === dashboardRequests[side]) callback(data);
                 }).catch(function (error) {
                     if (error && error.name === 'AbortError') return;
-                    if (requestId === dashboardRequests[side]) callback(null);
+                    if (requestId === dashboardRequests[side]) { errors[side] = true; callback(null); }
                 });
             }
         }
@@ -645,7 +687,6 @@
     /* ------------------------------------------------------------------ */
 
     function init() {
-        if (typeof echarts === 'undefined') return;
         var containers = document.querySelectorAll('.compare-container');
         for (var i = 0; i < containers.length; i++) {
             initCompare(containers[i]);

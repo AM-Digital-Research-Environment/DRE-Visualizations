@@ -6,11 +6,7 @@ modular, maintainable, and theme-consistent; they were proven out over the
 visualization-parity initiative with the sibling
 [amira dashboard](https://github.com/AM-Digital-Research-Environment/amira).
 
-The module ships **plain PHP, CSS and vanilla JavaScript with no bundler**. There
-is no build step: ECharts 6, echarts-wordcloud 2, MapLibre GL 5, and the d3-force 3
-layout stack stay self-hosted from committed `asset/vendor/` bundles (injected by
-`DashboardAssets`). A new vendored file needs an entry in `THIRD_PARTY_NOTICES`
-with its licence; pin it by SHA-256 when upstream ships no versioned URL.
+The module ships plain PHP, CSS and vanilla JavaScript. `npm run build` concatenates modular chart sources into the committed browser bundle. ECharts 6, MapLibre 6 and d3-force 3 are vendored under `asset/vendor`; Playwright is used only for development tests. Record any changed vendored dependency in `THIRD_PARTY_NOTICES` and verify its upstream version before pinning.
 
 Three renderers, and the choice between them is not a matter of taste: ECharts for
 charts, MapLibre for maps, and the module's own canvas + d3-force for a graph the
@@ -21,10 +17,16 @@ the point; a static network is cheaper as an ECharts series.
 ## Before you commit
 
 ```bash
-npm run check   # design-token contract + JS syntax sweep + registry/layout/embed contracts
-docker run --rm -v "$PWD:/m" php:8.4-cli php /m/tests/AggregatorsTest.php     # aggregator regressions
-docker run --rm -v "$PWD:/m" php:8.4-cli php /m/tests/KnowledgeGraphsTest.php # graph builder regressions
-python -m unittest discover -s tools/embeddings/tests -v                    # embedding contracts
+npm ci
+npm run build
+npm run check
+npx playwright install chromium
+npm run test:browser
+php scripts/test-php.php
+php scripts/check-module-contract.php /path/to/omeka-s
+php tests/integration/DatabaseTest.php /path/to/omeka-s
+php tests/integration/CoreContractsTest.php /path/to/omeka-s
+python -m unittest discover -s tools/embeddings/tests -v
 ```
 
 The aggregators are dependency-free and unit-tested — add a mock-data case for
@@ -50,8 +52,8 @@ whole dashboard object, which is how data-driven overlays work (see `geoFlows`).
 
 | Step | File | Change |
 |---|---|---|
-| 1 | `src/Precompute/Aggregators.php` | `public static function buildX(array $itemIds, array $links, array $items, …): ?array` → array or **`null`** when empty. |
-| 2 | `src/Precompute/Runner.php` | Call it in the right generator (`addStandardCharts()` / `generatePeople()` / an overview generator); `$dashboard['x'] = Aggregators::buildX(...)`. |
+| 1 | `src/Precompute/Aggregators.php` | `public function buildX(array $itemIds, array $links, array $items, …): ?array` → array or **`null`** when empty. |
+| 2 | `src/Precompute/*DashboardGenerator.php` | Call it in the right generator (`addStandardCharts()` / `generatePeople()` / an overview generator); `$dashboard['x'] = $this->aggregators->buildX(...)`. |
 | 3 | `asset/js/dashboard-charts-x.js` | New IIFE builder registering `window.RV.charts.buildX = function (el, data, siteBase, allData) { … }`. |
 | 4 | `asset/js/dashboard-registry.js` | `CHART_MAP['x'] = c.buildX;` + `CHART_LABELS` + (optionally) `CHART_DESCRIPTIONS`. |
 | 5 | `asset/js/dashboard-layouts.js` | Add `'x'` to the chosen layouts' `order` (and `wide`/`tall`). |
@@ -73,10 +75,10 @@ Sibling-items Sparkline.)
 | Step | File | Change |
 |---|---|---|
 | 1 | `src/Site/BlockLayout/Xxx.php` | `extends AbstractBlockLayout`; `getLabel()`, `form()` (config or "no configuration needed"), `render()` → partial. |
-| 2 | `config/module.config.php` | Register `'xxx' => Site\BlockLayout\Xxx::class` under `block_layouts.invokables`. |
+| 2 | `config/module.config.php` | Register `'dreXxx' => Site\BlockLayout\Xxx::class` under `block_layouts.invokables`. |
 | 3 | `view/common/block-layout/xxx.phtml` | Call `$this->dashboardAssets(['cdn' => true, 'controller' => 'xxx'])` (or a lean prelude), emit a `.xxx-container` + spinner. The five dashboard blocks delegate to the shared `partials/dashboard-async.phtml`. |
 | 4 | `asset/js/dashboard-xxx.js` + `DashboardAssets::CONTROLLERS` | Controller IIFE that fetches its JSON, builds UI, renders via `CHART_MAP`; register the chain under `CONTROLLERS['xxx']`. |
-| 5 | *(if data-driven)* `src/Precompute/{Aggregators,Runner}.php` | New aggregator emitting an index/feed JSON under `asset/data/`. |
+| 5 | *(if data-driven)* `src/Precompute/{Aggregators,Runner}.php` | New aggregator emitting an index/feed JSON inside the generation staging directory. |
 | 6 | *(to make it embeddable)* `EmbedController.php` + the step-3 template | In `src/Controller/Site/EmbedController.php` add a `BLOCKS` entry: slug ⇒ `label` + `template` + `kind`. Use `kind => 'dashboard'` with `itemId`/`layout` only if `dashboard.js` renders it from a chart-key layout (then single-chart embeds come for free); otherwise `kind => 'widget'`. Zero-config partials only — the embed route has no `$block`. Then stamp the **same slug** as `data-embed-slug` on the container (directly, or via the shared partial's `'slug'` param), so the on-page copy-embed buttons can build the URL. `scripts/check-registry-contracts.mjs` verifies this slug matches in both directions. |
 | 7 | README | Document adding the block (Admin → Sites → [site] → Pages). |
 

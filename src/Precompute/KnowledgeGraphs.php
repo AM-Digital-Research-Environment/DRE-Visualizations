@@ -18,6 +18,16 @@ namespace DreVisualizations\Precompute;
  */
 final class KnowledgeGraphs
 {
+    /** Shared-resource labels indexed once for every graph in a generation. */
+    public static function shareableAdjacency(array $links): array
+    {
+        $index = [];
+        foreach ($links as $source => $relations) foreach ($relations as [$term, $label, $target]) {
+            if (self::isShareable($term)) $index[$source][$target] ??= $label;
+        }
+        return $index;
+    }
+
     /** Property term => node category. */
     private const PROP_CAT = [
         'dcterms:creator' => 'Person', 'dcterms:contributor' => 'Person', 'foaf:member' => 'Person',
@@ -137,6 +147,16 @@ final class KnowledgeGraphs
                 }
             }
         }
+        // Bound ubiquitous postings once per corpus, retaining evenly spaced, deterministic representatives.
+        foreach ($reverse as &$posting) {
+            if (count($posting) <= 256) continue;
+            $ids = array_keys($posting);
+            sort($ids, SORT_NUMERIC);
+            $sample = [];
+            for ($i = 0; $i < 256; $i++) $sample[$ids[(int) floor($i * count($ids) / 256)]] = true;
+            $posting = $sample;
+        }
+        unset($posting);
         return $reverse;
     }
 
@@ -176,11 +196,12 @@ final class KnowledgeGraphs
      * @param array $idf           resourceId => IDF score
      * @param array $freqPct       resourceId => frequency percentage (0–100)
      */
-    public static function buildGraph(int $itemId, array $items, array $links, array $reverseLinks, array $reverse, array $idf, array $freqPct): ?array
+    public static function buildGraph(int $itemId, array $items, array $links, array $reverseLinks, array $reverse, array $idf, array $freqPct, ?array $adjacency = null): ?array
     {
         if (!isset($items[$itemId])) {
             return null;
         }
+        $adjacency ??= self::shareableAdjacency($links);
         $item = $items[$itemId];
         $centerCat = ($item['class_label'] ?? '') !== '' ? (string) $item['class_label'] : 'Item';
 
@@ -314,17 +335,27 @@ final class KnowledgeGraphs
         $sharedCandidates = []; // sid => list of edge dicts
         $strengths = [];        // sid => sum of shared IDF
         $discovered = [];
-        foreach ($centerLinked as $vrid => $centerNid) {
+        $visits = 0;
+        $truncated = false;
+        foreach ($centerLinked as $resourceId => $_nid) {
+            if (count($reverse[$resourceId] ?? []) >= 256) $truncated = true;
+        }
+        $rankedResources = array_keys($centerLinked);
+        usort($rankedResources, static fn ($a, $b) => (($idf[$b] ?? 0) <=> ($idf[$a] ?? 0)) ?: ($a <=> $b));
+        foreach ($rankedResources as $vrid) {
             foreach (array_keys($reverse[$vrid] ?? []) as $sid) {
                 if ($sid === $itemId || isset($discovered[$sid])) {
                     continue;
                 }
+                if ($visits >= 2048) { $truncated = true; break 2; }
+                $visits++;
                 $discovered[$sid] = true;
                 $snid = 'item_' . $sid;
                 $matched = [];
                 $matchedKeys = [];
-                foreach ($links[$sid] ?? [] as [$st, $sl, $sv]) {
-                    if (!isset($centerLinked[$sv])) {
+                foreach ($centerLinked as $sv => $_nid) {
+                    $sl = $adjacency[$sid][$sv] ?? null;
+                    if ($sl === null) {
                         continue;
                     }
                     $ek = $snid . '>' . $centerLinked[$sv];
@@ -401,6 +432,9 @@ final class KnowledgeGraphs
                 'maxStrength' => round($maxStrength, 2),
                 'maxFreqPct' => round($maxFreq, 1),
                 'communityCount' => $communityCount,
+                'candidateSearchTruncated' => $truncated,
+                'maxPostingSample' => 256,
+                'candidatesExamined' => $visits,
             ],
         ];
     }

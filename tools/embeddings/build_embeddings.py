@@ -19,6 +19,7 @@ import random
 import re
 import sys
 import time
+import tempfile
 from array import array
 from collections import Counter
 from dataclasses import dataclass
@@ -29,11 +30,15 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from scoped_source import read_scope, verify_scope, read_json, encode_json
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PROFILE_PATH = REPO_ROOT / "config" / "amira-profile.json"
-OUT_DIR = REPO_ROOT / "asset" / "data" / "embeddings"
-CACHE_PATH = OUT_DIR / "cache.json"
-RELEASE_DIR = OUT_DIR / "release"
+OUT_DIR = REPO_ROOT / "data" / "embeddings"
+WORK_DIR = Path(os.environ.get("DRE_EMBEDDING_WORK_DIR", str(Path(tempfile.gettempdir()) / ("dre-embeddings-" + hashlib.sha256(str(REPO_ROOT).encode()).hexdigest()[:16]))))
+CACHE_PATH = WORK_DIR / "cache.json"
+RELEASE_DIR = WORK_DIR / "release"
 
 API_BASE = os.environ.get(
     "OMEKA_API_BASE", "https://data.africamultiple.uni-bayreuth.de"
@@ -93,7 +98,7 @@ def compact_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(
-        json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + "\n",
+        encode_json(path, payload, ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8",
     )
     tmp.replace(path)
@@ -103,13 +108,13 @@ def pretty_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        encode_json(path, payload, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     tmp.replace(path)
 
 
 def load_profile(path: Path = PROFILE_PATH) -> tuple[dict[str, Any], list[CorpusConfig]]:
-    profile = json.loads(path.read_text(encoding="utf-8"))
+    profile = read_json(path)
     item_sets = profile.get("itemSets")
     templates = profile.get("templates")
     raw_corpora = profile.get("embeddingCorpora")
@@ -172,11 +177,11 @@ def fetch_json(url: str, attempts: int = 4) -> Any:
     raise AssertionError("unreachable")
 
 
-def fetch_corpus(corpus: CorpusConfig, fetcher: Callable[[str], Any] = fetch_json) -> list[dict]:
+def fetch_corpus(corpus: CorpusConfig, fetcher: Callable[[str], Any] = fetch_json, scope: dict | None = None) -> list[dict]:
     items: list[dict] = []
     page = 1
     while True:
-        query = urlencode({corpus.selector: corpus.selector_id, "per_page": 100, "page": page})
+        query = urlencode({corpus.selector: corpus.selector_id, "site_id": (scope or read_scope(fetcher, API_BASE, PROFILE_PATH))["siteId"], "is_public": 1, "per_page": 100, "page": page})
         batch = fetcher(f"{API_BASE}/api/items?{query}")
         if not isinstance(batch, list):
             raise ValueError(f"Omeka returned a non-list for {corpus.id}")
@@ -326,11 +331,12 @@ def build_card(
 def load_cards(
     corpora: Sequence[CorpusConfig],
     fetcher: Callable[[str], Any] = fetch_json,
+    scope: dict | None = None,
 ) -> tuple[list[Card], dict[str, dict[str, int]]]:
     by_corpus: dict[str, list[dict]] = {}
     counts: dict[str, dict[str, int]] = {}
     for corpus in corpora:
-        raw = fetch_corpus(corpus, fetcher)
+        raw = fetch_corpus(corpus, fetcher, scope)
         public = [item for item in raw if item.get("o:is_public") is True]
         by_corpus[corpus.id] = public
         counts[corpus.id] = {
@@ -386,7 +392,7 @@ def load_cache(path: Path = CACHE_PATH) -> dict[str, Any]:
     if not path.is_file():
         return empty_cache()
     try:
-        cache = json.loads(path.read_text(encoding="utf-8"))
+        cache = read_json(path)
     except (OSError, json.JSONDecodeError):
         return empty_cache()
     compatible = (
@@ -630,7 +636,7 @@ def recommendation_quality(
     }
 
 
-def write_release(matrix, cards: Sequence[Card], generated_at: str) -> dict[str, Any]:
+def write_release(matrix, cards: Sequence[Card], generated_at: str, scope: dict | None = None) -> dict[str, Any]:
     RELEASE_DIR.mkdir(parents=True, exist_ok=True)
     vector_path = RELEASE_DIR / "vectors.f32"
     payload = array("f", matrix.astype("<f4", copy=False).ravel())
@@ -661,6 +667,7 @@ def write_release(matrix, cards: Sequence[Card], generated_at: str) -> dict[str,
         "vectorsSha256": checksum,
         "generatedAt": generated_at,
         "source": API_BASE,
+        "scope": scope,
         "sourceCommit": os.environ.get("GITHUB_SHA") or None,
     }
     pretty_json(RELEASE_DIR / "manifest.json", manifest)
@@ -676,10 +683,12 @@ def write_derived(
     recommendations: dict[str, list[dict[str, Any]]],
     corpus_counts: dict[str, dict[str, int]],
     cache_stats: dict[str, int],
+    scope: dict | None = None,
 ) -> dict[str, Any]:
     generated_at = utc_now()
     counts = Counter(card.corpus for card in cards)
     map_payload = {
+        "scope": scope,
         "schemaVersion": SCHEMA_VERSION,
         "model": MODEL,
         "dimensions": OUTPUT_DIMS,
@@ -708,12 +717,13 @@ def write_derived(
             for index, card in enumerate(cards)
         ],
     }
-    map_path = OUT_DIR / "map.json"
-    similar_path = OUT_DIR / "similar.json"
+    map_path = OUT_DIR / "map.php"
+    similar_path = OUT_DIR / "similar.php"
     compact_json(map_path, map_payload)
     compact_json(
         similar_path,
         {
+            "scope": scope,
             "schemaVersion": SCHEMA_VERSION,
             "model": MODEL,
             "dimensions": OUTPUT_DIMS,
@@ -724,8 +734,9 @@ def write_derived(
         },
     )
     quality = recommendation_quality(cards, recommendations)
-    release_manifest = write_release(matrix, cards, generated_at)
+    release_manifest = write_release(matrix, cards, generated_at, scope)
     report = {
+        "scope": scope,
         "schemaVersion": SCHEMA_VERSION,
         "generatedAt": generated_at,
         "source": API_BASE,
@@ -753,16 +764,16 @@ def write_derived(
         "recommendations": quality,
         "release": release_manifest,
     }
-    pretty_json(OUT_DIR / "report.json", report)
+    pretty_json(OUT_DIR / "report.php", report)
     return report
 
 
 def validate_artifacts(out_dir: Path = OUT_DIR, release_dir: Path = RELEASE_DIR) -> dict[str, int]:
     """Fail closed when derived JSON and the vector release disagree."""
     paths = {
-        "map": out_dir / "map.json",
-        "similar": out_dir / "similar.json",
-        "report": out_dir / "report.json",
+        "map": out_dir / "map.php",
+        "similar": out_dir / "similar.php",
+        "report": out_dir / "report.php",
         "ids": release_dir / "ids.json",
         "manifest": release_dir / "manifest.json",
         "vectors": release_dir / "vectors.f32",
@@ -772,11 +783,11 @@ def validate_artifacts(out_dir: Path = OUT_DIR, release_dir: Path = RELEASE_DIR)
         raise ValueError(f"Missing semantic artifacts: {', '.join(missing)}")
 
     try:
-        map_data = json.loads(paths["map"].read_text(encoding="utf-8"))
-        similar_data = json.loads(paths["similar"].read_text(encoding="utf-8"))
-        report = json.loads(paths["report"].read_text(encoding="utf-8"))
-        release_ids = json.loads(paths["ids"].read_text(encoding="utf-8"))
-        manifest = json.loads(paths["manifest"].read_text(encoding="utf-8"))
+        map_data = read_json(paths["map"])
+        similar_data = read_json(paths["similar"])
+        report = read_json(paths["report"])
+        release_ids = read_json(paths["ids"])
+        manifest = read_json(paths["manifest"])
     except (json.JSONDecodeError, OSError) as exc:
         raise ValueError(f"Unreadable semantic artifact: {exc}") from exc
 
@@ -880,7 +891,8 @@ def main() -> int:
         return 0
 
     print(f"Fetching {len(corpora)} public corpora from {API_BASE}...")
-    cards, corpus_counts = load_cards(corpora)
+    scope = read_scope(fetch_json, API_BASE, PROFILE_PATH)
+    cards, corpus_counts = load_cards(corpora, scope=scope)
     if not cards:
         print("No public cards were built.", file=sys.stderr)
         return 1
@@ -911,6 +923,7 @@ def main() -> int:
     matrix = vector_matrix(cards, cache)
     coords, clusters, cluster_count = project_and_cluster(matrix)
     recommendations = similar_items(cards, matrix)
+    verify_scope(scope, fetch_json, API_BASE, PROFILE_PATH)
     report = write_derived(
         cards,
         matrix,
@@ -920,6 +933,7 @@ def main() -> int:
         recommendations,
         corpus_counts,
         cache_stats,
+        scope=scope,
     )
     print(
         f"Wrote map/similar/report for {report['totals']['cards']} public items; "

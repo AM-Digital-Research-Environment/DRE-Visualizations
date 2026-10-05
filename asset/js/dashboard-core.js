@@ -234,36 +234,38 @@
 
     /**
      * Resolve a generated-data path through the atomically published manifest.
-     * Old installations without current.json keep working through the legacy
-     * data/<path> fallback. The manifest is fetched once per page with no-store;
-     * generation URLs themselves are immutable and browser-cacheable.
+     * The checked endpoint serves only the current generation with no-store.
      */
+    ns.dataBase = function () {
+        if (!window.RV_DATA_BASE) throw new Error('No canonical snapshot endpoint configured');
+        return window.RV_DATA_BASE;
+    };
     ns.dataAsset = function (path) {
         path = String(path || '').replace(/^\/+/, '');
         if (!path || path.split('/').some(function (segment) { return segment === '..'; })) {
             return Promise.reject(new Error('Invalid generated-data path'));
         }
         if (!ns._dataManifestPromise) {
-            var manifestUrl = ns.moduleAsset('data/current.json');
+            var manifestUrl = ns.dataBase() + 'current.json';
             ns._dataManifestPromise = fetch(manifestUrl, {
                 cache: 'no-store', credentials: 'same-origin'
             }).then(function (response) {
-                if (!response.ok) return null;
+                if (!response.ok) throw new Error('Snapshot unavailable');
                 return response.json();
             }).then(function (manifest) {
                 var id = manifest && String(manifest.generationId || '');
-                return /^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{12}$/.test(id) ? id : null;
-            }).catch(function () { return null; });
+                if (!/^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{12}$/.test(id)) throw new Error('Invalid snapshot manifest');
+                return id;
+            }).catch(function (error) { ns._dataManifestPromise = null; throw error; });
         }
         return ns._dataManifestPromise.then(function (generationId) {
-            var prefix = generationId ? 'data/generations/' + generationId + '/' : 'data/';
-            return ns.moduleAsset(prefix + path);
+            return ns.dataBase() + 'generations/' + generationId + '/' + path;
         });
     };
 
     /** Central JSON loader for every generated dashboard artifact. */
     ns.fetchDataJson = function (path, options) {
-        var requestOptions = Object.assign({ credentials: 'same-origin' }, options || {});
+        var requestOptions = Object.assign({ credentials: 'same-origin', cache: 'no-store' }, options || {});
         function read(url) {
             return fetch(url, requestOptions).then(function (response) {
                 if (!response.ok) {
@@ -688,7 +690,10 @@
      * same container; it is invoked on theme change.
      */
     ns.trackMap = function (map, rebuild) {
-        ns._allMaps.push({ map: map, rebuild: rebuild });
+        ns._allMaps.push({ map: map, rebuild: rebuild, el: map.getContainer() });
+        map.on('remove', function () {
+            ns._allMaps = ns._allMaps.filter(function (entry) { return entry.map !== map; });
+        });
         ns.attachMapAttribution(map);
         return map;
     };
@@ -758,8 +763,12 @@
      * @param {HTMLElement} el      the container, used as the liveness check
      * @param {Function}    redraw  repaint with the current theme
      */
-    ns.trackRenderer = function (el, redraw) {
-        ns._allRenderers.push({ el: el, redraw: redraw });
+    ns.trackRenderer = function (el, redraw, dispose) {
+        var entry = { el: el, redraw: redraw, dispose: dispose };
+        ns._allRenderers.push(entry);
+        return function () {
+            ns._allRenderers = ns._allRenderers.filter(function (candidate) { return candidate !== entry; });
+        };
     };
 
     /**
@@ -979,9 +988,27 @@
     };
 
     /** Remove disposed charts from the tracking array. */
-    ns.pruneCharts = function () {
-        ns._allCharts = ns._allCharts.filter(function (c) { return !c.isDisposed(); });
+    /** Dispose an owner's charts, workers, observers and simulations BEFORE replacing its DOM. */
+    ns.disposeWithin = function (root) {
+        function removed(el) { return !el || !el.isConnected || (root && (el === root || root.contains(el))); }
+        ns._allCharts = ns._allCharts.filter(function (chart) {
+            if (chart.isDisposed()) return false;
+            if (!removed(chart.getDom())) return true;
+            chart.dispose();
+            return false;
+        });
+        ns._allMaps = ns._allMaps.filter(function (entry) {
+            if (!removed(entry.el)) return true;
+            try { entry.map.remove(); } catch (e) { /* already removed */ }
+            return false;
+        });
+        ns._allRenderers = ns._allRenderers.filter(function (entry) {
+            if (!removed(entry.el)) return true;
+            if (entry.dispose) entry.dispose();
+            return false;
+        });
     };
+    ns.pruneCharts = function () { ns.disposeWithin(null); };
 
     /**
      * Re-apply the active theme to every live chart and map. Triggered when the

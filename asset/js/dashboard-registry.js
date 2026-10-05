@@ -9,6 +9,20 @@
     var ns = window.RV;
     var c = ns.charts;
 
+    /** Resolve heavy libraries from the payload, after an empty/error response is ruled out. */
+    ns.chartLibraries = function (data) {
+        var result = {};
+        var maps = [c.buildMiniMap, c.buildMap, c.buildChoropleth, c.buildClusterMap, c.buildAffiliationMap];
+        var force = [c.buildCommunities];
+        Object.keys(data || {}).forEach(function (key) {
+            if (!data[key] || !ns.CHART_MAP[key]) return;
+            var lib = maps.indexOf(ns.CHART_MAP[key]) >= 0 ? 'maplibre' : (force.indexOf(ns.CHART_MAP[key]) >= 0 ? 'd3' : 'echarts');
+            result[lib] = true;
+            if (ns.CHART_MAP[key] === c.buildWordCloud) result.wordcloud = true;
+        });
+        return result;
+    };
+
     ns.CHART_MAP = {
         'selfLocation':        c.buildMiniMap,
         'stackedTimeline':     c.buildStackedTimeline,

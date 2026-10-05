@@ -53,8 +53,8 @@ require_once __DIR__ . '/ForceLayout.php';
  * The builders themselves live in focused traits under the Aggregators/
  * subdirectory (one concern each); this class composes them. Installation-local
  * rules are configured from the validated AMIRA profile before aggregation.
- * The public API is unchanged:
- * every method is still reached as `Aggregators::buildX(...)`.
+ * No process-wide mutable configuration is used:
+ * builders are instance methods with immutable installation context.
  */
 final class Aggregators
 {
@@ -70,40 +70,29 @@ final class Aggregators
     use OverviewChartsTrait;
     use MediaChartsTrait;
 
-    private static ?int $personTemplateId = null;
-    private static ?int $projectTemplateId = null;
-    /** @var array<string,string> */
-    private static array $universityLabels = [];
-
-    /** Configure installation-local rules once per precompute/test process. */
-    public static function configureInstallation(
-        int $personTemplateId,
-        int $projectTemplateId,
-        array $universityLabels
-    ): void {
-        if ($personTemplateId < 1 || $projectTemplateId < 1) {
+    public function __construct(
+        private readonly ?int $personTemplateId = null,
+        private readonly ?int $projectTemplateId = null,
+        private readonly array $universityLabels = [],
+        private readonly ?string $layoutCacheDir = null,
+        private readonly mixed $checkpoint = null,
+    ) {
+        if (($personTemplateId !== null && $personTemplateId < 1) || ($projectTemplateId !== null && $projectTemplateId < 1)) {
             throw new \InvalidArgumentException('Aggregator template ids must be positive.');
         }
-        self::$personTemplateId = $personTemplateId;
-        self::$projectTemplateId = $projectTemplateId;
-        self::$universityLabels = $universityLabels;
     }
 
-    private static function personTemplateId(): int
+    private function personTemplateId(): int
     {
-        return self::$personTemplateId
-            ?? throw new \LogicException('Aggregators installation rules are not configured.');
+        return $this->personTemplateId ?? throw new \LogicException('Person template is not configured.');
     }
-
-    private static function projectTemplateId(): int
+    private function projectTemplateId(): int
     {
-        return self::$projectTemplateId
-            ?? throw new \LogicException('Aggregators installation rules are not configured.');
+        return $this->projectTemplateId ?? throw new \LogicException('Project template is not configured.');
     }
-
-    private static function universityLabel(string $title): string
+    private function universityLabel(string $title): string
     {
-        return self::$universityLabels[$title] ?? $title;
+        return $this->universityLabels[$title] ?? $title;
     }
 
     public const RADAR_AXES = [

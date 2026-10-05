@@ -13,7 +13,7 @@ namespace DreVisualizations\Precompute\Aggregators;
 trait GeoChartsTrait
 {
     /** Build geographic flow data: origin -> current location arcs. */
-    public static function buildGeoFlows(array $itemIds, array $links, array $items, array $geo): ?array
+    public function buildGeoFlows(array $itemIds, array $links, array $items, array $geo): ?array
     {
         $flows = [];
         foreach ($itemIds as $iid) {
@@ -49,7 +49,7 @@ trait GeoChartsTrait
             $nodes[] = ['name' => $geo[$nid]['name'], 'lat' => $geo[$nid]['lat'], 'lon' => $geo[$nid]['lon'], 'itemId' => $nid];
         }
 
-        self::sortCounts($flows);
+        $this->sortCounts($flows);
         $flowLinks = [];
         foreach ($flows as $key => $count) {
             [$o, $c] = array_map('intval', explode(',', $key));
@@ -76,7 +76,7 @@ trait GeoChartsTrait
      * @param list<int> $itemIds
      * @return list<array{name:string,lat:float,lon:float,itemId:int,value:int,items:list<array{id:int,title:string}>}>|null
      */
-    public static function buildLinkedPlacesMap(array $itemIds, array $links, array $items, array $geo, string $term): ?array
+    public function buildLinkedPlacesMap(array $itemIds, array $links, array $items, array $geo, string $term): ?array
     {
         $places = [];
         foreach ($itemIds as $iid) {
@@ -95,7 +95,7 @@ trait GeoChartsTrait
                 $places[$vrid]['items'][] = ['id' => $iid, 'title' => $items[$iid]['title'] ?? ('Item ' . $iid)];
             }
         }
-        return $places ? self::sortByValueDesc(array_values($places)) : null;
+        return $places ? $this->sortByValueDesc(array_values($places)) : null;
     }
 
     /**
@@ -103,7 +103,7 @@ trait GeoChartsTrait
      * that carry coordinates, as map markers. Returns null when no affiliation is
      * geocoded, so the orchestrator hides the panel.
      */
-    public static function buildAffiliationMap(int $personId, array $links, array $items, array $geo): ?array
+    public function buildAffiliationMap(int $personId, array $links, array $items, array $geo): ?array
     {
         $markers = [];
         $seen = [];
@@ -131,7 +131,7 @@ trait GeoChartsTrait
      * the affiliated members. Returns null when no member affiliation is geocoded,
      * so the orchestrator hides the panel.
      */
-    public static function buildProjectAffiliationMap(int $projectId, array $links, array $items, array $geo): ?array
+    public function buildProjectAffiliationMap(int $projectId, array $links, array $items, array $geo): ?array
     {
         // Project members: PI (dcterms:creator) + team (foaf:member).
         $memberIds = [];
@@ -168,7 +168,7 @@ trait GeoChartsTrait
     }
 
     /** Even-odd ray-casting test across all rings of a polygon (handles holes). */
-    private static function pointInPolygon(float $x, float $y, array $rings): bool
+    private function pointInPolygon(float $x, float $y, array $rings): bool
     {
         $inside = false;
         foreach ($rings as $ring) {
@@ -188,18 +188,18 @@ trait GeoChartsTrait
         return $inside;
     }
 
-    private static function countryForPoint(float $lon, float $lat, array $features): ?string
+    private function countryForPoint(float $lon, float $lat, array $features): ?string
     {
         foreach ($features as [$name, $geom]) {
             $type = $geom['type'] ?? '';
             $coords = $geom['coordinates'] ?? [];
             if ($type === 'Polygon') {
-                if (self::pointInPolygon($lon, $lat, $coords)) {
+                if ($this->pointInPolygon($lon, $lat, $coords)) {
                     return $name;
                 }
             } elseif ($type === 'MultiPolygon') {
                 foreach ($coords as $poly) {
-                    if (self::pointInPolygon($lon, $lat, $poly)) {
+                    if ($this->pointInPolygon($lon, $lat, $poly)) {
                         return $name;
                     }
                 }
@@ -209,7 +209,7 @@ trait GeoChartsTrait
     }
 
     /** Parse the countries GeoJSON into [[name, geometry], ...]. */
-    public static function loadCountryFeatures(string $geojsonPath): array
+    public function loadCountryFeatures(string $geojsonPath): array
     {
         $features = [];
         if (!is_readable($geojsonPath)) {
@@ -228,7 +228,7 @@ trait GeoChartsTrait
     }
 
     /** Map each location id to its country name via point-in-polygon. */
-    public static function buildCountryIndex(array $geo, array $features): array
+    public function buildCountryIndex(array $geo, array $features): array
     {
         $index = [];
         if (!$features) {
@@ -240,7 +240,7 @@ trait GeoChartsTrait
             if ($lon === null || $lat === null) {
                 continue;
             }
-            $name = self::countryForPoint((float) $lon, (float) $lat, $features);
+            $name = $this->countryForPoint((float) $lon, (float) $lat, $features);
             if ($name !== null) {
                 $index[$locId] = $name;
             }
@@ -249,7 +249,7 @@ trait GeoChartsTrait
     }
 
     /** Aggregate item origins (dcterms:spatial) to per-country counts. */
-    public static function buildChoropleth(array $itemIds, array $links, array $countryIndex): ?array
+    public function buildChoropleth(array $itemIds, array $links, array $countryIndex): ?array
     {
         if (!$countryIndex) {
             return null;
@@ -270,7 +270,7 @@ trait GeoChartsTrait
         if (!$counts) {
             return null;
         }
-        self::sortCounts($counts);
+        $this->sortCounts($counts);
         $out = [];
         foreach ($counts as $c => $n) {
             $out[] = ['country' => $c, 'count' => $n];

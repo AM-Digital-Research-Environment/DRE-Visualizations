@@ -38,7 +38,7 @@ trait SpatialTrait
      * @param array $countryIndex [locId => countryName] (from buildCountryIndex)
      * @return array{locations: list<array{0:int,1:string,2:float,3:float,4:int,5:int,6:int}>, countries: list<array{0:string,1:int,2:array{0:float,1:float,2:float,3:float}}>}
      */
-    public static function buildSpatialPlaces(array $geo, array $reverseLinks, array $countryIndex): array
+    public function buildSpatialPlaces(array $geo, array $reverseLinks, array $countryIndex): array
     {
         // One pass over geocoded locations: distinct-item origin/current counts + country.
         $rows = [];
@@ -73,7 +73,7 @@ trait SpatialTrait
 
         // Densest bubbles first (draw order + a sensible default sort for the
         // front-end's "top places" list).
-        usort($rows, static fn ($a, $b) => (($b['origin'] + $b['current']) <=> ($a['origin'] + $a['current']))
+        usort($rows, fn ($a, $b) => (($b['origin'] + $b['current']) <=> ($a['origin'] + $a['current']))
             ?: strnatcasecmp((string) $a['name'], (string) $b['name']));
 
         // Per-country aggregate: total references + bounding box of member points.
@@ -96,7 +96,7 @@ trait SpatialTrait
         foreach ($agg as $name => $a) {
             $countryList[] = ['name' => $name, 'count' => $a['count'], 'bounds' => [$a['w'], $a['s'], $a['e'], $a['n']]];
         }
-        usort($countryList, static fn ($a, $b) => ($b['count'] <=> $a['count'])
+        usort($countryList, fn ($a, $b) => ($b['count'] <=> $a['count'])
             ?: strnatcasecmp((string) $a['name'], (string) $b['name']));
 
         $countryIdx = [];
@@ -133,7 +133,7 @@ trait SpatialTrait
      * @param array $geo   [locId => ['name'=>, 'lat'=>, 'lon'=>, ...]]
      * @return array<int,array{0:int,1:int}> [locId => [originCount, currentCount]]
      */
-    public static function placesForItems(array $itemIds, array $links, array $geo): array
+    public function placesForItems(array $itemIds, array $links, array $geo): array
     {
         $counts = [];
         foreach ($itemIds as $iid) {

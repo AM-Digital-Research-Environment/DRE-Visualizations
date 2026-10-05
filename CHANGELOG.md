@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.29.0 — 2026-10-05
+
+- Serve only the current canonical-site snapshot through a no-store Omeka endpoint, backed by private storage outside the document root. Withdraw on data changes, reject stale publications, and honor job cancellation. Upgrade removes old public generated files.
+- Filter private values, media and item sets in streamed, site-scoped SQL; honor explicit primary media and visible titles. Share one immutable corpus across focused entity, overview, media, gallery and graph generators.
+- Deduplicate relationships and item counts; filter galleries before applying collection caps. Validate offline inputs against source/site/profile/revision metadata and remove permission-dependent live fallbacks.
+- Bound graph candidate discovery; use deterministic Barnes–Hut repulsion and graph-hash layout caching. Replace mutable static aggregation configuration with immutable instance context.
+- Add comparison error/retry states, renderer disposal and payload-driven library loading. Consolidate asset setup.
+- Discover every PHP harness in CI/releases, lint templates, and add database integration, publication lifecycle, numerical accuracy, scoped Python and Chromium regressions.
+
+**Upgrade:** configure durable private storage, upgrade the module, then regenerate. Optional word-cloud/semantic inputs need a scoped rebuild. See [Administration](docs/ADMINISTRATION.md).
+
 All notable changes are documented here. Versions follow Semantic Versioning.
 
 ## 2.28.5 — 2026-09-07

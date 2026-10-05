@@ -37,7 +37,9 @@ does not match its configured index.
 
 ## Published artifacts
 
-Compact files are committed beneath `asset/data/embeddings/`:
+Compact inputs are committed beneath `data/embeddings/` as PHP-denied `.php` envelopes (the JSON schemas below remain the same). Set `OMEKA_SITE_URL` to the canonical site; builders check its site, profile hash and source revision before/after harvesting. Only a matching input is copied into the protected runtime snapshot during regeneration. Existing unscoped inputs require a new build. Browser clients use `RV.fetchDataJson`.
+
+Input payloads:
 
 - `map.json`: schema/model metadata plus `{id, x, y, type, typeLabel, cluster,
   lowSignal, title}` rows;

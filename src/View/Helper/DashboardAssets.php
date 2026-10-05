@@ -199,6 +199,10 @@ class DashboardAssets extends AbstractHelper
         $headLink = $view->headLink();
         $headScript = $view->headScript();
         if (!$this->i18nInjected) {
+            $site = $view->currentSite();
+            if ($site) $headScript->appendScript('window.RV_DATA_BASE=' . self::jsString(
+                $view->url('site/dre-data', ['site-slug' => $site->slug(), 'path' => 'current.json'])
+            ) . '.replace(/current\\.json$/, "");');
             $headScript->appendScript('window.RV_I18N=Object.assign('
                 . json_encode(Module::clientTranslations($view),
                     JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)
@@ -311,7 +315,7 @@ class DashboardAssets extends AbstractHelper
 
         if ($cdn) {
             $headLink->appendStylesheet($asset('css/dre-visualizations.css'));
-            if ($controller === 'dashboard') {
+            if (in_array($controller, ['dashboard', 'compare', 'explorer'], true) || !empty($options['preludeOnly'])) {
                 // The default 'dashboard' surface (Collection Overview / Dashboard,
                 // Publications) renders as a block on a content page, typically
                 // below the fold. Rather than load the ~650 KiB ECharts/MapLibre
@@ -365,6 +369,8 @@ class DashboardAssets extends AbstractHelper
                 $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
             }
         }
+
+        if (!empty($options['preludeOnly'])) return $this;
 
         // The d3-force renderer the co-occurrence network builders draw with. Before
         // the bundle, so ns.GraphCanvas / ns.ForceGraph / ns.graphChrome are

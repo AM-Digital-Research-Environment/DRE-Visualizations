@@ -40,7 +40,7 @@ final class PublicCorpus
 
         $projected = $data;
         $projected['items'] = $this->filterKeyed($data['items'] ?? [], $allowed);
-        foreach (['itemYear', 'itemDate', 'temporal', 'geo', 'literals', 'primaryMedia'] as $key) {
+        foreach (['itemYear', 'itemDate', 'temporal', 'geo', 'literals', 'primaryMedia', 'mediaItems'] as $key) {
             $projected[$key] = $this->filterKeyed($data[$key] ?? [], $allowed);
         }
 
@@ -55,6 +55,7 @@ final class PublicCorpus
             if (!isset($allowed[$sourceId])) {
                 continue;
             }
+            $seen = [];
             foreach ($relations as $relation) {
                 if (!is_array($relation) || count($relation) < 3) {
                     continue;
@@ -64,6 +65,9 @@ final class PublicCorpus
                     continue;
                 }
                 $term = (string) $relation[0];
+                $key = $term . ':' . $targetId;
+                if (isset($seen[$key])) continue;
+                $seen[$key] = true;
                 $links[$sourceId][] = [$term, (string) ($relation[1] ?? ''), $targetId];
                 $reverseLinks[$targetId][$term][] = $sourceId;
                 if ($term === 'dcterms:isPartOf') {

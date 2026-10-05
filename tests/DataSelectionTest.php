@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/bootstrap.php';
 
 require dirname(__DIR__) . '/src/Precompute/DataSelection.php';
 

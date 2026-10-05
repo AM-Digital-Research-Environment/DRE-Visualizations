@@ -31,6 +31,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
+  DRE_EMBEDDING_WORK_DIR: ${{ github.workspace }}/.cache/embeddings
+  OMEKA_SITE_URL: ${{ vars.OMEKA_SITE_URL }}
   GEMINI_EMBEDDING_MODEL: gemini-embedding-2
   GEMINI_EMBEDDING_DIMS: '768'
 
@@ -52,7 +54,7 @@ jobs:
       # restores the newest compatible prefix and persists the refreshed cache.
       - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
-          path: asset/data/embeddings/cache.json
+          path: .cache/embeddings/cache.json
           key: embeddings-${{ runner.os }}-${{ env.GEMINI_EMBEDDING_MODEL }}-${{ env.GEMINI_EMBEDDING_DIMS }}-${{ github.run_id }}
           restore-keys: |
             embeddings-${{ runner.os }}-${{ env.GEMINI_EMBEDDING_MODEL }}-${{ env.GEMINI_EMBEDDING_DIMS }}-
@@ -79,7 +81,7 @@ jobs:
         if: always()
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
-          path: asset/data/embeddings/cache.json
+          path: .cache/embeddings/cache.json
           key: embeddings-${{ runner.os }}-${{ env.GEMINI_EMBEDDING_MODEL }}-${{ env.GEMINI_EMBEDDING_DIMS }}-${{ github.run_id }}
 
       - name: Open bot PR for derived map and recommendations
@@ -88,7 +90,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add asset/data/embeddings/map.json asset/data/embeddings/similar.json asset/data/embeddings/report.json
+          git add data/embeddings/map.php data/embeddings/similar.php data/embeddings/report.php
           if git diff --staged --quiet; then
             echo "No semantic artifact changes."
           else
@@ -108,9 +110,9 @@ jobs:
         run: |
           tag="semantic-embeddings-v1-${GITHUB_RUN_NUMBER}"
           gh release create "$tag" \
-            asset/data/embeddings/release/vectors.f32 \
-            asset/data/embeddings/release/ids.json \
-            asset/data/embeddings/release/manifest.json \
+            .cache/embeddings/release/vectors.f32 \
+            .cache/embeddings/release/ids.json \
+            .cache/embeddings/release/manifest.json \
             --target "$GITHUB_SHA" \
             --title "AMIRA semantic embeddings v1 · build ${GITHUB_RUN_NUMBER}" \
             --notes "Public AMIRA vectors. Read manifest.json before indexing; embedding spaces are model-specific." \

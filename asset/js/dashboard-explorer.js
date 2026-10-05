@@ -164,13 +164,10 @@
                 var requestId = ++abstractRequestId;
                 renderAbstract(abstractEl, '');
                 if (!id) return;
-                fetch(basePath + '/api/items/' + encodeURIComponent(id),
-                    abstractController ? { signal: abstractController.signal } : {}).then(function (r) {
-                    return r.ok ? r.json() : null;
-                }).then(function (item) {
+                ns.fetchDataJson('item-contexts/' + encodeURIComponent(id) + '.json',
+                    abstractController ? { signal: abstractController.signal } : {}).then(function (item) {
                     if (requestId !== abstractRequestId) return;
-                    var v = item && item['dcterms:abstract'] && item['dcterms:abstract'][0];
-                    renderAbstract(abstractEl, v ? abstractHtml(v['@value']) : '');
+                    renderAbstract(abstractEl, item ? abstractHtml(item.abstract) : '');
                 }).catch(function (error) {
                     if (error && error.name === 'AbortError') return;
                     /* abstract is optional */
@@ -181,12 +178,15 @@
                 if (dashboardController) dashboardController.abort();
                 dashboardController = typeof AbortController !== 'undefined' ? new AbortController() : null;
                 var requestId = ++dashboardRequestId;
-                if (!id) return;
+                if (ns.disposeWithin) ns.disposeWithin(content);
+                if (!id) { ns.setChildren(content); content.setAttribute('aria-busy', 'false'); return; }
                 content.setAttribute('aria-busy', 'true');
                 content.innerHTML = '<div class="rv-loading"><div class="rv-spinner"></div>'
                     + '<span>' + ns.escapeHtml(ns.t('loading', 'Loading…')) + '</span></div>';
                 ns.fetchDataJson('item-dashboards/' + encodeURIComponent(id) + '.json',
                     dashboardController ? { signal: dashboardController.signal } : {}).then(function (data) {
+                    return ns.ensureLibs(ns.chartLibraries(data)).then(function () { return data; });
+                }).then(function (data) {
                     if (requestId !== dashboardRequestId) return;
                     content.innerHTML = '';
                     content.setAttribute('aria-busy', 'false');
@@ -221,7 +221,6 @@
     }
 
     function init() {
-        if (typeof echarts === 'undefined') return;
         var containers = document.querySelectorAll('.dashboard-explorer-container');
         for (var i = 0; i < containers.length; i++) initExplorer(containers[i]);
     }

@@ -1,11 +1,13 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/bootstrap.php';
 
-require dirname(__DIR__) . '/src/Precompute/Runner.php';
+require dirname(__DIR__) . '/src/Precompute/OverviewDashboardGenerator.php';
 require dirname(__DIR__) . '/src/Precompute/Aggregators.php';
 
-$reflection = new ReflectionClass(\DreVisualizations\Precompute\Runner::class);
+$reflection = new ReflectionClass(\DreVisualizations\Precompute\OverviewDashboardGenerator::class);
 $runner = $reflection->newInstanceWithoutConstructor();
+$reflection->getProperty('aggregators')->setValue($runner, new \DreVisualizations\Precompute\Aggregators());
 $reflection->getProperty('corpusStats')->setValue($runner, [
     ['k' => 'locations', 'l' => 'Locations', 'n' => 205, 's' => ''],
 ]);

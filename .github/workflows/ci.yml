@@ -19,7 +19,10 @@ jobs:
     steps:
       # actions/checkout v7.0.1, verified upstream 2026-07-31.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - run: npm ci
       - run: npm run check
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
 
   php:
     runs-on: ubuntu-latest
@@ -36,17 +39,10 @@ jobs:
           coverage: none
           tools: none
       - name: PHP syntax
-        run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
+        run: find . \( -name '*.php' -o -name '*.phtml' \) -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
       - name: Pure PHP regression harnesses
         run: |
-          php tests/PublicCorpusTest.php
-          php tests/DataSelectionTest.php
-          php tests/AmiraProfileTest.php
-          php tests/CorpusSnapshotTest.php
-          php tests/SnapshotPublisherTest.php
-          php tests/LinkedItemsDashboardTest.php
-          php tests/AggregatorsTest.php
-          php tests/KnowledgeGraphsTest.php
+          php scripts/test-php.php
 
   # `php -l` parses; it does not check an override against its parent. Declaring
   # the module's classes against a real Omeka S core does, which is the only way
@@ -67,7 +63,10 @@ jobs:
             https://github.com/omeka/omeka-s/releases/download/v4.2.1/omeka-s-4.2.1.zip
           unzip -q "$RUNNER_TEMP/omeka-s.zip" -d "$RUNNER_TEMP"
       - name: Module classes declare against Omeka S
-        run: php scripts/check-module-contract.php "$RUNNER_TEMP/omeka-s"
+        run: |
+          php scripts/check-module-contract.php "$RUNNER_TEMP/omeka-s"
+          php tests/integration/CoreContractsTest.php "$RUNNER_TEMP/omeka-s"
+          php tests/integration/DatabaseTest.php "$RUNNER_TEMP/omeka-s"
 
   embeddings:
     runs-on: ubuntu-latest

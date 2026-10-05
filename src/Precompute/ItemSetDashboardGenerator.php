@@ -23,10 +23,11 @@ final class ItemSetDashboardGenerator
         $this->artifacts->ensureDirectory($this->outputDir);
         $generated = 0;
         foreach ($corpus->itemSets as $setId => $itemIds) {
+            $this->log('  item set ' . $setId);
             $itemIds = array_values(array_unique(array_map('intval', $itemIds)));
             sort($itemIds, SORT_NUMERIC);
             if (!$itemIds) continue;
-            $dashboard = Aggregators::aggregateItems(
+            $dashboard = (new Aggregators())->aggregateItems(
                 $itemIds,
                 $corpus->items,
                 $corpus->links,

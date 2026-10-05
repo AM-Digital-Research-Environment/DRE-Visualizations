@@ -191,7 +191,7 @@ Podcasts carry no `dcterms:type` of their own, so (like YouTube videos) they don
 
 The text word clouds (Podcasts transcripts, Publications abstracts, YouTube captions) are **lemmatised** so word forms collapse to their base (knowledge/knowledges, study/studies). Proper lemmatisation needs spaCy, which PHP can't do, so it runs as a small **CI step** rather than in-Omeka:
 
-- `tools/wordclouds/build_wordclouds.py` reads each corpus's text from the **public REST API** (no VPN/auth), lemmatises it with spaCy (EN / FR / DE / PT models; content-word POS only, plus per-language + domain stop-words), and writes per-corpus, per-language frequencies to `asset/data/wordclouds/<corpus>.json`.
+- `tools/wordclouds/build_wordclouds.py` reads each corpus's text from the **public REST API** (no VPN/auth), lemmatises it with spaCy (EN / FR / DE / PT models; content-word POS only, plus per-language + domain stop-words), and writes per-corpus, per-language frequencies to guarded `data/wordclouds/<corpus>.php` inputs.
 - The **Build word clouds** GitHub Action (`.github/workflows/wordclouds.yml`, **manual** `workflow_dispatch`) runs the script and commits the regenerated inputs.
 - These are committed **static inputs** — like `geo/countries.geojson`, *not* the git-ignored generated dashboards. The precompute reads them via `Runner::wordCloudInput()` and folds the combined (`all`) frequencies into the dashboard; when a file is absent it **falls back** to the in-PHP tokeniser, so the clouds always render — just unlemmatised until the Action has run.
 - **Reusable:** add a corpus under `wordcloudCorpora` in `config/amira-profile.json` (item-set key + text property). The Python builder and PHP precompute share that profile, and the per-language buckets feed the word cloud's **language toggle** (shipped in v2.16.0).
@@ -200,7 +200,7 @@ The text word clouds (Podcasts transcripts, Publications abstracts, YouTube capt
 
 The **Semantic Map** site-page block (Admin > Sites > [site] > Pages) places public podcasts, YouTube videos, publications, projects, research sections, and research items in one multilingual Gemini embedding space. Its UMAP scatter can be coloured by resource type or semantic cluster, searched by title, zoomed, and embedded like the other site blocks. Low-signal records remain visible as faint context but do not produce recommendations.
 
-The **Similar Items** resource-page block (Admin > Sites > [site] > Theme > Configure resource pages) adds up to six cross-type neighbours to an item page and stays hidden when no reliable recommendation exists. Both components read compact, committed public-only JSON from `asset/data/embeddings/`; the full 768-dimensional float32 vectors are kept out of Git and published as a versioned GitHub Release for downstream search systems. See [Semantic embeddings](docs/SEMANTIC_EMBEDDINGS.md) for the shared card, schema, refresh, and compatibility contract.
+The **Similar Items** resource-page block (Admin > Sites > [site] > Theme > Configure resource pages) adds up to six cross-type neighbours to an item page and stays hidden when no reliable recommendation exists. Both components read revision-validated semantic inputs through the current private snapshot; guarded inputs live in `data/embeddings/`; the full 768-dimensional float32 vectors are kept out of Git and published as a versioned GitHub Release for downstream search systems. See [Semantic embeddings](docs/SEMANTIC_EMBEDDINGS.md) for the shared card, schema, refresh, and compatibility contract.
 
 ### What's New
 
@@ -208,7 +208,7 @@ A recent-additions feed with a **3 / 6 / 12-month** window selector and a "most 
 
 ### Featured Collections
 
-A curated landing grid of **collection cards** (cover mosaic, title, description, partner credit and an item/photo count), added as a **site-page block** (Admin > Sites > [site] > Pages). The collections come from the module registry (`src/FeaturedCollections/Registry.php`) — add an entry and it appears here; the only per-block setting is an optional heading. Counts and cover thumbnails are precomputed (`asset/data/featured-collections/index.json`) with a live API fallback, and most cards link to an in-module **Photo Browsing** detail page.
+A curated landing grid of **collection cards** (cover mosaic, title, description, partner credit and an item/photo count), added as a **site-page block** (Admin > Sites > [site] > Pages). The collections come from the module registry (`src/FeaturedCollections/Registry.php`) — add an entry and it appears here; the only per-block setting is an optional heading. Counts and cover thumbnails come from the current protected snapshot, and most cards link to an in-module **Photo Browsing** detail page.
 
 Two kinds of card are special:
 
@@ -282,7 +282,7 @@ Go to **Admin > Sites > [site] > Theme > Configure resource pages**:
 
 ## Pre-computing Data
 
-Visualizations load from precomputed JSON in `asset/data/`. Dashboard snapshots
+Visualizations load from the current private snapshot through a checked Omeka endpoint. See [Administration](docs/ADMINISTRATION.md) for the 2.29 storage migration and regeneration steps. Dashboard snapshots
 regenerate inside Omeka with no Python at runtime, shell access, or extra database
 credentials. The optional lemmatised word-cloud inputs are refreshed separately by
 the repository's Python-based GitHub Action.
@@ -298,7 +298,7 @@ the repository's Python-based GitHub Action.
 
 Watch progress and any errors at **Admin → Jobs → the job's log**. Re-run after importing or substantially editing items.
 
-> `asset/data/knowledge-graphs/` is **not** committed to the repo (≈6,000 files) — it regenerates on demand. Until the first "Regenerate now", the knowledge-graph block falls back to a lighter live REST-API graph.
+> Knowledge graphs require a current published snapshot. There is no live API fallback after withdrawal.
 
 > Upgrading to 2.22: the new graph renderer works against existing precomputed files, so it needs no regeneration. The **cross edges** between an item's neighbours, and the raised node caps, are produced by the precompute — click "Regenerate now" to get them.
 
@@ -340,7 +340,7 @@ DreVisualizations/
 │   ├── js/
 │   │   ├── graph-canvas.js                       # Reusable: view transform, canvas painter, hit tests
 │   │   ├── graph-force.js                        # Reusable: d3-force simulation + pointer/keyboard interaction
-│   │   ├── knowledge-graph-data.js               # Payload load + REST fallback + IDF filters (pure data)
+│   │   ├── knowledge-graph-data.js               # Protected payload load + IDF filters (pure data)
 │   │   ├── knowledge-graph-ui.js                 # Toolbar, filter panel, legend, text alternative
 │   │   ├── item-location-map.js                  # MapLibre origin / current-location panel
 │   │   ├── knowledge-graph.js                    # Controller wiring the five together

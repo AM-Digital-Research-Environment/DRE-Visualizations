@@ -104,9 +104,9 @@
         if (!itemId || !apiBase) return;
         ns.basePath = basePath;
 
-        fetch(apiBase + '/items/' + itemId).then(function (r) { return r.json(); }).then(function (item) {
-            var iYear = yearOf(item);
-            var parents = parentProjects(item);
+        ns.fetchDataJson('item-contexts/' + encodeURIComponent(itemId) + '.json').then(function (item) {
+            var iYear = item.year;
+            var parents = item.parents || [];
             if (!parents.length) return;
 
             (function tryNext(i) {

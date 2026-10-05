@@ -23,12 +23,14 @@ final class KnowledgeGraphGenerator
         $this->artifacts->ensureDirectory($this->outputDir);
         [$idf, $freqPct] = KnowledgeGraphs::computeResourceStats($corpus->links, count($corpus->items));
         $reverse = KnowledgeGraphs::buildShareableReverse($corpus->reverseLinks);
+        $adjacency = KnowledgeGraphs::shareableAdjacency($corpus->links);
         $this->log('  ' . count($idf) . ' resources scored');
 
         $generated = 0;
         $skipped = 0;
         $mapCount = 0;
         foreach ($corpus->items as $itemId => $_item) {
+            if (($generated + $skipped) % 64 === 0) $this->log('  processed ' . ($generated + $skipped) . ' items');
             $graph = KnowledgeGraphs::buildGraph(
                 (int) $itemId,
                 $corpus->items,
@@ -36,7 +38,8 @@ final class KnowledgeGraphGenerator
                 $corpus->reverseLinks,
                 $reverse,
                 $idf,
-                $freqPct
+                $freqPct,
+                $adjacency
             );
             if ($graph === null) {
                 $skipped++;

@@ -30,7 +30,7 @@ trait OverviewChartsTrait
      * @param array<array{key?:string,label?:string,value?:int|float,subtitle?:?string}> $cards
      * @return list<array{key:string,label:string,value:int,subtitle?:string}>
      */
-    public static function buildStatCards(array $cards): array
+    public function buildStatCards(array $cards): array
     {
         $out = [];
         foreach ($cards as $card) {
@@ -50,7 +50,7 @@ trait OverviewChartsTrait
         return $out;
     }
 
-    public static function profileFromItems(array $itemIds, array $links, array $itemYear): array
+    public function profileFromItems(array $itemIds, array $links, array $itemYear): array
     {
         $langs = $subs = $contribs = $types = $locs = [];
         $years = [];
@@ -80,7 +80,7 @@ trait OverviewChartsTrait
         ];
     }
 
-    public static function profileMaxima(array $profiles): array
+    public function profileMaxima(array $profiles): array
     {
         $mx = [];
         foreach (self::RADAR_AXES as [$k, $l]) {
@@ -97,7 +97,7 @@ trait OverviewChartsTrait
         return $mx;
     }
 
-    public static function buildRadar(?array $profile, array $maxima): ?array
+    public function buildRadar(?array $profile, array $maxima): ?array
     {
         if (!$profile || !$maxima) {
             return null;
@@ -133,7 +133,7 @@ trait OverviewChartsTrait
      * @param array<int,array> $sections  Section items, keyed by id (class_term frapo:ResearchGroup).
      * @return list<array{name:string,value:int,itemId:int}>|null
      */
-    public static function buildSectionsBar(array $sections, array $childrenOf, array $items): ?array
+    public function buildSectionsBar(array $sections, array $childrenOf, array $items): ?array
     {
         $out = [];
         foreach ($sections as $sid => $info) {
@@ -143,7 +143,7 @@ trait OverviewChartsTrait
             }
             $projects = 0;
             foreach ($childrenOf[$sid] ?? [] as $pid) {
-                if (($items[$pid]['template_id'] ?? null) === self::projectTemplateId()) {
+                if (($items[$pid]['template_id'] ?? null) === $this->projectTemplateId()) {
                     $projects++;
                 }
             }
@@ -156,7 +156,7 @@ trait OverviewChartsTrait
         }
         // Deterministic: volume desc, then name — so the committed artifact and a
         // later regenerate agree even when sections tie on project count.
-        usort($out, static fn ($a, $b) => ($b['value'] <=> $a['value']) ?: strcmp((string) $a['name'], (string) $b['name']));
+        usort($out, fn ($a, $b) => ($b['value'] <=> $a['value']) ?: strcmp((string) $a['name'], (string) $b['name']));
         return $out;
     }
 
@@ -174,7 +174,7 @@ trait OverviewChartsTrait
      * @param list<array{itemIds:list<int>,section:string,university:string}> $externalBuckets
      * @return array{rows:list<string>,cols:list<string>,values:list<array{0:int,1:int,2:int}>}|null
      */
-    public static function buildSectionUniversity(array $sections, array $childrenOf, array $items, array $links, array $externalBuckets = []): ?array
+    public function buildSectionUniversity(array $sections, array $childrenOf, array $items, array $links, array $externalBuckets = []): ?array
     {
         $matrix = [];        // "section\0university" => item count
         $secTotals = [];
@@ -185,14 +185,14 @@ trait OverviewChartsTrait
                 continue;
             }
             foreach ($childrenOf[$sid] ?? [] as $pid) {
-                if (($items[$pid]['template_id'] ?? null) !== self::projectTemplateId()) {
+                if (($items[$pid]['template_id'] ?? null) !== $this->projectTemplateId()) {
                     continue;
                 }
                 $itemCount = count($childrenOf[$pid] ?? []);
                 if ($itemCount === 0) {
                     continue;
                 }
-                $uni = self::resolveUniversity($pid, $links, $items);
+                $uni = $this->resolveUniversity($pid, $links, $items);
                 if ($uni === null) {
                     continue;
                 }
@@ -229,8 +229,8 @@ trait OverviewChartsTrait
         // Order each axis by total volume desc, then label asc — deterministic so
         // the committed artifact matches a later regenerate regardless of source
         // iteration order.
-        $byVolume = static function (array $totals): array {
-            uksort($totals, static fn ($a, $b) => ($totals[$b] <=> $totals[$a]) ?: strcmp((string) $a, (string) $b));
+        $byVolume = function (array $totals): array {
+            uksort($totals, fn ($a, $b) => ($totals[$b] <=> $totals[$a]) ?: strcmp((string) $a, (string) $b));
             return array_keys($totals);
         };
         $rows = $byVolume($secTotals);   // sections → yAxis
@@ -243,19 +243,19 @@ trait OverviewChartsTrait
             $values[] = [$colIdx[$u], $rowIdx[$s], $v];
         }
         // Stable cell order ([col, row]) so the values array is reproducible.
-        usort($values, static fn ($a, $b) => ($a[0] <=> $b[0]) ?: ($a[1] <=> $b[1]));
+        usort($values, fn ($a, $b) => ($a[0] <=> $b[0]) ?: ($a[1] <=> $b[1]));
         return ['rows' => $rows, 'cols' => $cols, 'values' => $values];
     }
 
     /** Resolve a project's funding university (first `frapo:isFundedBy`), mapped
      *  to a canonical label. Returns null when the project names no funder. */
-    private static function resolveUniversity(int $pid, array $links, array $items): ?string
+    private function resolveUniversity(int $pid, array $links, array $items): ?string
     {
         foreach ($links[$pid] ?? [] as [$term, $label, $vrid]) {
             if ($term === 'frapo:isFundedBy') {
                 $title = (string) ($items[$vrid]['title'] ?? '');
                 if ($title !== '') {
-                    return self::universityLabel($title);
+                    return $this->universityLabel($title);
                 }
             }
         }
@@ -278,7 +278,7 @@ trait OverviewChartsTrait
      * @param array<int,string> $authorityKeys authority item id => category key (ordered)
      * @return array{categories:list<array{key:string,label:string}>,points:list<array{category:string,latitude:float,longitude:float,label:string,sublabel:string,itemId:int}>}|array{}
      */
-    public static function clusterPartners(array $items, array $links, array $geo, array $authorityKeys): array
+    public function clusterPartners(array $items, array $links, array $geo, array $authorityKeys): array
     {
         $points = [];
         foreach ($items as $iid => $info) {
@@ -319,7 +319,7 @@ trait OverviewChartsTrait
 
         // Stable order: by category order, then label.
         $rank = array_flip(array_values($authorityKeys));
-        usort($points, static fn (array $a, array $b): int =>
+        usort($points, fn (array $a, array $b): int =>
             [$rank[$a['category']] ?? 99, $a['label']] <=> [$rank[$b['category']] ?? 99, $b['label']]);
 
         return ['categories' => $categories, 'points' => $points];

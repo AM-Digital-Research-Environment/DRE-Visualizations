@@ -2,7 +2,7 @@ name: Build word clouds
 
 # Manual only — run after new transcripts / abstracts land (mirrors the in-Omeka
 # "Regenerate now" rhythm). Regenerates the lemmatised word-frequency inputs in
-# asset/data/wordclouds/ and commits them; the in-Omeka precompute folds them in
+# data/wordclouds/ and commits them; the in-Omeka precompute folds them in
 # on the next regenerate, with an in-PHP tokeniser as the fallback.
 on:
   workflow_dispatch:
@@ -14,6 +14,9 @@ permissions:
 concurrency:
   group: wordclouds
   cancel-in-progress: false
+
+env:
+  OMEKA_SITE_URL: ${{ vars.OMEKA_SITE_URL }}
 
 jobs:
   build:
@@ -48,7 +51,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add asset/data/wordclouds/
+          git add data/wordclouds/
           if git diff --staged --quiet; then
             echo "No word-cloud changes."
           else

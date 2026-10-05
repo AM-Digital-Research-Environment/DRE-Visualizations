@@ -21,7 +21,7 @@ trait MediaChartsTrait
      * @param list<int> $secondsList
      * @return list<array{name:string,value:int}>|null
      */
-    public static function buildDurationHistogram(array $secondsList): ?array
+    public function buildDurationHistogram(array $secondsList): ?array
     {
         // Upper bound (exclusive) of each band, in seconds; the last catches the rest.
         $bands = [
@@ -72,13 +72,13 @@ trait MediaChartsTrait
      * @param list<string> $texts
      * @return list<array{name:string,value:int}>|null
      */
-    public static function buildTranscriptWordCloud(array $texts, int $topN = 150): ?array
+    public function buildTranscriptWordCloud(array $texts, int $topN = 150): ?array
     {
         if (!$texts) {
             return null;
         }
-        $stop = self::transcriptStopWords();
-        $lemmas = self::transcriptLemmaMap();
+        $stop = $this->transcriptStopWords();
+        $lemmas = $this->transcriptLemmaMap();
         $counts = [];
         foreach ($texts as $text) {
             if (!is_string($text) || $text === '') {
@@ -108,7 +108,7 @@ trait MediaChartsTrait
         if (!$counts) {
             return null;
         }
-        self::sortCounts($counts);
+        $this->sortCounts($counts);
         $out = [];
         foreach ($counts as $word => $n) {
             if ($n < 2) {
@@ -130,7 +130,7 @@ trait MediaChartsTrait
      *
      * @return array<string,string>
      */
-    private static function transcriptLemmaMap(): array
+    private function transcriptLemmaMap(): array
     {
         return [
             // English forms surfaced by the podcast/video transcript corpora.
@@ -171,7 +171,7 @@ trait MediaChartsTrait
      *
      * @return array<string,bool>
      */
-    private static function transcriptStopWords(): array
+    private function transcriptStopWords(): array
     {
         $en = 'able about above across after again against all almost also although always among '
             . 'another any anybody anyone anything anyway are aren around because become been before '

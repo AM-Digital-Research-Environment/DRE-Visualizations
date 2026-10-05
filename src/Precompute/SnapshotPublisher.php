@@ -11,7 +11,7 @@ use RuntimeException;
 /**
  * Publishes one complete, immutable precompute generation.
  *
- * A per-site lock prevents overlapping jobs. The generator writes only inside
+ * A destination-wide lock prevents overlapping jobs. The generator writes only inside
  * a staging directory; every JSON artifact is decoded and required outputs are
  * checked before the directory is renamed and current.json is replaced. Thus
  * readers see either the previous complete generation or the new one.
@@ -38,16 +38,16 @@ final class SnapshotPublisher
     }
 
     /**
-     * @param callable(string):array $generate Receives the staging directory.
+     * @param callable(string,string):array $generate Receives the staging directory.
      * @return array<string,mixed> Published current.json manifest.
      */
-    public function publish(callable $generate): array
+    public function publish(callable $generate, ?callable $beforeCommit = null): array
     {
         $this->artifacts->ensureDirectory($this->dataDir);
         $generationsDir = $this->dataDir . '/generations';
         $this->artifacts->ensureDirectory($generationsDir);
 
-        $lockPath = $this->dataDir . '/.generate-site-' . $this->siteId . '.lock';
+        $lockPath = $this->dataDir . '/.generate.lock';
         $lock = fopen($lockPath, 'c');
         if ($lock === false) {
             throw new RuntimeException('Unable to open the precompute generation lock.');
@@ -60,13 +60,21 @@ final class SnapshotPublisher
             ));
         }
 
+        $store = new SnapshotStore($this->dataDir);
+        try {
+            $revision = $store->quiescent(fn () => $store->revision());
+        } catch (\Throwable $e) {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+            throw $e;
+        }
         $generationId = $this->generationId();
         $stagingDir = $generationsDir . '/.staging-' . $generationId;
         $publishedDir = $generationsDir . '/' . $generationId;
 
         try {
             $this->artifacts->ensureDirectory($stagingDir);
-            $stats = $generate($stagingDir);
+            $stats = $generate($stagingDir, $revision);
             $sourceCounts = is_array($stats['sourceCounts'] ?? null) ? $stats['sourceCounts'] : [];
             if (!is_int($sourceCounts['items'] ?? null) || $sourceCounts['items'] < 1) {
                 throw new RuntimeException('Snapshot source counts must report at least one scoped item.');
@@ -79,6 +87,7 @@ final class SnapshotPublisher
 
             $manifest = [
                 'schemaVersion' => self::SCHEMA_VERSION,
+                'revision' => $revision,
                 'generationId' => $generationId,
                 'basePath' => 'generations/' . $generationId,
                 'moduleVersion' => $this->moduleVersion,
@@ -96,13 +105,20 @@ final class SnapshotPublisher
             // that are now private or out of scope. Remove only known generated
             // roots; static geo/ and wordclouds/ inputs are deliberately kept.
             $this->removeLegacyOutputs();
-            $this->artifacts->write($this->dataDir . '/current.json', $manifest);
+            $store->quiescent(function () use ($store, $revision, $manifest, $beforeCommit): void {
+                if ($beforeCommit) $beforeCommit();
+                if ($store->revision() !== $revision) {
+                    throw new RuntimeException('The corpus changed during generation; publication was withdrawn. Regenerate again.');
+                }
+                $this->artifacts->write($this->dataDir . '/current.json', $manifest);
+            });
             $this->prune($generationsDir, $generationId);
             return $manifest;
         } catch (\Throwable $e) {
             if (is_dir($stagingDir)) {
                 $this->removeTree($stagingDir, $generationsDir, '.staging-');
             }
+            if (is_dir($publishedDir)) $this->removeTree($publishedDir, $generationsDir);
             throw $e;
         } finally {
             flock($lock, LOCK_UN);
@@ -165,7 +181,7 @@ final class SnapshotPublisher
         $allowed = [
             'item-dashboards', 'communities', 'knowledge-graphs',
             'photo-galleries', 'featured-collections', 'item-set-dashboards',
-            'root',
+            'root', 'embeddings', 'item-contexts',
         ];
         if (!in_array($group, $allowed, true)
             || ($group === 'root' && $relative !== 'network-explorer.json')) {
@@ -266,7 +282,19 @@ final class SnapshotPublisher
         }
     }
 
-    private function removeLegacyOutputs(): void
+    public function purgePublicOutputs(): void
+    {
+        $this->removeLegacyOutputs();
+        foreach (['generations', 'wordclouds', 'embeddings'] as $dir) {
+            $path = $this->dataDir . '/' . $dir;
+            if (is_dir($path)) $this->removeTree($path, $this->dataDir);
+        }
+        if (is_file($this->dataDir . '/current.json') && !unlink($this->dataDir . '/current.json')) {
+            throw new RuntimeException('Cannot remove the old public manifest.');
+        }
+    }
+
+    public function removeLegacyOutputs(): void
     {
         foreach ([
             'item-dashboards',
@@ -294,7 +322,7 @@ final class SnapshotPublisher
     {
         $resolvedParent = realpath($parent);
         $resolvedPath = realpath($path);
-        if ($resolvedParent === false || $resolvedPath === false
+        if (is_link($path) || $resolvedParent === false || $resolvedPath === false
             || !str_starts_with($resolvedPath . DIRECTORY_SEPARATOR, $resolvedParent . DIRECTORY_SEPARATOR)
             || ($requiredPrefix !== null && !str_starts_with(basename($resolvedPath), $requiredPrefix))) {
             throw new RuntimeException('Refusing to remove an unsafe snapshot path.');
@@ -304,7 +332,7 @@ final class SnapshotPublisher
             RecursiveIteratorIterator::CHILD_FIRST
         );
         foreach ($iterator as $entry) {
-            $ok = $entry->isDir() ? rmdir($entry->getPathname()) : unlink($entry->getPathname());
+            $ok = $entry->isDir() && !$entry->isLink() ? rmdir($entry->getPathname()) : unlink($entry->getPathname());
             if (!$ok) {
                 throw new RuntimeException('Unable to prune snapshot path: ' . $entry->getPathname());
             }

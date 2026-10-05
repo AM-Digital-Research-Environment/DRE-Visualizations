@@ -1,5 +1,5 @@
 /**
- * Knowledge-graph data layer — loading, the REST fallback, and the IDF filters.
+ * Knowledge-graph data layer — protected loading and the IDF filters.
  *
  * Pure data: no DOM, no canvas, no d3. Everything here is a function of the
  * precomputed payload, which is what makes it unit-testable and keeps the
@@ -45,21 +45,13 @@
     /* ------------------------------------------------------------------ */
 
     /**
-     * Precomputed JSON first (instant), then a lightweight REST call that yields
-     * direct relationships only — the graph a site gets before the first
-     * "Regenerate now".
+     * Load only the current, revision-checked public snapshot.
      */
     function load(container) {
         var itemId = container.dataset.itemId;
         ns.basePath = container.dataset.basePath || '';
-        var apiBase = container.dataset.apiBase;
 
-        return ns.fetchDataJson('knowledge-graphs/' + encodeURIComponent(itemId) + '.json')
-            .catch(function () {
-                return fetch(apiBase + '/items/' + itemId)
-                    .then(function (r) { return r.json(); })
-                    .then(buildFromApi);
-            });
+        return ns.fetchDataJson('knowledge-graphs/' + encodeURIComponent(itemId) + '.json');
     }
 
     /** Build a graph from a single REST API item response (no shared items). */

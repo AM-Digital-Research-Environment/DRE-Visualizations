@@ -2,32 +2,61 @@
 namespace DreVisualizations;
 
 return [
+    'translator' => [
+        'translation_file_patterns' => [[
+            'type' => 'gettext', 'base_dir' => dirname(__DIR__) . '/language', 'pattern' => '%s.mo', 'text_domain' => null,
+        ]],
+    ],
     'block_layouts' => [
+        'aliases' => [
+            'collectionOverview' => 'dreCollectionOverview',
+            'collectionDashboard' => 'dreCollectionDashboard',
+            'discursiveCommunities' => 'dreDiscursiveCommunities',
+            'spatialExploration' => 'dreSpatialExploration',
+            'publications' => 'drePublications',
+            'youtube' => 'dreYoutube',
+            'podcasts' => 'drePodcasts',
+            'projectExplorer' => 'dreProjectExplorer',
+            'compareEntity' => 'dreCompareEntity',
+            'compareGenres' => 'dreCompareGenres',
+            'networkExplorer' => 'dreNetworkExplorer',
+            'whatsNew' => 'dreWhatsNew',
+            'photoBrowse' => 'drePhotoBrowse',
+            'featuredCollections' => 'dreFeaturedCollections',
+            'semanticMap' => 'dreSemanticMap',
+        ],
         'invokables' => [
-            'collectionOverview' => Site\BlockLayout\CollectionOverview::class,
-            'collectionDashboard' => Site\BlockLayout\CollectionDashboard::class,
-            'discursiveCommunities' => Site\BlockLayout\DiscursiveCommunities::class,
-            'spatialExploration' => Site\BlockLayout\SpatialExploration::class,
-            'publications' => Site\BlockLayout\Publications::class,
-            'youtube' => Site\BlockLayout\YouTube::class,
-            'podcasts' => Site\BlockLayout\Podcasts::class,
-            'projectExplorer' => Site\BlockLayout\ProjectExplorer::class,
-            'compareEntity' => Site\BlockLayout\CompareEntity::class,
-            'compareGenres' => Site\BlockLayout\CompareGenres::class,
-            'networkExplorer' => Site\BlockLayout\NetworkExplorer::class,
-            'whatsNew' => Site\BlockLayout\WhatsNew::class,
-            'photoBrowse' => Site\BlockLayout\PhotoBrowse::class,
-            'featuredCollections' => Site\BlockLayout\FeaturedCollections::class,
-            'semanticMap' => Site\BlockLayout\SemanticMap::class,
+            'dreCollectionOverview' => Site\BlockLayout\CollectionOverview::class,
+            'dreCollectionDashboard' => Site\BlockLayout\CollectionDashboard::class,
+            'dreDiscursiveCommunities' => Site\BlockLayout\DiscursiveCommunities::class,
+            'dreSpatialExploration' => Site\BlockLayout\SpatialExploration::class,
+            'drePublications' => Site\BlockLayout\Publications::class,
+            'dreYoutube' => Site\BlockLayout\YouTube::class,
+            'drePodcasts' => Site\BlockLayout\Podcasts::class,
+            'dreProjectExplorer' => Site\BlockLayout\ProjectExplorer::class,
+            'dreCompareEntity' => Site\BlockLayout\CompareEntity::class,
+            'dreCompareGenres' => Site\BlockLayout\CompareGenres::class,
+            'dreNetworkExplorer' => Site\BlockLayout\NetworkExplorer::class,
+            'dreWhatsNew' => Site\BlockLayout\WhatsNew::class,
+            'drePhotoBrowse' => Site\BlockLayout\PhotoBrowse::class,
+            'dreFeaturedCollections' => Site\BlockLayout\FeaturedCollections::class,
+            'dreSemanticMap' => Site\BlockLayout\SemanticMap::class,
         ],
     ],
     'resource_page_block_layouts' => [
+        'aliases' => [
+            'knowledgeGraph' => 'dreKnowledgeGraph',
+            'itemSetDashboard' => 'dreItemSetDashboard',
+            'linkedItemsDashboard' => 'dreLinkedItemsDashboard',
+            'siblingItemsSparkline' => 'dreSiblingItemsSparkline',
+            'similarItems' => 'dreSimilarItems',
+        ],
         'invokables' => [
-            'knowledgeGraph' => Site\ResourcePageBlockLayout\KnowledgeGraph::class,
-            'itemSetDashboard' => Site\ResourcePageBlockLayout\ItemSetDashboard::class,
-            'linkedItemsDashboard' => Site\ResourcePageBlockLayout\LinkedItemsDashboard::class,
-            'siblingItemsSparkline' => Site\ResourcePageBlockLayout\SiblingItemsSparkline::class,
-            'similarItems' => Site\ResourcePageBlockLayout\SimilarItems::class,
+            'dreKnowledgeGraph' => Site\ResourcePageBlockLayout\KnowledgeGraph::class,
+            'dreItemSetDashboard' => Site\ResourcePageBlockLayout\ItemSetDashboard::class,
+            'dreLinkedItemsDashboard' => Site\ResourcePageBlockLayout\LinkedItemsDashboard::class,
+            'dreSiblingItemsSparkline' => Site\ResourcePageBlockLayout\SiblingItemsSparkline::class,
+            'dreSimilarItems' => Site\ResourcePageBlockLayout\SimilarItems::class,
         ],
     ],
     'view_manager' => [
@@ -36,6 +65,7 @@ return [
         ],
     ],
     'view_helpers' => [
+        'aliases' => ['dreDashboardAssets' => 'dashboardAssets'],
         'invokables' => [
             'dashboardAssets' => View\Helper\DashboardAssets::class,
         ],
@@ -44,6 +74,7 @@ return [
         'invokables' => [
             Controller\Admin\MaintenanceController::class => Controller\Admin\MaintenanceController::class,
             Controller\Site\EmbedController::class => Controller\Site\EmbedController::class,
+            Controller\Site\DataController::class => Controller\Site\DataController::class,
         ],
     ],
     'form_elements' => [
@@ -97,6 +128,18 @@ return [
             // bare, theme-following page for iframe embedding on other sites.
             'site' => [
                 'child_routes' => [
+                    'dre-data' => [
+                        'type' => \Laminas\Router\Http\Segment::class,
+                        'options' => [
+                            'route' => '/dre-data/:path',
+                            'constraints' => ['path' => '[a-zA-Z0-9._/%-]+'],
+                            'defaults' => [
+                                '__NAMESPACE__' => 'DreVisualizations\\Controller\\Site',
+                                'controller' => Controller\Site\DataController::class,
+                                'action' => 'index',
+                            ],
+                        ],
+                    ],
                     'dre-embed' => [
                         'type' => \Laminas\Router\Http\Literal::class,
                         'options' => [

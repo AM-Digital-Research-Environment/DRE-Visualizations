@@ -44,13 +44,14 @@ echo $this->pageTitle($translate('DRE Visualizations: maintenance'), 1);
         </p>
         <p>
             <strong><?= $translate('When to run:') ?></strong>
-            <?= $translate('After importing or substantially editing items, so the visualisations reflect the current data. Existing JSON keeps serving until the job finishes.') ?>
+            <?= $translate('After importing or substantially editing items, so the visualisations reflect the current data. Data edits withdraw the published snapshot. Regenerate after edits are complete.') ?>
         </p>
         <?= $this->form()->openTag($form) ?>
             <?= $this->formCollection($form) ?>
             <button type="submit" class="button" style="margin-top:0.5rem;"<?= $scopeSite ? '' : ' disabled' ?>>
                 <?= $translate('Regenerate now') ?>
             </button>
+            <button type="submit" name="operation" value="withdraw"><?= $translate('Withdraw published data') ?></button>
         <?= $this->form()->closeTag() ?>
     </section>
 </div>

@@ -1,3 +1,4 @@
+<?php http_response_code(404); exit; ?>
 {
   "corpus": "youtube",
   "generated_utc": "2026-07-03T14:34:00Z",

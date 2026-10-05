@@ -14,17 +14,17 @@ namespace DreVisualizations\Precompute\Aggregators;
 trait SupportTrait
 {
     /** Sort an associative count map by value descending, then key ascending. */
-    private static function sortCounts(array &$counts): void
+    private function sortCounts(array &$counts): void
     {
         $snapshot = $counts;
-        uksort($counts, static function (int|string $a, int|string $b) use ($snapshot): int {
+        uksort($counts, function (int|string $a, int|string $b) use ($snapshot): int {
             return (($snapshot[$b] ?? 0) <=> ($snapshot[$a] ?? 0))
                 ?: strnatcasecmp((string) $a, (string) $b);
         });
     }
 
     /** Find item IDs that link to $entityId via any of the given terms. */
-    public static function findItemsLinkingTo(int $entityId, array $reverseLinks, array $terms): array
+    public function findItemsLinkingTo(int $entityId, array $reverseLinks, array $terms): array
     {
         $result = [];
         $rev = $reverseLinks[$entityId] ?? [];
@@ -37,15 +37,15 @@ trait SupportTrait
     }
 
     /** Sort a list of {name,value,...} rows by value descending (stable-ish). */
-    private static function sortByValueDesc(array $rows): array
+    private function sortByValueDesc(array $rows): array
     {
-        usort($rows, static fn ($a, $b) => ($b['value'] <=> $a['value'])
+        usort($rows, fn ($a, $b) => ($b['value'] <=> $a['value'])
             ?: strnatcasecmp((string) ($a['name'] ?? ''), (string) ($b['name'] ?? '')));
         return $rows;
     }
 
     /** Pure-PHP weighted PageRank (power iteration), matching the Python. */
-    private static function weightedPagerank(array $adj, array $deg, float $alpha = 0.85, int $iters = 100, float $tol = 1.0e-6): array
+    private function weightedPagerank(array $adj, array $deg, float $alpha = 0.85, int $iters = 100, float $tol = 1.0e-6): array
     {
         $nodes = array_keys($adj);
         $n = count($nodes);
@@ -90,7 +90,7 @@ trait SupportTrait
      * undirected graph. Returns [node => communityRepresentativeId]. Sufficient
      * for well-separated subject co-occurrence graphs; relabelled by the caller.
      */
-    private static function louvain(array $adj, array $deg, float $m): array
+    private function louvain(array $adj, array $deg, float $m): array
     {
         $comm = [];
         $sigmaTot = [];

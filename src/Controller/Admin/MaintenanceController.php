@@ -55,6 +55,11 @@ class MaintenanceController extends AbstractActionController
             return $this->redirect()->toRoute('admin/dre-visualizations/maintenance');
         }
 
+        if ($request->getPost('operation') === 'withdraw') {
+            (new \DreVisualizations\Precompute\SnapshotStore(\DreVisualizations\Precompute\SnapshotStore::defaultDirectory()))->withdraw();
+            $this->messenger()->addSuccess('Published visualizations withdrawn.'); // @translate
+            return $this->redirect()->toRoute('admin/dre-visualizations/maintenance');
+        }
         $services = $this->getEvent()->getApplication()->getServiceManager();
         $siteId = (int) $services->get('Omeka\Settings')->get(Module::SETTING_SITE_ID, 0);
         $validSite = $siteId > 0 && (bool) $services->get('Omeka\Connection')->executeQuery(

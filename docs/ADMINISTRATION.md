@@ -31,23 +31,39 @@ on the map. Only one credit is ever shown.
 
 ## Regeneration
 
-Use **Admin → Modules → DRE Visualizations → Regenerate now**. One job per site
-can run at a time. A job writes a versioned staging tree, validates every JSON
-file and required artifact, promotes it to an immutable generation, and finally
-replaces `asset/data/current.json`. A failure leaves the previous generation
-active. The current and immediately previous generations are retained.
-After the first successful manifest-based generation, known legacy generated
-roots are removed so stale direct URLs cannot expose records that have since
-become private or left the canonical site. Static `geo/`, `wordclouds/`, and
-`embeddings/` inputs are preserved.
+Set `DRE_VISUALIZATIONS_DATA_DIR` to a durable directory **outside the Omeka
+document root**, writable by the web/PHP and background-job user. For example,
+mount a private volume at `/var/lib/omeka/dre-visualizations` with ownership
+assigned to the Omeka runtime user. Configure the same value for PHP-FPM and
+job workers. The module code need not be writable for generation.
 
-The module directory must be writable by the Omeka background-job user. Static
-inputs under `asset/data/geo`, `asset/data/wordclouds`, and
-`asset/data/embeddings` are not replaced by regeneration. Back up module settings
-and those inputs before upgrades. Refresh semantic data through the manual **Build
-semantic embeddings** GitHub Action; it requires the repository's
-`GEMINI_API_KEY` secret and opens a bot pull request for the compact artifacts.
+If unset, storage uses an installation-specific OS temporary directory. A host
+cleanup can remove it, requiring regeneration. Separate containers must share
+the private volume and support filesystem locks. Web-root paths and directory
+symlinks are rejected. Restrict storage permissions to the Omeka runtime user.
 
-After changing visibility, site assignment, relationships, templates, item-set
-membership, coordinates, or media, regenerate before expecting public charts
-to reflect the change.
+Upgrade through Omeka's module screen. The 2.29 upgrade withdraws publication
+and removes old public generations, manifests, generated directories and derived
+inputs under `asset/data`, preserving static geography. Purge any proxy cache
+of the old URLs, then regenerate.
+
+Use **DRE Visualizations → Regenerate now**. One destination-wide lock covers
+all publishers, including canonical-site changes. Artifacts are validated in
+staging before publication. Failure or cancellation preserves a previous
+snapshot only while that snapshot remains valid. Current and previous
+generations may remain on private disk; only the current one is served.
+
+Omeka API edits withdraw publication automatically. Finish an import/edit batch,
+then regenerate. **Withdraw published data** immediately revokes publication
+without starting a job; use it before direct SQL maintenance. Stop a job in
+Omeka's Jobs screen. Cancellation checks run during loading, between generators,
+during layout iterations and before publication.
+
+Optional word-cloud and semantic builders require `OMEKA_SITE_URL` (for example,
+`https://your-host/s/your-canonical-site`). Set it as a repository Actions
+variable for the manual workflows. The installed and builder profiles must be
+identical. Rebuild offline inputs after edits, deploy their guarded files under
+`data/`, then regenerate in Omeka. Inputs without matching revision metadata
+are ignored: word clouds use the PHP fallback and semantic blocks show an
+unavailable state or stay hidden. Semantic refresh still requires the existing
+`GEMINI_API_KEY` secret; PHP regeneration needs no model access.

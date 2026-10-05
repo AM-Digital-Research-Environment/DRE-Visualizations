@@ -43,14 +43,10 @@ final class Registry
      *   grouping:string, dedupe:bool
      * }>
      */
-    public static function all(): array
+    public static function all(?AmiraProfile $profile = null): array
     {
-        static $entries = null;
-        if ($entries === null) {
-            $profile = AmiraProfile::fromFile(dirname(__DIR__, 2) . '/config/amira-profile.json');
-            $entries = array_map([self::class, 'normalize'], $profile->featuredCollections());
-        }
-        return $entries;
+        $profile ??= AmiraProfile::fromFile(dirname(__DIR__, 2) . '/config/amira-profile.json');
+        return array_map([self::class, 'normalize'], $profile->featuredCollections());
     }
 
     /** A registry entry by slug, or null. */

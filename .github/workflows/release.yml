@@ -34,15 +34,11 @@ jobs:
         run: |
           npm run check
           node scripts/check-release-metadata.mjs --tag "${GITHUB_REF_NAME}"
-          find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
+          find . \( -name '*.php' -o -name '*.phtml' \) -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
           php scripts/check-module-contract.php "$RUNNER_TEMP/omeka-s"
-          php tests/PublicCorpusTest.php
-          php tests/DataSelectionTest.php
-          php tests/AmiraProfileTest.php
-          php tests/CorpusSnapshotTest.php
-          php tests/SnapshotPublisherTest.php
-          php tests/AggregatorsTest.php
-          php tests/KnowledgeGraphsTest.php
+          php tests/integration/CoreContractsTest.php "$RUNNER_TEMP/omeka-s"
+          php scripts/test-php.php
+          php tests/integration/DatabaseTest.php "$RUNNER_TEMP/omeka-s"
       - name: Build Omeka-ready archive
         run: |
           git archive --format=zip --prefix=DreVisualizations/ "${GITHUB_SHA}" -o DreVisualizations.zip

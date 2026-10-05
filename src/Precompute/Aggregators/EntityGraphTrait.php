@@ -19,7 +19,7 @@ use DreVisualizations\Precompute\ForceLayout;
  * renders the network at zero layout cost. Two optional colour overlays are
  * precomputed alongside the primary by-entity-type colouring: Louvain
  * communities, and — when an `$itemSection` map is supplied — the research
- * section each entity most belongs to (see {@see self::buildEntityGraph()}).
+ * section each entity most belongs to (see {@see $this->buildEntityGraph()}).
  *
  * Organizations are rarely linked directly from a research item, so they are
  * surfaced through their people: for every Person on an item, that person's
@@ -27,7 +27,7 @@ use DreVisualizations\Precompute\ForceLayout;
  * folded into the item's entity set. Funders (frapo:isFundedBy) count too.
  *
  * Composed into {@see \DreVisualizations\Precompute\Aggregators}; reaches the
- * shared Louvain helper through `self::louvain()`.
+ * shared Louvain helper through `$this->louvain()`.
  */
 trait EntityGraphTrait
 {
@@ -62,7 +62,7 @@ trait EntityGraphTrait
      * @return array{meta:array,types:string[],sections:string[],nodes:array,edges:array}|null
      *         null when the graph is too small to be worth rendering.
      */
-    public static function buildEntityGraph(array $itemIds, array $links, array $items, array $lcshIds = [], int $minCooccurrence = 2, int $maxNodes = 1200, array $itemSection = []): ?array
+    public function buildEntityGraph(array $itemIds, array $links, array $items, array $lcshIds = [], int $minCooccurrence = 2, int $maxNodes = 1200, array $itemSection = []): ?array
     {
         $lcsh = array_flip($lcshIds);
 
@@ -165,7 +165,7 @@ trait EntityGraphTrait
         // Rank entities by hubness (degree counts triple the raw frequency) and
         // keep the top N. Deterministic id tie-break keeps the output stable.
         $candidates = array_keys($degree);
-        usort($candidates, static function ($x, $y) use ($degree, $nodeCount) {
+        usort($candidates, function ($x, $y) use ($degree, $nodeCount) {
             $sx = ($degree[$x] ?? 0) * 3 + ($nodeCount[$x] ?? 0);
             $sy = ($degree[$y] ?? 0) * 3 + ($nodeCount[$y] ?? 0);
             return $sx !== $sy ? $sy <=> $sx : $x <=> $y;
@@ -205,7 +205,7 @@ trait EntityGraphTrait
         // Louvain on the capped subgraph, relabelled by size (largest = 0).
         // Singletons and pairs stay uncoloured (-1): the colour overlay is only
         // meaningful for genuine clusters; node fill already encodes type.
-        $rawComm = self::louvain($adj, $wdeg, $m);
+        $rawComm = $this->louvain($adj, $wdeg, $m);
         $groups = [];
         foreach ($rawComm as $node => $rep) {
             $groups[$rep][] = $node;
@@ -214,7 +214,7 @@ trait EntityGraphTrait
         foreach ($groups as $members) {
             $sized[] = $members;
         }
-        usort($sized, static function (array $p, array $q): int {
+        usort($sized, function (array $p, array $q): int {
             sort($p, SORT_NUMERIC);
             sort($q, SORT_NUMERIC);
             return (count($q) <=> count($p)) ?: (($p[0] ?? 0) <=> ($q[0] ?? 0));
@@ -246,19 +246,19 @@ trait EntityGraphTrait
             }
         }
         $sectionNames = array_keys($sectionWeight);
-        usort($sectionNames, static function ($a, $b) use ($sectionWeight) {
+        usort($sectionNames, function ($a, $b) use ($sectionWeight) {
             return $sectionWeight[$b] !== $sectionWeight[$a]
                 ? $sectionWeight[$b] <=> $sectionWeight[$a]
                 : strcmp($a, $b);
         });
         $sectionIdx = array_flip($sectionNames);
-        $sectionOf = static function (int $vrid) use ($sectTally, $sectionIdx): int {
+        $sectionOf = function (int $vrid) use ($sectTally, $sectionIdx): int {
             $counts = $sectTally[$vrid] ?? [];
             if (!$counts) {
                 return -1;
             }
             $total = array_sum($counts);
-            self::sortCounts($counts);
+            $this->sortCounts($counts);
             $topName = array_key_first($counts);
             if (count($counts) > 1 && $counts[$topName] * 2 <= $total) {
                 return -2; // no majority: a cross-section bridge
@@ -303,7 +303,14 @@ trait EntityGraphTrait
         // Bake node positions with ForceAtlas2 (the algorithm + settings the
         // browser used to run live), then project [-1,1] → pseudo lng/lat so
         // MapLibre renders the network without any client-side layout work.
-        $xy = ForceLayout::layout(count($nodes), $edges, $massByIndex);
+        $options = ['checkpoint' => $this->checkpoint];
+        $cacheKey = hash('sha256', json_encode(['barnes-hut-v1', count($nodes), $edges, $massByIndex], JSON_THROW_ON_ERROR));
+        $cacheFile = $this->layoutCacheDir ? $this->layoutCacheDir . '/' . $cacheKey . '.json' : null;
+        $xy = $cacheFile && is_file($cacheFile) ? json_decode((string) file_get_contents($cacheFile), true) : null;
+        if (!is_array($xy) || count($xy) !== count($nodes)) {
+            $xy = ForceLayout::layout(count($nodes), $edges, $massByIndex, $options);
+            if ($cacheFile) (new \DreVisualizations\Precompute\JsonArtifactWriter())->write($cacheFile, $xy);
+        }
         $minLng = $minLat = INF;
         $maxLng = $maxLat = -INF;
         foreach ($nodes as $idx => &$row) {
@@ -320,7 +327,7 @@ trait EntityGraphTrait
         // Label priority: hubs first (degree×3 + item count). Lower rank wins
         // MapLibre's symbol-collision so the most-connected entities keep labels.
         $rankOrder = array_keys($nodes);
-        usort($rankOrder, static function ($p, $q) use ($nodes) {
+        usort($rankOrder, function ($p, $q) use ($nodes) {
             $sp = $nodes[$p][4] * 3 + $nodes[$p][3];
             $sq = $nodes[$q][4] * 3 + $nodes[$q][3];
             return $sp !== $sq ? $sq <=> $sp : $p <=> $q;

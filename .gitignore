@@ -9,13 +9,13 @@ __pycache__/
 .codex/
 
 # Per-item knowledge-graph JSON (~6,000 files, ~188 MB) is regenerated in-Omeka
-# via the admin "Regenerate now" job — not committed. The front-end falls back to
-# the live REST API until it has been generated in the container.
+# via the admin "Regenerate now" job — not committed. These legacy public paths
+# stay ignored; current snapshots live in private storage.
 asset/data/knowledge-graphs/
 
 # Per-item-set photo-gallery JSON is install-specific (media storage hashes) and
-# regenerated in-Omeka by the same job. The Photo Browsing block falls back to
-# live API resolution until it has been generated.
+# regenerated in-Omeka by the same job. Blocks require a current published
+# snapshot before displaying their generated data.
 asset/data/photo-galleries/
 asset/data/item-set-dashboards/
 asset/data/generations/
@@ -35,7 +35,9 @@ asset/data/communities/
 asset/data/network-explorer.json
 asset/data/featured-collections/
 
-# Semantic embeddings: compact public map/recommendation/report JSON is
-# committed, while the full-vector cache and release payload stay out of Git.
+# Legacy semantic cache/release paths stay ignored. Scoped derived inputs live
+# under data/embeddings; full vectors remain outside the repository by default.
 asset/data/embeddings/cache.json
 asset/data/embeddings/release/
+
+/.cache/

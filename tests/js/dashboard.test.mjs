@@ -96,7 +96,7 @@ test('one failing chart does not erase other charts or announce full success', a
 
 function dataLoader(respond) {
     const calls = [];
-    const ns = { moduleAsset: path => '/' + path };
+    const ns = { moduleAsset: path => '/' + path, dataBase: () => '/s/test/dre-data/' };
     // Execute the production data-loader section, with HTTP as its only stub.
     const section = core.slice(core.indexOf('    ns.dataAsset ='), core.indexOf('    /* ------------------------------------------------------------------ */', core.indexOf('    ns.fetchDataJson =')));
     vm.runInNewContext(section, { ns, fetch: async url => {
@@ -131,4 +131,11 @@ test('HTTP 500 does not trigger generation fallback', async () => {
         ? response(200, { generationId: oldId }) : response(500));
     await assert.rejects(ns.fetchDataJson('item-dashboards/test.json'), /500/);
     assert.equal(calls.length, 2);
+});
+
+// Revocation must never fall back to a directly readable legacy asset.
+test('a withdrawn manifest fails closed without any legacy request', async () => {
+    const { ns, calls } = dataLoader(() => response(404));
+    await assert.rejects(ns.fetchDataJson('item-dashboards/test.json'), /Snapshot unavailable/);
+    assert.deepEqual(calls, ['/s/test/dre-data/current.json']);
 });

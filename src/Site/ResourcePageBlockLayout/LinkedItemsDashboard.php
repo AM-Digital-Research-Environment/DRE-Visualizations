@@ -12,7 +12,7 @@ class LinkedItemsDashboard implements ResourcePageBlockLayoutInterface
 
     public function __construct(?string $dataDir = null)
     {
-        $this->dataDir = $dataDir ?? dirname(__DIR__, 3) . '/asset/data';
+        $this->dataDir = $dataDir ?? \DreVisualizations\Precompute\SnapshotStore::defaultDirectory();
     }
 
     public function getLabel(): string

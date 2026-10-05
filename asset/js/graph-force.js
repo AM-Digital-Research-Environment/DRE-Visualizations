@@ -634,6 +634,7 @@
         function destroy() {
             if (destroyed) return;
             destroyed = true;
+            if (untrack) untrack();
             if (sim) sim.stop();
             if (observer) observer.disconnect();
             else window.removeEventListener('resize', resize);
@@ -642,11 +643,12 @@
 
         // A light/dark toggle only needs a repaint with the freshly read tokens —
         // the layout must survive it, so this deliberately does not re-simulate.
+        var untrack = null;
         if (typeof ns.trackRenderer === 'function') {
-            ns.trackRenderer(container, function () {
+            untrack = ns.trackRenderer(container, function () {
                 gc.paint(scene());
                 if (onThemeCb) onThemeCb();
-            });
+            }, destroy);
         }
 
         /* ---- Public surface ------------------------------------------- */

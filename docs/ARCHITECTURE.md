@@ -1,61 +1,48 @@
 # Architecture
 
-The public path is deliberately precompute-first:
+1. DataLoader streams public, site-scoped rows through Omeka's DBAL connection.
+   It reads the property map once and loads all generator inputs, including public
+   literals/media, without supplemental SQL in individual generators.
+2. PublicCorpus deduplicates exact source/term/target statements, filters both
+   endpoints and rebuilds consistent relationship indexes. Distinct roles remain.
+3. CorpusSnapshot validates and freezes the complete generator input.
+4. Runner loads once, builds the country index once, and coordinates focused
+   EntityDashboardGenerator, OverviewDashboardGenerator, MediaDashboardGenerator,
+   CollectionGalleryGenerator, ItemSetDashboardGenerator and KnowledgeGraphGenerator
+   services. Aggregators hold immutable installation context per instance.
+5. SnapshotPublisher owns the destination-wide generation lock. A separate short
+   policy lock coordinates withdrawal, protected reads and the final revision/site
+   check. An additional source-write guard prevents revision capture or publication
+   during an active API mutation. Publication uses validated staging plus atomic manifests.
+6. DataController and PublishedSnapshot read current private storage. Browser
+   requests fail closed; there is no legacy or permission-dependent API fallback.
 
-1. `DataLoader` reads deterministic Omeka rows and rechecks public site
-   membership after the load.
-2. `PublicCorpus` projects every item-keyed structure and reconstructs
-   relationships so both endpoints are in scope.
-3. `CorpusSnapshot` validates and freezes those scoped structures at the
-   generator boundary.
-4. `Runner` coordinates pure `Aggregators` and focused domain generators.
-5. `SnapshotPublisher` holds a per-site lock, validates staged JSON, promotes an
-   immutable generation, and atomically replaces `current.json`.
-6. `dashboard-core.js` resolves all generated-data requests through that
-   manifest; server-rendered galleries use `PublishedSnapshot`.
+Generated groups include dashboards, communities, graphs, galleries, featured
+collections, item contexts, the network explorer and validated semantic inputs.
+Static geography stays in asset/data/geo. Offline word-cloud and embedding inputs
+under data/ carry PHP-denied envelopes and source-revision metadata. The semantic
+builder still uses shared multilingual vectors and UMAP; only validated derived
+inputs enter a current snapshot.
 
-Static inputs (`geo/`, `wordclouds/`, and the compact public `embeddings/`
-artifacts) remain outside generated snapshots.
-Generated roots are `item-dashboards`, `item-set-dashboards`, `communities`,
-`knowledge-graphs`, `photo-galleries`, `featured-collections`, and
-`network-explorer.json`.
+Knowledge-graph postings above 256 items are sampled deterministically once per
+corpus. Each graph examines at most 2,048 candidates, prioritizing rare shared
+resources. These are approximate discovery views; graph stats report the bound
+and truncation. Direct relationship roles remain intact. ForceAtlas2 uses exact
+repulsion through 128 nodes and a Barnes–Hut tree thereafter (theta 0.6). The
+layout cache hashes algorithm version, ordered edges and masses. Cancellation is
+checked each layout iteration.
 
-The aggregation layer is dependency-free PHP over plain arrays and has a
-standalone test harness. Browser sources remain modular; `npm run build`
-concatenates the ordered chart-builder list into the one runtime bundle. The
-vendored ECharts, MapLibre and d3-force files are same-origin and byte-identical
-to their upstream distributions.
+Three renderer families coexist: ECharts, MapLibre and the canvas/d3-force
+renderer. DashboardAssets supplies the shared prelude. Dashboard payload keys
+select heavy libraries after usable data arrives. Controllers call disposeWithin
+before replacing a container; cleanup disposes charts, removes maps and stops
+graph simulations/observers. Theme changes only rebuild live maps.
 
-Two renderers coexist. ECharts draws the dashboards and MapLibre the maps; the
-item-page knowledge graph owns a canvas and simulates with d3-force, because it
-needs a layout the reader can push around rather than a chart. That renderer is
-split so neither half knows about Omeka: `graph-canvas.js` holds the view
-transform, the painter and the hit tests, `graph-force.js` the simulation and the
-interaction. Both are driven by `knowledge-graph*.js`, listed in load order in
-`DashboardAssets::KNOWLEDGE_GRAPH_SCRIPTS`; the same helper's `D3_SCRIPTS` fixes
-the vendored load order, which is load-bearing because d3-force resolves its
-dependencies off the shared `d3` global. A canvas surface re-themes through
-`ns.trackRenderer` (repaint, no re-layout) rather than the ECharts or MapLibre
-paths in `ns.refresh()`.
+Browser sources remain modular. npm run build concatenates the ordered builder
+list into the committed runtime bundle. Playwright is a development dependency;
+no Node/Composer install is required on the Omeka host. Modules must not bundle
+Omeka's Laminas or PSR packages.
 
-`Runner` remains the coordinator while domain extraction proceeds incrementally.
-`KnowledgeGraphGenerator` and `ItemSetDashboardGenerator` already consume the
-immutable snapshot directly; the existing collection and media methods remain
-in the coordinator until they can be moved without changing artifact contracts.
+Layout registrations use the dre prefix; aliases keep existing saved block IDs working. Gettext catalogs belong under language/.
 
-Installation-specific AMIRA identifiers used by precomputation, featured
-collections, the word-cloud builder, and the semantic corpus builder live in
-`config/amira-profile.json`.
-`AmiraProfile` validates the file before use, and both PHP and Python resolve
-corpus item sets through the same semantic keys. `FeaturedCollections\Registry`
-is now a normalised query facade over the same profile rather than a second
-source of database-local IDs. The coordinator also configures the pure
-aggregators with the profile's person/project templates and university labels;
-no executable aggregator constant assumes AMIRA database IDs.
-
-The semantic pipeline is deliberately separate from the in-Omeka snapshot. It
-reads only the unauthenticated public REST API, creates uniformly bounded archival
-cards for six profile-declared corpora, and embeds them in one multilingual model
-space. Compact UMAP coordinates and cross-type nearest neighbours are committed;
-the content-hash cache and full float32 vectors remain outside Git. See
-`docs/SEMANTIC_EMBEDDINGS.md` for the versioned interoperability contract.
+Synthetic benchmark (PHP 8.5 container): 400/800/1,600 common-subject graphs took 0.138/0.217/0.410 seconds. A 4,000-node chain layout with all 260 iterations took 11.104 seconds and 8 MiB peak memory. These are fixtures, not production measurements; rerun with php scripts/benchmark-precompute.php. The numerical regression measured 0.2643% aggregate repulsion error against exact forces.

@@ -24,7 +24,7 @@ trait TemporalChartsTrait
      *
      * @param array<int,string> $syntheticTypes
      */
-    public static function buildStackedTimeline(array $itemIds, array $links, array $items, array $itemYear, array $syntheticTypes = []): ?array
+    public function buildStackedTimeline(array $itemIds, array $links, array $items, array $itemYear, array $syntheticTypes = []): ?array
     {
         $yearType = [];
         $allTypes = [];
@@ -79,7 +79,7 @@ trait TemporalChartsTrait
     }
 
     /** Build subject x year matrix for temporal trend visualization. */
-    public static function buildSubjectTrends(array $itemIds, array $links, array $items, array $itemYear, int $topN = 10): ?array
+    public function buildSubjectTrends(array $itemIds, array $links, array $items, array $itemYear, int $topN = 10): ?array
     {
         $subjectYear = [];
         $subjectTotals = [];
@@ -101,7 +101,7 @@ trait TemporalChartsTrait
         if (!$subjectYear) {
             return null;
         }
-        self::sortCounts($subjectTotals);
+        $this->sortCounts($subjectTotals);
         $topSubjects = array_slice(array_keys($subjectTotals), 0, $topN);
         $yearSet = [];
         foreach ($topSubjects as $s) {
@@ -126,7 +126,7 @@ trait TemporalChartsTrait
     }
 
     /** Build language x year stacked area. */
-    public static function buildLanguageTimeline(array $itemIds, array $links, array $items, array $itemYear): ?array
+    public function buildLanguageTimeline(array $itemIds, array $links, array $items, array $itemYear): ?array
     {
         $yearLang = [];
         $allLangs = [];
@@ -164,7 +164,7 @@ trait TemporalChartsTrait
     }
 
     /** Build beeswarm data: projects as scatter points by start year. */
-    public static function buildBeeswarm(string $sectionTitle, array $projectIds, array $items, array $childrenOf, array $temporal): ?array
+    public function buildBeeswarm(string $sectionTitle, array $projectIds, array $items, array $childrenOf, array $temporal): ?array
     {
         $points = [];
         foreach ($projectIds as $pid) {
@@ -193,7 +193,7 @@ trait TemporalChartsTrait
      * @param array $sections   [sectionId => info] research-group items
      * @return list<array{name:string,values:list<int>}>|null
      */
-    public static function buildBoxplot(array $sections, array $childrenOf): ?array
+    public function buildBoxplot(array $sections, array $childrenOf): ?array
     {
         $out = [];
         foreach ($sections as $sid => $info) {
@@ -221,7 +221,7 @@ trait TemporalChartsTrait
      *
      * @return array{buckets:list<array>,years:list<string>}|null
      */
-    public static function buildTimeChord(array $itemIds, array $links, array $items, array $itemYear, int $maxNodes = 16, int $minCooccurrence = 2): ?array
+    public function buildTimeChord(array $itemIds, array $links, array $items, array $itemYear, int $maxNodes = 16, int $minCooccurrence = 2): ?array
     {
         $byYear = [];
         foreach ($itemIds as $iid) {
@@ -238,7 +238,7 @@ trait TemporalChartsTrait
         $buckets = [];
         $years = [];
         foreach ($byYear as $year => $ids) {
-            $chord = self::buildChord($ids, $links, $items, 'dcterms:subject', $maxNodes, $minCooccurrence);
+            $chord = $this->buildChord($ids, $links, $items, 'dcterms:subject', $maxNodes, $minCooccurrence);
             if ($chord !== null) {
                 $buckets[] = ['year' => (string) $year, 'nodes' => $chord['nodes'], 'links' => $chord['links']];
                 $years[] = (string) $year;
@@ -258,7 +258,7 @@ trait TemporalChartsTrait
      * @param array $projectChildren  [projectId => [itemId,…]] (projects only)
      * @return array{reference:string,windows:list<array>}|null
      */
-    public static function buildWhatsNew(array $items, array $projectChildren, array $windows = [3, 6, 12], int $maxItems = 24, int $maxProjects = 10): ?array
+    public function buildWhatsNew(array $items, array $projectChildren, array $windows = [3, 6, 12], int $maxItems = 24, int $maxProjects = 10): ?array
     {
         $maxDay = '';
         foreach ($items as $info) {
@@ -297,12 +297,12 @@ trait TemporalChartsTrait
                     $projCount[$pid] = ($projCount[$pid] ?? 0) + 1;
                 }
             }
-            usort($recent, static fn ($a, $b) => strcmp((string) $b['created'], (string) $a['created'])
+            usort($recent, fn ($a, $b) => strcmp((string) $b['created'], (string) $a['created'])
                 ?: ((int) $a['id'] <=> (int) $b['id']));
             $totalCount = count($recent);
             $recent = array_slice($recent, 0, $maxItems);
 
-            self::sortCounts($projCount);
+            $this->sortCounts($projCount);
             $topProjects = [];
             foreach (array_slice($projCount, 0, $maxProjects, true) as $pid => $cnt) {
                 $topProjects[] = ['name' => $items[$pid]['title'] ?? ('Project ' . $pid), 'value' => $cnt, 'itemId' => $pid];

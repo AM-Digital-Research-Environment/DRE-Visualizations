@@ -13,7 +13,7 @@ namespace DreVisualizations\Precompute\Aggregators;
 trait HierarchyChartsTrait
 {
     /** Build type -> language -> subject sunburst hierarchy. */
-    public static function buildSunburst(array $itemIds, array $links, array $items): ?array
+    public function buildSunburst(array $itemIds, array $links, array $items): ?array
     {
         $tree = [];
         foreach ($itemIds as $iid) {
@@ -55,7 +55,7 @@ trait HierarchyChartsTrait
             $typeNode = ['name' => $typeName, 'children' => []];
             foreach ($langs as $langName => $subjects) {
                 $langNode = ['name' => $langName, 'children' => []];
-                self::sortCounts($subjects);
+                $this->sortCounts($subjects);
                 foreach (array_slice($subjects, 0, 8, true) as $subName => $count) {
                     $langNode['children'][] = ['name' => $subName, 'value' => $count];
                 }
@@ -67,14 +67,14 @@ trait HierarchyChartsTrait
     }
 
     /** Build Project -> Type treemap hierarchy. */
-    public static function buildTreemap(array $itemIds, array $links, array $items, array $childrenOf, string $parentTitle): ?array
+    public function buildTreemap(array $itemIds, array $links, array $items, array $childrenOf, string $parentTitle): ?array
     {
         $projectItems = [];
         $unassigned = [];
         foreach ($itemIds as $iid) {
             $assigned = false;
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:isPartOf' && ($items[$vrid]['template_id'] ?? null) === self::projectTemplateId()) {
+                if ($term === 'dcterms:isPartOf' && ($items[$vrid]['template_id'] ?? null) === $this->projectTemplateId()) {
                     $projectItems[$vrid][] = $iid;
                     $assigned = true;
                     break;
@@ -88,7 +88,7 @@ trait HierarchyChartsTrait
             return null;
         }
 
-        $typeChildren = static function (array $iids) use ($links, $items): array {
+        $typeChildren = function (array $iids) use ($links, $items): array {
             $types = [];
             foreach ($iids as $iid) {
                 foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
@@ -100,7 +100,7 @@ trait HierarchyChartsTrait
                     }
                 }
             }
-            self::sortCounts($types);
+            $this->sortCounts($types);
             $children = [];
             foreach ($types as $t => $c) {
                 $children[] = ['name' => $t, 'value' => $c];
@@ -109,7 +109,7 @@ trait HierarchyChartsTrait
         };
 
         // Sort projects by descending item count.
-        uksort($projectItems, static fn ($a, $b) => count($projectItems[$b]) <=> count($projectItems[$a]));
+        uksort($projectItems, fn ($a, $b) => count($projectItems[$b]) <=> count($projectItems[$a]));
 
         $result = [];
         foreach ($projectItems as $pid => $iids) {

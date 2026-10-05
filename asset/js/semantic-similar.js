@@ -53,12 +53,7 @@
 
     function init(container) {
         ns.basePath = container.getAttribute('data-base-path') || '';
-        fetch(ns.moduleAsset('data/embeddings/similar.json'), {
-            credentials: 'same-origin'
-        }).then(function (response) {
-            if (!response.ok) throw new Error('Semantic recommendations not found');
-            return response.json();
-        }).then(function (payload) {
+        ns.fetchDataJson('embeddings/similar.json').then(function (payload) {
             if (!payload || payload.schemaVersion !== 1) return;
             render(container, payload);
         }).catch(function () {

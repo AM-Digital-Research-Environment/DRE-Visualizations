@@ -24,8 +24,9 @@ trait BasicChartsTrait
      *
      * @param array<int,string> $syntheticTypes
      */
-    public static function aggregateItems(array $itemIds, array $items, array $links, array $itemYear, array $geo, array $syntheticTypes = []): array
+    public function aggregateItems(array $itemIds, array $items, array $links, array $itemYear, array $geo, array $syntheticTypes = []): array
     {
+        $itemIds = array_values(array_unique($itemIds));
         $timeline = [];
         $types = [];
         $languages = [];
@@ -43,7 +44,12 @@ trait BasicChartsTrait
             // dcterms:type, so the item is counted once under that single label.
             $synType = $syntheticTypes[$iid] ?? null;
             $hasSyn = $synType !== null && $synType !== '';
+            $counted = [];
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
+                $dimension = ($term === 'dcterms:creator' || $term === 'dcterms:contributor' || str_starts_with($term, 'marcrel:')) ? 'contributors' : $term;
+                $key = $dimension . ':' . $vrid;
+                if (isset($counted[$key])) continue;
+                $counted[$key] = true;
                 $title = $items[$vrid]['title'] ?? '';
                 if ($title === '') {
                     continue;
@@ -103,17 +109,17 @@ trait BasicChartsTrait
         }
 
         ksort($timeline);
-        $subjectsSorted = self::sortByValueDesc(array_values($subjects));
-        $contributorsSorted = self::sortByValueDesc(array_values($contributors));
+        $subjectsSorted = $this->sortByValueDesc(array_values($subjects));
+        $contributorsSorted = $this->sortByValueDesc(array_values($contributors));
 
         return [
             'timeline' => $timeline ?: (object) [],
-            'types' => self::sortByValueDesc(array_values($types)),
-            'languages' => self::sortByValueDesc(array_values($languages)),
+            'types' => $this->sortByValueDesc(array_values($types)),
+            'languages' => $this->sortByValueDesc(array_values($languages)),
             'subjects' => array_slice($subjectsSorted, 0, 200),
             'contributors' => array_slice($contributorsSorted, 0, 30),
-            'locations' => self::sortByValueDesc(array_values($locations)),
-            'currentLocations' => self::sortByValueDesc(array_values($currentLocations)),
+            'locations' => $this->sortByValueDesc(array_values($locations)),
+            'currentLocations' => $this->sortByValueDesc(array_values($currentLocations)),
             'totalItems' => count($itemIds),
         ];
     }
@@ -134,7 +140,7 @@ trait BasicChartsTrait
      *
      * @param array<int,string> $syntheticTypes
      */
-    public static function buildHeatmap(array $itemIds, array $links, array $items, array $syntheticTypes = []): ?array
+    public function buildHeatmap(array $itemIds, array $links, array $items, array $syntheticTypes = []): ?array
     {
         $cross = [];
 
@@ -197,7 +203,7 @@ trait BasicChartsTrait
     }
 
     /** Build contributor role distribution across all contributors of the items. */
-    public static function buildRoles(array $itemIds, array $links, array $items): ?array
+    public function buildRoles(array $itemIds, array $links, array $items): ?array
     {
         $roleCounts = [];
         foreach ($itemIds as $iid) {
@@ -214,11 +220,11 @@ trait BasicChartsTrait
         foreach ($roleCounts as $name => $count) {
             $rows[] = ['name' => $name, 'value' => $count];
         }
-        return self::sortByValueDesc($rows);
+        return $this->sortByValueDesc($rows);
     }
 
     /** Build the role distribution for one specific entity (e.g. a person). */
-    public static function buildRolesFor(int $entityId, array $itemIds, array $links): ?array
+    public function buildRolesFor(int $entityId, array $itemIds, array $links): ?array
     {
         $roleCounts = [];
         foreach ($itemIds as $iid) {
@@ -238,7 +244,7 @@ trait BasicChartsTrait
         foreach ($roleCounts as $name => $count) {
             $rows[] = ['name' => $name, 'value' => $count];
         }
-        return self::sortByValueDesc($rows);
+        return $this->sortByValueDesc($rows);
     }
 
     /**
@@ -249,7 +255,7 @@ trait BasicChartsTrait
      *
      * @return list<array{name:string,value:int}>|null
      */
-    public static function buildTemplates(array $itemIds, array $items, array $templateLabels): ?array
+    public function buildTemplates(array $itemIds, array $items, array $templateLabels): ?array
     {
         $counts = [];
         foreach ($itemIds as $iid) {
@@ -266,6 +272,6 @@ trait BasicChartsTrait
         foreach ($counts as $tid => $c) {
             $out[] = ['name' => $templateLabels[$tid] ?? ('Template ' . $tid), 'value' => $c];
         }
-        return self::sortByValueDesc($out);
+        return $this->sortByValueDesc($out);
     }
 }
