@@ -12,23 +12,23 @@ use InvalidArgumentException;
  * rely on every item-keyed structure, relationship, membership, and coordinate
  * referring only to public items in the canonical site.
  */
-final class CorpusSnapshot
+final readonly class CorpusSnapshot
 {
     public function __construct(
-        public readonly array $items,
-        public readonly array $links,
-        public readonly array $reverseLinks,
-        public readonly array $childrenOf,
-        public readonly array $itemYear,
-        public readonly array $itemDate,
-        public readonly array $temporal,
-        public readonly array $geo,
-        public readonly array $itemSets,
-        public readonly array $templateLabels,
-        public readonly array $literals,
-        public readonly array $primaryMedia,
-        public readonly array $scope,
-        public readonly array $mediaItems = [],
+        public array $items,
+        public array $links,
+        public array $reverseLinks,
+        public array $childrenOf,
+        public array $itemYear,
+        public array $itemDate,
+        public array $temporal,
+        public array $geo,
+        public array $itemSets,
+        public array $templateLabels,
+        public array $literals,
+        public array $primaryMedia,
+        public array $scope,
+        public array $mediaItems = [],
     ) {
         $this->validate();
     }

@@ -7,8 +7,8 @@ use Laminas\Form\Element\Csrf;
 use Laminas\Form\Form;
 
 /**
- * Minimal CSRF-only form for the admin maintenance page. The action (regenerate)
- * is determined by the route the form posts to, not by a payload field.
+ * Minimal CSRF-only form for the admin maintenance page. The operation
+ * (regenerate or withdraw) is the route the form posts to, not a payload field.
  */
 class MaintenanceForm extends Form
 {

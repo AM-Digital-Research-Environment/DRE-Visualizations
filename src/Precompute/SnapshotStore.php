@@ -5,9 +5,9 @@ namespace DreVisualizations\Precompute;
 use RuntimeException;
 
 /** Private publication state. The short policy lock never waits for aggregation. */
-final class SnapshotStore
+final readonly class SnapshotStore
 {
-    public function __construct(public readonly string $directory) {}
+    public function __construct(public string $directory) {}
 
     /** The configured store path, without creating or validating it. */
     public static function defaultPath(): string

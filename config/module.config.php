@@ -73,9 +73,16 @@ return [
             'dreFileUrl' => View\Helper\FileUrlFactory::class,
         ],
     ],
+    'service_manager' => [
+        'factories' => [
+            Service\CanonicalSite::class => Service\CanonicalSiteFactory::class,
+        ],
+    ],
     'controllers' => [
+        'factories' => [
+            Controller\Admin\MaintenanceController::class => Controller\Admin\MaintenanceControllerFactory::class,
+        ],
         'invokables' => [
-            Controller\Admin\MaintenanceController::class => Controller\Admin\MaintenanceController::class,
             Controller\Site\EmbedController::class => Controller\Site\EmbedController::class,
             Controller\Site\DataController::class => Controller\Site\DataController::class,
         ],
@@ -118,6 +125,16 @@ return [
                                     'defaults' => [
                                         'controller' => Controller\Admin\MaintenanceController::class,
                                         'action' => 'regenerate',
+                                    ],
+                                ],
+                            ],
+                            'maintenance-withdraw' => [
+                                'type' => \Laminas\Router\Http\Literal::class,
+                                'options' => [
+                                    'route' => '/maintenance/withdraw',
+                                    'defaults' => [
+                                        'controller' => Controller\Admin\MaintenanceController::class,
+                                        'action' => 'withdraw',
                                     ],
                                 ],
                             ],

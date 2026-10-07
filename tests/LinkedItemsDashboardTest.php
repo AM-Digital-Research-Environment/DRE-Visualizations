@@ -10,6 +10,16 @@ namespace Laminas\View\Renderer {
             ++$this->calls;
             return 'dashboard:' . $values['resource']->id();
         }
+        public bool $canonical = true;
+        public function currentSite(): object
+        {
+            return new class($this->canonical) {
+                public function __construct(private bool $canonical) {}
+                public function id(): int { return $this->canonical ? 1 : 2; }
+                public function isPublic(): bool { return true; }
+            };
+        }
+        public function setting(string $key, mixed $default = null): mixed { return 1; }
     }
 }
 namespace Omeka\Api\Representation {
@@ -26,6 +36,10 @@ namespace {
     require_once __DIR__ . '/bootstrap.php';
     require __DIR__ . '/../src/Precompute/PublishedSnapshot.php';
     require __DIR__ . '/../src/Site/ResourcePageBlockLayout/LinkedItemsDashboard.php';
+    // Module only supplies the setting-name constant PublishedData reads.
+    if (!class_exists('DreVisualizations\\Module', false)) {
+        eval('namespace DreVisualizations; class Module { public const SETTING_SITE_ID = "dre_visualizations_site_id"; }');
+    }
 
     use DreVisualizations\Site\ResourcePageBlockLayout\LinkedItemsDashboard;
     use Laminas\View\Renderer\PhpRenderer;
@@ -63,6 +77,10 @@ namespace {
         file_put_contents($published . '/item-dashboards/32328.json', '{}');
         $check($block->render($view, $item) === 'dashboard:32328', 'A published dashboard must render.');
         $check($view->calls === 1, 'Eligible dashboard must render exactly once.');
+
+        $view->canonical = false;
+        $check($block->render($view, $item) === '', 'A non-canonical site must not mount a loader the data endpoint refuses.');
+        $view->canonical = true;
 
         file_put_contents($root . '/current.json', json_encode(['schemaVersion' => 0] + $manifest));
         $check($block->render($view, $item) === '', 'A snapshot of another artifact schema must not render.');

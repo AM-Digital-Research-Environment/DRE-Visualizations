@@ -2,16 +2,15 @@
 declare(strict_types=1);
 namespace DreVisualizations\Site\ResourcePageBlockLayout;
 
-use DreVisualizations\Precompute\PublishedSnapshot;
-use DreVisualizations\Precompute\SnapshotStore;
+use DreVisualizations\Site\PublishedData;
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Site\ResourcePageBlockLayout\ResourcePageBlockLayoutInterface;
 
 class LinkedItemsDashboard implements ResourcePageBlockLayoutInterface
 {
-    /** Resolved lazily: a storage fault must hide the block, not fail every item page. */
-    public function __construct(private ?string $dataDir = null) {}
+    /** $dataDir overrides the default store (tests); resolved per render, so a storage fault hides the block. */
+    public function __construct(private readonly ?string $dataDir = null) {}
 
     public function getLabel(): string
     {
@@ -28,9 +27,7 @@ class LinkedItemsDashboard implements ResourcePageBlockLayoutInterface
         // The publisher is authoritative: not every item has an aggregate
         // dashboard. In particular, research records may have a knowledge graph
         // without a dashboard. Do not mount a loader for a nonexistent artifact.
-        $this->dataDir ??= SnapshotStore::tryDefault()?->directory;
-        if ($this->dataDir === null
-            || PublishedSnapshot::path($this->dataDir, 'item-dashboards/' . $resource->id() . '.json') === null) {
+        if (!PublishedData::available($view, 'item-dashboards/' . $resource->id() . '.json', $this->dataDir)) {
             return '';
         }
 

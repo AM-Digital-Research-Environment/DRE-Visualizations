@@ -257,7 +257,7 @@ The iframe auto-resizes to its content (the snippet pairs each frame with a tiny
 - `?theme=dark` — switch to dark mode. Embeds render **light by default** (an iframe can't read its host page's colour scheme, so light is the safe match for most pages); the embedder opts into dark explicitly.
 - `?primary=RRGGBB` — override the brand seed; the theme re-tints every accent, hover, and focus colour from it.
 
-Every embed shows a small **source** link back to the site, and the endpoint sends `Content-Security-Policy: frame-ancestors *` in place of the site-wide `X-Frame-Options: SAMEORIGIN` (set in `Module::relaxEmbedFraming()`) so it can be framed on any origin. If a reverse proxy forces `X-Frame-Options` with `always`, that header must also be relaxed for the `/dre-embed` path there — PHP can't drop a proxy-added header.
+Every embed shows a small **source** link back to the site, and the endpoint sends `Content-Security-Policy: frame-ancestors *` in place of the site-wide `X-Frame-Options: SAMEORIGIN` (set in `Listener\EmbedFraming`) so it can be framed on any origin. If a reverse proxy forces `X-Frame-Options` with `always`, that header must also be relaxed for the `/dre-embed` path there — PHP can't drop a proxy-added header.
 
 > The endpoint is public (it is served into third-party pages), reuses each block's existing precomputed JSON over same-origin fetches, and adds no build step. Single-chart embeds work by pinning the dashboard orchestrator to one chart key via `data-chart-only` (see `asset/js/dashboard.js`), wired up in `src/Controller/Site/EmbedController.php` and `view/dre-visualizations/layout/embed.phtml` + `view/dre-visualizations/embed/*.phtml`.
 
@@ -329,7 +329,6 @@ DreVisualizations/
 │   ├── knowledge-graph.phtml           # Lightweight async container
 │   ├── linked-items-dashboard.phtml    # Lightweight async container
 │   ├── item-set-dashboard.phtml        # Server-side rendered
-│   └── partials/dashboard-charts.phtml # Shared chart rendering (inline mode)
 ├── src/Controller/Site/EmbedController.php # Public iframe-embed endpoint (gallery + block/chart)
 ├── view/dre-visualizations/
 │   ├── layout/embed.phtml              # Bare, theme-following layout for iframes

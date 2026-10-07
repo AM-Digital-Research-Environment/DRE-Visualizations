@@ -3,74 +3,53 @@ declare(strict_types=1);
 
 namespace DreVisualizations\Controller\Admin;
 
-use DreVisualizations\Module;
+use DreVisualizations\Form\MaintenanceForm;
+use DreVisualizations\Job\PrecomputeDashboards;
+use DreVisualizations\Listener\SnapshotInvalidation;
+use DreVisualizations\Service\CanonicalSite;
 use Laminas\Http\Response;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use Omeka\Stdlib\Message;
-use DreVisualizations\Form\MaintenanceForm;
-use DreVisualizations\Job\PrecomputeDashboards;
 
 /**
  * Admin maintenance page for the DreVisualizations module.
  *
  *   indexAction       GET   /admin/dre-visualizations/maintenance
- *     Renders the page with a "Regenerate" button (CSRF-protected POST form).
+ *     Renders the page with "Regenerate" and "Withdraw" buttons (one
+ *     CSRF-protected form posting to either action).
  *
  *   regenerateAction  POST  /admin/dre-visualizations/maintenance/regenerate
  *     Dispatches DreVisualizations\Job\PrecomputeDashboards as an Omeka
  *     background job and flashes a link to its log at /admin/job/{id}/log.
  *
+ *   withdrawAction    POST  /admin/dre-visualizations/maintenance/withdraw
+ *     Stops serving the published snapshot until the next regeneration.
+ *
  * ACL: editor + site-admin + global-admin (granted in Module::onBootstrap).
  */
 class MaintenanceController extends AbstractActionController
 {
+    public function __construct(private readonly CanonicalSite $canonicalSite) {}
+
     public function indexAction(): ViewModel
     {
-        $services = $this->getEvent()->getApplication()->getServiceManager();
-        $siteId = (int) $services->get('Omeka\Settings')->get(Module::SETTING_SITE_ID, 0);
-        $scopeSite = $siteId > 0
-            ? $services->get('Omeka\Connection')->executeQuery(
-                'SELECT id, title, slug FROM site WHERE id = ? AND is_public = 1',
-                [$siteId]
-            )->fetchAssociative()
-            : false;
         return new ViewModel([
             'form' => $this->getForm(MaintenanceForm::class),
-            'scopeSite' => $scopeSite ?: null,
+            'scopeSite' => $this->canonicalSite->publicSite(),
         ]);
     }
 
     public function regenerateAction(): Response
     {
-        $request = $this->getRequest();
-        if (!$request->isPost()) {
-            return $this->redirect()->toRoute('admin/dre-visualizations/maintenance');
+        if (!$this->validPost()) {
+            return $this->backToIndex();
         }
-
-        $form = $this->getForm(MaintenanceForm::class);
-        $form->setData($request->getPost()->toArray());
-        if (!$form->isValid()) {
-            $this->messenger()->addError('Invalid form submission. Please reload the page and try again.'); // @translate
-            return $this->redirect()->toRoute('admin/dre-visualizations/maintenance');
-        }
-
-        if ($request->getPost('operation') === 'withdraw') {
-            (new \DreVisualizations\Precompute\SnapshotStore(\DreVisualizations\Precompute\SnapshotStore::defaultDirectory()))->withdraw();
-            $this->messenger()->addSuccess('Published visualizations withdrawn.'); // @translate
-            return $this->redirect()->toRoute('admin/dre-visualizations/maintenance');
-        }
-        $services = $this->getEvent()->getApplication()->getServiceManager();
-        $siteId = (int) $services->get('Omeka\Settings')->get(Module::SETTING_SITE_ID, 0);
-        $validSite = $siteId > 0 && (bool) $services->get('Omeka\Connection')->executeQuery(
-            'SELECT 1 FROM site WHERE id = ? AND is_public = 1',
-            [$siteId]
-        )->fetchOne();
-        if (!$validSite) {
+        if ($this->canonicalSite->publicSite() === null) {
             $this->messenger()->addError(
                 'Configure a canonical public site in the DRE Visualizations module settings before regenerating data.' // @translate
             );
-            return $this->redirect()->toRoute('admin/dre-visualizations/maintenance');
+            return $this->backToIndex();
         }
 
         $job = $this->jobDispatcher()->dispatch(PrecomputeDashboards::class);
@@ -85,6 +64,36 @@ class MaintenanceController extends AbstractActionController
         $message->setEscapeHtml(false);
         $this->messenger()->addSuccess($message);
 
+        return $this->backToIndex();
+    }
+
+    public function withdrawAction(): Response
+    {
+        if ($this->validPost()) {
+            SnapshotInvalidation::withdraw();
+            $this->messenger()->addSuccess('Published visualizations withdrawn.'); // @translate
+        }
+        return $this->backToIndex();
+    }
+
+    /** A POST carrying the maintenance form's valid CSRF token; flashes an error otherwise. */
+    private function validPost(): bool
+    {
+        $request = $this->getRequest();
+        if (!$request->isPost()) {
+            return false;
+        }
+        $form = $this->getForm(MaintenanceForm::class);
+        $form->setData($request->getPost()->toArray());
+        if (!$form->isValid()) {
+            $this->messenger()->addError('Invalid form submission. Please reload the page and try again.'); // @translate
+            return false;
+        }
+        return true;
+    }
+
+    private function backToIndex(): Response
+    {
         return $this->redirect()->toRoute('admin/dre-visualizations/maintenance');
     }
 }
