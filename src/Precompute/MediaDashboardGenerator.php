@@ -220,8 +220,8 @@ final class MediaDashboardGenerator extends DashboardGenerator
             $dashboard['series'] = $v;
         }
 
-        // Durations (dcterms:extent, ISO-8601) and transcripts (bibo:content) are
-        // not loaded by DataLoader, so fetch them for just these episodes.
+        // Durations (dcterms:extent, ISO-8601) and transcripts (bibo:content) for
+        // just these episodes, from DataLoader's literal map.
         [$durations, $transcripts] = $this->loadPodcastExtras($ids);
         $totalSeconds = array_sum($durations);
         if ($v = $this->aggregators->buildDurationHistogram($durations)) {
