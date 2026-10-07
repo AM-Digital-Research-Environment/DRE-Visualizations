@@ -23,6 +23,63 @@ trait SupportTrait
         });
     }
 
+    /**
+     * Sort a count map keyed by item id: value descending, then by the items'
+     * titles (natural, case-insensitive), then by id — the order sortCounts()
+     * gives a map keyed by title, without merging two items that share one.
+     *
+     * @param array<int,int> $counts
+     * @param array<int,string> $titles
+     */
+    private function sortCountsByName(array &$counts, array $titles): void
+    {
+        $snapshot = $counts;
+        uksort($counts, fn (int|string $a, int|string $b): int => (($snapshot[$b] ?? 0) <=> ($snapshot[$a] ?? 0))
+            ?: strnatcasecmp((string) ($titles[$a] ?? ''), (string) ($titles[$b] ?? ''))
+            ?: ((int) $a <=> (int) $b));
+    }
+
+    /**
+     * Item titles for the given ids, with a typed placeholder for an item
+     * without one.
+     *
+     * @param int[] $ids
+     * @return array<int,string>
+     */
+    private function titlesFor(array $ids, array $items, string $placeholder): array
+    {
+        $titles = [];
+        foreach ($ids as $id) {
+            $titles[$id] = (string) ($items[$id]['title'] ?? ($placeholder . ' ' . $id));
+        }
+        return $titles;
+    }
+
+    /**
+     * Node names unique within one chart. ECharts graph, sankey and chord
+     * series join links to nodes by name, so two items with one title (two
+     * people called "Smith, John") would merge into a single node; each of
+     * them is suffixed with its id instead.
+     *
+     * @param array<int,string> $titles item id => title
+     * @return array<int,string>
+     */
+    private function uniqueNames(array $titles): array
+    {
+        $byTitle = [];
+        foreach ($titles as $id => $title) {
+            $byTitle[$title][] = $id;
+        }
+        foreach ($byTitle as $title => $ids) {
+            if (count($ids) > 1) {
+                foreach ($ids as $id) {
+                    $titles[$id] = $title . ' (#' . $id . ')';
+                }
+            }
+        }
+        return $titles;
+    }
+
     /** Find item IDs that link to $entityId via any of the given terms. */
     public function findItemsLinkingTo(int $entityId, array $reverseLinks, array $terms): array
     {

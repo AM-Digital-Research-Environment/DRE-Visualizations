@@ -17,20 +17,22 @@
   "contributorNetwork": {
     "categories": ["person","project"],
     "links": [
-      {"source":"Adeyemi, Folake","target":"Urban Ecologies of Lagos","value":2},
+      {"source":"Adeyemi, Folake","target":"Urban Ecologies of Lagos","value":3},
       {"source":"Kiprop, David","target":"Urban Ecologies of Lagos","value":1},
       {"source":"Dlamini, Thandiwe","target":"Urban Ecologies of Lagos","value":1},
       {"source":"Adeyemi, Folake","target":"Sonic Archives of the Sahel","value":1},
       {"source":"Ouédraogo, Issa","target":"Urban Ecologies of Lagos","value":1},
+      {"source":"Mwangi, Wanjiru","target":"Urban Ecologies of Lagos","value":1},
       {"source":"Ouédraogo, Issa","target":"Kinship Across Borders","value":1},
       {"source":"Adeyemi, Folake","target":"Kinship Across Borders","value":1}
     ],
     "nodes": [
-      {"category":"person","itemId":400,"name":"Adeyemi, Folake","value":4},
+      {"category":"person","itemId":400,"name":"Adeyemi, Folake","value":5},
       {"category":"person","itemId":402,"name":"Ouédraogo, Issa","value":2},
+      {"category":"person","itemId":406,"name":"Mwangi, Wanjiru","value":1},
       {"category":"person","itemId":408,"name":"Dlamini, Thandiwe","value":1},
       {"category":"person","itemId":411,"name":"Kiprop, David","value":1},
-      {"category":"project","itemId":305,"name":"Urban Ecologies of Lagos","value":2},
+      {"category":"project","itemId":305,"name":"Urban Ecologies of Lagos","value":3},
       {"category":"project","itemId":300,"name":"Sonic Archives of the Sahel","value":1},
       {"category":"project","itemId":303,"name":"Kinship Across Borders","value":1}
     ]

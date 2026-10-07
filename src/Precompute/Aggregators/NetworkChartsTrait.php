@@ -65,12 +65,13 @@ trait NetworkChartsTrait
         $this->sortCounts($nodeCounts);
         $topNodes = array_slice(array_keys($nodeCounts), 0, $maxNodes);
         $topSet = array_flip($topNodes);
+        $names = $this->uniqueNames(array_intersect_key($valueTitles, $topSet));
 
         $chordLinks = [];
         foreach ($pairCounts as $key => $count) {
             [$a, $b] = array_map('intval', explode(',', $key));
             if ($count >= $minCooccurrence && isset($topSet[$a], $topSet[$b])) {
-                $chordLinks[] = ['source' => $valueTitles[$a], 'target' => $valueTitles[$b], 'value' => $count];
+                $chordLinks[] = ['source' => $names[$a], 'target' => $names[$b], 'value' => $count];
             }
         }
         if (!$chordLinks) {
@@ -79,17 +80,22 @@ trait NetworkChartsTrait
 
         $chordNodes = [];
         foreach ($topNodes as $v) {
-            if (isset($valueTitles[$v])) {
-                $chordNodes[] = ['name' => $valueTitles[$v], 'value' => $nodeCounts[$v], 'itemId' => $v];
+            if (isset($names[$v])) {
+                $chordNodes[] = ['name' => $names[$v], 'value' => $nodeCounts[$v], 'itemId' => $v];
             }
         }
         return ['nodes' => $chordNodes, 'links' => $chordLinks];
     }
 
-    /** Build contributor -> project -> resource type Sankey flow. */
+    /**
+     * Build contributor -> project -> resource type Sankey flow. Flows are keyed
+     * by item id, not title: a contributor and a type that share a title would
+     * otherwise collapse into one node and turn the flow into a cycle.
+     */
     public function buildSankey(array $itemIds, array $links, array $items): ?array
     {
         $flows = [];
+        $titles = [];
         foreach ($itemIds as $iid) {
             $itemContributors = [];
             $itemProject = null;
@@ -100,19 +106,22 @@ trait NetworkChartsTrait
                     continue;
                 }
                 if (str_starts_with($term, 'marcrel:') || $term === 'dcterms:creator' || $term === 'dcterms:contributor') {
-                    $itemContributors[] = $title;
+                    $itemContributors[] = $vrid;
                 } elseif ($term === 'dcterms:isPartOf') {
-                    $itemProject = $title;
+                    $itemProject = $vrid;
                 } elseif ($term === 'dcterms:type') {
-                    $itemTypes[] = $title;
+                    $itemTypes[] = $vrid;
+                } else {
+                    continue;
                 }
+                $titles[$vrid] = $title;
             }
             if (!$itemProject || !$itemContributors || !$itemTypes) {
                 continue;
             }
             foreach (array_slice($itemContributors, 0, 3) as $c) {
                 foreach ($itemTypes as $t) {
-                    $k = $c . "\0" . $itemProject . "\0" . $t;
+                    $k = $c . ',' . $itemProject . ',' . $t;
                     $flows[$k] = ($flows[$k] ?? 0) + 1;
                 }
             }
@@ -123,34 +132,35 @@ trait NetworkChartsTrait
 
         $contribCounts = [];
         foreach ($flows as $k => $v) {
-            [$c] = explode("\0", $k);
+            $c = (int) strstr($k, ',', true);
             $contribCounts[$c] = ($contribCounts[$c] ?? 0) + $v;
         }
-        $this->sortCounts($contribCounts);
+        $this->sortCountsByName($contribCounts, $titles);
         $topContribs = array_flip(array_slice(array_keys($contribCounts), 0, 10));
 
         $linkMap = [];
-        $nodeNames = [];
+        $nodeIds = [];
         foreach ($flows as $k => $v) {
-            [$c, $p, $t] = explode("\0", $k);
+            [$c, $p, $t] = array_map('intval', explode(',', $k));
             if (!isset($topContribs[$c])) {
                 continue;
             }
-            $nodeNames[$c] = true;
-            $nodeNames[$p] = true;
-            $nodeNames[$t] = true;
-            $linkMap[$c . "\0" . $p] = ($linkMap[$c . "\0" . $p] ?? 0) + $v;
-            $linkMap[$p . "\0" . $t] = ($linkMap[$p . "\0" . $t] ?? 0) + $v;
+            $nodeIds[$c] = true;
+            $nodeIds[$p] = true;
+            $nodeIds[$t] = true;
+            $linkMap[$c . ',' . $p] = ($linkMap[$c . ',' . $p] ?? 0) + $v;
+            $linkMap[$p . ',' . $t] = ($linkMap[$p . ',' . $t] ?? 0) + $v;
         }
+        $names = $this->uniqueNames(array_intersect_key($titles, $nodeIds));
 
         $nodes = [];
-        foreach (array_keys($nodeNames) as $n) {
-            $nodes[] = ['name' => $n];
+        foreach (array_keys($nodeIds) as $id) {
+            $nodes[] = ['name' => $names[$id]];
         }
         $dedupedLinks = [];
         foreach ($linkMap as $k => $v) {
-            [$s, $t] = explode("\0", $k);
-            $dedupedLinks[] = ['source' => $s, 'target' => $t, 'value' => $v];
+            [$s, $t] = array_map('intval', explode(',', $k));
+            $dedupedLinks[] = ['source' => $names[$s], 'target' => $names[$t], 'value' => $v];
         }
         return $dedupedLinks ? ['nodes' => $nodes, 'links' => $dedupedLinks] : null;
     }
@@ -158,65 +168,7 @@ trait NetworkChartsTrait
     /** Build person -> project force graph from research items. */
     public function buildContributorNetwork(int $entityId, string $entityTitle, array $itemIds, array $items, array $links, array $childrenOf, int $maxNodes = 30): ?array
     {
-        $personProject = [];
-        $personCounts = [];
-        $projectCounts = [];
-        foreach ($itemIds as $iid) {
-            $itemPersons = [];
-            $itemProject = null;
-            foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
-                if (str_starts_with($term, 'marcrel:') || $term === 'dcterms:creator' || $term === 'dcterms:contributor') {
-                    if (($items[$vrid]['template_id'] ?? null) === $this->personTemplateId()) {
-                        $itemPersons[] = $vrid;
-                    }
-                } elseif ($term === 'dcterms:isPartOf') {
-                    if (($items[$vrid]['template_id'] ?? null) === $this->projectTemplateId()) {
-                        $itemProject = $vrid;
-                    }
-                }
-            }
-            if ($itemProject && $itemPersons) {
-                foreach ($itemPersons as $pid) {
-                    $personProject[$pid . ',' . $itemProject] = ($personProject[$pid . ',' . $itemProject] ?? 0) + 1;
-                    $personCounts[$pid] = ($personCounts[$pid] ?? 0) + 1;
-                }
-                $projectCounts[$itemProject] = ($projectCounts[$itemProject] ?? 0) + 1;
-            }
-        }
-        if (!$personProject) {
-            return null;
-        }
-
-        $this->sortCounts($personCounts);
-        $topPersons = array_flip(array_slice(array_keys($personCounts), 0, $maxNodes));
-        $this->sortCounts($projectCounts);
-        $topProjects = array_flip(array_slice(array_keys($projectCounts), 0, 15));
-
-        $nodes = [];
-        $nodeNames = [];
-        foreach (array_keys($topPersons) as $pid) {
-            $title = $items[$pid]['title'] ?? ('Person ' . $pid);
-            $nodes[] = ['name' => $title, 'value' => $personCounts[$pid], 'itemId' => $pid, 'category' => 'person'];
-            $nodeNames[$title] = true;
-        }
-        foreach (array_keys($topProjects) as $pid) {
-            $title = $items[$pid]['title'] ?? ('Project ' . $pid);
-            $nodes[] = ['name' => $title, 'value' => $projectCounts[$pid], 'itemId' => $pid, 'category' => 'project'];
-            $nodeNames[$title] = true;
-        }
-
-        $netLinks = [];
-        foreach ($personProject as $key => $count) {
-            [$personId, $projId] = array_map('intval', explode(',', $key));
-            if (isset($topPersons[$personId], $topProjects[$projId])) {
-                $pTitle = $items[$personId]['title'] ?? '';
-                $prTitle = $items[$projId]['title'] ?? '';
-                if (isset($nodeNames[$pTitle], $nodeNames[$prTitle])) {
-                    $netLinks[] = ['source' => $pTitle, 'target' => $prTitle, 'value' => $count];
-                }
-            }
-        }
-        return $netLinks ? ['nodes' => $nodes, 'links' => $netLinks, 'categories' => ['person', 'project']] : null;
+        return $this->personProjectGraph($itemIds, $items, $links, $maxNodes, 15);
     }
 
     /**
@@ -226,6 +178,16 @@ trait NetworkChartsTrait
      * graph to one entity. This backs the Network Explorer page block.
      */
     public function buildGlobalContributorNetwork(array $itemIds, array $items, array $links, int $maxPersons = 120, int $maxProjects = 80): ?array
+    {
+        return $this->personProjectGraph($itemIds, $items, $links, $maxPersons, $maxProjects);
+    }
+
+    /**
+     * People linked to the projects their research items belong to, weighted by
+     * the number of items. A person counts once per item, however many roles
+     * (creator, contributor, marcrel:*) they hold on it.
+     */
+    private function personProjectGraph(array $itemIds, array $items, array $links, int $maxPersons, int $maxProjects): ?array
     {
         $personProject = [];
         $personCounts = [];
@@ -262,29 +224,24 @@ trait NetworkChartsTrait
         $this->sortCounts($projectCounts);
         $topPersons = array_flip(array_slice(array_keys($personCounts), 0, $maxPersons));
         $topProjects = array_flip(array_slice(array_keys($projectCounts), 0, $maxProjects));
+        $names = $this->uniqueNames(
+            $this->titlesFor(array_keys($topPersons), $items, 'Person')
+            + $this->titlesFor(array_keys($topProjects), $items, 'Project')
+        );
 
         $nodes = [];
-        $nodeNames = [];
         foreach (array_keys($topPersons) as $pid) {
-            $title = $items[$pid]['title'] ?? ('Person ' . $pid);
-            $nodes[] = ['name' => $title, 'value' => $personCounts[$pid], 'itemId' => $pid, 'category' => 'person'];
-            $nodeNames[$title] = true;
+            $nodes[] = ['name' => $names[$pid], 'value' => $personCounts[$pid], 'itemId' => $pid, 'category' => 'person'];
         }
         foreach (array_keys($topProjects) as $pid) {
-            $title = $items[$pid]['title'] ?? ('Project ' . $pid);
-            $nodes[] = ['name' => $title, 'value' => $projectCounts[$pid], 'itemId' => $pid, 'category' => 'project'];
-            $nodeNames[$title] = true;
+            $nodes[] = ['name' => $names[$pid], 'value' => $projectCounts[$pid], 'itemId' => $pid, 'category' => 'project'];
         }
 
         $netLinks = [];
         foreach ($personProject as $key => $count) {
             [$personId, $projId] = array_map('intval', explode(',', $key));
             if (isset($topPersons[$personId], $topProjects[$projId])) {
-                $pTitle = $items[$personId]['title'] ?? '';
-                $prTitle = $items[$projId]['title'] ?? '';
-                if (isset($nodeNames[$pTitle], $nodeNames[$prTitle])) {
-                    $netLinks[] = ['source' => $pTitle, 'target' => $prTitle, 'value' => $count];
-                }
+                $netLinks[] = ['source' => $names[$personId], 'target' => $names[$projId], 'value' => $count];
             }
         }
 
@@ -303,7 +260,6 @@ trait NetworkChartsTrait
     {
         $pairCounts = [];
         $nodeCounts = [];
-        $titles = [];
 
         foreach ($itemIds as $iid) {
             $persons = [];
@@ -313,7 +269,6 @@ trait NetworkChartsTrait
                 }
                 if (($items[$vrid]['template_id'] ?? null) === $this->personTemplateId()) {
                     $persons[$vrid] = true;
-                    $titles[$vrid] = $items[$vrid]['title'] ?? ('Person ' . $vrid);
                 }
             }
             $persons = array_keys($persons);
@@ -369,11 +324,12 @@ trait NetworkChartsTrait
             ?: strnatcasecmp((string) $x, (string) $y));
         $ranked = array_slice($rankNodes, 0, $maxNodes);
         $topSet = array_flip($ranked);
+        $names = $this->uniqueNames($this->titlesFor($ranked, $items, 'Person'));
 
         $nodes = [];
         foreach ($ranked as $nd) {
             $nodes[] = [
-                'name' => $titles[$nd] ?? ('Person ' . $nd),
+                'name' => $names[$nd],
                 'value' => $nodeCounts[$nd] ?? 0,
                 'itemId' => $nd,
                 'community' => $commOf[$nd] ?? 0,
@@ -390,7 +346,7 @@ trait NetworkChartsTrait
             }
             [$a, $b] = array_map('intval', explode(',', $key));
             if (isset($topSet[$a], $topSet[$b])) {
-                $outLinks[] = ['source' => $titles[$a] ?? ('Person ' . $a), 'target' => $titles[$b] ?? ('Person ' . $b), 'value' => $w];
+                $outLinks[] = ['source' => $names[$a], 'target' => $names[$b], 'value' => $w];
             }
         }
 
@@ -403,7 +359,7 @@ trait NetworkChartsTrait
             $summary[$ci]['size']++;
             if (($pr[$nd] ?? 0) > $summary[$ci]['_rank']) {
                 $summary[$ci]['_rank'] = $pr[$nd] ?? 0;
-                $summary[$ci]['anchor'] = $titles[$nd] ?? null;
+                $summary[$ci]['anchor'] = $names[$nd];
             }
         }
         $communitiesList = [];
@@ -450,18 +406,17 @@ trait NetworkChartsTrait
         $this->sortCounts($institutionCounts);
         $topPersons = array_flip(array_slice(array_keys($personCounts), 0, $maxPersons));
         $topInstitutions = array_flip(array_slice(array_keys($institutionCounts), 0, $maxInstitutions));
+        $names = $this->uniqueNames(
+            $this->titlesFor(array_keys($topPersons), $items, 'Person')
+            + $this->titlesFor(array_keys($topInstitutions), $items, 'Institution')
+        );
 
         $nodes = [];
-        $nodeNames = [];
         foreach (array_keys($topPersons) as $pid) {
-            $title = $items[$pid]['title'] ?? ('Person ' . $pid);
-            $nodes[] = ['name' => $title, 'value' => $personCounts[$pid], 'itemId' => $pid, 'category' => 'person'];
-            $nodeNames[$title] = true;
+            $nodes[] = ['name' => $names[$pid], 'value' => $personCounts[$pid], 'itemId' => $pid, 'category' => 'person'];
         }
         foreach (array_keys($topInstitutions) as $iid) {
-            $title = $items[$iid]['title'] ?? ('Institution ' . $iid);
-            $nodes[] = ['name' => $title, 'value' => $institutionCounts[$iid], 'itemId' => $iid, 'category' => 'institution'];
-            $nodeNames[$title] = true;
+            $nodes[] = ['name' => $names[$iid], 'value' => $institutionCounts[$iid], 'itemId' => $iid, 'category' => 'institution'];
         }
 
         $netLinks = [];
@@ -469,14 +424,9 @@ trait NetworkChartsTrait
             if (!isset($topPersons[$pid])) {
                 continue;
             }
-            $personTitle = $items[$pid]['title'] ?? '';
             foreach ($affiliations as $iid) {
-                if (!isset($topInstitutions[$iid])) {
-                    continue;
-                }
-                $institutionTitle = $items[$iid]['title'] ?? '';
-                if (isset($nodeNames[$personTitle], $nodeNames[$institutionTitle])) {
-                    $netLinks[] = ['source' => $personTitle, 'target' => $institutionTitle, 'value' => 1];
+                if (isset($topInstitutions[$iid])) {
+                    $netLinks[] = ['source' => $names[$pid], 'target' => $names[$iid], 'value' => 1];
                 }
             }
         }
@@ -495,7 +445,6 @@ trait NetworkChartsTrait
     {
         $pairCounts = [];
         $nodeCounts = [];
-        $titles = [];
 
         foreach ($itemIds as $iid) {
             $institutions = [];
@@ -525,7 +474,6 @@ trait NetworkChartsTrait
             $ids = array_keys($institutions);
             foreach ($ids as $instId) {
                 $nodeCounts[$instId] = ($nodeCounts[$instId] ?? 0) + 1;
-                $titles[$instId] = $items[$instId]['title'] ?? ('Institution ' . $instId);
             }
             $n = count($ids);
             for ($i = 0; $i < $n; $i++) {
@@ -545,12 +493,10 @@ trait NetworkChartsTrait
 
         $this->sortCounts($nodeCounts);
         $topInstitutions = array_flip(array_slice(array_keys($nodeCounts), 0, $maxNodes));
+        $names = $this->uniqueNames($this->titlesFor(array_keys($topInstitutions), $items, 'Institution'));
         $nodes = [];
-        $nodeNames = [];
         foreach (array_keys($topInstitutions) as $iid) {
-            $title = $titles[$iid] ?? ($items[$iid]['title'] ?? ('Institution ' . $iid));
-            $nodes[] = ['name' => $title, 'value' => $nodeCounts[$iid], 'itemId' => $iid];
-            $nodeNames[$title] = true;
+            $nodes[] = ['name' => $names[$iid], 'value' => $nodeCounts[$iid], 'itemId' => $iid];
         }
 
         $netLinks = [];
@@ -560,11 +506,7 @@ trait NetworkChartsTrait
             }
             [$a, $b] = array_map('intval', explode(',', $key));
             if (isset($topInstitutions[$a], $topInstitutions[$b])) {
-                $aTitle = $titles[$a] ?? ($items[$a]['title'] ?? '');
-                $bTitle = $titles[$b] ?? ($items[$b]['title'] ?? '');
-                if (isset($nodeNames[$aTitle], $nodeNames[$bTitle])) {
-                    $netLinks[] = ['source' => $aTitle, 'target' => $bTitle, 'value' => $count];
-                }
+                $netLinks[] = ['source' => $names[$a], 'target' => $names[$b], 'value' => $count];
             }
         }
 
@@ -602,32 +544,27 @@ trait NetworkChartsTrait
         $topInsts = array_flip(array_slice(array_keys($instCounts), 0, $maxNodes));
         $topInsts[$instId] = true;
 
-        $nodes = [['name' => $instTitle, 'value' => count($affiliatedPersons), 'itemId' => $instId, 'category' => 'institution', 'isSelf' => true]];
-        $nodeNames = [$instTitle => true];
+        $shownPersons = array_slice($affiliatedPersons, 0, $maxNodes);
+        $names = $this->uniqueNames([$instId => $instTitle]
+            + $this->titlesFor(array_keys($topInsts), $items, 'Institution')
+            + $this->titlesFor($shownPersons, $items, 'Person'));
+
+        $nodes = [['name' => $names[$instId], 'value' => count($affiliatedPersons), 'itemId' => $instId, 'category' => 'institution', 'isSelf' => true]];
         foreach (array_keys($topInsts) as $iid) {
             if ($iid === $instId) {
                 continue;
             }
-            $title = $items[$iid]['title'] ?? ('Institution ' . $iid);
-            $nodes[] = ['name' => $title, 'value' => $instCounts[$iid], 'itemId' => $iid, 'category' => 'institution'];
-            $nodeNames[$title] = true;
+            $nodes[] = ['name' => $names[$iid], 'value' => $instCounts[$iid], 'itemId' => $iid, 'category' => 'institution'];
         }
-        foreach (array_slice($affiliatedPersons, 0, $maxNodes) as $pid) {
-            $title = $items[$pid]['title'] ?? ('Person ' . $pid);
-            $nodes[] = ['name' => $title, 'value' => count($personAffl[$pid] ?? []), 'itemId' => $pid, 'category' => 'person'];
-            $nodeNames[$title] = true;
+        foreach ($shownPersons as $pid) {
+            $nodes[] = ['name' => $names[$pid], 'value' => count($personAffl[$pid] ?? []), 'itemId' => $pid, 'category' => 'person'];
         }
 
         $netLinks = [];
-        foreach (array_slice($affiliatedPersons, 0, $maxNodes) as $pid) {
-            $pTitle = $items[$pid]['title'] ?? '';
+        foreach ($shownPersons as $pid) {
             foreach ($personAffl[$pid] ?? [] as $iid) {
-                if (!isset($topInsts[$iid])) {
-                    continue;
-                }
-                $iTitle = $items[$iid]['title'] ?? '';
-                if (isset($nodeNames[$pTitle], $nodeNames[$iTitle])) {
-                    $netLinks[] = ['source' => $pTitle, 'target' => $iTitle, 'value' => 1];
+                if (isset($topInsts[$iid])) {
+                    $netLinks[] = ['source' => $names[$pid], 'target' => $names[$iid], 'value' => 1];
                 }
             }
         }
@@ -653,16 +590,15 @@ trait NetworkChartsTrait
         $topCollabs = array_slice($collabCounts, 0, $maxNodes, true);
         $topIds = array_keys($topCollabs);
 
-        $nodes = [['name' => $instTitle, 'value' => count($itemIds), 'itemId' => $instId, 'isSelf' => true]];
+        $names = $this->uniqueNames([$instId => $instTitle] + $this->titlesFor($topIds, $items, 'Institution'));
+        $nodes = [['name' => $names[$instId], 'value' => count($itemIds), 'itemId' => $instId, 'isSelf' => true]];
         foreach ($topCollabs as $cid => $count) {
-            $ctitle = $items[$cid]['title'] ?? ('Institution ' . $cid);
-            $nodes[] = ['name' => $ctitle, 'value' => $count, 'itemId' => $cid];
+            $nodes[] = ['name' => $names[$cid], 'value' => $count, 'itemId' => $cid];
         }
 
         $netLinks = [];
         foreach ($topCollabs as $cid => $count) {
-            $ctitle = $items[$cid]['title'] ?? ('Institution ' . $cid);
-            $netLinks[] = ['source' => $instTitle, 'target' => $ctitle, 'value' => $count];
+            $netLinks[] = ['source' => $names[$instId], 'target' => $names[$cid], 'value' => $count];
         }
 
         $collabItems = [];
@@ -676,11 +612,7 @@ trait NetworkChartsTrait
                 $b = $topIds[$j];
                 $shared = count(array_intersect_key($collabItems[$a], $collabItems[$b]));
                 if ($shared >= 2) {
-                    $aTitle = $items[$a]['title'] ?? '';
-                    $bTitle = $items[$b]['title'] ?? '';
-                    if ($aTitle !== '' && $bTitle !== '') {
-                        $netLinks[] = ['source' => $aTitle, 'target' => $bTitle, 'value' => $shared];
-                    }
+                    $netLinks[] = ['source' => $names[$a], 'target' => $names[$b], 'value' => $shared];
                 }
             }
         }

@@ -57,7 +57,7 @@
   "contributorNetwork": {
     "categories": ["person","project"],
     "links": [
-      {"source":"Nkosi, Sipho","target":"Digital Return of Sound Archives","value":4},
+      {"source":"Nkosi, Sipho","target":"Digital Return of Sound Archives","value":3},
       {"source":"Dlamini, Thandiwe","target":"Digital Return of Sound Archives","value":3},
       {"source":"Ferreira, Luíza","target":"Digital Return of Sound Archives","value":1},
       {"source":"Njoroge, Peter","target":"Digital Return of Sound Archives","value":2},
@@ -72,9 +72,9 @@
       {"source":"Ouédraogo, Issa","target":"Digital Return of Sound Archives","value":1}
     ],
     "nodes": [
-      {"category":"person","itemId":413,"name":"Nkosi, Sipho","value":4},
       {"category":"person","itemId":419,"name":"Hoffmann, Felix","value":4},
       {"category":"person","itemId":408,"name":"Dlamini, Thandiwe","value":3},
+      {"category":"person","itemId":413,"name":"Nkosi, Sipho","value":3},
       {"category":"person","itemId":423,"name":"Njoroge, Peter","value":2},
       {"category":"person","itemId":401,"name":"Bakari, Amina","value":1},
       {"category":"person","itemId":402,"name":"Ouédraogo, Issa","value":1},

@@ -20,7 +20,7 @@
   "contributorNetwork": {
     "categories": ["person","project"],
     "links": [
-      {"source":"Okonkwo, Chinedu","target":"Urban Ecologies of Lagos","value":6},
+      {"source":"Okonkwo, Chinedu","target":"Urban Ecologies of Lagos","value":5},
       {"source":"Mensah, Kwame","target":"Urban Ecologies of Lagos","value":1},
       {"source":"Okonkwo, Chinedu","target":"Faith and Public Morality","value":1},
       {"source":"Kiprop, David","target":"Urban Ecologies of Lagos","value":1},
@@ -28,7 +28,7 @@
       {"source":"Okonkwo, Chinedu","target":"Sonic Archives of the Sahel","value":1}
     ],
     "nodes": [
-      {"category":"person","itemId":405,"name":"Okonkwo, Chinedu","value":8},
+      {"category":"person","itemId":405,"name":"Okonkwo, Chinedu","value":7},
       {"category":"person","itemId":402,"name":"Ouédraogo, Issa","value":1},
       {"category":"person","itemId":411,"name":"Kiprop, David","value":1},
       {"category":"person","itemId":420,"name":"Mensah, Kwame","value":1},

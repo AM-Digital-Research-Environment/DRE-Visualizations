@@ -17,8 +17,8 @@
   "contributorNetwork": {
     "categories": ["person","project"],
     "links": [
-      {"source":"Nkosi, Sipho","target":"Digital Return of Sound Archives","value":4},
-      {"source":"Nkosi, Sipho","target":"Urban Ecologies of Lagos","value":3},
+      {"source":"Nkosi, Sipho","target":"Digital Return of Sound Archives","value":3},
+      {"source":"Nkosi, Sipho","target":"Urban Ecologies of Lagos","value":2},
       {"source":"Traoré, Aïssata","target":"Urban Ecologies of Lagos","value":1},
       {"source":"Traoré, Aïssata","target":"Digital Return of Sound Archives","value":1},
       {"source":"Ouédraogo, Issa","target":"Sonic Archives of the Sahel","value":1},
@@ -27,7 +27,7 @@
       {"source":"Bakari, Amina","target":"Sonic Archives of the Sahel","value":1}
     ],
     "nodes": [
-      {"category":"person","itemId":413,"name":"Nkosi, Sipho","value":9},
+      {"category":"person","itemId":413,"name":"Nkosi, Sipho","value":7},
       {"category":"person","itemId":412,"name":"Traoré, Aïssata","value":2},
       {"category":"person","itemId":401,"name":"Bakari, Amina","value":1},
       {"category":"person","itemId":402,"name":"Ouédraogo, Issa","value":1},

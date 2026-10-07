@@ -638,5 +638,29 @@ check(($egSById[200][6] ?? null) === $egSById[100][6],
     'buildEntityGraph: the affiliated org inherits its author\'s section');
 check(($egSById[101][6] ?? null) === -2, 'buildEntityGraph: John, split evenly across sections, is a bridge (-2)');
 
+// --- Homonyms: graph series join links to nodes by NAME, so two people who
+// share a title must not collapse into one node (person 900 and 901 below).
+$hItems = [
+    900 => ['title' => 'Smith, John', 'template_id' => 4],
+    901 => ['title' => 'Smith, John', 'template_id' => 4],
+    910 => ['title' => 'Project X', 'template_id' => 5],
+    920 => ['title' => 'Item 920'], 921 => ['title' => 'Item 921'],
+];
+$hLinks = [
+    // 920 lists person 900 twice (two roles): it must still count once.
+    920 => [['dcterms:creator', 'Creator', 900], ['marcrel:aut', 'Author', 900], ['dcterms:isPartOf', 'Is part of', 910]],
+    921 => [['dcterms:creator', 'Creator', 901], ['dcterms:isPartOf', 'Is part of', 910]],
+];
+$hNet = $aggregators->buildGlobalContributorNetwork([920, 921], $hItems, $hLinks);
+$hNames = array_column($hNet['nodes'] ?? [], 'name', 'itemId');
+check(count($hNet['nodes'] ?? []) === 3 && $hNames[900] !== $hNames[901],
+    'contributor network: homonymous people stay two nodes');
+check(($hNames[900] ?? '') === 'Smith, John (#900)', 'contributor network: a homonym is suffixed with its id');
+check(count(array_unique(array_merge(array_column($hNet['links'], 'source'), array_column($hNet['links'], 'target'))))
+    === 3, 'contributor network: every link endpoint names exactly one node');
+$hPerson = $aggregators->buildContributorNetwork(910, 'Project X', [920, 921], $hItems, $hLinks, []);
+$hValues = array_column($hPerson['nodes'] ?? [], 'value', 'itemId');
+check(($hValues[900] ?? null) === 1, 'contributor network: two roles on one item count once');
+
 echo $failures ? "\n$failures FAILURE(S)\n" : "\nALL PHP AGGREGATOR TESTS PASS\n";
 exit($failures ? 1 : 0);

@@ -89,7 +89,7 @@
       {"source":"Bakari, Amina","target":"Sonic Archives of the Sahel","value":7},
       {"source":"Mensah, Kwame","target":"Sonic Archives of the Sahel","value":2},
       {"source":"Okonkwo, Chinedu","target":"Sonic Archives of the Sahel","value":1},
-      {"source":"Traoré, Aïssata","target":"Sonic Archives of the Sahel","value":8},
+      {"source":"Traoré, Aïssata","target":"Sonic Archives of the Sahel","value":7},
       {"source":"Oliveira, Rafael","target":"Sonic Archives of the Sahel","value":1},
       {"source":"Santos, Ana Clara","target":"Sonic Archives of the Sahel","value":2},
       {"source":"Diallo, Fatoumata","target":"Sonic Archives of the Sahel","value":1},
@@ -103,8 +103,8 @@
     ],
     "nodes": [
       {"category":"person","itemId":402,"name":"Ouédraogo, Issa","value":10},
-      {"category":"person","itemId":412,"name":"Traoré, Aïssata","value":8},
       {"category":"person","itemId":401,"name":"Bakari, Amina","value":7},
+      {"category":"person","itemId":412,"name":"Traoré, Aïssata","value":7},
       {"category":"person","itemId":406,"name":"Mwangi, Wanjiru","value":3},
       {"category":"person","itemId":403,"name":"Santos, Ana Clara","value":2},
       {"category":"person","itemId":413,"name":"Nkosi, Sipho","value":2},
