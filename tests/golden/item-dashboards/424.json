@@ -1,0 +1,152 @@
+{
+  "affiliationMap": [
+    {"itemId":500,"lat":49.9456,"lon":11.5713,"name":"University of Bayreuth"}
+  ],
+  "coAuthors": [
+    {"itemId":417,"name":"Kaboré, Paul","value":3},
+    {"itemId":416,"name":"Achieng, Grace","value":2},
+    {"itemId":400,"name":"Adeyemi, Folake","value":2},
+    {"itemId":418,"name":"Ferreira, Luíza","value":2},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":1},
+    {"itemId":410,"name":"Oliveira, Rafael","value":1},
+    {"itemId":412,"name":"Traoré, Aïssata","value":1}
+  ],
+  "contributorNetwork": {
+    "categories": ["person","project"],
+    "links": [
+      {"source":"Kaboré, Paul","target":"Kinship Across Borders","value":2},
+      {"source":"Item 424","target":"Kinship Across Borders","value":2},
+      {"source":"Ferreira, Luíza","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Item 424","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Kaboré, Paul","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Achieng, Grace","target":"Kinship Across Borders","value":1}
+    ],
+    "nodes": [
+      {"category":"person","itemId":417,"name":"Kaboré, Paul","value":3},
+      {"category":"person","itemId":424,"name":"Item 424","value":3},
+      {"category":"person","itemId":416,"name":"Achieng, Grace","value":1},
+      {"category":"person","itemId":418,"name":"Ferreira, Luíza","value":1},
+      {"category":"project","itemId":303,"name":"Kinship Across Borders","value":2},
+      {"category":"project","itemId":304,"name":"Afro-Brazilian Memory Work","value":1}
+    ]
+  },
+  "currentLocations": [
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1113,"title":"Voices church family song (114)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1030,"title":"Archive language (31)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 1
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1085,"title":"Archive city (86)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    },
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1083,"title":"School migration church archive (84)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":811,"name":"French","value":2},
+    {"itemId":814,"name":"Swahili","value":2},
+    {"itemId":810,"name":"English","value":1},
+    {"itemId":816,"name":"Mooré","value":1},
+    {"itemId":813,"name":"Yoruba","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 616,
+      "items": [
+        {"id":1113,"title":"Voices church family song (114)"}
+      ],
+      "lat": 0.3476,
+      "lon": 32.5825,
+      "name": "Kampala",
+      "value": 1
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1083,"title":"School migration church archive (84)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    }
+  ],
+  "radar": {
+    "indicator": [
+      {"max":39,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":23,"name":"Subjects"},
+      {"max":19,"name":"People"},
+      {"max":8,"name":"Types"},
+      {"max":13,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [7,5,12,8,3,6]
+      }
+    ]
+  },
+  "resourceType": "person",
+  "roles": [
+    {"name":"Interviewee","value":2},
+    {"name":"Speaker","value":2},
+    {"name":"Contributor","value":1},
+    {"name":"Photographer","value":1}
+  ],
+  "subjects": [
+    {"itemId":719,"name":"sound recording","value":2},
+    {"itemId":712,"name":"Archives","value":1},
+    {"itemId":715,"name":"capoeira","value":1},
+    {"itemId":709,"name":"Education","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":713,"name":"Kinship","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":720,"name":"pilgrimage","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "templates": [
+    {"name":"Research Item","value":4},
+    {"name":"YouTube Video","value":2},
+    {"name":"Journal Article","value":1}
+  ],
+  "timeline": {"2019":1,"2020":2,"2021":1,"2022":1,"2025":2},
+  "totalItems": 7,
+  "types": [
+    {"itemId":804,"name":"Video","value":2},
+    {"itemId":802,"name":"Field notes","value":1},
+    {"itemId":805,"name":"Journal article","value":1}
+  ]
+}

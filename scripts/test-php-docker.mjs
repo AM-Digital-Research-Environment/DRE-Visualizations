@@ -6,8 +6,8 @@
  *   npm run test:php                          # PHP 8.5: lint + pure harnesses
  *   npm run test:php -- --php 8.4             # another supported version
  *   OMEKA_CORE=/path/to/omeka-s npm run test:php
- *                                             # + module contract, PHPStan-free
- *                                             #   integration suites against core
+ *                                             # + module contract, integration and
+ *                                             #   golden-output suites against core
  *
  * Node passes the volume paths to Docker untouched, which avoids the path
  * mangling Git Bash applies to `-v C:\…:/app`.
@@ -40,6 +40,7 @@ if (core) {
     'php tests/integration/CoreContractsTest.php /omeka-s',
     'php tests/integration/DatabaseTest.php /omeka-s',
     'php tests/integration/LifecycleTest.php /omeka-s',
+    'php tests/integration/GoldenTest.php /omeka-s',
   );
 }
 

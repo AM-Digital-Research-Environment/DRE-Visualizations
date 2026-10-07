@@ -1,0 +1,216 @@
+{
+  "affiliationMap": [
+    {"itemId":504,"lat":-33.3106,"lon":26.5256,"name":"Rhodes University"}
+  ],
+  "coAuthors": [
+    {"itemId":423,"name":"Njoroge, Peter","value":4},
+    {"itemId":403,"name":"Santos, Ana Clara","value":3},
+    {"itemId":418,"name":"Ferreira, Luíza","value":2},
+    {"itemId":400,"name":"Adeyemi, Folake","value":1},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":1},
+    {"itemId":419,"name":"Hoffmann, Felix","value":1},
+    {"itemId":411,"name":"Kiprop, David","value":1},
+    {"itemId":420,"name":"Mensah, Kwame","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1}
+  ],
+  "contributorNetwork": {
+    "categories": ["person","project"],
+    "links": [
+      {"source":"Dlamini, Thandiwe","target":"Digital Return of Sound Archives","value":3},
+      {"source":"Ferreira, Luíza","target":"Digital Return of Sound Archives","value":1},
+      {"source":"Njoroge, Peter","target":"Digital Return of Sound Archives","value":1},
+      {"source":"Santos, Ana Clara","target":"Digital Return of Sound Archives","value":1},
+      {"source":"Sawadogo, Mariam","target":"Kinship Across Borders","value":1},
+      {"source":"Dlamini, Thandiwe","target":"Kinship Across Borders","value":2},
+      {"source":"Mensah, Kwame","target":"Kinship Across Borders","value":1},
+      {"source":"Ouédraogo, Issa","target":"Kinship Across Borders","value":1},
+      {"source":"Ferreira, Luíza","target":"Kinship Across Borders","value":1},
+      {"source":"Santos, Ana Clara","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Dlamini, Thandiwe","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Adeyemi, Folake","target":"Urban Ecologies of Lagos","value":1},
+      {"source":"Kiprop, David","target":"Urban Ecologies of Lagos","value":1},
+      {"source":"Dlamini, Thandiwe","target":"Urban Ecologies of Lagos","value":1}
+    ],
+    "nodes": [
+      {"category":"person","itemId":408,"name":"Dlamini, Thandiwe","value":7},
+      {"category":"person","itemId":403,"name":"Santos, Ana Clara","value":2},
+      {"category":"person","itemId":418,"name":"Ferreira, Luíza","value":2},
+      {"category":"person","itemId":400,"name":"Adeyemi, Folake","value":1},
+      {"category":"person","itemId":402,"name":"Ouédraogo, Issa","value":1},
+      {"category":"person","itemId":407,"name":"Sawadogo, Mariam","value":1},
+      {"category":"person","itemId":411,"name":"Kiprop, David","value":1},
+      {"category":"person","itemId":420,"name":"Mensah, Kwame","value":1},
+      {"category":"person","itemId":423,"name":"Njoroge, Peter","value":1},
+      {"category":"project","itemId":306,"name":"Digital Return of Sound Archives","value":3},
+      {"category":"project","itemId":303,"name":"Kinship Across Borders","value":2},
+      {"category":"project","itemId":304,"name":"Afro-Brazilian Memory Work","value":1},
+      {"category":"project","itemId":305,"name":"Urban Ecologies of Lagos","value":1}
+    ]
+  },
+  "currentLocations": [
+    {
+      "itemId": 604,
+      "items": [
+        {"id":2503,"title":"ILAM article 4"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    },
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1075,"title":"Road festival voices (76)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 1
+    },
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1016,"title":"Voices city (17)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 1
+    },
+    {
+      "itemId": 500,
+      "items": [
+        {"id":1008,"title":"Market river river (9)"}
+      ],
+      "lat": 49.9456,
+      "lon": 11.5713,
+      "name": "University of Bayreuth",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":812,"name":"Portuguese","value":3},
+    {"itemId":813,"name":"Yoruba","value":3},
+    {"itemId":814,"name":"Swahili","value":2},
+    {"itemId":810,"name":"English","value":1},
+    {"itemId":811,"name":"French","value":1},
+    {"itemId":815,"name":"Hausa","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 615,
+      "items": [
+        {"id":1016,"title":"Voices city (17)"},
+        {"id":1039,"title":"Ritual archive ritual (40)"},
+        {"id":1006,"title":"Mosque memory archive (7)"}
+      ],
+      "lat": -6.7924,
+      "lon": 39.2083,
+      "name": "Dar es Salaam",
+      "value": 3
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1016,"title":"Voices city (17)"},
+        {"id":1015,"title":"City family (16)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 2
+    },
+    {
+      "itemId": 613,
+      "items": [
+        {"id":1108,"title":"Festival language river harvest (109)"}
+      ],
+      "lat": 7.18,
+      "lon": 1.99,
+      "name": "Abomey",
+      "value": 1
+    },
+    {
+      "itemId": 616,
+      "items": [
+        {"id":1006,"title":"Mosque memory archive (7)"}
+      ],
+      "lat": 0.3476,
+      "lon": 32.5825,
+      "name": "Kampala",
+      "value": 1
+    },
+    {
+      "itemId": 608,
+      "items": [
+        {"id":1039,"title":"Ritual archive ritual (40)"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 1
+    }
+  ],
+  "radar": {
+    "indicator": [
+      {"max":39,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":23,"name":"Subjects"},
+      {"max":19,"name":"People"},
+      {"max":8,"name":"Types"},
+      {"max":13,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [12,6,17,11,7,12]
+      }
+    ]
+  },
+  "resourceType": "person",
+  "roles": [
+    {"name":"Creator","value":4},
+    {"name":"Contributor","value":2},
+    {"name":"Author","value":1},
+    {"name":"Interviewee","value":1},
+    {"name":"Photographer","value":1}
+  ],
+  "subjects": [
+    {"itemId":700,"name":"Music","value":3},
+    {"itemId":706,"name":"Oral tradition","value":3},
+    {"itemId":722,"name":"urban farming","value":3},
+    {"itemId":711,"name":"Collective memory","value":2},
+    {"itemId":707,"name":"Popular music","value":2},
+    {"itemId":701,"name":"Religion","value":2},
+    {"itemId":705,"name":"Urbanization","value":2},
+    {"itemId":717,"name":"Afrobeat","value":1},
+    {"itemId":727,"name":"Candomblé","value":1},
+    {"itemId":710,"name":"Colonialism","value":1},
+    {"itemId":723,"name":"diaspora","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":721,"name":"healing","value":1},
+    {"itemId":716,"name":"highlife","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":726,"name":"photography","value":1},
+    {"itemId":719,"name":"sound recording","value":1}
+  ],
+  "templates": [
+    {"name":"Research Item","value":7},
+    {"name":"Journal Article","value":3},
+    {"name":"Book Chapter","value":1},
+    {"name":"Project","value":1}
+  ],
+  "timeline": {"2013":1,"2019":1,"2020":2,"2021":1,"2022":2,"2023":1,"2024":1,"2025":1},
+  "totalItems": 12,
+  "types": [
+    {"itemId":802,"name":"Field notes","value":2},
+    {"itemId":800,"name":"Interview","value":2},
+    {"itemId":805,"name":"Journal article","value":2},
+    {"itemId":801,"name":"Photograph","value":2},
+    {"itemId":804,"name":"Video","value":2},
+    {"itemId":807,"name":"Monograph","value":1},
+    {"itemId":803,"name":"Sound recording","value":1}
+  ]
+}

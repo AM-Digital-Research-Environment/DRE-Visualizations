@@ -1,0 +1,19 @@
+{
+  "categories": [
+    {"name":"Research Group"},
+    {"name":"Project"},
+    {"name":"Research Item"}
+  ],
+  "edges": [
+    {"name":"Is Part Of","source":"item_303","target":"item_200"},
+    {"name":"Is Part Of","source":"item_304","target":"item_200"},
+    {"name":"Is Part Of","source":"item_305","target":"item_200"}
+  ],
+  "nodes": [
+    {"category":0,"community":-1,"id":"item_200","isCenter":true,"itemId":200,"name":"Affiliations","symbolSize":45},
+    {"category":1,"community":-1,"id":"item_303","itemId":303,"name":"Kinship Across Borders","symbolSize":22},
+    {"category":1,"community":-1,"id":"item_304","itemId":304,"name":"Afro-Brazilian Memory Work","symbolSize":22},
+    {"category":1,"community":-1,"id":"item_305","itemId":305,"name":"Urban Ecologies of Lagos","symbolSize":22}
+  ],
+  "stats": {"candidateSearchTruncated":false,"candidatesExamined":0,"communityCount":0,"maxFreqPct":0,"maxPostingSample":256,"maxStrength":0}
+}

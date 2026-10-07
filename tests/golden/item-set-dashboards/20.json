@@ -1,0 +1,21 @@
+{
+  "contributors": [
+    {"itemId":400,"name":"Adeyemi, Folake","value":1},
+    {"itemId":415,"name":"Balogun, Tunde","value":1},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":1},
+    {"itemId":411,"name":"Kiprop, David","value":1},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1},
+    {"itemId":409,"name":"Schmidt, Jonas","value":1}
+  ],
+  "currentLocations": [],
+  "languages": [],
+  "locations": [],
+  "resourceType": "researchItem",
+  "subjects": [],
+  "timeline": {},
+  "totalItems": 9,
+  "types": []
+}

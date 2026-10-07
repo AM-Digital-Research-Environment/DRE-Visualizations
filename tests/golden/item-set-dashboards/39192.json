@@ -1,0 +1,37 @@
+{
+  "contributors": [
+    {"itemId":416,"name":"Achieng, Grace","value":3},
+    {"itemId":412,"name":"Traoré, Aïssata","value":3},
+    {"itemId":415,"name":"Balogun, Tunde","value":2},
+    {"itemId":418,"name":"Ferreira, Luíza","value":2},
+    {"itemId":424,"name":"Item 424","value":2},
+    {"itemId":410,"name":"Oliveira, Rafael","value":2},
+    {"itemId":409,"name":"Schmidt, Jonas","value":2},
+    {"itemId":400,"name":"Adeyemi, Folake","value":1},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":1},
+    {"itemId":419,"name":"Hoffmann, Felix","value":1},
+    {"itemId":413,"name":"Nkosi, Sipho","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1}
+  ],
+  "currentLocations": [],
+  "languages": [
+    {"itemId":810,"name":"English","value":4},
+    {"itemId":811,"name":"French","value":3},
+    {"itemId":814,"name":"Swahili","value":3},
+    {"itemId":812,"name":"Portuguese","value":2}
+  ],
+  "locations": [],
+  "resourceType": "researchItem",
+  "subjects": [
+    {"itemId":703,"name":"Christianity","value":2},
+    {"itemId":709,"name":"Education","value":2},
+    {"itemId":711,"name":"Collective memory","value":1},
+    {"itemId":713,"name":"Kinship","value":1}
+  ],
+  "timeline": {"2020":2,"2021":2,"2022":2,"2023":2,"2024":2,"2025":2},
+  "totalItems": 12,
+  "types": []
+}

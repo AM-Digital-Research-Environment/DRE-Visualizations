@@ -1,0 +1,20 @@
+{
+  "contributors": [
+    {"itemId":607,"name":"Salvador","value":1}
+  ],
+  "currentLocations": [],
+  "languages": [
+    {"itemId":810,"name":"English","value":1},
+    {"itemId":811,"name":"French","value":1},
+    {"itemId":812,"name":"Portuguese","value":1}
+  ],
+  "locations": [],
+  "resourceType": "authority",
+  "subjects": [
+    {"itemId":713,"name":"Kinship","value":1},
+    {"itemId":707,"name":"Popular music","value":1},
+    {"itemId":722,"name":"urban farming","value":1}
+  ],
+  "timeline": {"2021":1,"2023":1,"2025":1},
+  "totalItems": 3
+}

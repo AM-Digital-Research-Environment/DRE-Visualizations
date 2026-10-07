@@ -1,0 +1,94 @@
+{
+  "coSubjects": [
+    {"itemId":726,"name":"photography","value":2},
+    {"itemId":712,"name":"Archives","value":1},
+    {"itemId":710,"name":"Colonialism","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":723,"name":"diaspora","value":1},
+    {"itemId":721,"name":"healing","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":722,"name":"urban farming","value":1}
+  ],
+  "contributors": [
+    {"itemId":421,"name":"Diallo, Fatoumata","value":2},
+    {"itemId":422,"name":"Abubakar, Hauwa","value":1},
+    {"itemId":400,"name":"Adeyemi, Folake","value":1},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":419,"name":"Hoffmann, Felix","value":1},
+    {"itemId":424,"name":"Item 424","value":1},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1065,"title":"Mosque language (66)"},
+        {"id":1083,"title":"School migration church archive (84)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 2
+    },
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1055,"title":"Drum voices (56)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 1
+    },
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1038,"title":"Migration radio harvest (39)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":812,"name":"Portuguese","value":2},
+    {"itemId":810,"name":"English","value":1},
+    {"itemId":815,"name":"Hausa","value":1},
+    {"itemId":816,"name":"Mooré","value":1},
+    {"itemId":813,"name":"Yoruba","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 615,
+      "items": [
+        {"id":1055,"title":"Drum voices (56)"}
+      ],
+      "lat": -6.7924,
+      "lon": 39.2083,
+      "name": "Dar es Salaam",
+      "value": 1
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1083,"title":"School migration church archive (84)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    }
+  ],
+  "resourceType": "authority",
+  "timeline": {"2021":1,"2022":1,"2023":1,"2024":2,"2025":1},
+  "totalItems": 6,
+  "types": [
+    {"itemId":804,"name":"Video","value":2},
+    {"itemId":802,"name":"Field notes","value":1},
+    {"itemId":805,"name":"Journal article","value":1},
+    {"itemId":801,"name":"Photograph","value":1},
+    {"itemId":803,"name":"Sound recording","value":1}
+  ]
+}

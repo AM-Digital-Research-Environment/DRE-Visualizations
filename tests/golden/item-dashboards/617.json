@@ -1,0 +1,90 @@
+{
+  "contributors": [
+    {"itemId":402,"name":"Ouédraogo, Issa","value":2},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":411,"name":"Kiprop, David","value":1},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1040,"title":"Migration harvest drum healing (41)"},
+        {"id":1099,"title":"Festival road mosque voices (100)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 2
+    },
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1023,"title":"Ritual festival school migration (24)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 1
+    }
+  ],
+  "geoFlows": {
+    "links": [
+      {"from":"Makhanda","fromLat":-33.3106,"fromLon":26.5256,"to":"Moi University","toLat":0.5143,"toLon":35.2698,"value":1},
+      {"from":"Gorée","fromLat":14.667,"fromLon":-17.398,"to":"Universidade Federal da Bahia","toLat":-12.9777,"toLon":-38.5016,"value":1}
+    ],
+    "nodes": [
+      {"itemId":604,"lat":-33.3106,"lon":26.5256,"name":"Makhanda"},
+      {"itemId":505,"lat":0.5143,"lon":35.2698,"name":"Moi University"},
+      {"itemId":618,"lat":14.667,"lon":-17.398,"name":"Gorée"},
+      {"itemId":503,"lat":-12.9777,"lon":-38.5016,"name":"Universidade Federal da Bahia"}
+    ]
+  },
+  "languages": [
+    {"itemId":816,"name":"Mooré","value":2},
+    {"itemId":810,"name":"English","value":1},
+    {"itemId":815,"name":"Hausa","value":1},
+    {"itemId":812,"name":"Portuguese","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1040,"title":"Migration harvest drum healing (41)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1023,"title":"Ritual festival school migration (24)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    }
+  ],
+  "resourceType": "location",
+  "subjects": [
+    {"itemId":715,"name":"capoeira","value":2},
+    {"itemId":709,"name":"Education","value":2},
+    {"itemId":706,"name":"Oral tradition","value":2},
+    {"itemId":710,"name":"Colonialism","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":701,"name":"Religion","value":1}
+  ],
+  "timeline": {"2019":1,"2020":1,"2023":1,"2025":1},
+  "totalItems": 4,
+  "types": [
+    {"itemId":802,"name":"Field notes","value":1},
+    {"itemId":800,"name":"Interview","value":1},
+    {"itemId":801,"name":"Photograph","value":1}
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "affiliationNetwork": {
+    "categories": ["person","institution"],
+    "links": [
+      {"source":"Balogun, Tunde","target":"CEAO Centro de Estudos Afro-Orientais","value":1},
+      {"source":"Achieng, Grace","target":"CEAO Centro de Estudos Afro-Orientais","value":1},
+      {"source":"Achieng, Grace","target":"University of Lagos African Cluster Centre (LACC)","value":1},
+      {"source":"Ferreira, Luíza","target":"CEAO Centro de Estudos Afro-Orientais","value":1}
+    ],
+    "nodes": [
+      {"category":"institution","isSelf":true,"itemId":508,"name":"CEAO Centro de Estudos Afro-Orientais","value":3},
+      {"category":"institution","itemId":501,"name":"University of Lagos African Cluster Centre (LACC)","value":1},
+      {"category":"person","itemId":415,"name":"Balogun, Tunde","value":1},
+      {"category":"person","itemId":416,"name":"Achieng, Grace","value":2},
+      {"category":"person","itemId":418,"name":"Ferreira, Luíza","value":1}
+    ]
+  },
+  "contributors": [
+    {"itemId":403,"name":"Santos, Ana Clara","value":1}
+  ],
+  "currentLocations": [],
+  "languages": [],
+  "locations": [],
+  "radar": {
+    "indicator": [
+      {"max":28,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":20,"name":"Subjects"},
+      {"max":15,"name":"People"},
+      {"max":8,"name":"Types"},
+      {"max":55,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [1,0,0,1,0,0]
+      }
+    ]
+  },
+  "resourceType": "organisation",
+  "selfLocation": {"itemId":508,"lat":-12.9714,"lon":-38.5124,"name":"CEAO Centro de Estudos Afro-Orientais"},
+  "subjects": [],
+  "timeline": {},
+  "totalItems": 1,
+  "types": []
+}

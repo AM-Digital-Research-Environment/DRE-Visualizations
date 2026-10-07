@@ -1,0 +1,154 @@
+{
+  "affiliationNetwork": {
+    "categories": ["person","institution"],
+    "links": [
+      {"source":"Bakari, Amina","target":"University of Lagos African Cluster Centre (LACC)","value":1},
+      {"source":"Achieng, Grace","target":"CEAO Centro de Estudos Afro-Orientais","value":1},
+      {"source":"Achieng, Grace","target":"University of Lagos African Cluster Centre (LACC)","value":1},
+      {"source":"Abubakar, Hauwa","target":"University of Lagos African Cluster Centre (LACC)","value":1}
+    ],
+    "nodes": [
+      {"category":"institution","isSelf":true,"itemId":501,"name":"University of Lagos African Cluster Centre (LACC)","value":3},
+      {"category":"institution","itemId":508,"name":"CEAO Centro de Estudos Afro-Orientais","value":1},
+      {"category":"person","itemId":401,"name":"Bakari, Amina","value":1},
+      {"category":"person","itemId":416,"name":"Achieng, Grace","value":2},
+      {"category":"person","itemId":422,"name":"Abubakar, Hauwa","value":1}
+    ]
+  },
+  "collabNetwork": {
+    "links": [
+      {"source":"University of Lagos African Cluster Centre (LACC)","target":"Universidade Federal da Bahia","value":2},
+      {"source":"University of Lagos African Cluster Centre (LACC)","target":"Deutsche Forschungsgemeinschaft","value":1}
+    ],
+    "nodes": [
+      {"isSelf":true,"itemId":501,"name":"University of Lagos African Cluster Centre (LACC)","value":7},
+      {"itemId":503,"name":"Universidade Federal da Bahia","value":2},
+      {"itemId":507,"name":"Deutsche Forschungsgemeinschaft","value":1}
+    ]
+  },
+  "contributors": [
+    {"itemId":415,"name":"Balogun, Tunde","value":2},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":2},
+    {"itemId":404,"name":"Müller, Katharina","value":2},
+    {"itemId":416,"name":"Achieng, Grace","value":1},
+    {"itemId":400,"name":"Adeyemi, Folake","value":1},
+    {"itemId":424,"name":"Item 424","value":1},
+    {"itemId":411,"name":"Kiprop, David","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1},
+    {"itemId":412,"name":"Traoré, Aïssata","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1025,"title":"Healing river ritual (26)"},
+        {"id":1083,"title":"School migration church archive (84)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 2
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1012,"title":"Healing church (13)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1101,"title":"Family mosque (102)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":814,"name":"Swahili","value":2},
+    {"itemId":811,"name":"French","value":1},
+    {"itemId":816,"name":"Mooré","value":1},
+    {"itemId":812,"name":"Portuguese","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1025,"title":"Healing river ritual (26)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 1
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1083,"title":"School migration church archive (84)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1101,"title":"Family mosque (102)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    }
+  ],
+  "radar": {
+    "indicator": [
+      {"max":28,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":20,"name":"Subjects"},
+      {"max":15,"name":"People"},
+      {"max":8,"name":"Types"},
+      {"max":55,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [7,4,11,11,3,4]
+      }
+    ]
+  },
+  "resourceType": "organisation",
+  "selfLocation": {"itemId":501,"lat":6.5244,"lon":3.3792,"name":"University of Lagos African Cluster Centre (LACC)"},
+  "subjects": [
+    {"itemId":704,"name":"Migration","value":2},
+    {"itemId":710,"name":"Colonialism","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":726,"name":"photography","value":1},
+    {"itemId":720,"name":"pilgrimage","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":724,"name":"restitution","value":1},
+    {"itemId":719,"name":"sound recording","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "templates": [
+    {"name":"Research Item","value":5},
+    {"name":"Project","value":2}
+  ],
+  "timeline": {"2019":1,"2021":3,"2023":1},
+  "totalItems": 7,
+  "types": [
+    {"itemId":802,"name":"Field notes","value":2},
+    {"itemId":803,"name":"Sound recording","value":2},
+    {"itemId":800,"name":"Interview","value":1}
+  ]
+}

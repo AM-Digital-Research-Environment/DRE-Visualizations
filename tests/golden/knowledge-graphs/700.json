@@ -1,0 +1,42 @@
+{
+  "categories": [
+    {"name":"Item"},
+    {"name":"Research Item"}
+  ],
+  "edges": [
+    {"name":"references","source":"item_1000","target":"item_700"},
+    {"name":"references","source":"item_1002","target":"item_700"},
+    {"name":"references","source":"item_1005","target":"item_700"},
+    {"name":"references","source":"item_1012","target":"item_700"},
+    {"name":"references","source":"item_1013","target":"item_700"},
+    {"name":"references","source":"item_1016","target":"item_700"},
+    {"name":"references","source":"item_1037","target":"item_700"},
+    {"name":"references","source":"item_1039","target":"item_700"},
+    {"name":"references","source":"item_1041","target":"item_700"},
+    {"name":"references","source":"item_1067","target":"item_700"},
+    {"name":"references","source":"item_1072","target":"item_700"},
+    {"name":"references","source":"item_1117","target":"item_700"},
+    {"name":"references","source":"item_2108","target":"item_700"},
+    {"name":"references","source":"item_2205","target":"item_700"},
+    {"name":"references","source":"item_2503","target":"item_700"}
+  ],
+  "nodes": [
+    {"category":0,"community":-1,"id":"item_700","isCenter":true,"itemId":700,"name":"Music","symbolSize":45},
+    {"category":1,"community":-1,"id":"item_1000","itemId":1000,"name":"River city (1)","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_1002","itemId":1002,"name":"Festival harvest mosque school (3)","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_1005","itemId":1005,"name":"Memory market drum (6)","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_1012","itemId":1012,"name":"Healing church (13)","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_1013","itemId":1013,"name":"Road harvest (14)","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_1016","itemId":1016,"name":"Voices city (17)","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_1037","itemId":1037,"name":"Harvest memory (38)","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_1039","itemId":1039,"name":"Ritual archive ritual (40)","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_1041","itemId":1041,"name":"Road song festival (42)","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_1067","itemId":1067,"name":"Drum voices ritual (68)","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_1072","itemId":1072,"name":"Language language (73)","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_1117","itemId":1117,"name":"Song mosque language archive (118)","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2108","itemId":2108,"name":"Heritage and education: Religion language memory knowledge kinship","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2205","itemId":2205,"name":"Episode 6: Languages healing","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2503","itemId":2503,"name":"ILAM article 4","symbolSize":16}
+  ],
+  "stats": {"candidateSearchTruncated":false,"candidatesExamined":0,"communityCount":0,"maxFreqPct":0,"maxPostingSample":256,"maxStrength":0}
+}

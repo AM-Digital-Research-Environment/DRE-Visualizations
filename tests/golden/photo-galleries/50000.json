@@ -1,0 +1,24 @@
+{
+  "photos": [
+    {"date":"2019-01-01","ext":"jpg","id":2400,"lat":7.18,"lon":1.99,"place":"Abomey","storage":"photo-0000","title":"Field photograph 1","year":2019},
+    {"date":"2020-02-02","ext":"jpg","id":2401,"lat":11.1771,"lon":-4.2979,"place":"Bobo-Dioulasso","storage":"photo-0001-b","title":"Field photograph 2","year":2020},
+    {"date":"2022-04-04","ext":"","id":2403,"lat":14.15,"lon":-16.07,"place":"Kaolack","storage":"photo-0003","title":"Field photograph 4","year":2022},
+    {"date":null,"ext":"jpg","id":2404,"lat":12.3714,"lon":-1.5197,"place":"Ouagadougou","storage":"photo-0004","title":"Field photograph 5","year":null},
+    {"date":"2024-06-06","ext":"jpg","id":2405,"lat":null,"lon":null,"place":"Village near Bobo-Dioulasso","storage":"photo-0005","title":"Field photograph 6","year":2024},
+    {"date":"2019-07-07","ext":"jpg","id":2406,"lat":6.6885,"lon":-1.6244,"place":"Kumasi","storage":"photo-0006","title":"Field photograph 7","year":2019},
+    {"date":"2020-08-08","ext":"jpg","id":2407,"lat":null,"lon":null,"place":"Timbuktu","storage":"photo-0007","title":"Field photograph 8","year":2020},
+    {"date":"2021-09-09","ext":"jpg","id":2408,"lat":12.3714,"lon":-1.5197,"place":"Ouagadougou","storage":"photo-0008","title":"Field photograph 9","year":2021},
+    {"date":null,"ext":"jpg","id":2409,"lat":12.6392,"lon":-8.0029,"place":"Bamako","storage":"photo-0009","title":"Field photograph 10","year":null},
+    {"date":"2023-11-11","ext":"jpg","id":2410,"lat":7.18,"lon":1.99,"place":"Abomey","storage":"photo-0010","title":"Field photograph 11","year":2023},
+    {"date":"2024-12-12","ext":"jpg","id":2411,"lat":null,"lon":null,"place":"Village near Bobo-Dioulasso","storage":"photo-0011","title":"Field photograph 12","year":2024},
+    {"date":"2019-01-13","ext":"jpg","id":2412,"lat":7.3775,"lon":3.947,"place":"Ibadan","storage":"photo-0012","title":"Field photograph 13","year":2019},
+    {"date":"2020-02-14","ext":"jpg","id":2413,"lat":14.15,"lon":-16.07,"place":"Kaolack","storage":"photo-0013","title":"Field photograph 14","year":2020},
+    {"date":null,"ext":"jpg","id":2414,"lat":11.1771,"lon":-4.2979,"place":"Bobo-Dioulasso","storage":"photo-0014","title":"Field photograph 15","year":null},
+    {"date":"2022-04-16","ext":"jpg","id":2415,"lat":6.6885,"lon":-1.6244,"place":"Kumasi","storage":"photo-0015","title":"Field photograph 16","year":2022},
+    {"date":"2023-05-17","ext":"jpg","id":2416,"lat":6.5244,"lon":3.3792,"place":"Lagos","storage":"photo-0016","title":"Field photograph 17","year":2023},
+    {"date":"2024-06-18","ext":"jpg","id":2417,"lat":null,"lon":null,"place":"Village near Bobo-Dioulasso","storage":"photo-0017","title":"Field photograph 18","year":2024},
+    {"date":"2019-07-19","ext":"jpg","id":2418,"lat":7.3775,"lon":3.947,"place":"Ibadan","storage":"photo-0018","title":"Field photograph 19","year":2019},
+    {"date":null,"ext":"jpg","id":2419,"lat":14.15,"lon":-16.07,"place":"Kaolack","storage":"photo-0019","title":"Field photograph 20","year":null}
+  ],
+  "total": 19
+}

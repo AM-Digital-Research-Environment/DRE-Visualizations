@@ -1,0 +1,220 @@
+{
+  "contributors": [
+    {"itemId":419,"name":"Hoffmann, Felix","value":3},
+    {"itemId":423,"name":"Njoroge, Peter","value":3},
+    {"itemId":413,"name":"Nkosi, Sipho","value":3},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":3},
+    {"itemId":403,"name":"Santos, Ana Clara","value":3},
+    {"itemId":409,"name":"Schmidt, Jonas","value":3},
+    {"itemId":412,"name":"Traoré, Aïssata","value":3},
+    {"itemId":401,"name":"Bakari, Amina","value":2},
+    {"itemId":410,"name":"Oliveira, Rafael","value":2},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":1},
+    {"itemId":511,"name":"Digital Research Environment Team","value":1},
+    {"itemId":418,"name":"Ferreira, Luíza","value":1},
+    {"itemId":411,"name":"Kiprop, David","value":1},
+    {"itemId":420,"name":"Mensah, Kwame","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1067,"title":"Drum voices ritual (68)"},
+        {"id":1071,"title":"Language voices (72)"},
+        {"id":1101,"title":"Family mosque (102)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 3
+    },
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1022,"title":"Ritual radio (23)"},
+        {"id":1046,"title":"School river (47)"},
+        {"id":1109,"title":"Voices family city (110)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 3
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1013,"title":"Road harvest (14)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    },
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 1
+    }
+  ],
+  "geoFlows": {
+    "links": [
+      {"from":"Ouagadougou","fromLat":12.3714,"fromLon":-1.5197,"to":"Rhodes University","toLat":-33.3106,"toLon":26.5256,"value":3},
+      {"from":"Ibadan","fromLat":7.3775,"fromLon":3.947,"to":"Ouagadougou","toLat":12.3714,"toLon":-1.5197,"value":1},
+      {"from":"Ouagadougou","fromLat":12.3714,"fromLon":-1.5197,"to":"Universidade Federal da Bahia","toLat":-12.9777,"toLon":-38.5016,"value":1},
+      {"from":"Ouagadougou","fromLat":12.3714,"fromLon":-1.5197,"to":"Nairobi","toLat":-1.2921,"toLon":36.8219,"value":1},
+      {"from":"Salvador","fromLat":-12.9777,"fromLon":-38.5016,"to":"Ouagadougou","toLat":12.3714,"toLon":-1.5197,"value":1},
+      {"from":"Kinshasa","fromLat":-4.4419,"fromLon":15.2663,"to":"Universidade Federal da Bahia","toLat":-12.9777,"toLon":-38.5016,"value":1},
+      {"from":"Zanzibar","fromLat":-6.1659,"fromLon":39.2026,"to":"Rhodes University","toLat":-33.3106,"toLon":26.5256,"value":1},
+      {"from":"Gorée","fromLat":14.667,"fromLon":-17.398,"to":"Rhodes University","toLat":-33.3106,"toLon":26.5256,"value":1}
+    ],
+    "nodes": [
+      {"itemId":602,"lat":12.3714,"lon":-1.5197,"name":"Ouagadougou"},
+      {"itemId":503,"lat":-12.9777,"lon":-38.5016,"name":"Universidade Federal da Bahia"},
+      {"itemId":611,"lat":-4.4419,"lon":15.2663,"name":"Kinshasa"},
+      {"itemId":606,"lat":-1.2921,"lon":36.8219,"name":"Nairobi"},
+      {"itemId":614,"lat":-6.1659,"lon":39.2026,"name":"Zanzibar"},
+      {"itemId":504,"lat":-33.3106,"lon":26.5256,"name":"Rhodes University"},
+      {"itemId":618,"lat":14.667,"lon":-17.398,"name":"Gorée"},
+      {"itemId":601,"lat":7.3775,"lon":3.947,"name":"Ibadan"},
+      {"itemId":607,"lat":-12.9777,"lon":-38.5016,"name":"Salvador"}
+    ]
+  },
+  "languages": [
+    {"itemId":810,"name":"English","value":5},
+    {"itemId":814,"name":"Swahili","value":4},
+    {"itemId":812,"name":"Portuguese","value":3},
+    {"itemId":815,"name":"Hausa","value":1},
+    {"itemId":816,"name":"Mooré","value":1},
+    {"itemId":813,"name":"Yoruba","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"},
+        {"id":1011,"title":"Ritual healing radio (12)"},
+        {"id":1013,"title":"Road harvest (14)"},
+        {"id":1022,"title":"Ritual radio (23)"},
+        {"id":1043,"title":"Mosque healing (44)"},
+        {"id":1046,"title":"School river (47)"},
+        {"id":1070,"title":"Migration healing river (71)"},
+        {"id":1086,"title":"Song migration church migration (87)"},
+        {"id":1109,"title":"Voices family city (110)"},
+        {"id":2200,"title":"Episode 1: Projets africa studies music"},
+        {"id":2202,"title":"Episode 3: Langues archive africa research"},
+        {"id":2404,"title":"Field photograph 5"},
+        {"id":2408,"title":"Field photograph 9"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 13
+    },
+    {
+      "itemId": 612,
+      "items": [
+        {"id":1070,"title":"Migration healing river (71)"}
+      ],
+      "lat": 9.03,
+      "lon": 38.74,
+      "name": "Addis Ababa",
+      "value": 1
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1109,"title":"Voices family city (110)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 1
+    },
+    {
+      "itemId": 601,
+      "items": [
+        {"id":1067,"title":"Drum voices ritual (68)"}
+      ],
+      "lat": 7.3775,
+      "lon": 3.947,
+      "name": "Ibadan",
+      "value": 1
+    },
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 1
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1043,"title":"Mosque healing (44)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1101,"title":"Family mosque (102)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    },
+    {
+      "itemId": 614,
+      "items": [
+        {"id":1022,"title":"Ritual radio (23)"}
+      ],
+      "lat": -6.1659,
+      "lon": 39.2026,
+      "name": "Zanzibar",
+      "value": 1
+    }
+  ],
+  "resourceType": "location",
+  "selfLocation": {"itemId":602,"lat":12.3714,"lon":-1.5197,"name":"Ouagadougou"},
+  "subjects": [
+    {"itemId":705,"name":"Urbanization","value":4},
+    {"itemId":715,"name":"capoeira","value":3},
+    {"itemId":703,"name":"Christianity","value":3},
+    {"itemId":711,"name":"Collective memory","value":3},
+    {"itemId":723,"name":"diaspora","value":3},
+    {"itemId":714,"name":"Gender","value":3},
+    {"itemId":700,"name":"Music","value":3},
+    {"itemId":717,"name":"Afrobeat","value":2},
+    {"itemId":728,"name":"griot","value":2},
+    {"itemId":712,"name":"Archives","value":1},
+    {"itemId":727,"name":"Candomblé","value":1},
+    {"itemId":709,"name":"Education","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":706,"name":"Oral tradition","value":1},
+    {"itemId":725,"name":"radio","value":1},
+    {"itemId":724,"name":"restitution","value":1}
+  ],
+  "timeline": {"2019":2,"2020":1,"2021":4,"2022":2,"2023":2,"2024":1,"2025":2},
+  "totalItems": 16,
+  "types": [
+    {"itemId":802,"name":"Field notes","value":4},
+    {"itemId":801,"name":"Photograph","value":4},
+    {"itemId":804,"name":"Video","value":4},
+    {"itemId":803,"name":"Sound recording","value":2},
+    {"itemId":800,"name":"Interview","value":1}
+  ]
+}

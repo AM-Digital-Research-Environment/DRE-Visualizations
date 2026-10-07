@@ -1,0 +1,148 @@
+{
+  "coSubjects": [
+    {"itemId":709,"name":"Education","value":2},
+    {"itemId":700,"name":"Music","value":2},
+    {"itemId":703,"name":"Christianity","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":713,"name":"Kinship","value":1},
+    {"itemId":726,"name":"photography","value":1},
+    {"itemId":720,"name":"pilgrimage","value":1},
+    {"itemId":725,"name":"radio","value":1},
+    {"itemId":722,"name":"urban farming","value":1}
+  ],
+  "contributors": [
+    {"itemId":418,"name":"Ferreira, Luíza","value":4},
+    {"itemId":410,"name":"Oliveira, Rafael","value":4},
+    {"itemId":409,"name":"Schmidt, Jonas","value":3},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":424,"name":"Item 424","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":411,"name":"Kiprop, David","value":1},
+    {"itemId":606,"name":"Nairobi","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1},
+    {"itemId":412,"name":"Traoré, Aïssata","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1113,"title":"Voices church family song (114)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1038,"title":"Migration radio harvest (39)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1042,"title":"Song family (43)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":810,"name":"English","value":4},
+    {"itemId":816,"name":"Mooré","value":2},
+    {"itemId":814,"name":"Swahili","value":2},
+    {"itemId":815,"name":"Hausa","value":1},
+    {"itemId":812,"name":"Portuguese","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 612,
+      "items": [
+        {"id":1041,"title":"Road song festival (42)"}
+      ],
+      "lat": 9.03,
+      "lon": 38.74,
+      "name": "Addis Ababa",
+      "value": 1
+    },
+    {
+      "itemId": 601,
+      "items": [
+        {"id":1021,"title":"Road radio harvest (22)"}
+      ],
+      "lat": 7.3775,
+      "lon": 3.947,
+      "name": "Ibadan",
+      "value": 1
+    },
+    {
+      "itemId": 616,
+      "items": [
+        {"id":1113,"title":"Voices church family song (114)"}
+      ],
+      "lat": 0.3476,
+      "lon": 32.5825,
+      "name": "Kampala",
+      "value": 1
+    },
+    {
+      "itemId": 609,
+      "items": [
+        {"id":1072,"title":"Language language (73)"}
+      ],
+      "lat": 14.15,
+      "lon": -16.07,
+      "name": "Kaolack",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1042,"title":"Song family (43)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":2206,"title":"Episode 7: Healing archive"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":2200,"title":"Episode 1: Projets africa studies music"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    }
+  ],
+  "resourceType": "authority",
+  "timeline": {"2019":2,"2021":1,"2022":2,"2023":1,"2024":2,"2025":2},
+  "totalItems": 10,
+  "types": [
+    {"itemId":804,"name":"Video","value":3},
+    {"itemId":802,"name":"Field notes","value":1},
+    {"itemId":800,"name":"Interview","value":1},
+    {"itemId":805,"name":"Journal article","value":1},
+    {"itemId":801,"name":"Photograph","value":1}
+  ]
+}

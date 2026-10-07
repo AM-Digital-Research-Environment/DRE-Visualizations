@@ -1,0 +1,61 @@
+{
+  "contributors": [
+    {"itemId":1222,"name":"Jambo Records","value":3}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 608,
+      "items": [
+        {"id":2605,"title":"Gramophone side 6"},
+        {"id":2606,"title":"Gramophone side 7"},
+        {"id":2607,"title":"Gramophone side 8"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 3
+    }
+  ],
+  "languages": [
+    {"itemId":814,"name":"Swahili","value":3}
+  ],
+  "locations": [
+    {
+      "itemId": 606,
+      "items": [
+        {"id":2605,"title":"Gramophone side 6"},
+        {"id":2606,"title":"Gramophone side 7"},
+        {"id":2607,"title":"Gramophone side 8"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 3
+    }
+  ],
+  "radar": {
+    "indicator": [
+      {"max":28,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":20,"name":"Subjects"},
+      {"max":15,"name":"People"},
+      {"max":8,"name":"Types"},
+      {"max":55,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [3,1,2,1,1,2]
+      }
+    ]
+  },
+  "resourceType": "organisation",
+  "subjects": [
+    {"itemId":707,"name":"Popular music","value":2},
+    {"itemId":717,"name":"Afrobeat","value":1}
+  ],
+  "timeline": {"1960":1,"1961":1,"1962":1},
+  "totalItems": 3,
+  "types": [
+    {"itemId":803,"name":"Sound recording","value":3}
+  ]
+}

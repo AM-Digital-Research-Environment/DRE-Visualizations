@@ -1,0 +1,41 @@
+{
+  "contributors": [
+    {"itemId":600,"name":"Lagos","value":5},
+    {"itemId":604,"name":"Makhanda","value":2},
+    {"itemId":606,"name":"Nairobi","value":2},
+    {"itemId":602,"name":"Ouagadougou","value":1},
+    {"itemId":607,"name":"Salvador","value":1}
+  ],
+  "currentLocations": [],
+  "languages": [
+    {"itemId":810,"name":"English","value":7},
+    {"itemId":812,"name":"Portuguese","value":7},
+    {"itemId":811,"name":"French","value":6}
+  ],
+  "locations": [],
+  "resourceType": "authority",
+  "subjects": [
+    {"itemId":709,"name":"Education","value":3},
+    {"itemId":721,"name":"healing","value":3},
+    {"itemId":726,"name":"photography","value":3},
+    {"itemId":725,"name":"radio","value":3},
+    {"itemId":719,"name":"sound recording","value":3},
+    {"itemId":705,"name":"Urbanization","value":3},
+    {"itemId":703,"name":"Christianity","value":2},
+    {"itemId":713,"name":"Kinship","value":2},
+    {"itemId":706,"name":"Oral tradition","value":2},
+    {"itemId":701,"name":"Religion","value":2},
+    {"itemId":717,"name":"Afrobeat","value":1},
+    {"itemId":712,"name":"Archives","value":1},
+    {"itemId":727,"name":"Candomblé","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":720,"name":"pilgrimage","value":1},
+    {"itemId":724,"name":"restitution","value":1},
+    {"itemId":722,"name":"urban farming","value":1}
+  ],
+  "timeline": {"2019":4,"2020":3,"2021":2,"2022":3,"2023":3,"2024":2,"2025":3},
+  "totalItems": 20
+}

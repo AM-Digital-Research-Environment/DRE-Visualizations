@@ -1,0 +1,52 @@
+{
+  "categories": [
+    {"name":"Item"},
+    {"name":"Research Item"}
+  ],
+  "edges": [
+    {"name":"references","source":"item_2100","target":"item_805"},
+    {"name":"references","source":"item_2101","target":"item_805"},
+    {"name":"references","source":"item_2103","target":"item_805"},
+    {"name":"references","source":"item_2104","target":"item_805"},
+    {"name":"references","source":"item_2106","target":"item_805"},
+    {"name":"references","source":"item_2107","target":"item_805"},
+    {"name":"references","source":"item_2109","target":"item_805"},
+    {"name":"references","source":"item_2110","target":"item_805"},
+    {"name":"references","source":"item_2112","target":"item_805"},
+    {"name":"references","source":"item_2113","target":"item_805"},
+    {"name":"references","source":"item_2115","target":"item_805"},
+    {"name":"references","source":"item_2116","target":"item_805"},
+    {"name":"references","source":"item_2118","target":"item_805"},
+    {"name":"references","source":"item_2119","target":"item_805"},
+    {"name":"references","source":"item_2121","target":"item_805"},
+    {"name":"references","source":"item_2122","target":"item_805"},
+    {"name":"references","source":"item_2124","target":"item_805"},
+    {"name":"references","source":"item_2125","target":"item_805"},
+    {"name":"references","source":"item_2127","target":"item_805"},
+    {"name":"references","source":"item_2128","target":"item_805"}
+  ],
+  "nodes": [
+    {"category":0,"community":-1,"id":"item_805","isCenter":true,"itemId":805,"name":"Journal article","symbolSize":45},
+    {"category":1,"community":-1,"id":"item_2100","itemId":2100,"name":"Memory and sound: Africa kinship diaspora","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2101","itemId":2101,"name":"City and music: Education mobility gender mobility music","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2103","itemId":2103,"name":"Archive and mobility: Music religion gender","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2104","itemId":2104,"name":"Memory and memory: Language ritual knowledge religion kinship","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2106","itemId":2106,"name":"Mobility and diaspora: Language city kinship","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2107","itemId":2107,"name":"Sound and language: Language brazil diaspora heritage sound","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2109","itemId":2109,"name":"Heritage and africa: Heritage postcolonial ritual gender","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2110","itemId":2110,"name":"Heritage and religion: Diaspora archive memory archive diaspora","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2112","itemId":2112,"name":"Mobility and gender: Africa language brazil ritual","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2113","itemId":2113,"name":"Memory and brazil: Africa sound ritual memory postcolonial","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2115","itemId":2115,"name":"Diaspora and music: Memory ritual mobility archive","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2116","itemId":2116,"name":"Memory and postcolonial: Religion archive heritage knowledge gender","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2118","itemId":2118,"name":"Heritage and africa: Sound music memory","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2119","itemId":2119,"name":"Diaspora and gender: Diaspora mobility africa mobility","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2121","itemId":2121,"name":"Education and mobility: Diaspora archive religion mobility","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2122","itemId":2122,"name":"Archive and africa: Religion heritage city ritual","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2124","itemId":2124,"name":"Sound and music: City memory kinship mobility diaspora","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2125","itemId":2125,"name":"Heritage and sound: Religion city gender language heritage","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2127","itemId":2127,"name":"Ritual and religion: Knowledge postcolonial religion","symbolSize":16},
+    {"category":1,"community":-1,"id":"item_2128","itemId":2128,"name":"Education and city: Diaspora archive kinship sound","symbolSize":16}
+  ],
+  "stats": {"candidateSearchTruncated":false,"candidatesExamined":0,"communityCount":0,"maxFreqPct":0,"maxPostingSample":256,"maxStrength":0}
+}

@@ -1,0 +1,745 @@
+{
+  "affiliationMap": [
+    {
+      "itemId": 504,
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "members": ["Santos, Ana Clara"],
+      "name": "Rhodes University"
+    },
+    {
+      "itemId": 502,
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "members": ["Oliveira, Rafael"],
+      "name": "University Joseph Ki-Zerbo"
+    },
+    {
+      "itemId": 508,
+      "lat": -12.9714,
+      "lon": -38.5124,
+      "members": ["Ferreira, Luíza"],
+      "name": "CEAO Centro de Estudos Afro-Orientais"
+    }
+  ],
+  "chord": {
+    "links": [
+      {"source":"Christianity","target":"Urbanization","value":2},
+      {"source":"Music","target":"Archives","value":2}
+    ],
+    "nodes": [
+      {"itemId":705,"name":"Urbanization","value":4},
+      {"itemId":700,"name":"Music","value":3},
+      {"itemId":712,"name":"Archives","value":3},
+      {"itemId":703,"name":"Christianity","value":2},
+      {"itemId":711,"name":"Collective memory","value":2},
+      {"itemId":713,"name":"Kinship","value":2},
+      {"itemId":725,"name":"radio","value":2},
+      {"itemId":702,"name":"Islam","value":1},
+      {"itemId":704,"name":"Migration","value":1},
+      {"itemId":709,"name":"Education","value":1},
+      {"itemId":714,"name":"Gender","value":1},
+      {"itemId":715,"name":"capoeira","value":1},
+      {"itemId":717,"name":"Afrobeat","value":1},
+      {"itemId":718,"name":"mobile phones","value":1},
+      {"itemId":722,"name":"urban farming","value":1},
+      {"itemId":724,"name":"restitution","value":1},
+      {"itemId":727,"name":"Candomblé","value":1},
+      {"itemId":728,"name":"griot","value":1}
+    ]
+  },
+  "choropleth": [
+    {"count":3,"country":"Brazil"},
+    {"count":3,"country":"Burkina Faso"},
+    {"count":3,"country":"Nigeria"},
+    {"count":3,"country":"Senegal"},
+    {"count":2,"country":"Mali"},
+    {"count":1,"country":"Democratic Republic of the Congo"},
+    {"count":1,"country":"Ethiopia"},
+    {"count":1,"country":"Kenya"},
+    {"count":1,"country":"South Africa"},
+    {"count":1,"country":"Uganda"}
+  ],
+  "contributorNetwork": {
+    "categories": ["person","project"],
+    "links": [
+      {"source":"Santos, Ana Clara","target":"Afro-Brazilian Memory Work","value":11},
+      {"source":"Ferreira, Luíza","target":"Afro-Brazilian Memory Work","value":5},
+      {"source":"Ouédraogo, Issa","target":"Afro-Brazilian Memory Work","value":2},
+      {"source":"Oliveira, Rafael","target":"Afro-Brazilian Memory Work","value":4},
+      {"source":"Diallo, Fatoumata","target":"Afro-Brazilian Memory Work","value":3},
+      {"source":"Njoroge, Peter","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Balogun, Tunde","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Schmidt, Jonas","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Kiprop, David","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Bakari, Amina","target":"Afro-Brazilian Memory Work","value":2},
+      {"source":"Dlamini, Thandiwe","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Müller, Katharina","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Item 424","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Kaboré, Paul","target":"Afro-Brazilian Memory Work","value":1}
+    ],
+    "nodes": [
+      {"category":"person","itemId":403,"name":"Santos, Ana Clara","value":11},
+      {"category":"person","itemId":418,"name":"Ferreira, Luíza","value":5},
+      {"category":"person","itemId":410,"name":"Oliveira, Rafael","value":4},
+      {"category":"person","itemId":421,"name":"Diallo, Fatoumata","value":3},
+      {"category":"person","itemId":401,"name":"Bakari, Amina","value":2},
+      {"category":"person","itemId":402,"name":"Ouédraogo, Issa","value":2},
+      {"category":"person","itemId":404,"name":"Müller, Katharina","value":1},
+      {"category":"person","itemId":408,"name":"Dlamini, Thandiwe","value":1},
+      {"category":"person","itemId":409,"name":"Schmidt, Jonas","value":1},
+      {"category":"person","itemId":411,"name":"Kiprop, David","value":1},
+      {"category":"person","itemId":415,"name":"Balogun, Tunde","value":1},
+      {"category":"person","itemId":417,"name":"Kaboré, Paul","value":1},
+      {"category":"person","itemId":423,"name":"Njoroge, Peter","value":1},
+      {"category":"person","itemId":424,"name":"Item 424","value":1},
+      {"category":"project","itemId":304,"name":"Afro-Brazilian Memory Work","value":19}
+    ]
+  },
+  "contributors": [
+    {"itemId":403,"name":"Santos, Ana Clara","value":11},
+    {"itemId":418,"name":"Ferreira, Luíza","value":5},
+    {"itemId":410,"name":"Oliveira, Rafael","value":4},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":3},
+    {"itemId":401,"name":"Bakari, Amina","value":2},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":2},
+    {"itemId":415,"name":"Balogun, Tunde","value":1},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":1},
+    {"itemId":424,"name":"Item 424","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":411,"name":"Kiprop, David","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":409,"name":"Schmidt, Jonas","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1062,"title":"Road festival river radio (63)"},
+        {"id":1075,"title":"Road festival voices (76)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 2
+    },
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1078,"title":"Festival river language song (79)"},
+        {"id":1109,"title":"Voices family city (110)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 2
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1113,"title":"Voices church family song (114)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1013,"title":"Road harvest (14)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1101,"title":"Family mosque (102)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1028,"title":"School festival ritual (29)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    },
+    {
+      "itemId": 500,
+      "items": [
+        {"id":1036,"title":"Radio road mosque healing (37)"}
+      ],
+      "lat": 49.9456,
+      "lon": 11.5713,
+      "name": "University of Bayreuth",
+      "value": 1
+    }
+  ],
+  "geoFlows": {
+    "links": [
+      {"from":"Lagos","fromLat":6.5244,"fromLon":3.3792,"to":"Moi University","toLat":0.5143,"toLon":35.2698,"value":1},
+      {"from":"Ibadan","fromLat":7.3775,"fromLon":3.947,"to":"Salvador","toLat":-12.9777,"toLon":-38.5016,"value":1},
+      {"from":"Ouagadougou","fromLat":12.3714,"fromLon":-1.5197,"to":"Rhodes University","toLat":-33.3106,"toLon":26.5256,"value":1},
+      {"from":"Ouagadougou","fromLat":12.3714,"fromLon":-1.5197,"to":"Nairobi","toLat":-1.2921,"toLon":36.8219,"value":1},
+      {"from":"Eldoret","fromLat":0.5143,"fromLon":35.2698,"to":"Salvador","toLat":-12.9777,"toLon":-38.5016,"value":1},
+      {"from":"Salvador","fromLat":-12.9777,"fromLon":-38.5016,"to":"Ouagadougou","toLat":12.3714,"toLon":-1.5197,"value":1},
+      {"from":"Kinshasa","fromLat":-4.4419,"fromLon":15.2663,"to":"University of Bayreuth","toLat":49.9456,"toLon":11.5713,"value":1},
+      {"from":"Kampala","fromLat":0.3476,"fromLon":32.5825,"to":"Lagos","toLat":6.5244,"toLon":3.3792,"value":1},
+      {"from":"Gorée","fromLat":14.667,"fromLon":-17.398,"to":"Rhodes University","toLat":-33.3106,"toLon":26.5256,"value":1}
+    ],
+    "nodes": [
+      {"itemId":602,"lat":12.3714,"lon":-1.5197,"name":"Ouagadougou"},
+      {"itemId":606,"lat":-1.2921,"lon":36.8219,"name":"Nairobi"},
+      {"itemId":605,"lat":0.5143,"lon":35.2698,"name":"Eldoret"},
+      {"itemId":607,"lat":-12.9777,"lon":-38.5016,"name":"Salvador"},
+      {"itemId":601,"lat":7.3775,"lon":3.947,"name":"Ibadan"},
+      {"itemId":611,"lat":-4.4419,"lon":15.2663,"name":"Kinshasa"},
+      {"itemId":500,"lat":49.9456,"lon":11.5713,"name":"University of Bayreuth"},
+      {"itemId":600,"lat":6.5244,"lon":3.3792,"name":"Lagos"},
+      {"itemId":505,"lat":0.5143,"lon":35.2698,"name":"Moi University"},
+      {"itemId":504,"lat":-33.3106,"lon":26.5256,"name":"Rhodes University"},
+      {"itemId":618,"lat":14.667,"lon":-17.398,"name":"Gorée"},
+      {"itemId":616,"lat":0.3476,"lon":32.5825,"name":"Kampala"}
+    ]
+  },
+  "heatmap": {
+    "cols": ["English","French","Hausa","Mooré","Portuguese","Swahili","Yoruba"],
+    "rows": ["Field notes","Interview","Photograph","Sound recording","Video"],
+    "values": [
+      [2,3,1],
+      [2,1,1],
+      [6,0,1],
+      [0,3,1],
+      [6,4,1],
+      [3,0,2],
+      [5,1,2],
+      [0,1,1],
+      [6,1,1],
+      [1,3,2],
+      [3,2,2],
+      [5,0,1],
+      [5,4,2],
+      [4,1,1],
+      [1,1,1],
+      [5,3,2]
+    ]
+  },
+  "languageTimeline": {
+    "series": [
+      {
+        "data": [0,2,0,0,0,0,0],
+        "name": "English"
+      },
+      {
+        "data": [0,0,0,1,0,0,1],
+        "name": "French"
+      },
+      {
+        "data": [0,0,0,0,0,1,0],
+        "name": "Hausa"
+      },
+      {
+        "data": [1,0,1,0,0,0,2],
+        "name": "Mooré"
+      },
+      {
+        "data": [0,0,0,1,0,0,0],
+        "name": "Portuguese"
+      },
+      {
+        "data": [1,1,0,2,2,0,1],
+        "name": "Swahili"
+      },
+      {
+        "data": [2,1,0,0,0,0,0],
+        "name": "Yoruba"
+      }
+    ],
+    "years": [2019,2020,2021,2022,2023,2024,2025]
+  },
+  "languages": [
+    {"itemId":814,"name":"Swahili","value":7},
+    {"itemId":816,"name":"Mooré","value":4},
+    {"itemId":813,"name":"Yoruba","value":3},
+    {"itemId":810,"name":"English","value":2},
+    {"itemId":811,"name":"French","value":2},
+    {"itemId":815,"name":"Hausa","value":1},
+    {"itemId":812,"name":"Portuguese","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1010,"title":"Family radio (11)"},
+        {"id":1092,"title":"City song language (93)"},
+        {"id":1101,"title":"Family mosque (102)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 3
+    },
+    {
+      "itemId": 610,
+      "items": [
+        {"id":1010,"title":"Family radio (11)"},
+        {"id":1017,"title":"Radio city family (18)"}
+      ],
+      "lat": 12.6392,
+      "lon": -8.0029,
+      "name": "Bamako",
+      "value": 2
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1092,"title":"City song language (93)"},
+        {"id":1109,"title":"Voices family city (110)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 2
+    },
+    {
+      "itemId": 601,
+      "items": [
+        {"id":1021,"title":"Road radio harvest (22)"},
+        {"id":1028,"title":"School festival ritual (29)"}
+      ],
+      "lat": 7.3775,
+      "lon": 3.947,
+      "name": "Ibadan",
+      "value": 2
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1013,"title":"Road harvest (14)"},
+        {"id":1109,"title":"Voices family city (110)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 2
+    },
+    {
+      "itemId": 612,
+      "items": [
+        {"id":1041,"title":"Road song festival (42)"}
+      ],
+      "lat": 9.03,
+      "lon": 38.74,
+      "name": "Addis Ababa",
+      "value": 1
+    },
+    {
+      "itemId": 603,
+      "items": [
+        {"id":1118,"title":"Radio church language (119)"}
+      ],
+      "lat": 11.1771,
+      "lon": -4.2979,
+      "name": "Bobo-Dioulasso",
+      "value": 1
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1028,"title":"School festival ritual (29)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 1
+    },
+    {
+      "itemId": 616,
+      "items": [
+        {"id":1113,"title":"Voices church family song (114)"}
+      ],
+      "lat": 0.3476,
+      "lon": 32.5825,
+      "name": "Kampala",
+      "value": 1
+    },
+    {
+      "itemId": 609,
+      "items": [
+        {"id":1072,"title":"Language language (73)"}
+      ],
+      "lat": 14.15,
+      "lon": -16.07,
+      "name": "Kaolack",
+      "value": 1
+    },
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1036,"title":"Radio road mosque healing (37)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 1
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1062,"title":"Road festival river radio (63)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1017,"title":"Radio city family (18)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    }
+  ],
+  "radar": {
+    "indicator": [
+      {"max":25,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":27,"name":"Subjects"},
+      {"max":18,"name":"People"},
+      {"max":5,"name":"Types"},
+      {"max":69,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [19,7,23,14,5,6]
+      }
+    ]
+  },
+  "resourceType": "project",
+  "roles": [
+    {"name":"Creator","value":19},
+    {"name":"Contributor","value":4},
+    {"name":"Interviewee","value":4},
+    {"name":"Interviewer","value":4},
+    {"name":"Photographer","value":4}
+  ],
+  "sankey": {
+    "links": [
+      {"source":"Santos, Ana Clara","target":"Afro-Brazilian Memory Work","value":12},
+      {"source":"Afro-Brazilian Memory Work","target":"Sound recording","value":8},
+      {"source":"Afro-Brazilian Memory Work","target":"Interview","value":10},
+      {"source":"Ferreira, Luíza","target":"Afro-Brazilian Memory Work","value":6},
+      {"source":"Afro-Brazilian Memory Work","target":"Field notes","value":5},
+      {"source":"Ouédraogo, Issa","target":"Afro-Brazilian Memory Work","value":2},
+      {"source":"Oliveira, Rafael","target":"Afro-Brazilian Memory Work","value":4},
+      {"source":"Afro-Brazilian Memory Work","target":"Video","value":7},
+      {"source":"Diallo, Fatoumata","target":"Afro-Brazilian Memory Work","value":3},
+      {"source":"Balogun, Tunde","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Afro-Brazilian Memory Work","target":"Photograph","value":3},
+      {"source":"Bakari, Amina","target":"Afro-Brazilian Memory Work","value":2},
+      {"source":"Dlamini, Thandiwe","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Item 424","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Kaboré, Paul","target":"Afro-Brazilian Memory Work","value":1}
+    ],
+    "nodes": [
+      {"name":"Santos, Ana Clara"},
+      {"name":"Afro-Brazilian Memory Work"},
+      {"name":"Sound recording"},
+      {"name":"Interview"},
+      {"name":"Ferreira, Luíza"},
+      {"name":"Field notes"},
+      {"name":"Ouédraogo, Issa"},
+      {"name":"Oliveira, Rafael"},
+      {"name":"Video"},
+      {"name":"Diallo, Fatoumata"},
+      {"name":"Balogun, Tunde"},
+      {"name":"Photograph"},
+      {"name":"Bakari, Amina"},
+      {"name":"Dlamini, Thandiwe"},
+      {"name":"Item 424"},
+      {"name":"Kaboré, Paul"}
+    ]
+  },
+  "stackedTimeline": {
+    "series": [
+      {
+        "data": [2,1,0,0,0,0,1],
+        "name": "Field notes"
+      },
+      {
+        "data": [0,1,0,1,2,1,1],
+        "name": "Interview"
+      },
+      {
+        "data": [0,0,1,0,0,0,1],
+        "name": "Photograph"
+      },
+      {
+        "data": [1,1,0,2,0,1,1],
+        "name": "Sound recording"
+      },
+      {
+        "data": [1,0,0,1,0,0,1],
+        "name": "Video"
+      }
+    ],
+    "years": [2019,2020,2021,2022,2023,2024,2025]
+  },
+  "subjectTrends": {
+    "series": [
+      {
+        "data": [1,0,0,1,0,2],
+        "name": "Archives"
+      },
+      {
+        "data": [1,0,1,2,0,0],
+        "name": "Urbanization"
+      },
+      {
+        "data": [1,0,0,1,0,1],
+        "name": "Music"
+      },
+      {
+        "data": [0,2,0,1,0,0],
+        "name": "restitution"
+      },
+      {
+        "data": [1,0,1,0,0,0],
+        "name": "Christianity"
+      },
+      {
+        "data": [0,0,0,1,1,0],
+        "name": "Collective memory"
+      },
+      {
+        "data": [1,0,0,0,0,1],
+        "name": "Gender"
+      },
+      {
+        "data": [0,0,1,0,0,1],
+        "name": "Kinship"
+      },
+      {
+        "data": [1,0,0,0,0,1],
+        "name": "radio"
+      },
+      {
+        "data": [0,0,0,1,0,0],
+        "name": "Afrobeat"
+      }
+    ],
+    "years": [2019,2020,2021,2022,2024,2025]
+  },
+  "subjects": [
+    {"itemId":712,"name":"Archives","value":4},
+    {"itemId":705,"name":"Urbanization","value":4},
+    {"itemId":700,"name":"Music","value":3},
+    {"itemId":724,"name":"restitution","value":3},
+    {"itemId":703,"name":"Christianity","value":2},
+    {"itemId":711,"name":"Collective memory","value":2},
+    {"itemId":714,"name":"Gender","value":2},
+    {"itemId":713,"name":"Kinship","value":2},
+    {"itemId":725,"name":"radio","value":2},
+    {"itemId":717,"name":"Afrobeat","value":1},
+    {"itemId":727,"name":"Candomblé","value":1},
+    {"itemId":715,"name":"capoeira","value":1},
+    {"itemId":709,"name":"Education","value":1},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":721,"name":"healing","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":726,"name":"photography","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":719,"name":"sound recording","value":1},
+    {"itemId":722,"name":"urban farming","value":1}
+  ],
+  "sunburst": [
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"Candomblé","value":1},
+            {"name":"Collective memory","value":1},
+            {"name":"Islam","value":1},
+            {"name":"mobile phones","value":1}
+          ],
+          "name": "Hausa"
+        },
+        {
+          "children": [
+            {"name":"restitution","value":1}
+          ],
+          "name": "English"
+        },
+        {
+          "children": [
+            {"name":"healing","value":1},
+            {"name":"sound recording","value":1}
+          ],
+          "name": "French"
+        },
+        {
+          "children": [
+            {"name":"Afrobeat","value":1},
+            {"name":"capoeira","value":1},
+            {"name":"Gender","value":1},
+            {"name":"Migration","value":1},
+            {"name":"restitution","value":1},
+            {"name":"Urbanization","value":1}
+          ],
+          "name": "Swahili"
+        }
+      ],
+      "name": "Sound recording"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"Candomblé","value":1},
+            {"name":"Collective memory","value":1},
+            {"name":"Islam","value":1},
+            {"name":"mobile phones","value":1}
+          ],
+          "name": "Hausa"
+        },
+        {
+          "children": [
+            {"name":"Language policy","value":1},
+            {"name":"Religion","value":1}
+          ],
+          "name": "Swahili"
+        },
+        {
+          "children": [
+            {"name":"photography","value":1}
+          ],
+          "name": "English"
+        },
+        {
+          "children": [
+            {"name":"photography","value":1}
+          ],
+          "name": "Yoruba"
+        },
+        {
+          "children": [
+            {"name":"Collective memory","value":1},
+            {"name":"urban farming","value":1},
+            {"name":"Urbanization","value":1}
+          ],
+          "name": "Portuguese"
+        },
+        {
+          "children": [
+            {"name":"healing","value":1}
+          ],
+          "name": "French"
+        }
+      ],
+      "name": "Interview"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"Christianity","value":1},
+            {"name":"griot","value":1},
+            {"name":"Music","value":1},
+            {"name":"Urbanization","value":1}
+          ],
+          "name": "Yoruba"
+        },
+        {
+          "children": [
+            {"name":"Archives","value":1},
+            {"name":"Gender","value":1}
+          ],
+          "name": "Mooré"
+        },
+        {
+          "children": [
+            {"name":"restitution","value":1}
+          ],
+          "name": "Swahili"
+        }
+      ],
+      "name": "Field notes"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"Education","value":1},
+            {"name":"radio","value":1}
+          ],
+          "name": "Yoruba"
+        },
+        {
+          "children": [
+            {"name":"Archives","value":2},
+            {"name":"Kinship","value":1},
+            {"name":"Music","value":1}
+          ],
+          "name": "Swahili"
+        }
+      ],
+      "name": "Video"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"Archives","value":1},
+            {"name":"Christianity","value":1},
+            {"name":"Kinship","value":1},
+            {"name":"Music","value":1},
+            {"name":"radio","value":1},
+            {"name":"Urbanization","value":1}
+          ],
+          "name": "Mooré"
+        }
+      ],
+      "name": "Photograph"
+    }
+  ],
+  "timeline": {"2019":4,"2020":3,"2021":1,"2022":4,"2023":2,"2024":1,"2025":4},
+  "totalItems": 19,
+  "treemap": [
+    {
+      "children": [
+        {"name":"Interview","value":6},
+        {"name":"Sound recording","value":6},
+        {"name":"Field notes","value":4},
+        {"name":"Video","value":3},
+        {"name":"Photograph","value":2}
+      ],
+      "name": "Afro-Brazilian Memory Work",
+      "value": 19
+    }
+  ],
+  "types": [
+    {"itemId":800,"name":"Interview","value":6},
+    {"itemId":803,"name":"Sound recording","value":6},
+    {"itemId":802,"name":"Field notes","value":4},
+    {"itemId":804,"name":"Video","value":3},
+    {"itemId":801,"name":"Photograph","value":2}
+  ]
+}

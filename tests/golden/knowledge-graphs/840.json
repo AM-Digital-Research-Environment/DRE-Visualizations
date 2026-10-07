@@ -1,0 +1,25 @@
+{
+  "categories": [
+    {"name":"Item"},
+    {"name":"Linked Item"},
+    {"name":"Research Item"}
+  ],
+  "edges": [
+    {"name":"Is Part Of","source":"item_2200","target":"item_840"},
+    {"name":"Is Part Of","source":"item_2201","target":"item_840"},
+    {"name":"Is Part Of","source":"item_2202","target":"item_840"},
+    {"name":"Is Part Of","source":"item_2203","target":"item_840"},
+    {"name":"Is Part Of","source":"item_2204","target":"item_840"},
+    {"name":"Is Part Of","source":"item_2205","target":"item_840"}
+  ],
+  "nodes": [
+    {"category":0,"community":-1,"id":"item_840","isCenter":true,"itemId":840,"name":"Africa Multiple Voices","symbolSize":45},
+    {"category":1,"community":-1,"id":"item_2200","itemId":2200,"name":"Episode 1: Projets africa studies music","symbolSize":22},
+    {"category":1,"community":-1,"id":"item_2201","itemId":2201,"name":"Episode 2: Travaille communities knowledge","symbolSize":22},
+    {"category":1,"community":-1,"id":"item_2202","itemId":2202,"name":"Episode 3: Langues archive africa research","symbolSize":22},
+    {"category":1,"community":-1,"id":"item_2203","itemId":2203,"name":"Episode 4: Langues communities langues city","symbolSize":22},
+    {"category":1,"community":-1,"id":"item_2204","itemId":2204,"name":"Episode 5: Knowledge city","symbolSize":22},
+    {"category":1,"community":-1,"id":"item_2205","itemId":2205,"name":"Episode 6: Languages healing","symbolSize":22}
+  ],
+  "stats": {"candidateSearchTruncated":false,"candidatesExamined":0,"communityCount":0,"maxFreqPct":0,"maxPostingSample":256,"maxStrength":0}
+}

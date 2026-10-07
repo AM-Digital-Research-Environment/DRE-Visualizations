@@ -1,0 +1,187 @@
+{
+  "affiliationMap": [
+    {"itemId":508,"lat":-12.9714,"lon":-38.5124,"name":"CEAO Centro de Estudos Afro-Orientais"}
+  ],
+  "coAuthors": [
+    {"itemId":416,"name":"Achieng, Grace","value":2},
+    {"itemId":411,"name":"Kiprop, David","value":2},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":2},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1},
+    {"itemId":409,"name":"Schmidt, Jonas","value":1}
+  ],
+  "contributorNetwork": {
+    "categories": ["person","project"],
+    "links": [
+      {"source":"Balogun, Tunde","target":"Faith and Public Morality","value":2},
+      {"source":"Sawadogo, Mariam","target":"Faith and Public Morality","value":1},
+      {"source":"Kiprop, David","target":"Pilot Study on Language Policy","value":1},
+      {"source":"Müller, Katharina","target":"Pilot Study on Language Policy","value":1},
+      {"source":"Balogun, Tunde","target":"Pilot Study on Language Policy","value":1},
+      {"source":"Santos, Ana Clara","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Balogun, Tunde","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Ouédraogo, Issa","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Achieng, Grace","target":"Mobile Knowledges in East Africa","value":1},
+      {"source":"Balogun, Tunde","target":"Mobile Knowledges in East Africa","value":1},
+      {"source":"Kiprop, David","target":"Mobile Knowledges in East Africa","value":1}
+    ],
+    "nodes": [
+      {"category":"person","itemId":415,"name":"Balogun, Tunde","value":5},
+      {"category":"person","itemId":411,"name":"Kiprop, David","value":2},
+      {"category":"person","itemId":402,"name":"Ouédraogo, Issa","value":1},
+      {"category":"person","itemId":403,"name":"Santos, Ana Clara","value":1},
+      {"category":"person","itemId":404,"name":"Müller, Katharina","value":1},
+      {"category":"person","itemId":407,"name":"Sawadogo, Mariam","value":1},
+      {"category":"person","itemId":416,"name":"Achieng, Grace","value":1},
+      {"category":"project","itemId":302,"name":"Faith and Public Morality","value":2},
+      {"category":"project","itemId":301,"name":"Mobile Knowledges in East Africa","value":1},
+      {"category":"project","itemId":304,"name":"Afro-Brazilian Memory Work","value":1},
+      {"category":"project","itemId":307,"name":"Pilot Study on Language Policy","value":1}
+    ]
+  },
+  "currentLocations": [
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1063,"title":"Voices road church (64)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1028,"title":"School festival ritual (29)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    },
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1025,"title":"Healing river ritual (26)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":814,"name":"Swahili","value":5},
+    {"itemId":816,"name":"Mooré","value":2},
+    {"itemId":810,"name":"English","value":1},
+    {"itemId":811,"name":"French","value":1},
+    {"itemId":815,"name":"Hausa","value":1},
+    {"itemId":813,"name":"Yoruba","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 613,
+      "items": [
+        {"id":1037,"title":"Harvest memory (38)"}
+      ],
+      "lat": 7.18,
+      "lon": 1.99,
+      "name": "Abomey",
+      "value": 1
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1028,"title":"School festival ritual (29)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 1
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1058,"title":"River harvest (59)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 1
+    },
+    {
+      "itemId": 601,
+      "items": [
+        {"id":1028,"title":"School festival ritual (29)"}
+      ],
+      "lat": 7.3775,
+      "lon": 3.947,
+      "name": "Ibadan",
+      "value": 1
+    },
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1025,"title":"Healing river ritual (26)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 1
+    }
+  ],
+  "radar": {
+    "indicator": [
+      {"max":39,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":23,"name":"Subjects"},
+      {"max":19,"name":"People"},
+      {"max":8,"name":"Types"},
+      {"max":13,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [10,6,13,11,4,2]
+      }
+    ]
+  },
+  "resourceType": "person",
+  "roles": [
+    {"name":"Creator","value":3},
+    {"name":"Interviewee","value":3},
+    {"name":"Speaker","value":3}
+  ],
+  "subjects": [
+    {"itemId":709,"name":"Education","value":3},
+    {"itemId":710,"name":"Colonialism","value":2},
+    {"itemId":726,"name":"photography","value":2},
+    {"itemId":705,"name":"Urbanization","value":2},
+    {"itemId":703,"name":"Christianity","value":1},
+    {"itemId":711,"name":"Collective memory","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":716,"name":"highlife","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":724,"name":"restitution","value":1},
+    {"itemId":719,"name":"sound recording","value":1}
+  ],
+  "templates": [
+    {"name":"Research Item","value":5},
+    {"name":"Project","value":2},
+    {"name":"YouTube Video","value":2},
+    {"name":"Podcast Episode","value":1}
+  ],
+  "timeline": {"2021":3,"2022":2,"2023":2},
+  "totalItems": 10,
+  "types": [
+    {"itemId":800,"name":"Interview","value":3},
+    {"itemId":802,"name":"Field notes","value":1},
+    {"itemId":803,"name":"Sound recording","value":1},
+    {"itemId":804,"name":"Video","value":1}
+  ]
+}

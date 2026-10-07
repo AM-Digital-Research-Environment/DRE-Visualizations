@@ -13,6 +13,10 @@
 # language statistics and diffs.
 asset/vendor/** -text -diff linguist-vendored
 
+# Golden precompute output (tests/integration/GoldenTest.php): regenerated,
+# not hand-edited — collapse it in review diffs.
+tests/golden/** linguist-generated
+
 # Self-hosted MapLibre glyph ranges (SDF protobuf). Binary — never EOL-convert.
 asset/fonts/**/*.pbf -text -diff linguist-vendored
 

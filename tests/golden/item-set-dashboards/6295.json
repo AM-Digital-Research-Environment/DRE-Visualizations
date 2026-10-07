@@ -1,0 +1,71 @@
+{
+  "contributors": [],
+  "currentLocations": [
+    {
+      "itemId": 503,
+      "items": [
+        {"id":2450,"title":"Acervo APMESTRENO001"},
+        {"id":2451,"title":"Acervo APMESTRENO002"},
+        {"id":2452,"title":"Acervo APMESTRENO003"},
+        {"id":2453,"title":"Acervo APMESTRENO004"},
+        {"id":2454,"title":"Acervo APMESTRENO005"},
+        {"id":2455,"title":"Acervo APMESTRENO006"},
+        {"id":2456,"title":"Acervo APMESTRENO007"},
+        {"id":2457,"title":"Acervo TRABNEGRBA001"},
+        {"id":2458,"title":"Acervo TRABNEGRBA002"},
+        {"id":2459,"title":"Acervo TRABNEGRBA003"},
+        {"id":2460,"title":"Acervo TRABNEGRBA004"},
+        {"id":2461,"title":"Acervo TRABNEGRBA005"},
+        {"id":2462,"title":"Acervo ORIXAFGM001"},
+        {"id":2463,"title":"Acervo ORIXAFGM002"},
+        {"id":2464,"title":"Acervo ORIXAFGM003"},
+        {"id":2465,"title":"Acervo ORIXAFGM004"},
+        {"id":2466,"title":"Acervo OTHERPREFIX001"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 17
+    }
+  ],
+  "languages": [
+    {"itemId":812,"name":"Portuguese","value":17}
+  ],
+  "locations": [
+    {
+      "itemId": 607,
+      "items": [
+        {"id":2450,"title":"Acervo APMESTRENO001"},
+        {"id":2451,"title":"Acervo APMESTRENO002"},
+        {"id":2452,"title":"Acervo APMESTRENO003"},
+        {"id":2453,"title":"Acervo APMESTRENO004"},
+        {"id":2454,"title":"Acervo APMESTRENO005"},
+        {"id":2455,"title":"Acervo APMESTRENO006"},
+        {"id":2456,"title":"Acervo APMESTRENO007"},
+        {"id":2457,"title":"Acervo TRABNEGRBA001"},
+        {"id":2458,"title":"Acervo TRABNEGRBA002"},
+        {"id":2459,"title":"Acervo TRABNEGRBA003"},
+        {"id":2460,"title":"Acervo TRABNEGRBA004"},
+        {"id":2461,"title":"Acervo TRABNEGRBA005"},
+        {"id":2462,"title":"Acervo ORIXAFGM001"},
+        {"id":2463,"title":"Acervo ORIXAFGM002"},
+        {"id":2464,"title":"Acervo ORIXAFGM003"},
+        {"id":2465,"title":"Acervo ORIXAFGM004"},
+        {"id":2466,"title":"Acervo OTHERPREFIX001"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 17
+    }
+  ],
+  "resourceType": "researchItem",
+  "subjects": [
+    {"itemId":715,"name":"capoeira","value":7},
+    {"itemId":727,"name":"Candomblé","value":6},
+    {"itemId":711,"name":"Collective memory","value":4}
+  ],
+  "timeline": {"1970":1,"1973":1,"1976":1,"1979":1,"1982":1,"1985":1,"1988":1,"1991":1,"1994":1,"1997":1,"2000":1,"2003":1,"2006":1,"2009":1,"2012":1,"2015":1,"2018":1},
+  "totalItems": 17,
+  "types": []
+}

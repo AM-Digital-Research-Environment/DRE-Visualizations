@@ -1,0 +1,110 @@
+{
+  "contributors": [
+    {"itemId":421,"name":"Diallo, Fatoumata","value":2},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":2},
+    {"itemId":410,"name":"Oliveira, Rafael","value":2},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":2},
+    {"itemId":400,"name":"Adeyemi, Folake","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1024,"title":"Migration city voices (25)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    },
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1076,"title":"Church mosque road (77)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 1
+    }
+  ],
+  "geoFlows": {
+    "links": [
+      {"from":"Bamako","fromLat":12.6392,"fromLon":-8.0029,"to":"Rhodes University","toLat":-33.3106,"toLon":26.5256,"value":1},
+      {"from":"Bamako","fromLat":12.6392,"fromLon":-8.0029,"to":"Makhanda","toLat":-33.3106,"toLon":26.5256,"value":1}
+    ],
+    "nodes": [
+      {"itemId":610,"lat":12.6392,"lon":-8.0029,"name":"Bamako"},
+      {"itemId":604,"lat":-33.3106,"lon":26.5256,"name":"Makhanda"},
+      {"itemId":504,"lat":-33.3106,"lon":26.5256,"name":"Rhodes University"}
+    ]
+  },
+  "languages": [
+    {"itemId":815,"name":"Hausa","value":2},
+    {"itemId":813,"name":"Yoruba","value":2},
+    {"itemId":811,"name":"French","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 610,
+      "items": [
+        {"id":1010,"title":"Family radio (11)"},
+        {"id":1017,"title":"Radio city family (18)"},
+        {"id":1024,"title":"Migration city voices (25)"},
+        {"id":1059,"title":"Mosque voices (60)"},
+        {"id":1076,"title":"Church mosque road (77)"},
+        {"id":2409,"title":"Field photograph 10"}
+      ],
+      "lat": 12.6392,
+      "lon": -8.0029,
+      "name": "Bamako",
+      "value": 6
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1017,"title":"Radio city family (18)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1010,"title":"Family radio (11)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    }
+  ],
+  "resourceType": "location",
+  "selfLocation": {"itemId":610,"lat":12.6392,"lon":-8.0029,"name":"Bamako"},
+  "subjects": [
+    {"itemId":709,"name":"Education","value":2},
+    {"itemId":717,"name":"Afrobeat","value":1},
+    {"itemId":727,"name":"Candomblé","value":1},
+    {"itemId":715,"name":"capoeira","value":1},
+    {"itemId":711,"name":"Collective memory","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":725,"name":"radio","value":1},
+    {"itemId":724,"name":"restitution","value":1},
+    {"itemId":722,"name":"urban farming","value":1}
+  ],
+  "timeline": {"2019":2,"2023":1,"2024":1},
+  "totalItems": 6,
+  "types": [
+    {"itemId":800,"name":"Interview","value":2},
+    {"itemId":802,"name":"Field notes","value":1},
+    {"itemId":801,"name":"Photograph","value":1},
+    {"itemId":803,"name":"Sound recording","value":1},
+    {"itemId":804,"name":"Video","value":1}
+  ]
+}

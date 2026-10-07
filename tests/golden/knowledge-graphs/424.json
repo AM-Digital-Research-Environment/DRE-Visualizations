@@ -1,0 +1,32 @@
+{
+  "categories": [
+    {"name":"Person"},
+    {"name":"Project"},
+    {"name":"Research Item"},
+    {"name":"Shared Item"}
+  ],
+  "edges": [
+    {"name":"Is Part Of","source":"item_424","target":"resource_500"},
+    {"name":"references","source":"item_1030","target":"item_424"},
+    {"name":"references","source":"item_1083","target":"item_424"},
+    {"name":"references","source":"item_1085","target":"item_424"},
+    {"name":"references","source":"item_1113","target":"item_424"},
+    {"name":"references","source":"item_2128","target":"item_424"},
+    {"name":"references","source":"item_2300","target":"item_424"},
+    {"name":"references","source":"item_2306","target":"item_424"},
+    {"freqPct":5.5,"idf":2.9,"isShared":true,"name":"Is Part Of","source":"item_419","target":"resource_500"}
+  ],
+  "nodes": [
+    {"category":0,"community":-1,"id":"item_424","isCenter":true,"itemId":424,"name":"Item 424","symbolSize":45},
+    {"category":1,"community":0,"freqPct":5.5,"id":"resource_500","itemId":500,"name":"University of Bayreuth","symbolSize":22},
+    {"category":2,"community":-1,"id":"item_1030","itemId":1030,"name":"Archive language (31)","symbolSize":16},
+    {"category":2,"community":-1,"id":"item_1083","itemId":1083,"name":"School migration church archive (84)","symbolSize":16},
+    {"category":2,"community":-1,"id":"item_1085","itemId":1085,"name":"Archive city (86)","symbolSize":16},
+    {"category":2,"community":-1,"id":"item_1113","itemId":1113,"name":"Voices church family song (114)","symbolSize":16},
+    {"category":2,"community":-1,"id":"item_2128","itemId":2128,"name":"Education and city: Diaspora archive kinship sound","symbolSize":16},
+    {"category":2,"community":-1,"id":"item_2300","itemId":2300,"name":"Video 1: Sound sound","symbolSize":16},
+    {"category":2,"community":-1,"id":"item_2306","itemId":2306,"name":"Video 7: Research research sound research","symbolSize":16},
+    {"category":3,"community":0,"id":"item_419","itemId":419,"name":"Hoffmann, Felix","sharedCount":1,"strength":2.9,"symbolSize":16}
+  ],
+  "stats": {"candidateSearchTruncated":false,"candidatesExamined":1,"communityCount":1,"maxFreqPct":5.5,"maxPostingSample":256,"maxStrength":2.9}
+}

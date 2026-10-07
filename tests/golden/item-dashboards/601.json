@@ -1,0 +1,129 @@
+{
+  "contributors": [
+    {"itemId":402,"name":"Ouédraogo, Issa","value":3},
+    {"itemId":410,"name":"Oliveira, Rafael","value":2},
+    {"itemId":415,"name":"Balogun, Tunde","value":1},
+    {"itemId":418,"name":"Ferreira, Luíza","value":1},
+    {"itemId":419,"name":"Hoffmann, Felix","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1},
+    {"itemId":412,"name":"Traoré, Aïssata","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1093,"title":"Road mosque ritual (94)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1067,"title":"Drum voices ritual (68)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1028,"title":"School festival ritual (29)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    }
+  ],
+  "geoFlows": {
+    "links": [
+      {"from":"Ibadan","fromLat":7.3775,"fromLon":3.947,"to":"Ouagadougou","toLat":12.3714,"toLon":-1.5197,"value":1},
+      {"from":"Ibadan","fromLat":7.3775,"fromLon":3.947,"to":"Makhanda","toLat":-33.3106,"toLon":26.5256,"value":1},
+      {"from":"Ibadan","fromLat":7.3775,"fromLon":3.947,"to":"Salvador","toLat":-12.9777,"toLon":-38.5016,"value":1},
+      {"from":"Eldoret","fromLat":0.5143,"fromLon":35.2698,"to":"Salvador","toLat":-12.9777,"toLon":-38.5016,"value":1}
+    ],
+    "nodes": [
+      {"itemId":605,"lat":0.5143,"lon":35.2698,"name":"Eldoret"},
+      {"itemId":607,"lat":-12.9777,"lon":-38.5016,"name":"Salvador"},
+      {"itemId":601,"lat":7.3775,"lon":3.947,"name":"Ibadan"},
+      {"itemId":602,"lat":12.3714,"lon":-1.5197,"name":"Ouagadougou"},
+      {"itemId":604,"lat":-33.3106,"lon":26.5256,"name":"Makhanda"}
+    ]
+  },
+  "languages": [
+    {"itemId":814,"name":"Swahili","value":2},
+    {"itemId":815,"name":"Hausa","value":1},
+    {"itemId":816,"name":"Mooré","value":1},
+    {"itemId":812,"name":"Portuguese","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 601,
+      "items": [
+        {"id":1021,"title":"Road radio harvest (22)"},
+        {"id":1028,"title":"School festival ritual (29)"},
+        {"id":1048,"title":"Drum migration market drum (49)"},
+        {"id":1067,"title":"Drum voices ritual (68)"},
+        {"id":1093,"title":"Road mosque ritual (94)"},
+        {"id":2412,"title":"Field photograph 13"},
+        {"id":2418,"title":"Field photograph 19"}
+      ],
+      "lat": 7.3775,
+      "lon": 3.947,
+      "name": "Ibadan",
+      "value": 7
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1028,"title":"School festival ritual (29)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 1
+    },
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1048,"title":"Drum migration market drum (49)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 1
+    }
+  ],
+  "resourceType": "location",
+  "selfLocation": {"itemId":601,"lat":7.3775,"lon":3.947,"name":"Ibadan"},
+  "subjects": [
+    {"itemId":715,"name":"capoeira","value":2},
+    {"itemId":712,"name":"Archives","value":1},
+    {"itemId":703,"name":"Christianity","value":1},
+    {"itemId":711,"name":"Collective memory","value":1},
+    {"itemId":716,"name":"highlife","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":706,"name":"Oral tradition","value":1},
+    {"itemId":719,"name":"sound recording","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "timeline": {"2019":4,"2023":1,"2025":1},
+  "totalItems": 7,
+  "types": [
+    {"itemId":802,"name":"Field notes","value":2},
+    {"itemId":801,"name":"Photograph","value":2},
+    {"itemId":800,"name":"Interview","value":1},
+    {"itemId":803,"name":"Sound recording","value":1},
+    {"itemId":804,"name":"Video","value":1}
+  ]
+}

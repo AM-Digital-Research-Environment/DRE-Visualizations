@@ -1,0 +1,99 @@
+{
+  "contributors": [
+    {"itemId":416,"name":"Achieng, Grace","value":2},
+    {"itemId":410,"name":"Oliveira, Rafael","value":2},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":2},
+    {"itemId":400,"name":"Adeyemi, Folake","value":1},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
+    {"itemId":411,"name":"Kiprop, David","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1049,"title":"Healing migration (50)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    }
+  ],
+  "geoFlows": {
+    "links": [
+      {"from":"Makhanda","fromLat":-33.3106,"fromLon":26.5256,"to":"Lagos","toLat":6.5244,"toLon":3.3792,"value":1},
+      {"from":"Kaolack","fromLat":14.15,"fromLon":-16.07,"to":"Lagos","toLat":6.5244,"toLon":3.3792,"value":1},
+      {"from":"Kaolack","fromLat":14.15,"fromLon":-16.07,"to":"Salvador","toLat":-12.9777,"toLon":-38.5016,"value":1}
+    ],
+    "nodes": [
+      {"itemId":604,"lat":-33.3106,"lon":26.5256,"name":"Makhanda"},
+      {"itemId":600,"lat":6.5244,"lon":3.3792,"name":"Lagos"},
+      {"itemId":609,"lat":14.15,"lon":-16.07,"name":"Kaolack"},
+      {"itemId":607,"lat":-12.9777,"lon":-38.5016,"name":"Salvador"}
+    ]
+  },
+  "languages": [
+    {"itemId":815,"name":"Hausa","value":1},
+    {"itemId":814,"name":"Swahili","value":1},
+    {"itemId":813,"name":"Yoruba","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 609,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"},
+        {"id":1049,"title":"Healing migration (50)"},
+        {"id":1072,"title":"Language language (73)"},
+        {"id":2403,"title":"Field photograph 4"},
+        {"id":2413,"title":"Field photograph 14"},
+        {"id":2419,"title":"Field photograph 20"}
+      ],
+      "lat": 14.15,
+      "lon": -16.07,
+      "name": "Kaolack",
+      "value": 6
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    }
+  ],
+  "resourceType": "location",
+  "selfLocation": {"itemId":609,"lat":14.15,"lon":-16.07,"name":"Kaolack"},
+  "subjects": [
+    {"itemId":725,"name":"radio","value":2},
+    {"itemId":712,"name":"Archives","value":1},
+    {"itemId":715,"name":"capoeira","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":706,"name":"Oral tradition","value":1},
+    {"itemId":726,"name":"photography","value":1},
+    {"itemId":724,"name":"restitution","value":1},
+    {"itemId":719,"name":"sound recording","value":1}
+  ],
+  "timeline": {"2020":1,"2022":3},
+  "totalItems": 6,
+  "types": [
+    {"itemId":801,"name":"Photograph","value":3},
+    {"itemId":800,"name":"Interview","value":2},
+    {"itemId":804,"name":"Video","value":1}
+  ]
+}

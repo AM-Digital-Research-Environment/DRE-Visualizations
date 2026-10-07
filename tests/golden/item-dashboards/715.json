@@ -1,0 +1,276 @@
+{
+  "coSubjects": [
+    {"itemId":714,"name":"Gender","value":4},
+    {"itemId":725,"name":"radio","value":3},
+    {"itemId":724,"name":"restitution","value":3},
+    {"itemId":717,"name":"Afrobeat","value":2},
+    {"itemId":711,"name":"Collective memory","value":2},
+    {"itemId":707,"name":"Popular music","value":2},
+    {"itemId":705,"name":"Urbanization","value":2},
+    {"itemId":728,"name":"griot","value":2},
+    {"itemId":726,"name":"photography","value":2},
+    {"itemId":703,"name":"Christianity","value":1},
+    {"itemId":710,"name":"Colonialism","value":1},
+    {"itemId":709,"name":"Education","value":1},
+    {"itemId":713,"name":"Kinship","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":721,"name":"healing","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":722,"name":"urban farming","value":1}
+  ],
+  "contributors": [
+    {"itemId":412,"name":"Traoré, Aïssata","value":5},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":4},
+    {"itemId":400,"name":"Adeyemi, Folake","value":3},
+    {"itemId":401,"name":"Bakari, Amina","value":2},
+    {"itemId":411,"name":"Kiprop, David","value":2},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":2},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":2},
+    {"itemId":422,"name":"Abubakar, Hauwa","value":1},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":1},
+    {"itemId":419,"name":"Hoffmann, Felix","value":1},
+    {"itemId":424,"name":"Item 424","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":413,"name":"Nkosi, Sipho","value":1},
+    {"itemId":410,"name":"Oliveira, Rafael","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1040,"title":"Migration harvest drum healing (41)"},
+        {"id":1099,"title":"Festival road mosque voices (100)"},
+        {"id":2452,"title":"Acervo APMESTRENO003"},
+        {"id":2457,"title":"Acervo TRABNEGRBA001"},
+        {"id":2458,"title":"Acervo TRABNEGRBA002"},
+        {"id":2460,"title":"Acervo TRABNEGRBA004"},
+        {"id":2461,"title":"Acervo TRABNEGRBA005"},
+        {"id":2463,"title":"Acervo ORIXAFGM002"},
+        {"id":2466,"title":"Acervo OTHERPREFIX001"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 9
+    },
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1107,"title":"Song healing memory road (108)"},
+        {"id":1109,"title":"Voices family city (110)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 2
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1082,"title":"Festival market market school (83)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    },
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1030,"title":"Archive language (31)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1067,"title":"Drum voices ritual (68)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    },
+    {
+      "itemId": 500,
+      "items": [
+        {"id":1064,"title":"Healing language ritual (65)"}
+      ],
+      "lat": 49.9456,
+      "lon": 11.5713,
+      "name": "University of Bayreuth",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":812,"name":"Portuguese","value":10},
+    {"itemId":810,"name":"English","value":3},
+    {"itemId":814,"name":"Swahili","value":3},
+    {"itemId":811,"name":"French","value":2},
+    {"itemId":813,"name":"Yoruba","value":2},
+    {"itemId":815,"name":"Hausa","value":1},
+    {"itemId":816,"name":"Mooré","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1082,"title":"Festival market market school (83)"},
+        {"id":1104,"title":"Festival family road river (105)"},
+        {"id":2452,"title":"Acervo APMESTRENO003"},
+        {"id":2457,"title":"Acervo TRABNEGRBA001"},
+        {"id":2458,"title":"Acervo TRABNEGRBA002"},
+        {"id":2460,"title":"Acervo TRABNEGRBA004"},
+        {"id":2461,"title":"Acervo TRABNEGRBA005"},
+        {"id":2463,"title":"Acervo ORIXAFGM002"},
+        {"id":2466,"title":"Acervo OTHERPREFIX001"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 9
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1040,"title":"Migration harvest drum healing (41)"},
+        {"id":1082,"title":"Festival market market school (83)"},
+        {"id":1109,"title":"Voices family city (110)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 3
+    },
+    {
+      "itemId": 603,
+      "items": [
+        {"id":1026,"title":"Migration festival song harvest (27)"},
+        {"id":2401,"title":"Field photograph 2"}
+      ],
+      "lat": 11.1771,
+      "lon": -4.2979,
+      "name": "Bobo-Dioulasso",
+      "value": 2
+    },
+    {
+      "itemId": 601,
+      "items": [
+        {"id":1067,"title":"Drum voices ritual (68)"},
+        {"id":2412,"title":"Field photograph 13"}
+      ],
+      "lat": 7.3775,
+      "lon": 3.947,
+      "name": "Ibadan",
+      "value": 2
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1064,"title":"Healing language ritual (65)"},
+        {"id":2402,"title":"Field photograph 3"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 2
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1109,"title":"Voices family city (110)"},
+        {"id":2408,"title":"Field photograph 9"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 2
+    },
+    {
+      "itemId": 613,
+      "items": [
+        {"id":2410,"title":"Field photograph 11"}
+      ],
+      "lat": 7.18,
+      "lon": 1.99,
+      "name": "Abomey",
+      "value": 1
+    },
+    {
+      "itemId": 610,
+      "items": [
+        {"id":2409,"title":"Field photograph 10"}
+      ],
+      "lat": 12.6392,
+      "lon": -8.0029,
+      "name": "Bamako",
+      "value": 1
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1050,"title":"Memory memory (51)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 1
+    },
+    {
+      "itemId": 609,
+      "items": [
+        {"id":2403,"title":"Field photograph 4"}
+      ],
+      "lat": 14.15,
+      "lon": -16.07,
+      "name": "Kaolack",
+      "value": 1
+    },
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1050,"title":"Memory memory (51)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 1
+    },
+    {
+      "itemId": 608,
+      "items": [
+        {"id":2406,"title":"Field photograph 7"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1026,"title":"Migration festival song harvest (27)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    }
+  ],
+  "resourceType": "authority",
+  "timeline": {"1976":1,"1991":1,"1994":1,"2000":1,"2003":1,"2009":1,"2018":1,"2019":4,"2020":4,"2021":2,"2022":2,"2023":2,"2024":2,"2025":3},
+  "totalItems": 29,
+  "types": [
+    {"itemId":801,"name":"Photograph","value":10},
+    {"itemId":803,"name":"Sound recording","value":4},
+    {"itemId":804,"name":"Video","value":4},
+    {"itemId":802,"name":"Field notes","value":2}
+  ]
+}

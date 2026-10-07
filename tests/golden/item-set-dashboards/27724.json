@@ -1,0 +1,40 @@
+{
+  "contributors": [
+    {"itemId":400,"name":"Adeyemi, Folake","value":2},
+    {"itemId":404,"name":"Müller, Katharina","value":2},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":1},
+    {"itemId":413,"name":"Nkosi, Sipho","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 604,
+      "items": [
+        {"id":2500,"title":"ILAM article 1"},
+        {"id":2501,"title":"ILAM article 2"},
+        {"id":2502,"title":"ILAM article 3"},
+        {"id":2503,"title":"ILAM article 4"},
+        {"id":2504,"title":"ILAM article 5"},
+        {"id":2505,"title":"ILAM article 6"},
+        {"id":2506,"title":"ILAM article 7"},
+        {"id":2507,"title":"ILAM article 8"},
+        {"id":2508,"title":"ILAM article 9"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 9
+    }
+  ],
+  "languages": [],
+  "locations": [],
+  "resourceType": "researchItem",
+  "subjects": [
+    {"itemId":707,"name":"Popular music","value":5},
+    {"itemId":716,"name":"highlife","value":3},
+    {"itemId":700,"name":"Music","value":1}
+  ],
+  "timeline": {"2012":3,"2013":3,"2014":3},
+  "totalItems": 9,
+  "types": []
+}

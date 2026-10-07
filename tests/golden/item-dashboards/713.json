@@ -1,0 +1,111 @@
+{
+  "coSubjects": [
+    {"itemId":705,"name":"Urbanization","value":2},
+    {"itemId":717,"name":"Afrobeat","value":1},
+    {"itemId":712,"name":"Archives","value":1},
+    {"itemId":727,"name":"Candomblé","value":1},
+    {"itemId":703,"name":"Christianity","value":1},
+    {"itemId":709,"name":"Education","value":1},
+    {"itemId":715,"name":"capoeira","value":1},
+    {"itemId":723,"name":"diaspora","value":1},
+    {"itemId":718,"name":"mobile phones","value":1}
+  ],
+  "contributors": [
+    {"itemId":422,"name":"Abubakar, Hauwa","value":2},
+    {"itemId":419,"name":"Hoffmann, Felix","value":2},
+    {"itemId":403,"name":"Santos, Ana Clara","value":2},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":418,"name":"Ferreira, Luíza","value":1},
+    {"itemId":424,"name":"Item 424","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":600,"name":"Lagos","value":1},
+    {"itemId":604,"name":"Makhanda","value":1},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":1},
+    {"itemId":413,"name":"Nkosi, Sipho","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
+    {"itemId":607,"name":"Salvador","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1113,"title":"Voices church family song (114)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":814,"name":"Swahili","value":3},
+    {"itemId":810,"name":"English","value":2},
+    {"itemId":812,"name":"Portuguese","value":2},
+    {"itemId":811,"name":"French","value":1},
+    {"itemId":816,"name":"Mooré","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 603,
+      "items": [
+        {"id":1026,"title":"Migration festival song harvest (27)"},
+        {"id":1118,"title":"Radio church language (119)"}
+      ],
+      "lat": 11.1771,
+      "lon": -4.2979,
+      "name": "Bobo-Dioulasso",
+      "value": 2
+    },
+    {
+      "itemId": 615,
+      "items": [
+        {"id":1091,"title":"Voices language market ritual (92)"}
+      ],
+      "lat": -6.7924,
+      "lon": 39.2083,
+      "name": "Dar es Salaam",
+      "value": 1
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1091,"title":"Voices language market ritual (92)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 1
+    },
+    {
+      "itemId": 616,
+      "items": [
+        {"id":1113,"title":"Voices church family song (114)"}
+      ],
+      "lat": 0.3476,
+      "lon": 32.5825,
+      "name": "Kampala",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1026,"title":"Migration festival song harvest (27)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    }
+  ],
+  "resourceType": "authority",
+  "timeline": {"2020":3,"2021":2,"2023":3,"2025":1},
+  "totalItems": 9,
+  "types": [
+    {"itemId":802,"name":"Field notes","value":2},
+    {"itemId":805,"name":"Journal article","value":2},
+    {"itemId":803,"name":"Sound recording","value":2},
+    {"itemId":806,"name":"Book chapter","value":1},
+    {"itemId":801,"name":"Photograph","value":1},
+    {"itemId":804,"name":"Video","value":1}
+  ]
+}

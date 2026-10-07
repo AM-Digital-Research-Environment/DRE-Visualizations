@@ -1,0 +1,140 @@
+{
+  "contributors": [
+    {"itemId":419,"name":"Hoffmann, Felix","value":2},
+    {"itemId":413,"name":"Nkosi, Sipho","value":2},
+    {"itemId":416,"name":"Achieng, Grace","value":1},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":411,"name":"Kiprop, David","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1},
+    {"itemId":412,"name":"Traoré, Aïssata","value":1},
+    {"itemId":414,"name":"Weber, Lena","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1109,"title":"Voices family city (110)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1049,"title":"Healing migration (50)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    },
+    {
+      "itemId": 500,
+      "items": [
+        {"id":1064,"title":"Healing language ritual (65)"}
+      ],
+      "lat": 49.9456,
+      "lon": 11.5713,
+      "name": "University of Bayreuth",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":815,"name":"Hausa","value":3},
+    {"itemId":812,"name":"Portuguese","value":2},
+    {"itemId":814,"name":"Swahili","value":2},
+    {"itemId":813,"name":"Yoruba","value":2},
+    {"itemId":810,"name":"English","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 603,
+      "items": [
+        {"id":1079,"title":"City road (80)"}
+      ],
+      "lat": 11.1771,
+      "lon": -4.2979,
+      "name": "Bobo-Dioulasso",
+      "value": 1
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1109,"title":"Voices family city (110)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 1
+    },
+    {
+      "itemId": 609,
+      "items": [
+        {"id":1049,"title":"Healing migration (50)"}
+      ],
+      "lat": 14.15,
+      "lon": -16.07,
+      "name": "Kaolack",
+      "value": 1
+    },
+    {
+      "itemId": 608,
+      "items": [
+        {"id":1034,"title":"Radio memory (35)"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 1
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1064,"title":"Healing language ritual (65)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1109,"title":"Voices family city (110)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    }
+  ],
+  "resourceType": "researchItem",
+  "subjects": [
+    {"itemId":708,"name":"Language policy","value":3},
+    {"itemId":717,"name":"Afrobeat","value":2},
+    {"itemId":715,"name":"capoeira","value":2},
+    {"itemId":709,"name":"Education","value":2},
+    {"itemId":725,"name":"radio","value":2},
+    {"itemId":724,"name":"restitution","value":2},
+    {"itemId":727,"name":"Candomblé","value":1},
+    {"itemId":710,"name":"Colonialism","value":1},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":722,"name":"urban farming","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "timeline": {"2019":3,"2020":1,"2022":2,"2024":1},
+  "totalItems": 8,
+  "types": [
+    {"itemId":802,"name":"Field notes","value":3},
+    {"itemId":803,"name":"Sound recording","value":2},
+    {"itemId":804,"name":"Video","value":2},
+    {"itemId":800,"name":"Interview","value":1},
+    {"itemId":801,"name":"Photograph","value":1}
+  ]
+}

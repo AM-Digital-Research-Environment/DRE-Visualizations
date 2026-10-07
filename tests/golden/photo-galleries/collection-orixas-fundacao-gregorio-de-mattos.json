@@ -1,0 +1,9 @@
+{
+  "photos": [
+    {"date":"2006","ext":"jpg","id":2462,"ident":"ORIXAFGM001","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-orixafgm001","title":"Acervo ORIXAFGM001","year":2006},
+    {"date":"2009","ext":"jpg","id":2463,"ident":"ORIXAFGM002","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-orixafgm002","title":"Acervo ORIXAFGM002","year":2009},
+    {"date":"2012","ext":"jpg","id":2464,"ident":"ORIXAFGM003","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-orixafgm003","title":"Acervo ORIXAFGM003","year":2012},
+    {"date":"2015","ext":"jpg","id":2465,"ident":"ORIXAFGM004","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-orixafgm004","title":"Acervo ORIXAFGM004","year":2015}
+  ],
+  "total": 4
+}

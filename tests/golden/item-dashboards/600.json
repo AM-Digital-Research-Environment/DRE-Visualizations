@@ -1,0 +1,271 @@
+{
+  "contributors": [
+    {"itemId":402,"name":"Ouédraogo, Issa","value":8},
+    {"itemId":1219,"name":"DECCA West Africa","value":5},
+    {"itemId":416,"name":"Achieng, Grace","value":3},
+    {"itemId":411,"name":"Kiprop, David","value":3},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":3},
+    {"itemId":413,"name":"Nkosi, Sipho","value":3},
+    {"itemId":409,"name":"Schmidt, Jonas","value":3},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":2},
+    {"itemId":418,"name":"Ferreira, Luíza","value":2},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
+    {"itemId":424,"name":"Item 424","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
+    {"itemId":410,"name":"Oliveira, Rafael","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1},
+    {"itemId":412,"name":"Traoré, Aïssata","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1111,"title":"Language language radio (112)"},
+        {"id":1112,"title":"Archive mosque song (113)"},
+        {"id":1001,"title":"Festival radio memory voices (2)"},
+        {"id":1020,"title":"Migration ritual memory (21)"},
+        {"id":1044,"title":"School harvest city family (45)"},
+        {"id":1084,"title":"School family radio healing (85)"},
+        {"id":1096,"title":"Ritual radio (97)"},
+        {"id":1098,"title":"Ritual festival road (99)"},
+        {"id":1113,"title":"Voices church family song (114)"},
+        {"id":1115,"title":"River radio (116)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 10
+    },
+    {
+      "itemId": 608,
+      "items": [
+        {"id":2600,"title":"Gramophone side 1"},
+        {"id":2601,"title":"Gramophone side 2"},
+        {"id":2602,"title":"Gramophone side 3"},
+        {"id":2603,"title":"Gramophone side 4"},
+        {"id":2604,"title":"Gramophone side 5"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 5
+    },
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1062,"title":"Road festival river radio (63)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 1
+    },
+    {
+      "itemId": 500,
+      "items": [
+        {"id":1064,"title":"Healing language ritual (65)"}
+      ],
+      "lat": 49.9456,
+      "lon": 11.5713,
+      "name": "University of Bayreuth",
+      "value": 1
+    }
+  ],
+  "geoFlows": {
+    "links": [
+      {"from":"Lagos","fromLat":6.5244,"fromLon":3.3792,"to":"Kumasi","toLat":6.6885,"toLon":-1.6244,"value":5},
+      {"from":"Dar es Salaam","fromLat":-6.7924,"fromLon":39.2083,"to":"Lagos","toLat":6.5244,"toLon":3.3792,"value":2},
+      {"from":"Kampala","fromLat":0.3476,"fromLon":32.5825,"to":"Lagos","toLat":6.5244,"toLon":3.3792,"value":2},
+      {"from":"Gorée","fromLat":14.667,"fromLon":-17.398,"to":"Lagos","toLat":6.5244,"toLon":3.3792,"value":2},
+      {"from":"Lagos","fromLat":6.5244,"fromLon":3.3792,"to":"University of Bayreuth","toLat":49.9456,"toLon":11.5713,"value":1},
+      {"from":"Lagos","fromLat":6.5244,"fromLon":3.3792,"to":"Moi University","toLat":0.5143,"toLon":35.2698,"value":1},
+      {"from":"Bobo-Dioulasso","fromLat":11.1771,"fromLon":-4.2979,"to":"Lagos","toLat":6.5244,"toLon":3.3792,"value":1},
+      {"from":"Makhanda","fromLat":-33.3106,"fromLon":26.5256,"to":"Lagos","toLat":6.5244,"toLon":3.3792,"value":1},
+      {"from":"Eldoret","fromLat":0.5143,"fromLon":35.2698,"to":"Lagos","toLat":6.5244,"toLon":3.3792,"value":1},
+      {"from":"Kaolack","fromLat":14.15,"fromLon":-16.07,"to":"Lagos","toLat":6.5244,"toLon":3.3792,"value":1},
+      {"from":"Addis Ababa","fromLat":9.03,"fromLon":38.74,"to":"Lagos","toLat":6.5244,"toLon":3.3792,"value":1}
+    ],
+    "nodes": [
+      {"itemId":600,"lat":6.5244,"lon":3.3792,"name":"Lagos"},
+      {"itemId":505,"lat":0.5143,"lon":35.2698,"name":"Moi University"},
+      {"itemId":500,"lat":49.9456,"lon":11.5713,"name":"University of Bayreuth"},
+      {"itemId":615,"lat":-6.7924,"lon":39.2083,"name":"Dar es Salaam"},
+      {"itemId":616,"lat":0.3476,"lon":32.5825,"name":"Kampala"},
+      {"itemId":608,"lat":6.6885,"lon":-1.6244,"name":"Kumasi"},
+      {"itemId":618,"lat":14.667,"lon":-17.398,"name":"Gorée"},
+      {"itemId":604,"lat":-33.3106,"lon":26.5256,"name":"Makhanda"},
+      {"itemId":609,"lat":14.15,"lon":-16.07,"name":"Kaolack"},
+      {"itemId":612,"lat":9.03,"lon":38.74,"name":"Addis Ababa"},
+      {"itemId":605,"lat":0.5143,"lon":35.2698,"name":"Eldoret"},
+      {"itemId":603,"lat":11.1771,"lon":-4.2979,"name":"Bobo-Dioulasso"}
+    ]
+  },
+  "languages": [
+    {"itemId":813,"name":"Yoruba","value":8},
+    {"itemId":810,"name":"English","value":5},
+    {"itemId":815,"name":"Hausa","value":4},
+    {"itemId":816,"name":"Mooré","value":3},
+    {"itemId":814,"name":"Swahili","value":3},
+    {"itemId":812,"name":"Portuguese","value":2},
+    {"itemId":811,"name":"French","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1043,"title":"Mosque healing (44)"},
+        {"id":1062,"title":"Road festival river radio (63)"},
+        {"id":1064,"title":"Healing language ritual (65)"},
+        {"id":1102,"title":"Road drum memory river (103)"},
+        {"id":1111,"title":"Language language radio (112)"},
+        {"id":1112,"title":"Archive mosque song (113)"},
+        {"id":2204,"title":"Episode 5: Knowledge city"},
+        {"id":2208,"title":"Episode 9: Archive city"},
+        {"id":2402,"title":"Field photograph 3"},
+        {"id":2416,"title":"Field photograph 17"},
+        {"id":2600,"title":"Gramophone side 1"},
+        {"id":2601,"title":"Gramophone side 2"},
+        {"id":2602,"title":"Gramophone side 3"},
+        {"id":2603,"title":"Gramophone side 4"},
+        {"id":2604,"title":"Gramophone side 5"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 15
+    },
+    {
+      "itemId": 615,
+      "items": [
+        {"id":1111,"title":"Language language radio (112)"},
+        {"id":1098,"title":"Ritual festival road (99)"}
+      ],
+      "lat": -6.7924,
+      "lon": 39.2083,
+      "name": "Dar es Salaam",
+      "value": 2
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1001,"title":"Festival radio memory voices (2)"},
+        {"id":1044,"title":"School harvest city family (45)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 2
+    },
+    {
+      "itemId": 616,
+      "items": [
+        {"id":1112,"title":"Archive mosque song (113)"},
+        {"id":1113,"title":"Voices church family song (114)"}
+      ],
+      "lat": 0.3476,
+      "lon": 32.5825,
+      "name": "Kampala",
+      "value": 2
+    },
+    {
+      "itemId": 612,
+      "items": [
+        {"id":1044,"title":"School harvest city family (45)"}
+      ],
+      "lat": 9.03,
+      "lon": 38.74,
+      "name": "Addis Ababa",
+      "value": 1
+    },
+    {
+      "itemId": 603,
+      "items": [
+        {"id":1098,"title":"Ritual festival road (99)"}
+      ],
+      "lat": 11.1771,
+      "lon": -4.2979,
+      "name": "Bobo-Dioulasso",
+      "value": 1
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1084,"title":"School family radio healing (85)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 1
+    },
+    {
+      "itemId": 609,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"}
+      ],
+      "lat": 14.15,
+      "lon": -16.07,
+      "name": "Kaolack",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1043,"title":"Mosque healing (44)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    }
+  ],
+  "resourceType": "location",
+  "selfLocation": {"itemId":600,"lat":6.5244,"lon":3.3792,"name":"Lagos"},
+  "subjects": [
+    {"itemId":716,"name":"highlife","value":4},
+    {"itemId":726,"name":"photography","value":4},
+    {"itemId":711,"name":"Collective memory","value":3},
+    {"itemId":706,"name":"Oral tradition","value":3},
+    {"itemId":707,"name":"Popular music","value":3},
+    {"itemId":701,"name":"Religion","value":3},
+    {"itemId":717,"name":"Afrobeat","value":2},
+    {"itemId":715,"name":"capoeira","value":2},
+    {"itemId":708,"name":"Language policy","value":2},
+    {"itemId":719,"name":"sound recording","value":2},
+    {"itemId":712,"name":"Archives","value":1},
+    {"itemId":727,"name":"Candomblé","value":1},
+    {"itemId":703,"name":"Christianity","value":1},
+    {"itemId":710,"name":"Colonialism","value":1},
+    {"itemId":723,"name":"diaspora","value":1},
+    {"itemId":709,"name":"Education","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":721,"name":"healing","value":1},
+    {"itemId":713,"name":"Kinship","value":1},
+    {"itemId":725,"name":"radio","value":1},
+    {"itemId":724,"name":"restitution","value":1},
+    {"itemId":722,"name":"urban farming","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "timeline": {"1955":1,"1956":1,"1957":1,"1958":1,"1959":1,"2021":5,"2022":2,"2023":5,"2024":2,"2025":2},
+  "totalItems": 23,
+  "types": [
+    {"itemId":803,"name":"Sound recording","value":7},
+    {"itemId":801,"name":"Photograph","value":6},
+    {"itemId":804,"name":"Video","value":6},
+    {"itemId":800,"name":"Interview","value":4}
+  ]
+}

@@ -1,0 +1,183 @@
+{
+  "coSubjects": [
+    {"itemId":726,"name":"photography","value":4},
+    {"itemId":707,"name":"Popular music","value":3},
+    {"itemId":721,"name":"healing","value":3},
+    {"itemId":701,"name":"Religion","value":2},
+    {"itemId":705,"name":"Urbanization","value":2},
+    {"itemId":727,"name":"Candomblé","value":1},
+    {"itemId":709,"name":"Education","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":723,"name":"diaspora","value":1},
+    {"itemId":716,"name":"highlife","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":719,"name":"sound recording","value":1}
+  ],
+  "contributors": [
+    {"itemId":402,"name":"Ouédraogo, Issa","value":5},
+    {"itemId":411,"name":"Kiprop, David","value":3},
+    {"itemId":416,"name":"Achieng, Grace","value":2},
+    {"itemId":511,"name":"Digital Research Environment Team","value":2},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":2},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":2},
+    {"itemId":410,"name":"Oliveira, Rafael","value":2},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":2},
+    {"itemId":400,"name":"Adeyemi, Folake","value":1},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":1},
+    {"itemId":419,"name":"Hoffmann, Felix","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":600,"name":"Lagos","value":1},
+    {"itemId":420,"name":"Mensah, Kwame","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"},
+        {"id":1044,"title":"School harvest city family (45)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 2
+    },
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1023,"title":"Ritual festival school migration (24)"},
+        {"id":1105,"title":"Drum radio (106)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 2
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1071,"title":"Language voices (72)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":810,"name":"English","value":3},
+    {"itemId":811,"name":"French","value":2},
+    {"itemId":816,"name":"Mooré","value":2},
+    {"itemId":812,"name":"Portuguese","value":2},
+    {"itemId":815,"name":"Hausa","value":1},
+    {"itemId":814,"name":"Swahili","value":1},
+    {"itemId":813,"name":"Yoruba","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"},
+        {"id":1023,"title":"Ritual festival school migration (24)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 2
+    },
+    {
+      "itemId": 612,
+      "items": [
+        {"id":1044,"title":"School harvest city family (45)"}
+      ],
+      "lat": 9.03,
+      "lon": 38.74,
+      "name": "Addis Ababa",
+      "value": 1
+    },
+    {
+      "itemId": 615,
+      "items": [
+        {"id":1006,"title":"Mosque memory archive (7)"}
+      ],
+      "lat": -6.7924,
+      "lon": 39.2083,
+      "name": "Dar es Salaam",
+      "value": 1
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1015,"title":"City family (16)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 1
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1044,"title":"School harvest city family (45)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 1
+    },
+    {
+      "itemId": 601,
+      "items": [
+        {"id":2418,"title":"Field photograph 19"}
+      ],
+      "lat": 7.3775,
+      "lon": 3.947,
+      "name": "Ibadan",
+      "value": 1
+    },
+    {
+      "itemId": 616,
+      "items": [
+        {"id":1006,"title":"Mosque memory archive (7)"}
+      ],
+      "lat": 0.3476,
+      "lon": 32.5825,
+      "name": "Kampala",
+      "value": 1
+    },
+    {
+      "itemId": 609,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"}
+      ],
+      "lat": 14.15,
+      "lon": -16.07,
+      "name": "Kaolack",
+      "value": 1
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":2416,"title":"Field photograph 17"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    }
+  ],
+  "resourceType": "authority",
+  "timeline": {"2019":3,"2020":1,"2021":1,"2022":3,"2023":1,"2024":2,"2025":1},
+  "totalItems": 14,
+  "types": [
+    {"itemId":801,"name":"Photograph","value":6},
+    {"itemId":800,"name":"Interview","value":3},
+    {"itemId":805,"name":"Journal article","value":2},
+    {"itemId":804,"name":"Video","value":2},
+    {"itemId":802,"name":"Field notes","value":1},
+    {"itemId":803,"name":"Sound recording","value":1}
+  ]
+}

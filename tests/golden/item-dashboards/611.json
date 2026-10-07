@@ -1,0 +1,127 @@
+{
+  "contributors": [
+    {"itemId":402,"name":"Ouédraogo, Issa","value":2},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":415,"name":"Balogun, Tunde","value":1},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":1},
+    {"itemId":411,"name":"Kiprop, David","value":1},
+    {"itemId":420,"name":"Mensah, Kwame","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1},
+    {"itemId":410,"name":"Oliveira, Rafael","value":1},
+    {"itemId":412,"name":"Traoré, Aïssata","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"},
+        {"id":1025,"title":"Healing river ritual (26)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 2
+    },
+    {
+      "itemId": 500,
+      "items": [
+        {"id":1036,"title":"Radio road mosque healing (37)"}
+      ],
+      "lat": 49.9456,
+      "lon": 11.5713,
+      "name": "University of Bayreuth",
+      "value": 1
+    }
+  ],
+  "geoFlows": {
+    "links": [
+      {"from":"Kinshasa","fromLat":-4.4419,"fromLon":15.2663,"to":"Universidade Federal da Bahia","toLat":-12.9777,"toLon":-38.5016,"value":2},
+      {"from":"Ouagadougou","fromLat":12.3714,"fromLon":-1.5197,"to":"Universidade Federal da Bahia","toLat":-12.9777,"toLon":-38.5016,"value":1},
+      {"from":"Kinshasa","fromLat":-4.4419,"fromLon":15.2663,"to":"University of Bayreuth","toLat":49.9456,"toLon":11.5713,"value":1}
+    ],
+    "nodes": [
+      {"itemId":602,"lat":12.3714,"lon":-1.5197,"name":"Ouagadougou"},
+      {"itemId":503,"lat":-12.9777,"lon":-38.5016,"name":"Universidade Federal da Bahia"},
+      {"itemId":611,"lat":-4.4419,"lon":15.2663,"name":"Kinshasa"},
+      {"itemId":500,"lat":49.9456,"lon":11.5713,"name":"University of Bayreuth"}
+    ]
+  },
+  "languages": [
+    {"itemId":815,"name":"Hausa","value":2},
+    {"itemId":812,"name":"Portuguese","value":2},
+    {"itemId":811,"name":"French","value":1},
+    {"itemId":814,"name":"Swahili","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"},
+        {"id":1025,"title":"Healing river ritual (26)"},
+        {"id":1036,"title":"Radio road mosque healing (37)"},
+        {"id":1048,"title":"Drum migration market drum (49)"},
+        {"id":1050,"title":"Memory memory (51)"},
+        {"id":1100,"title":"Church drum (101)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 6
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1050,"title":"Memory memory (51)"},
+        {"id":1100,"title":"Church drum (101)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 2
+    },
+    {
+      "itemId": 601,
+      "items": [
+        {"id":1048,"title":"Drum migration market drum (49)"}
+      ],
+      "lat": 7.3775,
+      "lon": 3.947,
+      "name": "Ibadan",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    }
+  ],
+  "resourceType": "location",
+  "selfLocation": {"itemId":611,"lat":-4.4419,"lon":15.2663,"name":"Kinshasa"},
+  "subjects": [
+    {"itemId":705,"name":"Urbanization","value":3},
+    {"itemId":724,"name":"restitution","value":2},
+    {"itemId":715,"name":"capoeira","value":1},
+    {"itemId":710,"name":"Colonialism","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":726,"name":"photography","value":1},
+    {"itemId":725,"name":"radio","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":719,"name":"sound recording","value":1}
+  ],
+  "timeline": {"2019":1,"2020":1,"2021":2,"2022":1},
+  "totalItems": 6,
+  "types": [
+    {"itemId":802,"name":"Field notes","value":2},
+    {"itemId":803,"name":"Sound recording","value":2},
+    {"itemId":804,"name":"Video","value":2}
+  ]
+}

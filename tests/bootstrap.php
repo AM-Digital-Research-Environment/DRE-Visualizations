@@ -7,3 +7,4 @@ spl_autoload_register(static function (string $class): void {
         if (is_file($path)) require_once $path;
     }
 });
+require_once __DIR__ . '/lib/strict-errors.php';

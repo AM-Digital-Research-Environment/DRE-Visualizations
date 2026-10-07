@@ -1,0 +1,32 @@
+{
+  "decca": {
+    "covers": [],
+    "itemCount": 5,
+    "photoCount": null
+  },
+  "international-library-of-african-music-ilam": {
+    "covers": ["ilam-0000","ilam-0001","ilam-0003","ilam-0004"],
+    "itemCount": 9,
+    "photoCount": 3
+  },
+  "jambo": {
+    "covers": [],
+    "itemCount": 3,
+    "photoCount": null
+  },
+  "memorias-perifericas-capoeira-angola-salvador": {
+    "covers": ["museu-apmestreno001","museu-apmestreno002","museu-apmestreno003","museu-apmestreno004"],
+    "itemCount": 7,
+    "photoCount": 6
+  },
+  "orixas-fundacao-gregorio-de-mattos": {
+    "covers": ["museu-orixafgm001","museu-orixafgm002","museu-orixafgm003","museu-orixafgm004"],
+    "itemCount": 4,
+    "photoCount": 4
+  },
+  "trabalhadores-na-da-bahia": {
+    "covers": ["museu-trabnegrba001","museu-trabnegrba002","museu-trabnegrba003","museu-trabnegrba004"],
+    "itemCount": 5,
+    "photoCount": 4
+  }
+}

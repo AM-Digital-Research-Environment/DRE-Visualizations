@@ -1,0 +1,201 @@
+{
+  "coSubjects": [
+    {"itemId":719,"name":"sound recording","value":3},
+    {"itemId":702,"name":"Islam","value":2},
+    {"itemId":728,"name":"griot","value":2},
+    {"itemId":726,"name":"photography","value":2},
+    {"itemId":710,"name":"Colonialism","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":706,"name":"Oral tradition","value":1},
+    {"itemId":707,"name":"Popular music","value":1},
+    {"itemId":705,"name":"Urbanization","value":1},
+    {"itemId":715,"name":"capoeira","value":1},
+    {"itemId":724,"name":"restitution","value":1}
+  ],
+  "contributors": [
+    {"itemId":416,"name":"Achieng, Grace","value":3},
+    {"itemId":401,"name":"Bakari, Amina","value":2},
+    {"itemId":411,"name":"Kiprop, David","value":2},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":2},
+    {"itemId":403,"name":"Santos, Ana Clara","value":2},
+    {"itemId":422,"name":"Abubakar, Hauwa","value":1},
+    {"itemId":415,"name":"Balogun, Tunde","value":1},
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
+    {"itemId":419,"name":"Hoffmann, Felix","value":1},
+    {"itemId":424,"name":"Item 424","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":420,"name":"Mensah, Kwame","value":1},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":413,"name":"Nkosi, Sipho","value":1},
+    {"itemId":410,"name":"Oliveira, Rafael","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"},
+        {"id":1112,"title":"Archive mosque song (113)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 2
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1085,"title":"Archive city (86)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    },
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1107,"title":"Song healing memory road (108)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1028,"title":"School festival ritual (29)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    },
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":813,"name":"Yoruba","value":4},
+    {"itemId":810,"name":"English","value":2},
+    {"itemId":815,"name":"Hausa","value":2},
+    {"itemId":812,"name":"Portuguese","value":2},
+    {"itemId":811,"name":"French","value":1},
+    {"itemId":814,"name":"Swahili","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 603,
+      "items": [
+        {"id":1079,"title":"City road (80)"}
+      ],
+      "lat": 11.1771,
+      "lon": -4.2979,
+      "name": "Bobo-Dioulasso",
+      "value": 1
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1028,"title":"School festival ritual (29)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 1
+    },
+    {
+      "itemId": 601,
+      "items": [
+        {"id":1028,"title":"School festival ritual (29)"}
+      ],
+      "lat": 7.3775,
+      "lon": 3.947,
+      "name": "Ibadan",
+      "value": 1
+    },
+    {
+      "itemId": 616,
+      "items": [
+        {"id":1112,"title":"Archive mosque song (113)"}
+      ],
+      "lat": 0.3476,
+      "lon": 32.5825,
+      "name": "Kampala",
+      "value": 1
+    },
+    {
+      "itemId": 609,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"}
+      ],
+      "lat": 14.15,
+      "lon": -16.07,
+      "name": "Kaolack",
+      "value": 1
+    },
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 1
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1112,"title":"Archive mosque song (113)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    }
+  ],
+  "resourceType": "authority",
+  "timeline": {"2019":3,"2020":1,"2021":1,"2022":2,"2023":2,"2025":1},
+  "totalItems": 11,
+  "types": [
+    {"itemId":802,"name":"Field notes","value":3},
+    {"itemId":804,"name":"Video","value":3},
+    {"itemId":800,"name":"Interview","value":2},
+    {"itemId":805,"name":"Journal article","value":1},
+    {"itemId":801,"name":"Photograph","value":1},
+    {"itemId":803,"name":"Sound recording","value":1}
+  ]
+}

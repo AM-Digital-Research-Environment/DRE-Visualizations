@@ -1,0 +1,111 @@
+{
+  "contributors": [
+    {"itemId":402,"name":"Ouédraogo, Issa","value":8},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":5},
+    {"itemId":412,"name":"Traoré, Aïssata","value":4},
+    {"itemId":400,"name":"Adeyemi, Folake","value":3}
+  ],
+  "currentLocations": [],
+  "languages": [],
+  "locations": [
+    {
+      "itemId": 609,
+      "items": [
+        {"id":2403,"title":"Field photograph 4"},
+        {"id":2413,"title":"Field photograph 14"},
+        {"id":2419,"title":"Field photograph 20"}
+      ],
+      "lat": 14.15,
+      "lon": -16.07,
+      "name": "Kaolack",
+      "value": 3
+    },
+    {
+      "itemId": 613,
+      "items": [
+        {"id":2400,"title":"Field photograph 1"},
+        {"id":2410,"title":"Field photograph 11"}
+      ],
+      "lat": 7.18,
+      "lon": 1.99,
+      "name": "Abomey",
+      "value": 2
+    },
+    {
+      "itemId": 603,
+      "items": [
+        {"id":2401,"title":"Field photograph 2"},
+        {"id":2414,"title":"Field photograph 15"}
+      ],
+      "lat": 11.1771,
+      "lon": -4.2979,
+      "name": "Bobo-Dioulasso",
+      "value": 2
+    },
+    {
+      "itemId": 601,
+      "items": [
+        {"id":2412,"title":"Field photograph 13"},
+        {"id":2418,"title":"Field photograph 19"}
+      ],
+      "lat": 7.3775,
+      "lon": 3.947,
+      "name": "Ibadan",
+      "value": 2
+    },
+    {
+      "itemId": 608,
+      "items": [
+        {"id":2406,"title":"Field photograph 7"},
+        {"id":2415,"title":"Field photograph 16"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 2
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":2402,"title":"Field photograph 3"},
+        {"id":2416,"title":"Field photograph 17"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 2
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":2404,"title":"Field photograph 5"},
+        {"id":2408,"title":"Field photograph 9"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 2
+    },
+    {
+      "itemId": 610,
+      "items": [
+        {"id":2409,"title":"Field photograph 10"}
+      ],
+      "lat": 12.6392,
+      "lon": -8.0029,
+      "name": "Bamako",
+      "value": 1
+    }
+  ],
+  "resourceType": "researchItem",
+  "subjects": [
+    {"itemId":715,"name":"capoeira","value":9},
+    {"itemId":725,"name":"radio","value":7},
+    {"itemId":706,"name":"Oral tradition","value":4}
+  ],
+  "timeline": {"2019":4,"2020":3,"2021":2,"2022":2,"2023":2,"2024":3},
+  "totalItems": 20,
+  "types": [
+    {"itemId":801,"name":"Photograph","value":20}
+  ]
+}

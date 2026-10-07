@@ -1,0 +1,9 @@
+{
+  "photos": [
+    {"date":"2021","ext":"jpg","id":1002,"lat":null,"lon":null,"place":"Somewhere in the Sahel","storage":"research-0002","title":"Festival harvest mosque school (3)","year":2021},
+    {"date":"2024-09-25","ext":"jpg","id":1044,"lat":9.03,"lon":38.74,"place":"Addis Ababa","storage":"research-0044","title":"School harvest city family (45)","year":2024},
+    {"date":"2019-09-15","ext":"jpg","id":1094,"lat":null,"lon":null,"place":null,"storage":"research-0094","title":"River archive school mosque (95)","year":2019},
+    {"date":"collected 2022","ext":"jpg","id":1112,"lat":0.3476,"lon":32.5825,"place":"Kampala","storage":"research-0112","title":"Archive mosque song (113)","year":2022}
+  ],
+  "total": 4
+}

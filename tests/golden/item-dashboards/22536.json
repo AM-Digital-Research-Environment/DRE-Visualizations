@@ -1,0 +1,270 @@
+{
+  "choropleth": [
+    {"count":2,"country":"South Africa"},
+    {"count":1,"country":"Benin"},
+    {"count":1,"country":"Ethiopia"},
+    {"count":1,"country":"Senegal"}
+  ],
+  "contributors": [
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":4},
+    {"itemId":511,"name":"Digital Research Environment Team","value":3},
+    {"itemId":419,"name":"Hoffmann, Felix","value":2},
+    {"itemId":411,"name":"Kiprop, David","value":2},
+    {"itemId":410,"name":"Oliveira, Rafael","value":2},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":2},
+    {"itemId":416,"name":"Achieng, Grace","value":1},
+    {"itemId":415,"name":"Balogun, Tunde","value":1},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1003,"title":"Migration harvest (4)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    },
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1105,"title":"Drum radio (106)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1071,"title":"Language voices (72)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    },
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1054,"title":"Family migration voices voices (55)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 1
+    }
+  ],
+  "heatmap": {
+    "cols": ["English","French","Mooré","Portuguese","Yoruba"],
+    "rows": ["Field notes","Interview","Photograph","Sound recording","Video"],
+    "values": [
+      [4,1,1],
+      [4,4,1],
+      [2,4,1],
+      [3,3,1],
+      [1,2,1],
+      [2,0,1],
+      [2,2,1],
+      [3,0,1],
+      [0,0,1],
+      [1,4,1]
+    ]
+  },
+  "languageTimeline": {
+    "series": [
+      {
+        "data": [0,0,0,1,0],
+        "name": "English"
+      },
+      {
+        "data": [1,0,0,0,1],
+        "name": "French"
+      },
+      {
+        "data": [0,0,1,0,1],
+        "name": "Mooré"
+      },
+      {
+        "data": [0,1,0,1,0],
+        "name": "Portuguese"
+      },
+      {
+        "data": [0,0,0,0,1],
+        "name": "Yoruba"
+      }
+    ],
+    "years": [2019,2020,2021,2022,2023]
+  },
+  "languages": [
+    {"itemId":811,"name":"French","value":2},
+    {"itemId":816,"name":"Mooré","value":2},
+    {"itemId":812,"name":"Portuguese","value":2},
+    {"itemId":813,"name":"Yoruba","value":2},
+    {"itemId":810,"name":"English","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"},
+        {"id":1088,"title":"Drum family church city (89)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 2
+    },
+    {
+      "itemId": 613,
+      "items": [
+        {"id":1037,"title":"Harvest memory (38)"}
+      ],
+      "lat": 7.18,
+      "lon": 1.99,
+      "name": "Abomey",
+      "value": 1
+    },
+    {
+      "itemId": 612,
+      "items": [
+        {"id":1088,"title":"Drum family church city (89)"}
+      ],
+      "lat": 9.03,
+      "lon": 38.74,
+      "name": "Addis Ababa",
+      "value": 1
+    },
+    {
+      "itemId": 609,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"}
+      ],
+      "lat": 14.15,
+      "lon": -16.07,
+      "name": "Kaolack",
+      "value": 1
+    }
+  ],
+  "resourceType": "groupOverview",
+  "roles": [
+    {"name":"Contributor (role)","value":7},
+    {"name":"Creator","value":7},
+    {"name":"Interviewer","value":4},
+    {"name":"Contributor","value":2},
+    {"name":"Interviewee","value":2}
+  ],
+  "stackedTimeline": {
+    "series": [
+      {
+        "data": [0,0,1,1,0],
+        "name": "Field notes"
+      },
+      {
+        "data": [0,0,1,0,1],
+        "name": "Photograph"
+      },
+      {
+        "data": [0,1,0,0,0],
+        "name": "Sound recording"
+      },
+      {
+        "data": [1,0,0,0,1],
+        "name": "Video"
+      }
+    ],
+    "years": [2019,2020,2021,2022,2023]
+  },
+  "subjectTrends": {
+    "series": [
+      {
+        "data": [0,0,0,1,1],
+        "name": "diaspora"
+      },
+      {
+        "data": [1,0,0,1,0],
+        "name": "Oral tradition"
+      },
+      {
+        "data": [1,0,0,0,1],
+        "name": "Popular music"
+      },
+      {
+        "data": [0,0,1,0,0],
+        "name": "Afrobeat"
+      },
+      {
+        "data": [0,1,0,0,0],
+        "name": "Colonialism"
+      },
+      {
+        "data": [0,0,0,0,1],
+        "name": "Gender"
+      },
+      {
+        "data": [0,0,1,0,0],
+        "name": "griot"
+      },
+      {
+        "data": [0,0,1,0,0],
+        "name": "Islam"
+      },
+      {
+        "data": [1,0,0,0,0],
+        "name": "mobile phones"
+      },
+      {
+        "data": [0,0,0,0,1],
+        "name": "Music"
+      }
+    ],
+    "years": [2019,2020,2021,2022,2023]
+  },
+  "subjects": [
+    {"itemId":706,"name":"Oral tradition","value":3},
+    {"itemId":723,"name":"diaspora","value":2},
+    {"itemId":707,"name":"Popular music","value":2},
+    {"itemId":717,"name":"Afrobeat","value":1},
+    {"itemId":710,"name":"Colonialism","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":726,"name":"photography","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":719,"name":"sound recording","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "timeline": {"2019":1,"2020":1,"2021":1,"2022":1,"2023":2},
+  "topGroups": [
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":4},
+    {"itemId":511,"name":"Digital Research Environment Team","value":3}
+  ],
+  "totalItems": 7,
+  "types": [
+    {"itemId":802,"name":"Field notes","value":2},
+    {"itemId":801,"name":"Photograph","value":2},
+    {"itemId":804,"name":"Video","value":2},
+    {"itemId":800,"name":"Interview","value":1},
+    {"itemId":803,"name":"Sound recording","value":1}
+  ]
+}

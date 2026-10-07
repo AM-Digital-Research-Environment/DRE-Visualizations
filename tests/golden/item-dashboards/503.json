@@ -1,0 +1,221 @@
+{
+  "affiliationNetwork": {
+    "categories": ["person","institution"],
+    "links": [
+      {"source":"Adeyemi, Folake","target":"Rhodes University","value":1},
+      {"source":"Adeyemi, Folake","target":"Universidade Federal da Bahia","value":1},
+      {"source":"Müller, Katharina","target":"Rhodes University","value":1},
+      {"source":"Müller, Katharina","target":"Universidade Federal da Bahia","value":1},
+      {"source":"Njoroge, Peter","target":"Universidade Federal da Bahia","value":1}
+    ],
+    "nodes": [
+      {"category":"institution","isSelf":true,"itemId":503,"name":"Universidade Federal da Bahia","value":3},
+      {"category":"institution","itemId":504,"name":"Rhodes University","value":2},
+      {"category":"person","itemId":400,"name":"Adeyemi, Folake","value":2},
+      {"category":"person","itemId":404,"name":"Müller, Katharina","value":2},
+      {"category":"person","itemId":423,"name":"Njoroge, Peter","value":1}
+    ]
+  },
+  "collabNetwork": {
+    "links": [
+      {"source":"Universidade Federal da Bahia","target":"University of Lagos African Cluster Centre (LACC)","value":2}
+    ],
+    "nodes": [
+      {"isSelf":true,"itemId":503,"name":"Universidade Federal da Bahia","value":28},
+      {"itemId":501,"name":"University of Lagos African Cluster Centre (LACC)","value":2}
+    ]
+  },
+  "contributors": [
+    {"itemId":401,"name":"Bakari, Amina","value":3},
+    {"itemId":411,"name":"Kiprop, David","value":3},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":3},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":2},
+    {"itemId":420,"name":"Mensah, Kwame","value":2},
+    {"itemId":416,"name":"Achieng, Grace","value":1},
+    {"itemId":400,"name":"Adeyemi, Folake","value":1},
+    {"itemId":415,"name":"Balogun, Tunde","value":1},
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
+    {"itemId":418,"name":"Ferreira, Luíza","value":1},
+    {"itemId":419,"name":"Hoffmann, Felix","value":1},
+    {"itemId":424,"name":"Item 424","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1},
+    {"itemId":413,"name":"Nkosi, Sipho","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"},
+        {"id":1025,"title":"Healing river ritual (26)"},
+        {"id":1040,"title":"Migration harvest drum healing (41)"},
+        {"id":1054,"title":"Family migration voices voices (55)"},
+        {"id":1065,"title":"Mosque language (66)"},
+        {"id":1069,"title":"City song language mosque (70)"},
+        {"id":1083,"title":"School migration church archive (84)"},
+        {"id":1087,"title":"Harvest city (88)"},
+        {"id":1097,"title":"Drum song memory family (98)"},
+        {"id":1099,"title":"Festival road mosque voices (100)"},
+        {"id":1114,"title":"Market harvest harvest memory (115)"},
+        {"id":2450,"title":"Acervo APMESTRENO001"},
+        {"id":2451,"title":"Acervo APMESTRENO002"},
+        {"id":2452,"title":"Acervo APMESTRENO003"},
+        {"id":2453,"title":"Acervo APMESTRENO004"},
+        {"id":2454,"title":"Acervo APMESTRENO005"},
+        {"id":2455,"title":"Acervo APMESTRENO006"},
+        {"id":2456,"title":"Acervo APMESTRENO007"},
+        {"id":2457,"title":"Acervo TRABNEGRBA001"},
+        {"id":2458,"title":"Acervo TRABNEGRBA002"},
+        {"id":2459,"title":"Acervo TRABNEGRBA003"},
+        {"id":2460,"title":"Acervo TRABNEGRBA004"},
+        {"id":2461,"title":"Acervo TRABNEGRBA005"},
+        {"id":2462,"title":"Acervo ORIXAFGM001"},
+        {"id":2463,"title":"Acervo ORIXAFGM002"},
+        {"id":2464,"title":"Acervo ORIXAFGM003"},
+        {"id":2465,"title":"Acervo ORIXAFGM004"},
+        {"id":2466,"title":"Acervo OTHERPREFIX001"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 28
+    }
+  ],
+  "languages": [
+    {"itemId":812,"name":"Portuguese","value":19},
+    {"itemId":816,"name":"Mooré","value":3},
+    {"itemId":811,"name":"French","value":2},
+    {"itemId":813,"name":"Yoruba","value":2},
+    {"itemId":810,"name":"English","value":1},
+    {"itemId":815,"name":"Hausa","value":1},
+    {"itemId":814,"name":"Swahili","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 607,
+      "items": [
+        {"id":2450,"title":"Acervo APMESTRENO001"},
+        {"id":2451,"title":"Acervo APMESTRENO002"},
+        {"id":2452,"title":"Acervo APMESTRENO003"},
+        {"id":2453,"title":"Acervo APMESTRENO004"},
+        {"id":2454,"title":"Acervo APMESTRENO005"},
+        {"id":2455,"title":"Acervo APMESTRENO006"},
+        {"id":2456,"title":"Acervo APMESTRENO007"},
+        {"id":2457,"title":"Acervo TRABNEGRBA001"},
+        {"id":2458,"title":"Acervo TRABNEGRBA002"},
+        {"id":2459,"title":"Acervo TRABNEGRBA003"},
+        {"id":2460,"title":"Acervo TRABNEGRBA004"},
+        {"id":2461,"title":"Acervo TRABNEGRBA005"},
+        {"id":2462,"title":"Acervo ORIXAFGM001"},
+        {"id":2463,"title":"Acervo ORIXAFGM002"},
+        {"id":2464,"title":"Acervo ORIXAFGM003"},
+        {"id":2465,"title":"Acervo ORIXAFGM004"},
+        {"id":2466,"title":"Acervo OTHERPREFIX001"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 17
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1040,"title":"Migration harvest drum healing (41)"},
+        {"id":1069,"title":"City song language mosque (70)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 2
+    },
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"},
+        {"id":1025,"title":"Healing river ritual (26)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 2
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1087,"title":"Harvest city (88)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1083,"title":"School migration church archive (84)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    }
+  ],
+  "radar": {
+    "indicator": [
+      {"max":28,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":20,"name":"Subjects"},
+      {"max":15,"name":"People"},
+      {"max":8,"name":"Types"},
+      {"max":55,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [28,7,16,15,5,55]
+      }
+    ]
+  },
+  "resourceType": "organisation",
+  "selfLocation": {"itemId":503,"lat":-12.9777,"lon":-38.5016,"name":"Universidade Federal da Bahia"},
+  "subjects": [
+    {"itemId":715,"name":"capoeira","value":9},
+    {"itemId":727,"name":"Candomblé","value":6},
+    {"itemId":711,"name":"Collective memory","value":4},
+    {"itemId":710,"name":"Colonialism","value":3},
+    {"itemId":709,"name":"Education","value":3},
+    {"itemId":714,"name":"Gender","value":2},
+    {"itemId":720,"name":"pilgrimage","value":2},
+    {"itemId":724,"name":"restitution","value":2},
+    {"itemId":717,"name":"Afrobeat","value":1},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "templates": [
+    {"name":"Photograph","value":17},
+    {"name":"Research Item","value":11}
+  ],
+  "timeline": {"1970":1,"1973":1,"1976":1,"1979":1,"1982":1,"1985":1,"1988":1,"1991":1,"1994":1,"1997":1,"2000":1,"2003":1,"2006":1,"2009":1,"2012":1,"2015":1,"2018":1,"2019":2,"2020":1,"2021":3,"2023":2,"2025":2},
+  "totalItems": 28,
+  "types": [
+    {"itemId":802,"name":"Field notes","value":4},
+    {"itemId":800,"name":"Interview","value":2},
+    {"itemId":803,"name":"Sound recording","value":2},
+    {"itemId":801,"name":"Photograph","value":1},
+    {"itemId":804,"name":"Video","value":1}
+  ]
+}

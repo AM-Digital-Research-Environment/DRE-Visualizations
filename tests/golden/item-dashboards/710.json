@@ -1,0 +1,173 @@
+{
+  "coSubjects": [
+    {"itemId":709,"name":"Education","value":2},
+    {"itemId":726,"name":"photography","value":2},
+    {"itemId":727,"name":"Candomblé","value":1},
+    {"itemId":703,"name":"Christianity","value":1},
+    {"itemId":711,"name":"Collective memory","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":705,"name":"Urbanization","value":1},
+    {"itemId":715,"name":"capoeira","value":1},
+    {"itemId":723,"name":"diaspora","value":1},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":721,"name":"healing","value":1},
+    {"itemId":720,"name":"pilgrimage","value":1},
+    {"itemId":724,"name":"restitution","value":1},
+    {"itemId":722,"name":"urban farming","value":1}
+  ],
+  "contributors": [
+    {"itemId":411,"name":"Kiprop, David","value":3},
+    {"itemId":416,"name":"Achieng, Grace","value":2},
+    {"itemId":415,"name":"Balogun, Tunde","value":2},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":2},
+    {"itemId":419,"name":"Hoffmann, Felix","value":2},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":2},
+    {"itemId":412,"name":"Traoré, Aïssata","value":2},
+    {"itemId":422,"name":"Abubakar, Hauwa","value":1},
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":1},
+    {"itemId":418,"name":"Ferreira, Luíza","value":1},
+    {"itemId":420,"name":"Mensah, Kwame","value":1},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":414,"name":"Weber, Lena","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1025,"title":"Healing river ritual (26)"},
+        {"id":1054,"title":"Family migration voices voices (55)"},
+        {"id":1099,"title":"Festival road mosque voices (100)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 3
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1112,"title":"Archive mosque song (113)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 500,
+      "items": [
+        {"id":1008,"title":"Market river river (9)"}
+      ],
+      "lat": 49.9456,
+      "lon": 11.5713,
+      "name": "University of Bayreuth",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":812,"name":"Portuguese","value":4},
+    {"itemId":816,"name":"Mooré","value":3},
+    {"itemId":815,"name":"Hausa","value":2},
+    {"itemId":814,"name":"Swahili","value":2},
+    {"itemId":810,"name":"English","value":1},
+    {"itemId":811,"name":"French","value":1},
+    {"itemId":813,"name":"Yoruba","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 612,
+      "items": [
+        {"id":1095,"title":"Road river (96)"}
+      ],
+      "lat": 9.03,
+      "lon": 38.74,
+      "name": "Addis Ababa",
+      "value": 1
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1033,"title":"Market road road (34)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 1
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1058,"title":"River harvest (59)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 1
+    },
+    {
+      "itemId": 616,
+      "items": [
+        {"id":1112,"title":"Archive mosque song (113)"}
+      ],
+      "lat": 0.3476,
+      "lon": 32.5825,
+      "name": "Kampala",
+      "value": 1
+    },
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1025,"title":"Healing river ritual (26)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 1
+    },
+    {
+      "itemId": 608,
+      "items": [
+        {"id":1034,"title":"Radio memory (35)"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 1
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1112,"title":"Archive mosque song (113)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 614,
+      "items": [
+        {"id":1095,"title":"Road river (96)"}
+      ],
+      "lat": -6.1659,
+      "lon": 39.2026,
+      "name": "Zanzibar",
+      "value": 1
+    }
+  ],
+  "resourceType": "authority",
+  "timeline": {"2019":2,"2020":1,"2021":1,"2022":2,"2023":1,"2024":3},
+  "totalItems": 11,
+  "types": [
+    {"itemId":804,"name":"Video","value":4},
+    {"itemId":802,"name":"Field notes","value":3},
+    {"itemId":803,"name":"Sound recording","value":3},
+    {"itemId":800,"name":"Interview","value":2},
+    {"itemId":801,"name":"Photograph","value":1}
+  ]
+}

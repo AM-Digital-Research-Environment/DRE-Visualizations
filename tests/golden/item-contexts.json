@@ -1,0 +1,2430 @@
+{
+  "200.json": {
+    "abstract": "The Affiliations research section of the cluster.",
+    "itemId": 200,
+    "parents": [],
+    "year": null
+  },
+  "201.json": {
+    "abstract": "The Arts & Aesthetics research section of the cluster.",
+    "itemId": 201,
+    "parents": [],
+    "year": null
+  },
+  "202.json": {
+    "abstract": "The Knowledges research section of the cluster.",
+    "itemId": 202,
+    "parents": [],
+    "year": null
+  },
+  "203.json": {
+    "abstract": "The Moralities research section of the cluster.",
+    "itemId": 203,
+    "parents": [],
+    "year": null
+  },
+  "204.json": {
+    "abstract": "The Learning research section of the cluster.",
+    "itemId": 204,
+    "parents": [],
+    "year": null
+  },
+  "300.json": {
+    "abstract": "Project Sonic Archives of the Sahel studies how people make and remake their worlds.",
+    "itemId": 300,
+    "parents": [],
+    "year": null
+  },
+  "301.json": {
+    "abstract": "Project Mobile Knowledges in East Africa studies how people make and remake their worlds.",
+    "itemId": 301,
+    "parents": [],
+    "year": null
+  },
+  "302.json": {
+    "abstract": "Project Faith and Public Morality studies how people make and remake their worlds.",
+    "itemId": 302,
+    "parents": [],
+    "year": null
+  },
+  "303.json": {
+    "abstract": "Project Kinship Across Borders studies how people make and remake their worlds.",
+    "itemId": 303,
+    "parents": [],
+    "year": null
+  },
+  "304.json": {
+    "abstract": "Project Afro-Brazilian Memory Work studies how people make and remake their worlds.",
+    "itemId": 304,
+    "parents": [],
+    "year": null
+  },
+  "305.json": {
+    "abstract": "Project Urban Ecologies of Lagos studies how people make and remake their worlds.",
+    "itemId": 305,
+    "parents": [],
+    "year": null
+  },
+  "306.json": {
+    "abstract": "Project Digital Return of Sound Archives studies how people make and remake their worlds.",
+    "itemId": 306,
+    "parents": [],
+    "year": null
+  },
+  "307.json": {
+    "abstract": "Project Pilot Study on Language Policy studies how people make and remake their worlds.",
+    "itemId": 307,
+    "parents": [],
+    "year": null
+  },
+  "308.json": {
+    "abstract": "Project Archive Futures Workshop studies how people make and remake their worlds.",
+    "itemId": 308,
+    "parents": [],
+    "year": null
+  },
+  "400.json": {
+    "abstract": "",
+    "itemId": 400,
+    "parents": [],
+    "year": null
+  },
+  "401.json": {
+    "abstract": "",
+    "itemId": 401,
+    "parents": [],
+    "year": null
+  },
+  "402.json": {
+    "abstract": "",
+    "itemId": 402,
+    "parents": [],
+    "year": null
+  },
+  "403.json": {
+    "abstract": "",
+    "itemId": 403,
+    "parents": [],
+    "year": null
+  },
+  "404.json": {
+    "abstract": "",
+    "itemId": 404,
+    "parents": [],
+    "year": null
+  },
+  "405.json": {
+    "abstract": "",
+    "itemId": 405,
+    "parents": [],
+    "year": null
+  },
+  "406.json": {
+    "abstract": "",
+    "itemId": 406,
+    "parents": [],
+    "year": null
+  },
+  "407.json": {
+    "abstract": "",
+    "itemId": 407,
+    "parents": [],
+    "year": null
+  },
+  "408.json": {
+    "abstract": "",
+    "itemId": 408,
+    "parents": [],
+    "year": null
+  },
+  "409.json": {
+    "abstract": "",
+    "itemId": 409,
+    "parents": [],
+    "year": null
+  },
+  "410.json": {
+    "abstract": "",
+    "itemId": 410,
+    "parents": [],
+    "year": null
+  },
+  "411.json": {
+    "abstract": "",
+    "itemId": 411,
+    "parents": [],
+    "year": null
+  },
+  "412.json": {
+    "abstract": "",
+    "itemId": 412,
+    "parents": [],
+    "year": null
+  },
+  "413.json": {
+    "abstract": "",
+    "itemId": 413,
+    "parents": [],
+    "year": null
+  },
+  "414.json": {
+    "abstract": "",
+    "itemId": 414,
+    "parents": [],
+    "year": null
+  },
+  "415.json": {
+    "abstract": "",
+    "itemId": 415,
+    "parents": [],
+    "year": null
+  },
+  "416.json": {
+    "abstract": "",
+    "itemId": 416,
+    "parents": [],
+    "year": null
+  },
+  "417.json": {
+    "abstract": "",
+    "itemId": 417,
+    "parents": [],
+    "year": null
+  },
+  "418.json": {
+    "abstract": "",
+    "itemId": 418,
+    "parents": [],
+    "year": null
+  },
+  "419.json": {
+    "abstract": "",
+    "itemId": 419,
+    "parents": [],
+    "year": null
+  },
+  "420.json": {
+    "abstract": "",
+    "itemId": 420,
+    "parents": [],
+    "year": null
+  },
+  "421.json": {
+    "abstract": "",
+    "itemId": 421,
+    "parents": [],
+    "year": null
+  },
+  "422.json": {
+    "abstract": "",
+    "itemId": 422,
+    "parents": [],
+    "year": null
+  },
+  "423.json": {
+    "abstract": "",
+    "itemId": 423,
+    "parents": [],
+    "year": null
+  },
+  "424.json": {
+    "abstract": "",
+    "itemId": 424,
+    "parents": [],
+    "year": null
+  },
+  "500.json": {
+    "abstract": "",
+    "itemId": 500,
+    "parents": [],
+    "year": null
+  },
+  "501.json": {
+    "abstract": "",
+    "itemId": 501,
+    "parents": [],
+    "year": null
+  },
+  "502.json": {
+    "abstract": "",
+    "itemId": 502,
+    "parents": [],
+    "year": null
+  },
+  "503.json": {
+    "abstract": "",
+    "itemId": 503,
+    "parents": [],
+    "year": null
+  },
+  "504.json": {
+    "abstract": "",
+    "itemId": 504,
+    "parents": [],
+    "year": null
+  },
+  "505.json": {
+    "abstract": "",
+    "itemId": 505,
+    "parents": [],
+    "year": null
+  },
+  "506.json": {
+    "abstract": "",
+    "itemId": 506,
+    "parents": [],
+    "year": null
+  },
+  "507.json": {
+    "abstract": "",
+    "itemId": 507,
+    "parents": [],
+    "year": null
+  },
+  "508.json": {
+    "abstract": "",
+    "itemId": 508,
+    "parents": [],
+    "year": null
+  },
+  "509.json": {
+    "abstract": "",
+    "itemId": 509,
+    "parents": [],
+    "year": null
+  },
+  "510.json": {
+    "abstract": "",
+    "itemId": 510,
+    "parents": [],
+    "year": null
+  },
+  "511.json": {
+    "abstract": "",
+    "itemId": 511,
+    "parents": [],
+    "year": null
+  },
+  "600.json": {
+    "abstract": "",
+    "itemId": 600,
+    "parents": [],
+    "year": null
+  },
+  "601.json": {
+    "abstract": "",
+    "itemId": 601,
+    "parents": [],
+    "year": null
+  },
+  "602.json": {
+    "abstract": "",
+    "itemId": 602,
+    "parents": [],
+    "year": null
+  },
+  "603.json": {
+    "abstract": "",
+    "itemId": 603,
+    "parents": [],
+    "year": null
+  },
+  "604.json": {
+    "abstract": "",
+    "itemId": 604,
+    "parents": [],
+    "year": null
+  },
+  "605.json": {
+    "abstract": "",
+    "itemId": 605,
+    "parents": [],
+    "year": null
+  },
+  "606.json": {
+    "abstract": "",
+    "itemId": 606,
+    "parents": [],
+    "year": null
+  },
+  "607.json": {
+    "abstract": "",
+    "itemId": 607,
+    "parents": [],
+    "year": null
+  },
+  "608.json": {
+    "abstract": "",
+    "itemId": 608,
+    "parents": [],
+    "year": null
+  },
+  "609.json": {
+    "abstract": "",
+    "itemId": 609,
+    "parents": [],
+    "year": null
+  },
+  "610.json": {
+    "abstract": "",
+    "itemId": 610,
+    "parents": [],
+    "year": null
+  },
+  "611.json": {
+    "abstract": "",
+    "itemId": 611,
+    "parents": [],
+    "year": null
+  },
+  "612.json": {
+    "abstract": "",
+    "itemId": 612,
+    "parents": [],
+    "year": null
+  },
+  "613.json": {
+    "abstract": "",
+    "itemId": 613,
+    "parents": [],
+    "year": null
+  },
+  "614.json": {
+    "abstract": "",
+    "itemId": 614,
+    "parents": [],
+    "year": null
+  },
+  "615.json": {
+    "abstract": "",
+    "itemId": 615,
+    "parents": [],
+    "year": null
+  },
+  "616.json": {
+    "abstract": "",
+    "itemId": 616,
+    "parents": [],
+    "year": null
+  },
+  "617.json": {
+    "abstract": "",
+    "itemId": 617,
+    "parents": [],
+    "year": null
+  },
+  "618.json": {
+    "abstract": "",
+    "itemId": 618,
+    "parents": [],
+    "year": null
+  },
+  "619.json": {
+    "abstract": "",
+    "itemId": 619,
+    "parents": [],
+    "year": null
+  },
+  "700.json": {
+    "abstract": "",
+    "itemId": 700,
+    "parents": [],
+    "year": null
+  },
+  "701.json": {
+    "abstract": "",
+    "itemId": 701,
+    "parents": [],
+    "year": null
+  },
+  "702.json": {
+    "abstract": "",
+    "itemId": 702,
+    "parents": [],
+    "year": null
+  },
+  "703.json": {
+    "abstract": "",
+    "itemId": 703,
+    "parents": [],
+    "year": null
+  },
+  "704.json": {
+    "abstract": "",
+    "itemId": 704,
+    "parents": [],
+    "year": null
+  },
+  "705.json": {
+    "abstract": "",
+    "itemId": 705,
+    "parents": [],
+    "year": null
+  },
+  "706.json": {
+    "abstract": "",
+    "itemId": 706,
+    "parents": [],
+    "year": null
+  },
+  "707.json": {
+    "abstract": "",
+    "itemId": 707,
+    "parents": [],
+    "year": null
+  },
+  "708.json": {
+    "abstract": "",
+    "itemId": 708,
+    "parents": [],
+    "year": null
+  },
+  "709.json": {
+    "abstract": "",
+    "itemId": 709,
+    "parents": [],
+    "year": null
+  },
+  "710.json": {
+    "abstract": "",
+    "itemId": 710,
+    "parents": [],
+    "year": null
+  },
+  "711.json": {
+    "abstract": "",
+    "itemId": 711,
+    "parents": [],
+    "year": null
+  },
+  "712.json": {
+    "abstract": "",
+    "itemId": 712,
+    "parents": [],
+    "year": null
+  },
+  "713.json": {
+    "abstract": "",
+    "itemId": 713,
+    "parents": [],
+    "year": null
+  },
+  "714.json": {
+    "abstract": "",
+    "itemId": 714,
+    "parents": [],
+    "year": null
+  },
+  "715.json": {
+    "abstract": "",
+    "itemId": 715,
+    "parents": [],
+    "year": null
+  },
+  "716.json": {
+    "abstract": "",
+    "itemId": 716,
+    "parents": [],
+    "year": null
+  },
+  "717.json": {
+    "abstract": "",
+    "itemId": 717,
+    "parents": [],
+    "year": null
+  },
+  "718.json": {
+    "abstract": "",
+    "itemId": 718,
+    "parents": [],
+    "year": null
+  },
+  "719.json": {
+    "abstract": "",
+    "itemId": 719,
+    "parents": [],
+    "year": null
+  },
+  "720.json": {
+    "abstract": "",
+    "itemId": 720,
+    "parents": [],
+    "year": null
+  },
+  "721.json": {
+    "abstract": "",
+    "itemId": 721,
+    "parents": [],
+    "year": null
+  },
+  "722.json": {
+    "abstract": "",
+    "itemId": 722,
+    "parents": [],
+    "year": null
+  },
+  "723.json": {
+    "abstract": "",
+    "itemId": 723,
+    "parents": [],
+    "year": null
+  },
+  "724.json": {
+    "abstract": "",
+    "itemId": 724,
+    "parents": [],
+    "year": null
+  },
+  "725.json": {
+    "abstract": "",
+    "itemId": 725,
+    "parents": [],
+    "year": null
+  },
+  "726.json": {
+    "abstract": "",
+    "itemId": 726,
+    "parents": [],
+    "year": null
+  },
+  "727.json": {
+    "abstract": "",
+    "itemId": 727,
+    "parents": [],
+    "year": null
+  },
+  "728.json": {
+    "abstract": "",
+    "itemId": 728,
+    "parents": [],
+    "year": null
+  },
+  "729.json": {
+    "abstract": "",
+    "itemId": 729,
+    "parents": [],
+    "year": null
+  },
+  "800.json": {
+    "abstract": "",
+    "itemId": 800,
+    "parents": [],
+    "year": null
+  },
+  "801.json": {
+    "abstract": "",
+    "itemId": 801,
+    "parents": [],
+    "year": null
+  },
+  "802.json": {
+    "abstract": "",
+    "itemId": 802,
+    "parents": [],
+    "year": null
+  },
+  "803.json": {
+    "abstract": "",
+    "itemId": 803,
+    "parents": [],
+    "year": null
+  },
+  "804.json": {
+    "abstract": "",
+    "itemId": 804,
+    "parents": [],
+    "year": null
+  },
+  "805.json": {
+    "abstract": "",
+    "itemId": 805,
+    "parents": [],
+    "year": null
+  },
+  "806.json": {
+    "abstract": "",
+    "itemId": 806,
+    "parents": [],
+    "year": null
+  },
+  "807.json": {
+    "abstract": "",
+    "itemId": 807,
+    "parents": [],
+    "year": null
+  },
+  "808.json": {
+    "abstract": "",
+    "itemId": 808,
+    "parents": [],
+    "year": null
+  },
+  "810.json": {
+    "abstract": "",
+    "itemId": 810,
+    "parents": [],
+    "year": null
+  },
+  "811.json": {
+    "abstract": "",
+    "itemId": 811,
+    "parents": [],
+    "year": null
+  },
+  "812.json": {
+    "abstract": "",
+    "itemId": 812,
+    "parents": [],
+    "year": null
+  },
+  "813.json": {
+    "abstract": "",
+    "itemId": 813,
+    "parents": [],
+    "year": null
+  },
+  "814.json": {
+    "abstract": "",
+    "itemId": 814,
+    "parents": [],
+    "year": null
+  },
+  "815.json": {
+    "abstract": "",
+    "itemId": 815,
+    "parents": [],
+    "year": null
+  },
+  "816.json": {
+    "abstract": "",
+    "itemId": 816,
+    "parents": [],
+    "year": null
+  },
+  "820.json": {
+    "abstract": "",
+    "itemId": 820,
+    "parents": [],
+    "year": null
+  },
+  "821.json": {
+    "abstract": "",
+    "itemId": 821,
+    "parents": [],
+    "year": null
+  },
+  "822.json": {
+    "abstract": "",
+    "itemId": 822,
+    "parents": [],
+    "year": null
+  },
+  "823.json": {
+    "abstract": "",
+    "itemId": 823,
+    "parents": [],
+    "year": null
+  },
+  "824.json": {
+    "abstract": "",
+    "itemId": 824,
+    "parents": [],
+    "year": null
+  },
+  "830.json": {
+    "abstract": "",
+    "itemId": 830,
+    "parents": [],
+    "year": null
+  },
+  "831.json": {
+    "abstract": "",
+    "itemId": 831,
+    "parents": [],
+    "year": null
+  },
+  "832.json": {
+    "abstract": "",
+    "itemId": 832,
+    "parents": [],
+    "year": null
+  },
+  "840.json": {
+    "abstract": "",
+    "itemId": 840,
+    "parents": [],
+    "year": null
+  },
+  "841.json": {
+    "abstract": "",
+    "itemId": 841,
+    "parents": [],
+    "year": null
+  },
+  "845.json": {
+    "abstract": "",
+    "itemId": 845,
+    "parents": [],
+    "year": null
+  },
+  "846.json": {
+    "abstract": "",
+    "itemId": 846,
+    "parents": [],
+    "year": null
+  },
+  "847.json": {
+    "abstract": "",
+    "itemId": 847,
+    "parents": [],
+    "year": null
+  },
+  "850.json": {
+    "abstract": "",
+    "itemId": 850,
+    "parents": [],
+    "year": null
+  },
+  "851.json": {
+    "abstract": "",
+    "itemId": 851,
+    "parents": [],
+    "year": null
+  },
+  "1000.json": {
+    "abstract": "Road market road memory church harvest school road festival road church harvest radio mosque.",
+    "itemId": 1000,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2019"
+  },
+  "1001.json": {
+    "abstract": "Family archive song church family healing migration festival church church mosque city harvest school language.",
+    "itemId": 1001,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2021"
+  },
+  "1002.json": {
+    "abstract": "Song river river memory city memory church family mosque migration language language migration festival family.",
+    "itemId": 1002,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2021"
+  },
+  "1003.json": {
+    "abstract": "",
+    "itemId": 1003,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": "2021"
+  },
+  "1004.json": {
+    "abstract": "",
+    "itemId": 1004,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "2020"
+  },
+  "1005.json": {
+    "abstract": "Harvest river memory river school family harvest school mosque river city mosque memory healing radio.",
+    "itemId": 1005,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2021"
+  },
+  "1006.json": {
+    "abstract": "",
+    "itemId": 1006,
+    "parents": [
+      {"id":305,"name":"Urban Ecologies of Lagos"}
+    ],
+    "year": "2019"
+  },
+  "1007.json": {
+    "abstract": "",
+    "itemId": 1007,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2021"
+  },
+  "1008.json": {
+    "abstract": "",
+    "itemId": 1008,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "2024"
+  },
+  "1009.json": {
+    "abstract": "Song voices river memory voices church song church family song market.",
+    "itemId": 1009,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": "2024"
+  },
+  "1010.json": {
+    "abstract": "",
+    "itemId": 1010,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2024"
+  },
+  "1011.json": {
+    "abstract": "Language city radio city mosque ritual healing church river language mosque festival ritual family voices river.",
+    "itemId": 1011,
+    "parents": [],
+    "year": "2020"
+  },
+  "1012.json": {
+    "abstract": "Song festival song ritual ritual song radio harvest ritual radio festival ritual migration voices.",
+    "itemId": 1012,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": "2023"
+  },
+  "1013.json": {
+    "abstract": "",
+    "itemId": 1013,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2019"
+  },
+  "1014.json": {
+    "abstract": "",
+    "itemId": 1014,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2020"
+  },
+  "1015.json": {
+    "abstract": "Festival festival church family market migration song city.",
+    "itemId": 1015,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": null
+  },
+  "1016.json": {
+    "abstract": "Song market school city family festival school.",
+    "itemId": 1016,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "2020"
+  },
+  "1017.json": {
+    "abstract": "",
+    "itemId": 1017,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2019"
+  },
+  "1018.json": {
+    "abstract": "Church market memory archive harvest memory road road healing drum river migration healing memory mosque.",
+    "itemId": 1018,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2025"
+  },
+  "1019.json": {
+    "abstract": "School school festival mosque church festival school archive language family city healing radio river.",
+    "itemId": 1019,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "2019"
+  },
+  "1020.json": {
+    "abstract": "",
+    "itemId": 1020,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": null
+  },
+  "1021.json": {
+    "abstract": "Harvest radio road language memory drum family.",
+    "itemId": 1021,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2019"
+  },
+  "1022.json": {
+    "abstract": "",
+    "itemId": 1022,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2025"
+  },
+  "1023.json": {
+    "abstract": "Archive school harvest ritual market harvest market city church road market ritual harvest.",
+    "itemId": 1023,
+    "parents": [],
+    "year": "2025"
+  },
+  "1024.json": {
+    "abstract": "",
+    "itemId": 1024,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": null
+  },
+  "1025.json": {
+    "abstract": "Archive school migration harvest harvest road language road church language river city memory archive drum.",
+    "itemId": 1025,
+    "parents": [
+      {"id":307,"name":"Pilot Study on Language Policy"}
+    ],
+    "year": "2021"
+  },
+  "1026.json": {
+    "abstract": "Festival school school harvest school school road ritual migration school market archive migration.",
+    "itemId": 1026,
+    "parents": [
+      {"id":302,"name":"Faith and Public Morality"}
+    ],
+    "year": "2020"
+  },
+  "1027.json": {
+    "abstract": "Archive family ritual harvest river festival archive archive church market school family market.",
+    "itemId": 1027,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2022"
+  },
+  "1028.json": {
+    "abstract": "",
+    "itemId": 1028,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2023"
+  },
+  "1029.json": {
+    "abstract": "",
+    "itemId": 1029,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2020"
+  },
+  "1030.json": {
+    "abstract": "",
+    "itemId": 1030,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": "2025"
+  },
+  "1031.json": {
+    "abstract": "",
+    "itemId": 1031,
+    "parents": [
+      {"id":307,"name":"Pilot Study on Language Policy"}
+    ],
+    "year": null
+  },
+  "1032.json": {
+    "abstract": "",
+    "itemId": 1032,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2020"
+  },
+  "1033.json": {
+    "abstract": "",
+    "itemId": 1033,
+    "parents": [
+      {"id":305,"name":"Urban Ecologies of Lagos"}
+    ],
+    "year": "2023"
+  },
+  "1034.json": {
+    "abstract": "Ritual language radio church family church radio city church ritual river school memory family school song.",
+    "itemId": 1034,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": null
+  },
+  "1035.json": {
+    "abstract": "Market healing city road city radio festival ritual.",
+    "itemId": 1035,
+    "parents": [],
+    "year": "2020"
+  },
+  "1036.json": {
+    "abstract": "River church school ritual festival healing ritual migration mosque.",
+    "itemId": 1036,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2022"
+  },
+  "1037.json": {
+    "abstract": "Drum radio drum mosque harvest ritual river ritual ritual language mosque school river migration.",
+    "itemId": 1037,
+    "parents": [
+      {"id":302,"name":"Faith and Public Morality"}
+    ],
+    "year": "2023"
+  },
+  "1038.json": {
+    "abstract": "",
+    "itemId": 1038,
+    "parents": [
+      {"id":302,"name":"Faith and Public Morality"}
+    ],
+    "year": "2024"
+  },
+  "1039.json": {
+    "abstract": "",
+    "itemId": 1039,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "2021"
+  },
+  "1040.json": {
+    "abstract": "",
+    "itemId": 1040,
+    "parents": [
+      {"id":307,"name":"Pilot Study on Language Policy"}
+    ],
+    "year": "2023"
+  },
+  "1041.json": {
+    "abstract": "",
+    "itemId": 1041,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2025"
+  },
+  "1042.json": {
+    "abstract": "Song mosque church road city ritual festival song river festival city memory.",
+    "itemId": 1042,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2024"
+  },
+  "1043.json": {
+    "abstract": "",
+    "itemId": 1043,
+    "parents": [
+      {"id":305,"name":"Urban Ecologies of Lagos"}
+    ],
+    "year": "2025"
+  },
+  "1044.json": {
+    "abstract": "",
+    "itemId": 1044,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2024"
+  },
+  "1045.json": {
+    "abstract": "",
+    "itemId": 1045,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2021"
+  },
+  "1046.json": {
+    "abstract": "",
+    "itemId": 1046,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2023"
+  },
+  "1047.json": {
+    "abstract": "",
+    "itemId": 1047,
+    "parents": [],
+    "year": "2022"
+  },
+  "1048.json": {
+    "abstract": "Harvest church radio drum song city ritual healing festival migration radio migration song archive migration.",
+    "itemId": 1048,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": "2019"
+  },
+  "1049.json": {
+    "abstract": "Language market archive archive migration memory radio road language voices school river city drum migration archive.",
+    "itemId": 1049,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2022"
+  },
+  "1050.json": {
+    "abstract": "City city migration drum archive river river voices road archive drum radio drum healing family church.",
+    "itemId": 1050,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": null
+  },
+  "1051.json": {
+    "abstract": "City language road market language voices school family healing healing family language family ritual.",
+    "itemId": 1051,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": "2024"
+  },
+  "1052.json": {
+    "abstract": "",
+    "itemId": 1052,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": "2021"
+  },
+  "1053.json": {
+    "abstract": "",
+    "itemId": 1053,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": "2020"
+  },
+  "1054.json": {
+    "abstract": "",
+    "itemId": 1054,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "2020"
+  },
+  "1055.json": {
+    "abstract": "",
+    "itemId": 1055,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "2023"
+  },
+  "1056.json": {
+    "abstract": "Memory mosque radio archive migration song language memory migration harvest road healing song festival.",
+    "itemId": 1056,
+    "parents": [
+      {"id":307,"name":"Pilot Study on Language Policy"}
+    ],
+    "year": "2025"
+  },
+  "1057.json": {
+    "abstract": "",
+    "itemId": 1057,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2021"
+  },
+  "1058.json": {
+    "abstract": "Mosque memory market radio family school school festival school.",
+    "itemId": 1058,
+    "parents": [
+      {"id":302,"name":"Faith and Public Morality"}
+    ],
+    "year": "2022"
+  },
+  "1059.json": {
+    "abstract": "",
+    "itemId": 1059,
+    "parents": [],
+    "year": "2023"
+  },
+  "1060.json": {
+    "abstract": "",
+    "itemId": 1060,
+    "parents": [
+      {"id":305,"name":"Urban Ecologies of Lagos"}
+    ],
+    "year": "2021"
+  },
+  "1061.json": {
+    "abstract": "",
+    "itemId": 1061,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2020"
+  },
+  "1062.json": {
+    "abstract": "",
+    "itemId": 1062,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2023"
+  },
+  "1063.json": {
+    "abstract": "",
+    "itemId": 1063,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": null
+  },
+  "1064.json": {
+    "abstract": "Drum church market archive river family ritual migration family festival migration voices radio ritual.",
+    "itemId": 1064,
+    "parents": [
+      {"id":305,"name":"Urban Ecologies of Lagos"}
+    ],
+    "year": "2024"
+  },
+  "1065.json": {
+    "abstract": "Ritual healing family drum road migration radio drum song.",
+    "itemId": 1065,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2025"
+  },
+  "1066.json": {
+    "abstract": "",
+    "itemId": 1066,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2021"
+  },
+  "1067.json": {
+    "abstract": "Healing archive family ritual drum river archive market festival migration city radio city festival river.",
+    "itemId": 1067,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": null
+  },
+  "1068.json": {
+    "abstract": "",
+    "itemId": 1068,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2023"
+  },
+  "1069.json": {
+    "abstract": "",
+    "itemId": 1069,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": "2025"
+  },
+  "1070.json": {
+    "abstract": "",
+    "itemId": 1070,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "2023"
+  },
+  "1071.json": {
+    "abstract": "Market voices archive school voices radio song drum mosque harvest city song radio road.",
+    "itemId": 1071,
+    "parents": [],
+    "year": "2022"
+  },
+  "1072.json": {
+    "abstract": "Mosque city school road ritual festival festival ritual.",
+    "itemId": 1072,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2022"
+  },
+  "1073.json": {
+    "abstract": "Festival song healing festival archive harvest school festival mosque family migration.",
+    "itemId": 1073,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2021"
+  },
+  "1074.json": {
+    "abstract": "River healing festival harvest memory radio school song road archive harvest harvest mosque mosque language drum.",
+    "itemId": 1074,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2025"
+  },
+  "1075.json": {
+    "abstract": "Road migration healing drum language mosque healing migration archive road radio.",
+    "itemId": 1075,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2022"
+  },
+  "1076.json": {
+    "abstract": "",
+    "itemId": 1076,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": "2019"
+  },
+  "1077.json": {
+    "abstract": "Road radio family memory memory song city festival voices mosque city.",
+    "itemId": 1077,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2019"
+  },
+  "1078.json": {
+    "abstract": "Family memory song school river school drum migration memory.",
+    "itemId": 1078,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2025"
+  },
+  "1079.json": {
+    "abstract": "",
+    "itemId": 1079,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2019"
+  },
+  "1080.json": {
+    "abstract": "",
+    "itemId": 1080,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2019"
+  },
+  "1081.json": {
+    "abstract": "Mosque city ritual harvest river river market river mosque market festival healing.",
+    "itemId": 1081,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2024"
+  },
+  "1082.json": {
+    "abstract": "",
+    "itemId": 1082,
+    "parents": [
+      {"id":305,"name":"Urban Ecologies of Lagos"}
+    ],
+    "year": "2020"
+  },
+  "1083.json": {
+    "abstract": "Language ritual river road language migration road drum family migration.",
+    "itemId": 1083,
+    "parents": [],
+    "year": "2021"
+  },
+  "1084.json": {
+    "abstract": "",
+    "itemId": 1084,
+    "parents": [
+      {"id":307,"name":"Pilot Study on Language Policy"}
+    ],
+    "year": "2021"
+  },
+  "1085.json": {
+    "abstract": "Festival song archive river mosque song ritual song road road memory healing harvest.",
+    "itemId": 1085,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": "2022"
+  },
+  "1086.json": {
+    "abstract": "Harvest market festival healing harvest language archive radio migration city ritual school mosque migration archive festival.",
+    "itemId": 1086,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2024"
+  },
+  "1087.json": {
+    "abstract": "",
+    "itemId": 1087,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": null
+  },
+  "1088.json": {
+    "abstract": "",
+    "itemId": 1088,
+    "parents": [
+      {"id":305,"name":"Urban Ecologies of Lagos"}
+    ],
+    "year": "2023"
+  },
+  "1089.json": {
+    "abstract": "River radio language ritual song festival school song archive migration road voices.",
+    "itemId": 1089,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": null
+  },
+  "1090.json": {
+    "abstract": "",
+    "itemId": 1090,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "2021"
+  },
+  "1091.json": {
+    "abstract": "Radio church language memory radio song memory mosque voices market.",
+    "itemId": 1091,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2023"
+  },
+  "1092.json": {
+    "abstract": "Mosque drum market voices family ritual voices archive harvest memory.",
+    "itemId": 1092,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2025"
+  },
+  "1093.json": {
+    "abstract": "",
+    "itemId": 1093,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2025"
+  },
+  "1094.json": {
+    "abstract": "Festival language archive healing church road river migration migration voices river archive harvest ritual.",
+    "itemId": 1094,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2019"
+  },
+  "1095.json": {
+    "abstract": "",
+    "itemId": 1095,
+    "parents": [],
+    "year": "2024"
+  },
+  "1096.json": {
+    "abstract": "",
+    "itemId": 1096,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2021"
+  },
+  "1097.json": {
+    "abstract": "Market radio school migration ritual road market family radio harvest.",
+    "itemId": 1097,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2023"
+  },
+  "1098.json": {
+    "abstract": "",
+    "itemId": 1098,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": "2023"
+  },
+  "1099.json": {
+    "abstract": "",
+    "itemId": 1099,
+    "parents": [
+      {"id":305,"name":"Urban Ecologies of Lagos"}
+    ],
+    "year": "2019"
+  },
+  "1100.json": {
+    "abstract": "Archive language drum festival language song church harvest.",
+    "itemId": 1100,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": "2020"
+  },
+  "1101.json": {
+    "abstract": "",
+    "itemId": 1101,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2019"
+  },
+  "1102.json": {
+    "abstract": "",
+    "itemId": 1102,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2021"
+  },
+  "1103.json": {
+    "abstract": "",
+    "itemId": 1103,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2019"
+  },
+  "1104.json": {
+    "abstract": "",
+    "itemId": 1104,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": "2019"
+  },
+  "1105.json": {
+    "abstract": "School radio archive family road family church drum archive healing road healing drum.",
+    "itemId": 1105,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2019"
+  },
+  "1106.json": {
+    "abstract": "",
+    "itemId": 1106,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2020"
+  },
+  "1107.json": {
+    "abstract": "",
+    "itemId": 1107,
+    "parents": [],
+    "year": "2025"
+  },
+  "1108.json": {
+    "abstract": "Migration archive family mosque market road road harvest migration city drum ritual family market.",
+    "itemId": 1108,
+    "parents": [
+      {"id":303,"name":"Kinship Across Borders"}
+    ],
+    "year": "2023"
+  },
+  "1109.json": {
+    "abstract": "Archive river archive mosque ritual radio drum healing.",
+    "itemId": 1109,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2022"
+  },
+  "1110.json": {
+    "abstract": "School memory family migration voices migration city market harvest.",
+    "itemId": 1110,
+    "parents": [
+      {"id":302,"name":"Faith and Public Morality"}
+    ],
+    "year": "2023"
+  },
+  "1111.json": {
+    "abstract": "",
+    "itemId": 1111,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2023"
+  },
+  "1112.json": {
+    "abstract": "Healing memory ritual festival city church harvest harvest road harvest migration healing.",
+    "itemId": 1112,
+    "parents": [
+      {"id":301,"name":"Mobile Knowledges in East Africa"}
+    ],
+    "year": "2022"
+  },
+  "1113.json": {
+    "abstract": "",
+    "itemId": 1113,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2025"
+  },
+  "1114.json": {
+    "abstract": "",
+    "itemId": 1114,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": "2019"
+  },
+  "1115.json": {
+    "abstract": "",
+    "itemId": 1115,
+    "parents": [
+      {"id":300,"name":"Sonic Archives of the Sahel"}
+    ],
+    "year": null
+  },
+  "1116.json": {
+    "abstract": "",
+    "itemId": 1116,
+    "parents": [
+      {"id":305,"name":"Urban Ecologies of Lagos"}
+    ],
+    "year": null
+  },
+  "1117.json": {
+    "abstract": "",
+    "itemId": 1117,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "2023"
+  },
+  "1118.json": {
+    "abstract": "",
+    "itemId": 1118,
+    "parents": [
+      {"id":304,"name":"Afro-Brazilian Memory Work"}
+    ],
+    "year": "2021"
+  },
+  "1119.json": {
+    "abstract": "Healing church river market school archive healing migration river family.",
+    "itemId": 1119,
+    "parents": [],
+    "year": "2019"
+  },
+  "1219.json": {
+    "abstract": "",
+    "itemId": 1219,
+    "parents": [],
+    "year": null
+  },
+  "1222.json": {
+    "abstract": "",
+    "itemId": 1222,
+    "parents": [],
+    "year": null
+  },
+  "2100.json": {
+    "abstract": "Knowledge brazil education gender music mobility memory gender city africa memory city education kinship ritual brazil heritage brazil brazil religion africa knowledge knowledge.",
+    "itemId": 2100,
+    "parents": [],
+    "year": "2019"
+  },
+  "2101.json": {
+    "abstract": "Sound mobility education mobility knowledge heritage mobility heritage city music archive religion memory africa mobility archive city postcolonial brazil ritual gender heritage archive kinship city language memory.",
+    "itemId": 2101,
+    "parents": [
+      {"id":305,"name":"Urban Ecologies of Lagos"}
+    ],
+    "year": "2020"
+  },
+  "2102.json": {
+    "abstract": "Postcolonial archive kinship kinship gender archive kinship religion city africa africa heritage memory brazil education education africa language africa archive mobility heritage religion ritual language mobility music city sound.",
+    "itemId": 2102,
+    "parents": [],
+    "year": "2021"
+  },
+  "2103.json": {
+    "abstract": "Kinship memory archive memory language memory knowledge kinship religion language sound africa language africa music africa archive memory city heritage religion memory heritage.",
+    "itemId": 2103,
+    "parents": [],
+    "year": "2022"
+  },
+  "2104.json": {
+    "abstract": "Ritual archive diaspora city sound knowledge education education knowledge postcolonial postcolonial religion diaspora ritual diaspora heritage heritage gender postcolonial language knowledge knowledge memory gender gender.",
+    "itemId": 2104,
+    "parents": [],
+    "year": "2023"
+  },
+  "2105.json": {
+    "abstract": "Brazil knowledge ritual knowledge mobility postcolonial archive sound archive postcolonial africa religion mobility sound mobility heritage heritage.",
+    "itemId": 2105,
+    "parents": [],
+    "year": "2024"
+  },
+  "2106.json": {
+    "abstract": "Brazil kinship sound knowledge heritage music africa music religion africa diaspora diaspora education religion religion language heritage language sound diaspora kinship knowledge postcolonial religion kinship sound africa gender.",
+    "itemId": 2106,
+    "parents": [],
+    "year": "2025"
+  },
+  "2107.json": {
+    "abstract": "Knowledge ritual music music mobility diaspora language sound city sound archive religion ritual memory gender postcolonial archive brazil education memory kinship archive memory language.",
+    "itemId": 2107,
+    "parents": [],
+    "year": "2019"
+  },
+  "2108.json": {
+    "abstract": "Music africa diaspora language postcolonial postcolonial mobility music language brazil kinship gender kinship diaspora archive sound sound city heritage city music.",
+    "itemId": 2108,
+    "parents": [],
+    "year": "2020"
+  },
+  "2109.json": {
+    "abstract": "City africa ritual brazil diaspora gender religion gender ritual africa postcolonial archive language sound mobility music knowledge diaspora gender sound.",
+    "itemId": 2109,
+    "parents": [],
+    "year": "2021"
+  },
+  "2110.json": {
+    "abstract": "Language mobility ritual religion education africa kinship brazil education archive africa religion ritual gender music music kinship ritual sound ritual.",
+    "itemId": 2110,
+    "parents": [],
+    "year": "2022"
+  },
+  "2111.json": {
+    "abstract": "Mobility heritage music language brazil education archive language mobility language archive religion memory archive mobility postcolonial brazil city knowledge brazil diaspora archive education africa city.",
+    "itemId": 2111,
+    "parents": [],
+    "year": "2023"
+  },
+  "2112.json": {
+    "abstract": "Mobility heritage postcolonial brazil ritual mobility archive brazil mobility diaspora city education archive education heritage religion religion gender sound city.",
+    "itemId": 2112,
+    "parents": [],
+    "year": "2024"
+  },
+  "2113.json": {
+    "abstract": "Sound mobility heritage gender diaspora memory memory knowledge diaspora religion diaspora knowledge heritage postcolonial memory city ritual archive knowledge music brazil heritage language city archive memory mobility language.",
+    "itemId": 2113,
+    "parents": [],
+    "year": "2025"
+  },
+  "2114.json": {
+    "abstract": "Kinship music knowledge archive africa ritual sound memory knowledge city gender heritage religion gender music education education knowledge brazil religion brazil mobility music heritage mobility.",
+    "itemId": 2114,
+    "parents": [],
+    "year": "2019"
+  },
+  "2115.json": {
+    "abstract": "Education memory diaspora mobility brazil education language ritual memory city city archive knowledge sound religion.",
+    "itemId": 2115,
+    "parents": [],
+    "year": "2020"
+  },
+  "2116.json": {
+    "abstract": "Ritual language language africa music knowledge language mobility knowledge religion music knowledge mobility language knowledge postcolonial religion religion language religion knowledge mobility sound africa.",
+    "itemId": 2116,
+    "parents": [],
+    "year": "2021"
+  },
+  "2117.json": {
+    "abstract": "Gender africa archive diaspora postcolonial religion memory brazil africa postcolonial africa diaspora knowledge language postcolonial mobility brazil sound postcolonial archive ritual heritage archive mobility language africa gender.",
+    "itemId": 2117,
+    "parents": [],
+    "year": "2022"
+  },
+  "2118.json": {
+    "abstract": "Postcolonial language education religion ritual language religion diaspora education africa africa heritage ritual ritual gender memory diaspora diaspora africa education music memory africa diaspora memory postcolonial.",
+    "itemId": 2118,
+    "parents": [],
+    "year": "2023"
+  },
+  "2119.json": {
+    "abstract": "Knowledge postcolonial memory city africa knowledge postcolonial kinship music education language language ritual language diaspora sound language memory.",
+    "itemId": 2119,
+    "parents": [],
+    "year": "2024"
+  },
+  "2120.json": {
+    "abstract": "Memory diaspora ritual religion music ritual music brazil ritual religion heritage kinship africa city brazil city language music education archive city sound religion gender gender knowledge kinship education ritual.",
+    "itemId": 2120,
+    "parents": [],
+    "year": "2025"
+  },
+  "2121.json": {
+    "abstract": "Heritage brazil music city memory education gender memory memory postcolonial mobility ritual sound education africa sound sound archive gender music heritage africa postcolonial kinship sound language music.",
+    "itemId": 2121,
+    "parents": [],
+    "year": "2019"
+  },
+  "2122.json": {
+    "abstract": "Knowledge memory sound music mobility education knowledge memory language city knowledge diaspora religion knowledge gender knowledge diaspora knowledge ritual africa language kinship postcolonial brazil brazil africa knowledge brazil city memory.",
+    "itemId": 2122,
+    "parents": [],
+    "year": "2020"
+  },
+  "2123.json": {
+    "abstract": "Language kinship heritage music diaspora postcolonial brazil ritual africa memory religion brazil knowledge postcolonial education language music language.",
+    "itemId": 2123,
+    "parents": [],
+    "year": "2021"
+  },
+  "2124.json": {
+    "abstract": "Memory music religion religion sound diaspora education sound heritage music brazil archive music language city religion ritual city gender diaspora ritual sound.",
+    "itemId": 2124,
+    "parents": [],
+    "year": "2022"
+  },
+  "2125.json": {
+    "abstract": "Religion archive city gender kinship archive diaspora postcolonial africa archive africa brazil diaspora gender sound africa africa gender mobility postcolonial sound ritual gender religion knowledge religion kinship africa ritual education.",
+    "itemId": 2125,
+    "parents": [],
+    "year": "2023"
+  },
+  "2126.json": {
+    "abstract": "Brazil brazil mobility music city memory mobility sound language heritage religion ritual sound brazil africa africa music city religion kinship city heritage religion.",
+    "itemId": 2126,
+    "parents": [],
+    "year": "2024"
+  },
+  "2127.json": {
+    "abstract": "Mobility kinship ritual memory religion heritage city diaspora ritual diaspora ritual religion brazil kinship heritage mobility gender brazil kinship brazil knowledge memory mobility education memory religion ritual education heritage.",
+    "itemId": 2127,
+    "parents": [],
+    "year": "2025"
+  },
+  "2128.json": {
+    "abstract": "Memory heritage mobility archive knowledge postcolonial sound gender heritage postcolonial brazil language archive religion brazil city diaspora city language gender brazil education religion memory education kinship.",
+    "itemId": 2128,
+    "parents": [],
+    "year": "2019"
+  },
+  "2129.json": {
+    "abstract": "Kinship city knowledge music africa diaspora music language music postcolonial diaspora heritage city archive religion mobility kinship diaspora postcolonial memory mobility brazil sound archive city ritual sound.",
+    "itemId": 2129,
+    "parents": [],
+    "year": "2020"
+  },
+  "2200.json": {
+    "abstract": "In this episode we Studies healing community language studying projets.",
+    "itemId": 2200,
+    "parents": [],
+    "year": "2021"
+  },
+  "2201.json": {
+    "abstract": "In this episode we Studying city community research languages africa.",
+    "itemId": 2201,
+    "parents": [],
+    "year": "2021"
+  },
+  "2202.json": {
+    "abstract": "In this episode we Language city langues studies community music.",
+    "itemId": 2202,
+    "parents": [],
+    "year": "2021"
+  },
+  "2203.json": {
+    "abstract": "In this episode we Language langues heritage research knowledge archive.",
+    "itemId": 2203,
+    "parents": [],
+    "year": "2021"
+  },
+  "2204.json": {
+    "abstract": "In this episode we Healing music languages research city music travaille.",
+    "itemId": 2204,
+    "parents": [],
+    "year": "2022"
+  },
+  "2205.json": {
+    "abstract": "In this episode we Heritage studying heritage travaille travaille africa.",
+    "itemId": 2205,
+    "parents": [],
+    "year": "2022"
+  },
+  "2206.json": {
+    "abstract": "In this episode we Heritage research studies language knowledge languages heritage community archive africa.",
+    "itemId": 2206,
+    "parents": [],
+    "year": "2022"
+  },
+  "2207.json": {
+    "abstract": "In this episode we Research langues archive archive travaille music studying research heritage.",
+    "itemId": 2207,
+    "parents": [],
+    "year": "2022"
+  },
+  "2208.json": {
+    "abstract": "In this episode we Travaille studying studies communities projets community archive.",
+    "itemId": 2208,
+    "parents": [],
+    "year": "2023"
+  },
+  "2209.json": {
+    "abstract": "In this episode we City language heritage communities studying research research travaille languages africa.",
+    "itemId": 2209,
+    "parents": [],
+    "year": "2023"
+  },
+  "2300.json": {
+    "abstract": "",
+    "itemId": 2300,
+    "parents": [],
+    "year": "2020"
+  },
+  "2301.json": {
+    "abstract": "",
+    "itemId": 2301,
+    "parents": [],
+    "year": "2021"
+  },
+  "2302.json": {
+    "abstract": "",
+    "itemId": 2302,
+    "parents": [],
+    "year": "2022"
+  },
+  "2303.json": {
+    "abstract": "",
+    "itemId": 2303,
+    "parents": [],
+    "year": "2023"
+  },
+  "2304.json": {
+    "abstract": "",
+    "itemId": 2304,
+    "parents": [],
+    "year": "2024"
+  },
+  "2305.json": {
+    "abstract": "",
+    "itemId": 2305,
+    "parents": [],
+    "year": "2025"
+  },
+  "2306.json": {
+    "abstract": "",
+    "itemId": 2306,
+    "parents": [],
+    "year": "2020"
+  },
+  "2307.json": {
+    "abstract": "",
+    "itemId": 2307,
+    "parents": [],
+    "year": "2021"
+  },
+  "2308.json": {
+    "abstract": "",
+    "itemId": 2308,
+    "parents": [],
+    "year": "2022"
+  },
+  "2309.json": {
+    "abstract": "",
+    "itemId": 2309,
+    "parents": [],
+    "year": "2023"
+  },
+  "2310.json": {
+    "abstract": "",
+    "itemId": 2310,
+    "parents": [],
+    "year": "2024"
+  },
+  "2311.json": {
+    "abstract": "",
+    "itemId": 2311,
+    "parents": [],
+    "year": "2025"
+  },
+  "2400.json": {
+    "abstract": "",
+    "itemId": 2400,
+    "parents": [],
+    "year": "2019"
+  },
+  "2401.json": {
+    "abstract": "",
+    "itemId": 2401,
+    "parents": [],
+    "year": "2020"
+  },
+  "2402.json": {
+    "abstract": "",
+    "itemId": 2402,
+    "parents": [],
+    "year": "2021"
+  },
+  "2403.json": {
+    "abstract": "",
+    "itemId": 2403,
+    "parents": [],
+    "year": "2022"
+  },
+  "2404.json": {
+    "abstract": "",
+    "itemId": 2404,
+    "parents": [],
+    "year": null
+  },
+  "2405.json": {
+    "abstract": "",
+    "itemId": 2405,
+    "parents": [],
+    "year": "2024"
+  },
+  "2406.json": {
+    "abstract": "",
+    "itemId": 2406,
+    "parents": [],
+    "year": "2019"
+  },
+  "2407.json": {
+    "abstract": "",
+    "itemId": 2407,
+    "parents": [],
+    "year": "2020"
+  },
+  "2408.json": {
+    "abstract": "",
+    "itemId": 2408,
+    "parents": [],
+    "year": "2021"
+  },
+  "2409.json": {
+    "abstract": "",
+    "itemId": 2409,
+    "parents": [],
+    "year": null
+  },
+  "2410.json": {
+    "abstract": "",
+    "itemId": 2410,
+    "parents": [],
+    "year": "2023"
+  },
+  "2411.json": {
+    "abstract": "",
+    "itemId": 2411,
+    "parents": [],
+    "year": "2024"
+  },
+  "2412.json": {
+    "abstract": "",
+    "itemId": 2412,
+    "parents": [],
+    "year": "2019"
+  },
+  "2413.json": {
+    "abstract": "",
+    "itemId": 2413,
+    "parents": [],
+    "year": "2020"
+  },
+  "2414.json": {
+    "abstract": "",
+    "itemId": 2414,
+    "parents": [],
+    "year": null
+  },
+  "2415.json": {
+    "abstract": "",
+    "itemId": 2415,
+    "parents": [],
+    "year": "2022"
+  },
+  "2416.json": {
+    "abstract": "",
+    "itemId": 2416,
+    "parents": [],
+    "year": "2023"
+  },
+  "2417.json": {
+    "abstract": "",
+    "itemId": 2417,
+    "parents": [],
+    "year": "2024"
+  },
+  "2418.json": {
+    "abstract": "",
+    "itemId": 2418,
+    "parents": [],
+    "year": "2019"
+  },
+  "2419.json": {
+    "abstract": "",
+    "itemId": 2419,
+    "parents": [],
+    "year": null
+  },
+  "2450.json": {
+    "abstract": "",
+    "itemId": 2450,
+    "parents": [],
+    "year": "1970"
+  },
+  "2451.json": {
+    "abstract": "",
+    "itemId": 2451,
+    "parents": [],
+    "year": "1973"
+  },
+  "2452.json": {
+    "abstract": "",
+    "itemId": 2452,
+    "parents": [],
+    "year": "1976"
+  },
+  "2453.json": {
+    "abstract": "",
+    "itemId": 2453,
+    "parents": [],
+    "year": "1979"
+  },
+  "2454.json": {
+    "abstract": "",
+    "itemId": 2454,
+    "parents": [],
+    "year": "1982"
+  },
+  "2455.json": {
+    "abstract": "",
+    "itemId": 2455,
+    "parents": [],
+    "year": "1985"
+  },
+  "2456.json": {
+    "abstract": "",
+    "itemId": 2456,
+    "parents": [],
+    "year": "1988"
+  },
+  "2457.json": {
+    "abstract": "",
+    "itemId": 2457,
+    "parents": [],
+    "year": "1991"
+  },
+  "2458.json": {
+    "abstract": "",
+    "itemId": 2458,
+    "parents": [],
+    "year": "1994"
+  },
+  "2459.json": {
+    "abstract": "",
+    "itemId": 2459,
+    "parents": [],
+    "year": "1997"
+  },
+  "2460.json": {
+    "abstract": "",
+    "itemId": 2460,
+    "parents": [],
+    "year": "2000"
+  },
+  "2461.json": {
+    "abstract": "",
+    "itemId": 2461,
+    "parents": [],
+    "year": "2003"
+  },
+  "2462.json": {
+    "abstract": "",
+    "itemId": 2462,
+    "parents": [],
+    "year": "2006"
+  },
+  "2463.json": {
+    "abstract": "",
+    "itemId": 2463,
+    "parents": [],
+    "year": "2009"
+  },
+  "2464.json": {
+    "abstract": "",
+    "itemId": 2464,
+    "parents": [],
+    "year": "2012"
+  },
+  "2465.json": {
+    "abstract": "",
+    "itemId": 2465,
+    "parents": [],
+    "year": "2015"
+  },
+  "2466.json": {
+    "abstract": "",
+    "itemId": 2466,
+    "parents": [],
+    "year": "2018"
+  },
+  "2500.json": {
+    "abstract": "",
+    "itemId": 2500,
+    "parents": [],
+    "year": "2012"
+  },
+  "2501.json": {
+    "abstract": "",
+    "itemId": 2501,
+    "parents": [],
+    "year": "2012"
+  },
+  "2502.json": {
+    "abstract": "",
+    "itemId": 2502,
+    "parents": [],
+    "year": "2012"
+  },
+  "2503.json": {
+    "abstract": "",
+    "itemId": 2503,
+    "parents": [],
+    "year": "2013"
+  },
+  "2504.json": {
+    "abstract": "",
+    "itemId": 2504,
+    "parents": [],
+    "year": "2013"
+  },
+  "2505.json": {
+    "abstract": "",
+    "itemId": 2505,
+    "parents": [],
+    "year": "2013"
+  },
+  "2506.json": {
+    "abstract": "",
+    "itemId": 2506,
+    "parents": [],
+    "year": "2014"
+  },
+  "2507.json": {
+    "abstract": "",
+    "itemId": 2507,
+    "parents": [],
+    "year": "2014"
+  },
+  "2508.json": {
+    "abstract": "",
+    "itemId": 2508,
+    "parents": [],
+    "year": "2014"
+  },
+  "2600.json": {
+    "abstract": "",
+    "itemId": 2600,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "1955"
+  },
+  "2601.json": {
+    "abstract": "",
+    "itemId": 2601,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "1956"
+  },
+  "2602.json": {
+    "abstract": "",
+    "itemId": 2602,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "1957"
+  },
+  "2603.json": {
+    "abstract": "",
+    "itemId": 2603,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "1958"
+  },
+  "2604.json": {
+    "abstract": "",
+    "itemId": 2604,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "1959"
+  },
+  "2605.json": {
+    "abstract": "",
+    "itemId": 2605,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "1960"
+  },
+  "2606.json": {
+    "abstract": "",
+    "itemId": 2606,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "1961"
+  },
+  "2607.json": {
+    "abstract": "",
+    "itemId": 2607,
+    "parents": [
+      {"id":306,"name":"Digital Return of Sound Archives"}
+    ],
+    "year": "1962"
+  },
+  "3167.json": {
+    "abstract": "",
+    "itemId": 3167,
+    "parents": [],
+    "year": null
+  },
+  "37685.json": {
+    "abstract": "",
+    "itemId": 37685,
+    "parents": [],
+    "year": null
+  },
+  "39071.json": {
+    "abstract": "",
+    "itemId": 39071,
+    "parents": [],
+    "year": null
+  },
+  "39072.json": {
+    "abstract": "",
+    "itemId": 39072,
+    "parents": [],
+    "year": null
+  },
+  "39073.json": {
+    "abstract": "",
+    "itemId": 39073,
+    "parents": [],
+    "year": null
+  }
+}

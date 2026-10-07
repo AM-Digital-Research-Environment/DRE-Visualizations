@@ -1,0 +1,211 @@
+{
+  "contributors": [
+    {"itemId":402,"name":"Ouédraogo, Issa","value":5},
+    {"itemId":416,"name":"Achieng, Grace","value":4},
+    {"itemId":419,"name":"Hoffmann, Felix","value":3},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":3},
+    {"itemId":413,"name":"Nkosi, Sipho","value":2},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":2},
+    {"itemId":410,"name":"Oliveira, Rafael","value":2},
+    {"itemId":412,"name":"Traoré, Aïssata","value":2},
+    {"itemId":422,"name":"Abubakar, Hauwa","value":1},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":415,"name":"Balogun, Tunde","value":1},
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":1},
+    {"itemId":418,"name":"Ferreira, Luíza","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1097,"title":"Drum song memory family (98)"},
+        {"id":1099,"title":"Festival road mosque voices (100)"},
+        {"id":1114,"title":"Market harvest harvest memory (115)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 3
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"},
+        {"id":1115,"title":"River radio (116)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 2
+    },
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1023,"title":"Ritual festival school migration (24)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1067,"title":"Drum voices ritual (68)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1028,"title":"School festival ritual (29)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":812,"name":"Portuguese","value":5},
+    {"itemId":815,"name":"Hausa","value":4},
+    {"itemId":816,"name":"Mooré","value":4},
+    {"itemId":814,"name":"Swahili","value":3},
+    {"itemId":811,"name":"French","value":2},
+    {"itemId":813,"name":"Yoruba","value":2},
+    {"itemId":810,"name":"English","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 615,
+      "items": [
+        {"id":1039,"title":"Ritual archive ritual (40)"},
+        {"id":1091,"title":"Voices language market ritual (92)"}
+      ],
+      "lat": -6.7924,
+      "lon": 39.2083,
+      "name": "Dar es Salaam",
+      "value": 2
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1028,"title":"School festival ritual (29)"},
+        {"id":1090,"title":"City archive (91)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 2
+    },
+    {
+      "itemId": 601,
+      "items": [
+        {"id":1028,"title":"School festival ritual (29)"},
+        {"id":1067,"title":"Drum voices ritual (68)"}
+      ],
+      "lat": 7.3775,
+      "lon": 3.947,
+      "name": "Ibadan",
+      "value": 2
+    },
+    {
+      "itemId": 608,
+      "items": [
+        {"id":1034,"title":"Radio memory (35)"},
+        {"id":1039,"title":"Ritual archive ritual (40)"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 2
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"},
+        {"id":1023,"title":"Ritual festival school migration (24)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 2
+    },
+    {
+      "itemId": 603,
+      "items": [
+        {"id":1047,"title":"Market ritual ritual (48)"}
+      ],
+      "lat": 11.1771,
+      "lon": -4.2979,
+      "name": "Bobo-Dioulasso",
+      "value": 1
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1091,"title":"Voices language market ritual (92)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 1
+    },
+    {
+      "itemId": 609,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"}
+      ],
+      "lat": 14.15,
+      "lon": -16.07,
+      "name": "Kaolack",
+      "value": 1
+    }
+  ],
+  "resourceType": "genre",
+  "subjects": [
+    {"itemId":709,"name":"Education","value":3},
+    {"itemId":728,"name":"griot","value":3},
+    {"itemId":708,"name":"Language policy","value":3},
+    {"itemId":704,"name":"Migration","value":3},
+    {"itemId":715,"name":"capoeira","value":2},
+    {"itemId":711,"name":"Collective memory","value":2},
+    {"itemId":710,"name":"Colonialism","value":2},
+    {"itemId":714,"name":"Gender","value":2},
+    {"itemId":700,"name":"Music","value":2},
+    {"itemId":706,"name":"Oral tradition","value":2},
+    {"itemId":725,"name":"radio","value":2},
+    {"itemId":719,"name":"sound recording","value":2},
+    {"itemId":717,"name":"Afrobeat","value":1},
+    {"itemId":727,"name":"Candomblé","value":1},
+    {"itemId":703,"name":"Christianity","value":1},
+    {"itemId":721,"name":"healing","value":1},
+    {"itemId":716,"name":"highlife","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":713,"name":"Kinship","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":726,"name":"photography","value":1},
+    {"itemId":707,"name":"Popular music","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":724,"name":"restitution","value":1},
+    {"itemId":722,"name":"urban farming","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "timeline": {"2019":3,"2020":1,"2021":3,"2022":1,"2023":3,"2025":1},
+  "totalItems": 16,
+  "types": [
+    {"itemId":800,"name":"Interview","value":6},
+    {"itemId":802,"name":"Field notes","value":4},
+    {"itemId":801,"name":"Photograph","value":3},
+    {"itemId":804,"name":"Video","value":3},
+    {"itemId":803,"name":"Sound recording","value":1}
+  ]
+}

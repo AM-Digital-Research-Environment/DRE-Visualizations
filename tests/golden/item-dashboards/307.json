@@ -1,0 +1,404 @@
+{
+  "affiliationMap": [
+    {
+      "itemId": 502,
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "members": ["Kiprop, David"],
+      "name": "University Joseph Ki-Zerbo"
+    },
+    {
+      "itemId": 506,
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "members": ["Weber, Lena"],
+      "name": "University of Nairobi"
+    }
+  ],
+  "choropleth": [
+    {"count":2,"country":"Kenya"},
+    {"count":1,"country":"Democratic Republic of the Congo"},
+    {"count":1,"country":"Senegal"},
+    {"count":1,"country":"United Republic of Tanzania"}
+  ],
+  "contributorNetwork": {
+    "categories": ["person","project"],
+    "links": [
+      {"source":"Kiprop, David","target":"Pilot Study on Language Policy","value":3},
+      {"source":"Müller, Katharina","target":"Pilot Study on Language Policy","value":2},
+      {"source":"Balogun, Tunde","target":"Pilot Study on Language Policy","value":1},
+      {"source":"Weber, Lena","target":"Pilot Study on Language Policy","value":2},
+      {"source":"Ouédraogo, Issa","target":"Pilot Study on Language Policy","value":1},
+      {"source":"Ferreira, Luíza","target":"Pilot Study on Language Policy","value":1}
+    ],
+    "nodes": [
+      {"category":"person","itemId":411,"name":"Kiprop, David","value":3},
+      {"category":"person","itemId":404,"name":"Müller, Katharina","value":2},
+      {"category":"person","itemId":414,"name":"Weber, Lena","value":2},
+      {"category":"person","itemId":402,"name":"Ouédraogo, Issa","value":1},
+      {"category":"person","itemId":415,"name":"Balogun, Tunde","value":1},
+      {"category":"person","itemId":418,"name":"Ferreira, Luíza","value":1},
+      {"category":"project","itemId":307,"name":"Pilot Study on Language Policy","value":5}
+    ]
+  },
+  "contributors": [
+    {"itemId":411,"name":"Kiprop, David","value":3},
+    {"itemId":404,"name":"Müller, Katharina","value":2},
+    {"itemId":414,"name":"Weber, Lena","value":2},
+    {"itemId":415,"name":"Balogun, Tunde","value":1},
+    {"itemId":418,"name":"Ferreira, Luíza","value":1},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1025,"title":"Healing river ritual (26)"},
+        {"id":1040,"title":"Migration harvest drum healing (41)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 2
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1084,"title":"School family radio healing (85)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1056,"title":"Language road (57)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    }
+  ],
+  "geoFlows": {
+    "links": [
+      {"from":"Eldoret","fromLat":0.5143,"fromLon":35.2698,"to":"Lagos","toLat":6.5244,"toLon":3.3792,"value":1},
+      {"from":"Nairobi","fromLat":-1.2921,"fromLon":36.8219,"to":"Salvador","toLat":-12.9777,"toLon":-38.5016,"value":1},
+      {"from":"Kinshasa","fromLat":-4.4419,"fromLon":15.2663,"to":"Universidade Federal da Bahia","toLat":-12.9777,"toLon":-38.5016,"value":1},
+      {"from":"Dar es Salaam","fromLat":-6.7924,"fromLon":39.2083,"to":"Salvador","toLat":-12.9777,"toLon":-38.5016,"value":1},
+      {"from":"Gorée","fromLat":14.667,"fromLon":-17.398,"to":"Universidade Federal da Bahia","toLat":-12.9777,"toLon":-38.5016,"value":1}
+    ],
+    "nodes": [
+      {"itemId":611,"lat":-4.4419,"lon":15.2663,"name":"Kinshasa"},
+      {"itemId":503,"lat":-12.9777,"lon":-38.5016,"name":"Universidade Federal da Bahia"},
+      {"itemId":618,"lat":14.667,"lon":-17.398,"name":"Gorée"},
+      {"itemId":606,"lat":-1.2921,"lon":36.8219,"name":"Nairobi"},
+      {"itemId":607,"lat":-12.9777,"lon":-38.5016,"name":"Salvador"},
+      {"itemId":615,"lat":-6.7924,"lon":39.2083,"name":"Dar es Salaam"},
+      {"itemId":605,"lat":0.5143,"lon":35.2698,"name":"Eldoret"},
+      {"itemId":600,"lat":6.5244,"lon":3.3792,"name":"Lagos"}
+    ]
+  },
+  "heatmap": {
+    "cols": ["English","French","Mooré","Swahili","Yoruba"],
+    "rows": ["Field notes","Interview","Sound recording","Video"],
+    "values": [
+      [3,2,1],
+      [4,0,1],
+      [1,0,1],
+      [4,1,1],
+      [1,1,2],
+      [0,0,1],
+      [2,3,1]
+    ]
+  },
+  "languageTimeline": {
+    "series": [
+      {
+        "data": [0,1,0],
+        "name": "English"
+      },
+      {
+        "data": [0,0,1],
+        "name": "French"
+      },
+      {
+        "data": [1,0,0],
+        "name": "Mooré"
+      },
+      {
+        "data": [1,0,0],
+        "name": "Swahili"
+      }
+    ],
+    "years": [2021,2023,2025]
+  },
+  "languages": [
+    {"itemId":811,"name":"French","value":2},
+    {"itemId":810,"name":"English","value":1},
+    {"itemId":816,"name":"Mooré","value":1},
+    {"itemId":814,"name":"Swahili","value":1},
+    {"itemId":813,"name":"Yoruba","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 615,
+      "items": [
+        {"id":1056,"title":"Language road (57)"}
+      ],
+      "lat": -6.7924,
+      "lon": 39.2083,
+      "name": "Dar es Salaam",
+      "value": 1
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1084,"title":"School family radio healing (85)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 1
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1040,"title":"Migration harvest drum healing (41)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 1
+    },
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1025,"title":"Healing river ritual (26)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 1
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1056,"title":"Language road (57)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    }
+  ],
+  "radar": {
+    "indicator": [
+      {"max":25,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":27,"name":"Subjects"},
+      {"max":18,"name":"People"},
+      {"max":5,"name":"Types"},
+      {"max":69,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [5,5,8,6,4,4]
+      }
+    ]
+  },
+  "resourceType": "project",
+  "roles": [
+    {"name":"Creator","value":5},
+    {"name":"Contributor","value":2},
+    {"name":"Photographer","value":2},
+    {"name":"Interviewee","value":1}
+  ],
+  "sankey": {
+    "links": [
+      {"source":"Kiprop, David","target":"Pilot Study on Language Policy","value":3},
+      {"source":"Pilot Study on Language Policy","target":"Sound recording","value":3},
+      {"source":"Müller, Katharina","target":"Pilot Study on Language Policy","value":2},
+      {"source":"Balogun, Tunde","target":"Pilot Study on Language Policy","value":1},
+      {"source":"Weber, Lena","target":"Pilot Study on Language Policy","value":3},
+      {"source":"Pilot Study on Language Policy","target":"Field notes","value":3},
+      {"source":"Pilot Study on Language Policy","target":"Interview","value":2},
+      {"source":"Ouédraogo, Issa","target":"Pilot Study on Language Policy","value":1},
+      {"source":"Pilot Study on Language Policy","target":"Video","value":3},
+      {"source":"Ferreira, Luíza","target":"Pilot Study on Language Policy","value":1}
+    ],
+    "nodes": [
+      {"name":"Kiprop, David"},
+      {"name":"Pilot Study on Language Policy"},
+      {"name":"Sound recording"},
+      {"name":"Müller, Katharina"},
+      {"name":"Balogun, Tunde"},
+      {"name":"Weber, Lena"},
+      {"name":"Field notes"},
+      {"name":"Interview"},
+      {"name":"Ouédraogo, Issa"},
+      {"name":"Video"},
+      {"name":"Ferreira, Luíza"}
+    ]
+  },
+  "stackedTimeline": {
+    "series": [
+      {
+        "data": [0,1,0],
+        "name": "Field notes"
+      },
+      {
+        "data": [0,0,1],
+        "name": "Interview"
+      },
+      {
+        "data": [1,0,0],
+        "name": "Sound recording"
+      },
+      {
+        "data": [1,0,0],
+        "name": "Video"
+      }
+    ],
+    "years": [2021,2023,2025]
+  },
+  "subjectTrends": {
+    "series": [
+      {
+        "data": [2,0,0],
+        "name": "Religion"
+      },
+      {
+        "data": [0,1,0],
+        "name": "capoeira"
+      },
+      {
+        "data": [1,0,0],
+        "name": "Christianity"
+      },
+      {
+        "data": [1,0,0],
+        "name": "Colonialism"
+      },
+      {
+        "data": [0,1,0],
+        "name": "Education"
+      },
+      {
+        "data": [0,0,1],
+        "name": "griot"
+      },
+      {
+        "data": [1,0,0],
+        "name": "restitution"
+      },
+      {
+        "data": [1,0,0],
+        "name": "Urbanization"
+      }
+    ],
+    "years": [2021,2023,2025]
+  },
+  "subjects": [
+    {"itemId":709,"name":"Education","value":2},
+    {"itemId":701,"name":"Religion","value":2},
+    {"itemId":715,"name":"capoeira","value":1},
+    {"itemId":703,"name":"Christianity","value":1},
+    {"itemId":710,"name":"Colonialism","value":1},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":724,"name":"restitution","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "sunburst": [
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"Colonialism","value":1},
+            {"name":"Religion","value":1},
+            {"name":"restitution","value":1},
+            {"name":"Urbanization","value":1}
+          ],
+          "name": "Swahili"
+        }
+      ],
+      "name": "Sound recording"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"Education","value":1}
+          ],
+          "name": "Yoruba"
+        },
+        {
+          "children": [
+            {"name":"Education","value":1}
+          ],
+          "name": "French"
+        },
+        {
+          "children": [
+            {"name":"capoeira","value":1},
+            {"name":"Education","value":1}
+          ],
+          "name": "English"
+        }
+      ],
+      "name": "Field notes"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"Education","value":1}
+          ],
+          "name": "Yoruba"
+        },
+        {
+          "children": [
+            {"name":"Education","value":1},
+            {"name":"griot","value":1}
+          ],
+          "name": "French"
+        }
+      ],
+      "name": "Interview"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"Christianity","value":1},
+            {"name":"Religion","value":1}
+          ],
+          "name": "Mooré"
+        }
+      ],
+      "name": "Video"
+    }
+  ],
+  "timeline": {"2021":2,"2023":1,"2025":1},
+  "totalItems": 5,
+  "treemap": [
+    {
+      "children": [
+        {"name":"Field notes","value":2},
+        {"name":"Interview","value":2},
+        {"name":"Sound recording","value":1},
+        {"name":"Video","value":1}
+      ],
+      "name": "Pilot Study on Language Policy",
+      "value": 5
+    }
+  ],
+  "types": [
+    {"itemId":802,"name":"Field notes","value":2},
+    {"itemId":800,"name":"Interview","value":2},
+    {"itemId":803,"name":"Sound recording","value":1},
+    {"itemId":804,"name":"Video","value":1}
+  ]
+}

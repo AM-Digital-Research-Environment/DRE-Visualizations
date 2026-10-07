@@ -1,0 +1,20 @@
+{
+  "photos": [
+    {"date":"1970","ext":"jpg","id":2450,"ident":"APMESTRENO001","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno001","title":"Acervo APMESTRENO001","year":1970},
+    {"date":"1973","ext":"jpg","id":2451,"ident":"APMESTRENO002","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno002","title":"Acervo APMESTRENO002","year":1973},
+    {"date":"1976","ext":"jpg","id":2452,"ident":"APMESTRENO003","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno003","title":"Acervo APMESTRENO003","year":1976},
+    {"date":"1979","ext":"jpg","id":2453,"ident":"APMESTRENO004","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno004","title":"Acervo APMESTRENO004","year":1979},
+    {"date":"1982","ext":"jpg","id":2454,"ident":"APMESTRENO005","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno005","title":"Acervo APMESTRENO005","year":1982},
+    {"date":"1988","ext":"jpg","id":2456,"ident":"APMESTRENO007","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno007","title":"Acervo APMESTRENO007","year":1988},
+    {"date":"1991","ext":"jpg","id":2457,"ident":"TRABNEGRBA001","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-trabnegrba001","title":"Acervo TRABNEGRBA001","year":1991},
+    {"date":"1994","ext":"jpg","id":2458,"ident":"TRABNEGRBA002","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-trabnegrba002","title":"Acervo TRABNEGRBA002","year":1994},
+    {"date":"1997","ext":"jpg","id":2459,"ident":"TRABNEGRBA003","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-trabnegrba003","title":"Acervo TRABNEGRBA003","year":1997},
+    {"date":"2000","ext":"jpg","id":2460,"ident":"TRABNEGRBA004","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-trabnegrba004","title":"Acervo TRABNEGRBA004","year":2000},
+    {"date":"2006","ext":"jpg","id":2462,"ident":"ORIXAFGM001","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-orixafgm001","title":"Acervo ORIXAFGM001","year":2006},
+    {"date":"2009","ext":"jpg","id":2463,"ident":"ORIXAFGM002","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-orixafgm002","title":"Acervo ORIXAFGM002","year":2009},
+    {"date":"2012","ext":"jpg","id":2464,"ident":"ORIXAFGM003","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-orixafgm003","title":"Acervo ORIXAFGM003","year":2012},
+    {"date":"2015","ext":"jpg","id":2465,"ident":"ORIXAFGM004","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-orixafgm004","title":"Acervo ORIXAFGM004","year":2015},
+    {"date":"2018","ext":"jpg","id":2466,"ident":"OTHERPREFIX001","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-otherprefix001","title":"Acervo OTHERPREFIX001","year":2018}
+  ],
+  "total": 15
+}

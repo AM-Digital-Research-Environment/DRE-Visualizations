@@ -1,0 +1,304 @@
+{
+  "contributors": [
+    {"itemId":416,"name":"Achieng, Grace","value":6},
+    {"itemId":401,"name":"Bakari, Amina","value":4},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":4},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":4},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":4},
+    {"itemId":411,"name":"Kiprop, David","value":3},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":2},
+    {"itemId":419,"name":"Hoffmann, Felix","value":2},
+    {"itemId":417,"name":"Kaboré, Paul","value":2},
+    {"itemId":420,"name":"Mensah, Kwame","value":2},
+    {"itemId":413,"name":"Nkosi, Sipho","value":2},
+    {"itemId":403,"name":"Santos, Ana Clara","value":2},
+    {"itemId":412,"name":"Traoré, Aïssata","value":2},
+    {"itemId":414,"name":"Weber, Lena","value":2},
+    {"itemId":422,"name":"Abubakar, Hauwa","value":1},
+    {"itemId":415,"name":"Balogun, Tunde","value":1},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1096,"title":"Ritual radio (97)"},
+        {"id":1112,"title":"Archive mosque song (113)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 2
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1002,"title":"Festival harvest mosque school (3)"},
+        {"id":1089,"title":"River migration healing (90)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 2
+    },
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1038,"title":"Migration radio harvest (39)"},
+        {"id":1073,"title":"Archive mosque (74)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 2
+    },
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1023,"title":"Ritual festival school migration (24)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 1
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1063,"title":"Voices road church (64)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1049,"title":"Healing migration (50)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    },
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 1
+    },
+    {
+      "itemId": 500,
+      "items": [
+        {"id":1064,"title":"Healing language ritual (65)"}
+      ],
+      "lat": 49.9456,
+      "lon": 11.5713,
+      "name": "University of Bayreuth",
+      "value": 1
+    }
+  ],
+  "locations": [
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1064,"title":"Healing language ritual (65)"},
+        {"id":1102,"title":"Road drum memory river (103)"},
+        {"id":1112,"title":"Archive mosque song (113)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 3
+    },
+    {
+      "itemId": 610,
+      "items": [
+        {"id":1010,"title":"Family radio (11)"},
+        {"id":1059,"title":"Mosque voices (60)"}
+      ],
+      "lat": 12.6392,
+      "lon": -8.0029,
+      "name": "Bamako",
+      "value": 2
+    },
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"},
+        {"id":1048,"title":"Drum migration market drum (49)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 2
+    },
+    {
+      "itemId": 613,
+      "items": [
+        {"id":1089,"title":"River migration healing (90)"}
+      ],
+      "lat": 7.18,
+      "lon": 1.99,
+      "name": "Abomey",
+      "value": 1
+    },
+    {
+      "itemId": 603,
+      "items": [
+        {"id":1047,"title":"Market ritual ritual (48)"}
+      ],
+      "lat": 11.1771,
+      "lon": -4.2979,
+      "name": "Bobo-Dioulasso",
+      "value": 1
+    },
+    {
+      "itemId": 615,
+      "items": [
+        {"id":1039,"title":"Ritual archive ritual (40)"}
+      ],
+      "lat": -6.7924,
+      "lon": 39.2083,
+      "name": "Dar es Salaam",
+      "value": 1
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1033,"title":"Market road road (34)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 1
+    },
+    {
+      "itemId": 601,
+      "items": [
+        {"id":1048,"title":"Drum migration market drum (49)"}
+      ],
+      "lat": 7.3775,
+      "lon": 3.947,
+      "name": "Ibadan",
+      "value": 1
+    },
+    {
+      "itemId": 616,
+      "items": [
+        {"id":1112,"title":"Archive mosque song (113)"}
+      ],
+      "lat": 0.3476,
+      "lon": 32.5825,
+      "name": "Kampala",
+      "value": 1
+    },
+    {
+      "itemId": 609,
+      "items": [
+        {"id":1049,"title":"Healing migration (50)"}
+      ],
+      "lat": 14.15,
+      "lon": -16.07,
+      "name": "Kaolack",
+      "value": 1
+    },
+    {
+      "itemId": 608,
+      "items": [
+        {"id":1039,"title":"Ritual archive ritual (40)"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1023,"title":"Ritual festival school migration (24)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1089,"title":"River migration healing (90)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1010,"title":"Family radio (11)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    }
+  ],
+  "resourceType": "authority",
+  "subjects": [
+    {"itemId":718,"name":"mobile phones","value":4},
+    {"itemId":700,"name":"Music","value":4},
+    {"itemId":726,"name":"photography","value":4},
+    {"itemId":719,"name":"sound recording","value":4},
+    {"itemId":709,"name":"Education","value":3},
+    {"itemId":714,"name":"Gender","value":3},
+    {"itemId":704,"name":"Migration","value":3},
+    {"itemId":707,"name":"Popular music","value":3},
+    {"itemId":725,"name":"radio","value":3},
+    {"itemId":724,"name":"restitution","value":3},
+    {"itemId":722,"name":"urban farming","value":3},
+    {"itemId":717,"name":"Afrobeat","value":2},
+    {"itemId":727,"name":"Candomblé","value":2},
+    {"itemId":703,"name":"Christianity","value":2},
+    {"itemId":711,"name":"Collective memory","value":2},
+    {"itemId":710,"name":"Colonialism","value":2},
+    {"itemId":728,"name":"griot","value":2},
+    {"itemId":708,"name":"Language policy","value":2},
+    {"itemId":712,"name":"Archives","value":1},
+    {"itemId":715,"name":"capoeira","value":1},
+    {"itemId":723,"name":"diaspora","value":1},
+    {"itemId":721,"name":"healing","value":1},
+    {"itemId":716,"name":"highlife","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":706,"name":"Oral tradition","value":1},
+    {"itemId":720,"name":"pilgrimage","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "timeline": {"2019":3,"2021":8,"2022":3,"2023":2,"2024":4,"2025":1},
+  "totalItems": 23,
+  "types": [
+    {"itemId":800,"name":"Interview","value":9},
+    {"itemId":804,"name":"Video","value":6},
+    {"itemId":803,"name":"Sound recording","value":5},
+    {"itemId":802,"name":"Field notes","value":3},
+    {"itemId":801,"name":"Photograph","value":3}
+  ]
+}

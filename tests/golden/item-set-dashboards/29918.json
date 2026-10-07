@@ -1,0 +1,50 @@
+{
+  "contributors": [
+    {"itemId":600,"name":"Lagos","value":6},
+    {"itemId":604,"name":"Makhanda","value":4},
+    {"itemId":607,"name":"Salvador","value":3},
+    {"itemId":606,"name":"Nairobi","value":2},
+    {"itemId":602,"name":"Ouagadougou","value":1}
+  ],
+  "currentLocations": [],
+  "languages": [
+    {"itemId":810,"name":"English","value":10},
+    {"itemId":811,"name":"French","value":10},
+    {"itemId":812,"name":"Portuguese","value":10}
+  ],
+  "locations": [],
+  "resourceType": "researchItem",
+  "subjects": [
+    {"itemId":721,"name":"healing","value":4},
+    {"itemId":701,"name":"Religion","value":4},
+    {"itemId":719,"name":"sound recording","value":4},
+    {"itemId":705,"name":"Urbanization","value":4},
+    {"itemId":717,"name":"Afrobeat","value":3},
+    {"itemId":703,"name":"Christianity","value":3},
+    {"itemId":709,"name":"Education","value":3},
+    {"itemId":713,"name":"Kinship","value":3},
+    {"itemId":718,"name":"mobile phones","value":3},
+    {"itemId":726,"name":"photography","value":3},
+    {"itemId":725,"name":"radio","value":3},
+    {"itemId":727,"name":"Candomblé","value":2},
+    {"itemId":714,"name":"Gender","value":2},
+    {"itemId":706,"name":"Oral tradition","value":2},
+    {"itemId":707,"name":"Popular music","value":2},
+    {"itemId":722,"name":"urban farming","value":2},
+    {"itemId":712,"name":"Archives","value":1},
+    {"itemId":711,"name":"Collective memory","value":1},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":720,"name":"pilgrimage","value":1},
+    {"itemId":724,"name":"restitution","value":1}
+  ],
+  "timeline": {"2019":5,"2020":5,"2021":4,"2022":4,"2023":4,"2024":4,"2025":4},
+  "totalItems": 30,
+  "types": [
+    {"itemId":805,"name":"Journal article","value":20},
+    {"itemId":807,"name":"Monograph","value":7},
+    {"itemId":806,"name":"Book chapter","value":3}
+  ]
+}

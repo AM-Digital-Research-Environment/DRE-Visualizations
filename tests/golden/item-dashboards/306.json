@@ -1,0 +1,680 @@
+{
+  "affiliationMap": [
+    {
+      "itemId": 504,
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "members": ["Dlamini, Thandiwe","Müller, Katharina"],
+      "name": "Rhodes University"
+    },
+    {
+      "itemId": 503,
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "members": ["Müller, Katharina"],
+      "name": "Universidade Federal da Bahia"
+    },
+    {
+      "itemId": 500,
+      "lat": 49.9456,
+      "lon": 11.5713,
+      "members": ["Hoffmann, Felix"],
+      "name": "University of Bayreuth"
+    }
+  ],
+  "chord": {
+    "links": [
+      {"source":"Music","target":"urban farming","value":2},
+      {"source":"healing","target":"urban farming","value":2}
+    ],
+    "nodes": [
+      {"itemId":700,"name":"Music","value":4},
+      {"itemId":704,"name":"Migration","value":3},
+      {"itemId":722,"name":"urban farming","value":3},
+      {"itemId":711,"name":"Collective memory","value":2},
+      {"itemId":721,"name":"healing","value":2},
+      {"itemId":725,"name":"radio","value":2},
+      {"itemId":702,"name":"Islam","value":1},
+      {"itemId":707,"name":"Popular music","value":1},
+      {"itemId":708,"name":"Language policy","value":1},
+      {"itemId":709,"name":"Education","value":1},
+      {"itemId":710,"name":"Colonialism","value":1},
+      {"itemId":715,"name":"capoeira","value":1},
+      {"itemId":718,"name":"mobile phones","value":1},
+      {"itemId":720,"name":"pilgrimage","value":1},
+      {"itemId":723,"name":"diaspora","value":1},
+      {"itemId":728,"name":"griot","value":1}
+    ]
+  },
+  "choropleth": [
+    {"count":6,"country":"Nigeria"},
+    {"count":5,"country":"Kenya"},
+    {"count":3,"country":"United Republic of Tanzania"},
+    {"count":1,"country":"Burkina Faso"},
+    {"count":1,"country":"Ethiopia"},
+    {"count":1,"country":"Ghana"}
+  ],
+  "contributorNetwork": {
+    "categories": ["person","project"],
+    "links": [
+      {"source":"Nkosi, Sipho","target":"Digital Return of Sound Archives","value":4},
+      {"source":"Dlamini, Thandiwe","target":"Digital Return of Sound Archives","value":3},
+      {"source":"Ferreira, Luíza","target":"Digital Return of Sound Archives","value":1},
+      {"source":"Njoroge, Peter","target":"Digital Return of Sound Archives","value":2},
+      {"source":"Santos, Ana Clara","target":"Digital Return of Sound Archives","value":1},
+      {"source":"Hoffmann, Felix","target":"Digital Return of Sound Archives","value":4},
+      {"source":"Bakari, Amina","target":"Digital Return of Sound Archives","value":1},
+      {"source":"Weber, Lena","target":"Digital Return of Sound Archives","value":1},
+      {"source":"Diallo, Fatoumata","target":"Digital Return of Sound Archives","value":1},
+      {"source":"Oliveira, Rafael","target":"Digital Return of Sound Archives","value":1},
+      {"source":"Traoré, Aïssata","target":"Digital Return of Sound Archives","value":1},
+      {"source":"Müller, Katharina","target":"Digital Return of Sound Archives","value":1},
+      {"source":"Ouédraogo, Issa","target":"Digital Return of Sound Archives","value":1}
+    ],
+    "nodes": [
+      {"category":"person","itemId":413,"name":"Nkosi, Sipho","value":4},
+      {"category":"person","itemId":419,"name":"Hoffmann, Felix","value":4},
+      {"category":"person","itemId":408,"name":"Dlamini, Thandiwe","value":3},
+      {"category":"person","itemId":423,"name":"Njoroge, Peter","value":2},
+      {"category":"person","itemId":401,"name":"Bakari, Amina","value":1},
+      {"category":"person","itemId":402,"name":"Ouédraogo, Issa","value":1},
+      {"category":"person","itemId":403,"name":"Santos, Ana Clara","value":1},
+      {"category":"person","itemId":404,"name":"Müller, Katharina","value":1},
+      {"category":"person","itemId":410,"name":"Oliveira, Rafael","value":1},
+      {"category":"person","itemId":412,"name":"Traoré, Aïssata","value":1},
+      {"category":"person","itemId":414,"name":"Weber, Lena","value":1},
+      {"category":"person","itemId":418,"name":"Ferreira, Luíza","value":1},
+      {"category":"person","itemId":421,"name":"Diallo, Fatoumata","value":1},
+      {"category":"project","itemId":306,"name":"Digital Return of Sound Archives","value":11}
+    ]
+  },
+  "contributors": [
+    {"itemId":1219,"name":"DECCA West Africa","value":5},
+    {"itemId":419,"name":"Hoffmann, Felix","value":4},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":3},
+    {"itemId":1222,"name":"Jambo Records","value":3},
+    {"itemId":413,"name":"Nkosi, Sipho","value":3},
+    {"itemId":423,"name":"Njoroge, Peter","value":2},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":1},
+    {"itemId":418,"name":"Ferreira, Luíza","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1},
+    {"itemId":410,"name":"Oliveira, Rafael","value":1},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1},
+    {"itemId":412,"name":"Traoré, Aïssata","value":1},
+    {"itemId":414,"name":"Weber, Lena","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 608,
+      "items": [
+        {"id":2600,"title":"Gramophone side 1"},
+        {"id":2601,"title":"Gramophone side 2"},
+        {"id":2602,"title":"Gramophone side 3"},
+        {"id":2603,"title":"Gramophone side 4"},
+        {"id":2604,"title":"Gramophone side 5"},
+        {"id":2605,"title":"Gramophone side 6"},
+        {"id":2606,"title":"Gramophone side 7"},
+        {"id":2607,"title":"Gramophone side 8"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 8
+    },
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1055,"title":"Drum voices (56)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1067,"title":"Drum voices ritual (68)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    },
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1016,"title":"Voices city (17)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 1
+    },
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1054,"title":"Family migration voices voices (55)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 1
+    },
+    {
+      "itemId": 500,
+      "items": [
+        {"id":1008,"title":"Market river river (9)"}
+      ],
+      "lat": 49.9456,
+      "lon": 11.5713,
+      "name": "University of Bayreuth",
+      "value": 1
+    }
+  ],
+  "geoFlows": {
+    "links": [
+      {"from":"Lagos","fromLat":6.5244,"fromLon":3.3792,"to":"Kumasi","toLat":6.6885,"toLon":-1.6244,"value":5},
+      {"from":"Nairobi","fromLat":-1.2921,"fromLon":36.8219,"to":"Kumasi","toLat":6.6885,"toLon":-1.6244,"value":3},
+      {"from":"Ibadan","fromLat":7.3775,"fromLon":3.947,"to":"Ouagadougou","toLat":12.3714,"toLon":-1.5197,"value":1},
+      {"from":"Eldoret","fromLat":0.5143,"fromLon":35.2698,"to":"Rhodes University","toLat":-33.3106,"toLon":26.5256,"value":1},
+      {"from":"Dar es Salaam","fromLat":-6.7924,"fromLon":39.2083,"to":"Rhodes University","toLat":-33.3106,"toLon":26.5256,"value":1},
+      {"from":"Dar es Salaam","fromLat":-6.7924,"fromLon":39.2083,"to":"Moi University","toLat":0.5143,"toLon":35.2698,"value":1}
+    ],
+    "nodes": [
+      {"itemId":605,"lat":0.5143,"lon":35.2698,"name":"Eldoret"},
+      {"itemId":504,"lat":-33.3106,"lon":26.5256,"name":"Rhodes University"},
+      {"itemId":615,"lat":-6.7924,"lon":39.2083,"name":"Dar es Salaam"},
+      {"itemId":505,"lat":0.5143,"lon":35.2698,"name":"Moi University"},
+      {"itemId":601,"lat":7.3775,"lon":3.947,"name":"Ibadan"},
+      {"itemId":602,"lat":12.3714,"lon":-1.5197,"name":"Ouagadougou"},
+      {"itemId":600,"lat":6.5244,"lon":3.3792,"name":"Lagos"},
+      {"itemId":608,"lat":6.6885,"lon":-1.6244,"name":"Kumasi"},
+      {"itemId":606,"lat":-1.2921,"lon":36.8219,"name":"Nairobi"}
+    ]
+  },
+  "heatmap": {
+    "cols": ["English","French","Hausa","Mooré","Portuguese","Swahili","Yoruba"],
+    "rows": ["Field notes","Interview","Photograph","Sound recording","Video"],
+    "values": [
+      [4,0,1],
+      [6,0,1],
+      [6,4,1],
+      [6,1,1],
+      [5,1,2],
+      [5,3,4],
+      [2,3,1],
+      [2,2,1],
+      [4,3,1],
+      [0,3,1],
+      [4,4,1],
+      [3,4,1],
+      [3,1,1],
+      [1,1,1],
+      [5,2,1],
+      [6,3,5]
+    ]
+  },
+  "languageTimeline": {
+    "series": [
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,1,0],
+        "name": "English"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,1,0,0],
+        "name": "French"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,1,0,1,0,0],
+        "name": "Hausa"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,1,1,0],
+        "name": "Mooré"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,2,0,0,0],
+        "name": "Portuguese"
+      },
+      {
+        "data": [0,0,0,0,0,1,1,1,1,1,0,1,0],
+        "name": "Swahili"
+      },
+      {
+        "data": [1,1,1,1,1,0,0,0,0,1,0,0,1],
+        "name": "Yoruba"
+      }
+    ],
+    "years": [1955,1956,1957,1958,1959,1960,1961,1962,2019,2020,2021,2023,2024]
+  },
+  "languages": [
+    {"itemId":813,"name":"Yoruba","value":7},
+    {"itemId":814,"name":"Swahili","value":6},
+    {"itemId":812,"name":"Portuguese","value":3},
+    {"itemId":815,"name":"Hausa","value":2},
+    {"itemId":816,"name":"Mooré","value":2},
+    {"itemId":810,"name":"English","value":1},
+    {"itemId":811,"name":"French","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 600,
+      "items": [
+        {"id":2600,"title":"Gramophone side 1"},
+        {"id":2601,"title":"Gramophone side 2"},
+        {"id":2602,"title":"Gramophone side 3"},
+        {"id":2603,"title":"Gramophone side 4"},
+        {"id":2604,"title":"Gramophone side 5"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 5
+    },
+    {
+      "itemId": 615,
+      "items": [
+        {"id":1016,"title":"Voices city (17)"},
+        {"id":1039,"title":"Ritual archive ritual (40)"},
+        {"id":1055,"title":"Drum voices (56)"}
+      ],
+      "lat": -6.7924,
+      "lon": 39.2083,
+      "name": "Dar es Salaam",
+      "value": 3
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":2605,"title":"Gramophone side 6"},
+        {"id":2606,"title":"Gramophone side 7"},
+        {"id":2607,"title":"Gramophone side 8"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 3
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1016,"title":"Voices city (17)"},
+        {"id":1090,"title":"City archive (91)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 2
+    },
+    {
+      "itemId": 612,
+      "items": [
+        {"id":1070,"title":"Migration healing river (71)"}
+      ],
+      "lat": 9.03,
+      "lon": 38.74,
+      "name": "Addis Ababa",
+      "value": 1
+    },
+    {
+      "itemId": 601,
+      "items": [
+        {"id":1067,"title":"Drum voices ritual (68)"}
+      ],
+      "lat": 7.3775,
+      "lon": 3.947,
+      "name": "Ibadan",
+      "value": 1
+    },
+    {
+      "itemId": 608,
+      "items": [
+        {"id":1039,"title":"Ritual archive ritual (40)"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1070,"title":"Migration healing river (71)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    }
+  ],
+  "radar": {
+    "indicator": [
+      {"max":25,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":27,"name":"Subjects"},
+      {"max":18,"name":"People"},
+      {"max":5,"name":"Types"},
+      {"max":69,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [19,7,19,16,5,69]
+      }
+    ]
+  },
+  "resourceType": "project",
+  "roles": [
+    {"name":"Creator","value":11},
+    {"name":"Production company","value":8},
+    {"name":"Interviewer","value":4},
+    {"name":"Contributor","value":3},
+    {"name":"Photographer","value":3},
+    {"name":"Contributor (role)","value":1},
+    {"name":"Interviewee","value":1}
+  ],
+  "sankey": {
+    "links": [
+      {"source":"Nkosi, Sipho","target":"Digital Return of Sound Archives","value":5},
+      {"source":"Digital Return of Sound Archives","target":"Field notes","value":4},
+      {"source":"Dlamini, Thandiwe","target":"Digital Return of Sound Archives","value":4},
+      {"source":"Digital Return of Sound Archives","target":"Video","value":7},
+      {"source":"Ferreira, Luíza","target":"Digital Return of Sound Archives","value":2},
+      {"source":"Njoroge, Peter","target":"Digital Return of Sound Archives","value":3},
+      {"source":"Digital Return of Sound Archives","target":"Interview","value":2},
+      {"source":"Hoffmann, Felix","target":"Digital Return of Sound Archives","value":4},
+      {"source":"Digital Return of Sound Archives","target":"Sound recording","value":14},
+      {"source":"Bakari, Amina","target":"Digital Return of Sound Archives","value":1},
+      {"source":"Digital Return of Sound Archives","target":"Photograph","value":2},
+      {"source":"Diallo, Fatoumata","target":"Digital Return of Sound Archives","value":1},
+      {"source":"Bayreuth Academy Working Group","target":"Digital Return of Sound Archives","value":1},
+      {"source":"DECCA West Africa","target":"Digital Return of Sound Archives","value":5},
+      {"source":"Jambo Records","target":"Digital Return of Sound Archives","value":3}
+    ],
+    "nodes": [
+      {"name":"Nkosi, Sipho"},
+      {"name":"Digital Return of Sound Archives"},
+      {"name":"Field notes"},
+      {"name":"Dlamini, Thandiwe"},
+      {"name":"Video"},
+      {"name":"Ferreira, Luíza"},
+      {"name":"Njoroge, Peter"},
+      {"name":"Interview"},
+      {"name":"Hoffmann, Felix"},
+      {"name":"Sound recording"},
+      {"name":"Bakari, Amina"},
+      {"name":"Photograph"},
+      {"name":"Diallo, Fatoumata"},
+      {"name":"Bayreuth Academy Working Group"},
+      {"name":"DECCA West Africa"},
+      {"name":"Jambo Records"}
+    ]
+  },
+  "stackedTimeline": {
+    "series": [
+      {
+        "data": [0,0,0,0,0,0,0,0,0,1,0,0,1],
+        "name": "Field notes"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,1,1,1,0],
+        "name": "Interview"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,1,1,0],
+        "name": "Photograph"
+      },
+      {
+        "data": [1,1,1,1,1,1,1,1,1,1,0,1,0],
+        "name": "Sound recording"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,1,1],
+        "name": "Video"
+      }
+    ],
+    "years": [1955,1956,1957,1958,1959,1960,1961,1962,2019,2020,2021,2023,2024]
+  },
+  "subjectTrends": {
+    "series": [
+      {
+        "data": [0,1,0,0,0,1,1,0,0,0,1,0,0],
+        "name": "Popular music"
+      },
+      {
+        "data": [1,0,0,1,1,0,0,0,0,0,0,0,0],
+        "name": "highlife"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,2,1,0,0],
+        "name": "Migration"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,1,1,1,0],
+        "name": "Music"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,1,1,1,0],
+        "name": "urban farming"
+      },
+      {
+        "data": [0,0,1,0,0,0,0,1,0,0,0,0,0],
+        "name": "Afrobeat"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,1,0,0,1],
+        "name": "Colonialism"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,1,1,0],
+        "name": "healing"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,1,0,1,0,0],
+        "name": "radio"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,1,0],
+        "name": "Christianity"
+      }
+    ],
+    "years": [1955,1956,1957,1958,1959,1960,1961,1962,2019,2020,2021,2023,2024]
+  },
+  "subjects": [
+    {"itemId":700,"name":"Music","value":4},
+    {"itemId":707,"name":"Popular music","value":4},
+    {"itemId":716,"name":"highlife","value":3},
+    {"itemId":704,"name":"Migration","value":3},
+    {"itemId":722,"name":"urban farming","value":3},
+    {"itemId":717,"name":"Afrobeat","value":2},
+    {"itemId":711,"name":"Collective memory","value":2},
+    {"itemId":710,"name":"Colonialism","value":2},
+    {"itemId":721,"name":"healing","value":2},
+    {"itemId":725,"name":"radio","value":2},
+    {"itemId":715,"name":"capoeira","value":1},
+    {"itemId":703,"name":"Christianity","value":1},
+    {"itemId":723,"name":"diaspora","value":1},
+    {"itemId":709,"name":"Education","value":1},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":720,"name":"pilgrimage","value":1}
+  ],
+  "sunburst": [
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"griot","value":1},
+            {"name":"Islam","value":1},
+            {"name":"Language policy","value":1},
+            {"name":"Migration","value":1}
+          ],
+          "name": "Portuguese"
+        },
+        {
+          "children": [
+            {"name":"Collective memory","value":1},
+            {"name":"Colonialism","value":1}
+          ],
+          "name": "Yoruba"
+        }
+      ],
+      "name": "Field notes"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"Collective memory","value":1},
+            {"name":"Colonialism","value":1}
+          ],
+          "name": "Yoruba"
+        },
+        {
+          "children": [
+            {"name":"capoeira","value":1},
+            {"name":"Collective memory","value":1},
+            {"name":"Music","value":1}
+          ],
+          "name": "Portuguese"
+        },
+        {
+          "children": [
+            {"name":"Christianity","value":1}
+          ],
+          "name": "Mooré"
+        }
+      ],
+      "name": "Video"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"diaspora","value":1},
+            {"name":"Migration","value":1},
+            {"name":"Music","value":1},
+            {"name":"urban farming","value":1}
+          ],
+          "name": "Yoruba"
+        },
+        {
+          "children": [
+            {"name":"Music","value":2},
+            {"name":"diaspora","value":1},
+            {"name":"Migration","value":1},
+            {"name":"mobile phones","value":1},
+            {"name":"urban farming","value":1}
+          ],
+          "name": "Swahili"
+        },
+        {
+          "children": [
+            {"name":"Migration","value":1},
+            {"name":"radio","value":1}
+          ],
+          "name": "Mooré"
+        },
+        {
+          "children": [
+            {"name":"Migration","value":1},
+            {"name":"radio","value":1}
+          ],
+          "name": "French"
+        }
+      ],
+      "name": "Interview"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"Popular music","value":2},
+            {"name":"Afrobeat","value":1},
+            {"name":"Education","value":1},
+            {"name":"radio","value":1}
+          ],
+          "name": "Swahili"
+        },
+        {
+          "children": [
+            {"name":"Education","value":1},
+            {"name":"radio","value":1}
+          ],
+          "name": "Hausa"
+        },
+        {
+          "children": [
+            {"name":"Colonialism","value":1}
+          ],
+          "name": "Portuguese"
+        },
+        {
+          "children": [
+            {"name":"healing","value":1},
+            {"name":"pilgrimage","value":1},
+            {"name":"urban farming","value":1}
+          ],
+          "name": "English"
+        },
+        {
+          "children": [
+            {"name":"highlife","value":3},
+            {"name":"Afrobeat","value":1},
+            {"name":"Popular music","value":1}
+          ],
+          "name": "Yoruba"
+        }
+      ],
+      "name": "Sound recording"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"healing","value":1},
+            {"name":"Music","value":1},
+            {"name":"Popular music","value":1},
+            {"name":"urban farming","value":1}
+          ],
+          "name": "Hausa"
+        },
+        {
+          "children": [
+            {"name":"mobile phones","value":1},
+            {"name":"Music","value":1}
+          ],
+          "name": "Swahili"
+        }
+      ],
+      "name": "Photograph"
+    }
+  ],
+  "timeline": {"1955":1,"1956":1,"1957":1,"1958":1,"1959":1,"1960":1,"1961":1,"1962":1,"2019":1,"2020":3,"2021":2,"2023":3,"2024":1},
+  "totalItems": 19,
+  "treemap": [
+    {
+      "children": [
+        {"name":"Sound recording","value":11},
+        {"name":"Interview","value":3},
+        {"name":"Video","value":3},
+        {"name":"Field notes","value":2},
+        {"name":"Photograph","value":2}
+      ],
+      "name": "Digital Return of Sound Archives",
+      "value": 19
+    }
+  ],
+  "types": [
+    {"itemId":803,"name":"Sound recording","value":11},
+    {"itemId":800,"name":"Interview","value":3},
+    {"itemId":804,"name":"Video","value":3},
+    {"itemId":802,"name":"Field notes","value":2},
+    {"itemId":801,"name":"Photograph","value":2}
+  ]
+}

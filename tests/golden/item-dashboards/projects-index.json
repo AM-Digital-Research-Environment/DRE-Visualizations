@@ -1,0 +1,50 @@
+[
+  {
+    "id": 304,
+    "items": 19,
+    "name": "Afro-Brazilian Memory Work",
+    "sections": ["Arts & Aesthetics","Affiliations"]
+  },
+  {
+    "id": 306,
+    "items": 19,
+    "name": "Digital Return of Sound Archives",
+    "sections": []
+  },
+  {
+    "id": 302,
+    "items": 5,
+    "name": "Faith and Public Morality",
+    "sections": ["Moralities"]
+  },
+  {
+    "id": 303,
+    "items": 17,
+    "name": "Kinship Across Borders",
+    "sections": ["Affiliations"]
+  },
+  {
+    "id": 301,
+    "items": 19,
+    "name": "Mobile Knowledges in East Africa",
+    "sections": ["Knowledges"]
+  },
+  {
+    "id": 307,
+    "items": 5,
+    "name": "Pilot Study on Language Policy",
+    "sections": ["Knowledges"]
+  },
+  {
+    "id": 300,
+    "items": 25,
+    "name": "Sonic Archives of the Sahel",
+    "sections": ["Arts & Aesthetics"]
+  },
+  {
+    "id": 305,
+    "items": 10,
+    "name": "Urban Ecologies of Lagos",
+    "sections": ["Affiliations"]
+  }
+]

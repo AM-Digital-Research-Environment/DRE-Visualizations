@@ -1,0 +1,114 @@
+{
+  "contributors": [
+    {"itemId":402,"name":"Ouédraogo, Issa","value":2},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":2},
+    {"itemId":422,"name":"Abubakar, Hauwa","value":1},
+    {"itemId":416,"name":"Achieng, Grace","value":1},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1},
+    {"itemId":412,"name":"Traoré, Aïssata","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1098,"title":"Ritual festival road (99)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    }
+  ],
+  "geoFlows": {
+    "links": [
+      {"from":"Bobo-Dioulasso","fromLat":11.1771,"fromLon":-4.2979,"to":"Lagos","toLat":6.5244,"toLon":3.3792,"value":1},
+      {"from":"Dar es Salaam","fromLat":-6.7924,"fromLon":39.2083,"to":"Lagos","toLat":6.5244,"toLon":3.3792,"value":1}
+    ],
+    "nodes": [
+      {"itemId":615,"lat":-6.7924,"lon":39.2083,"name":"Dar es Salaam"},
+      {"itemId":600,"lat":6.5244,"lon":3.3792,"name":"Lagos"},
+      {"itemId":603,"lat":11.1771,"lon":-4.2979,"name":"Bobo-Dioulasso"}
+    ]
+  },
+  "languages": [
+    {"itemId":810,"name":"English","value":2},
+    {"itemId":811,"name":"French","value":1},
+    {"itemId":815,"name":"Hausa","value":1},
+    {"itemId":816,"name":"Mooré","value":1},
+    {"itemId":814,"name":"Swahili","value":1},
+    {"itemId":813,"name":"Yoruba","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 603,
+      "items": [
+        {"id":1018,"title":"Language city (19)"},
+        {"id":1026,"title":"Migration festival song harvest (27)"},
+        {"id":1047,"title":"Market ritual ritual (48)"},
+        {"id":1079,"title":"City road (80)"},
+        {"id":1098,"title":"Ritual festival road (99)"},
+        {"id":1118,"title":"Radio church language (119)"},
+        {"id":2401,"title":"Field photograph 2"},
+        {"id":2414,"title":"Field photograph 15"}
+      ],
+      "lat": 11.1771,
+      "lon": -4.2979,
+      "name": "Bobo-Dioulasso",
+      "value": 8
+    },
+    {
+      "itemId": 615,
+      "items": [
+        {"id":1098,"title":"Ritual festival road (99)"}
+      ],
+      "lat": -6.7924,
+      "lon": 39.2083,
+      "name": "Dar es Salaam",
+      "value": 1
+    },
+    {
+      "itemId": 616,
+      "items": [
+        {"id":1018,"title":"Language city (19)"}
+      ],
+      "lat": 0.3476,
+      "lon": 32.5825,
+      "name": "Kampala",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1026,"title":"Migration festival song harvest (27)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    }
+  ],
+  "resourceType": "location",
+  "selfLocation": {"itemId":603,"lat":11.1771,"lon":-4.2979,"name":"Bobo-Dioulasso"},
+  "subjects": [
+    {"itemId":715,"name":"capoeira","value":2},
+    {"itemId":703,"name":"Christianity","value":2},
+    {"itemId":713,"name":"Kinship","value":2},
+    {"itemId":725,"name":"radio","value":2},
+    {"itemId":705,"name":"Urbanization","value":2},
+    {"itemId":709,"name":"Education","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":718,"name":"mobile phones","value":1}
+  ],
+  "timeline": {"2019":1,"2020":2,"2021":1,"2022":1,"2023":1,"2025":1},
+  "totalItems": 8,
+  "types": [
+    {"itemId":801,"name":"Photograph","value":6},
+    {"itemId":802,"name":"Field notes","value":1},
+    {"itemId":803,"name":"Sound recording","value":1}
+  ]
+}

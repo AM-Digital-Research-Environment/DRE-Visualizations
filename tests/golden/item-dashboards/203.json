@@ -1,0 +1,342 @@
+{
+  "beeswarm": [
+    {"category":"Moralities","itemId":302,"label":"Faith and Public Morality","size":5,"value":2019},
+    {"category":"Moralities","itemId":308,"label":"Archive Futures Workshop","size":1,"value":2025}
+  ],
+  "choropleth": [
+    {"count":1,"country":"Benin"},
+    {"count":1,"country":"Burkina Faso"},
+    {"count":1,"country":"Senegal"},
+    {"count":1,"country":"South Africa"}
+  ],
+  "contributorNetwork": {
+    "categories": ["person","project"],
+    "links": [
+      {"source":"Abubakar, Hauwa","target":"Faith and Public Morality","value":2},
+      {"source":"Balogun, Tunde","target":"Faith and Public Morality","value":2},
+      {"source":"Sawadogo, Mariam","target":"Faith and Public Morality","value":1},
+      {"source":"Okonkwo, Chinedu","target":"Faith and Public Morality","value":1},
+      {"source":"Santos, Ana Clara","target":"Faith and Public Morality","value":1},
+      {"source":"Müller, Katharina","target":"Faith and Public Morality","value":1}
+    ],
+    "nodes": [
+      {"category":"person","itemId":415,"name":"Balogun, Tunde","value":2},
+      {"category":"person","itemId":422,"name":"Abubakar, Hauwa","value":2},
+      {"category":"person","itemId":403,"name":"Santos, Ana Clara","value":1},
+      {"category":"person","itemId":404,"name":"Müller, Katharina","value":1},
+      {"category":"person","itemId":405,"name":"Okonkwo, Chinedu","value":1},
+      {"category":"person","itemId":407,"name":"Sawadogo, Mariam","value":1},
+      {"category":"project","itemId":302,"name":"Faith and Public Morality","value":5}
+    ]
+  },
+  "contributors": [
+    {"itemId":422,"name":"Abubakar, Hauwa","value":2},
+    {"itemId":415,"name":"Balogun, Tunde","value":2},
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1038,"title":"Migration radio harvest (39)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 1
+    }
+  ],
+  "gantt": [
+    {"end":"2023-06-30","itemId":302,"name":"Faith and Public Morality","start":"2019-07-01"},
+    {"end":"2026-09-30","itemId":308,"name":"Archive Futures Workshop","start":"2025-10-01"}
+  ],
+  "heatmap": {
+    "cols": ["French","Hausa","Mooré","Swahili","Yoruba"],
+    "rows": ["Field notes","Interview","Video"],
+    "values": [
+      [3,0,1],
+      [4,2,2],
+      [2,2,1],
+      [1,2,1],
+      [0,1,1],
+      [2,1,1]
+    ]
+  },
+  "languageTimeline": {
+    "series": [
+      {
+        "data": [0,1,0,0],
+        "name": "French"
+      },
+      {
+        "data": [0,0,0,1],
+        "name": "Hausa"
+      },
+      {
+        "data": [0,1,1,0],
+        "name": "Mooré"
+      },
+      {
+        "data": [1,0,0,0],
+        "name": "Swahili"
+      },
+      {
+        "data": [0,0,2,0],
+        "name": "Yoruba"
+      }
+    ],
+    "years": [2020,2022,2023,2024]
+  },
+  "languages": [
+    {"itemId":816,"name":"Mooré","value":2},
+    {"itemId":813,"name":"Yoruba","value":2},
+    {"itemId":811,"name":"French","value":1},
+    {"itemId":815,"name":"Hausa","value":1},
+    {"itemId":814,"name":"Swahili","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 613,
+      "items": [
+        {"id":1037,"title":"Harvest memory (38)"}
+      ],
+      "lat": 7.18,
+      "lon": 1.99,
+      "name": "Abomey",
+      "value": 1
+    },
+    {
+      "itemId": 603,
+      "items": [
+        {"id":1026,"title":"Migration festival song harvest (27)"}
+      ],
+      "lat": 11.1771,
+      "lon": -4.2979,
+      "name": "Bobo-Dioulasso",
+      "value": 1
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1058,"title":"River harvest (59)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1026,"title":"Migration festival song harvest (27)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    }
+  ],
+  "projects": [
+    {"itemId":302,"name":"Faith and Public Morality","value":5}
+  ],
+  "resourceType": "section",
+  "roles": [
+    {"name":"Creator","value":5},
+    {"name":"Interviewer","value":2},
+    {"name":"Contributor (role)","value":1},
+    {"name":"Interviewee","value":1}
+  ],
+  "sankey": {
+    "links": [
+      {"source":"Abubakar, Hauwa","target":"Faith and Public Morality","value":2},
+      {"source":"Faith and Public Morality","target":"Field notes","value":1},
+      {"source":"Balogun, Tunde","target":"Faith and Public Morality","value":2},
+      {"source":"Faith and Public Morality","target":"Video","value":7},
+      {"source":"Sawadogo, Mariam","target":"Faith and Public Morality","value":1},
+      {"source":"Bayreuth Academy Working Group","target":"Faith and Public Morality","value":1},
+      {"source":"Okonkwo, Chinedu","target":"Faith and Public Morality","value":1},
+      {"source":"Faith and Public Morality","target":"Interview","value":1},
+      {"source":"Santos, Ana Clara","target":"Faith and Public Morality","value":1},
+      {"source":"Müller, Katharina","target":"Faith and Public Morality","value":1}
+    ],
+    "nodes": [
+      {"name":"Abubakar, Hauwa"},
+      {"name":"Faith and Public Morality"},
+      {"name":"Field notes"},
+      {"name":"Balogun, Tunde"},
+      {"name":"Video"},
+      {"name":"Sawadogo, Mariam"},
+      {"name":"Bayreuth Academy Working Group"},
+      {"name":"Okonkwo, Chinedu"},
+      {"name":"Interview"},
+      {"name":"Santos, Ana Clara"},
+      {"name":"Müller, Katharina"}
+    ]
+  },
+  "stackedTimeline": {
+    "series": [
+      {
+        "data": [1,0,0,0],
+        "name": "Field notes"
+      },
+      {
+        "data": [0,1,0,0],
+        "name": "Interview"
+      },
+      {
+        "data": [0,0,2,1],
+        "name": "Video"
+      }
+    ],
+    "years": [2020,2022,2023,2024]
+  },
+  "subjectTrends": {
+    "series": [
+      {
+        "data": [0,1,0,1],
+        "name": "photography"
+      },
+      {
+        "data": [0,0,0,1],
+        "name": "Archives"
+      },
+      {
+        "data": [1,0,0,0],
+        "name": "capoeira"
+      },
+      {
+        "data": [0,1,0,0],
+        "name": "Christianity"
+      },
+      {
+        "data": [0,1,0,0],
+        "name": "Colonialism"
+      },
+      {
+        "data": [0,1,0,0],
+        "name": "Education"
+      },
+      {
+        "data": [0,0,1,0],
+        "name": "Gender"
+      },
+      {
+        "data": [1,0,0,0],
+        "name": "Kinship"
+      },
+      {
+        "data": [0,0,1,0],
+        "name": "Language policy"
+      },
+      {
+        "data": [1,0,0,0],
+        "name": "mobile phones"
+      }
+    ],
+    "years": [2020,2022,2023,2024]
+  },
+  "subjects": [
+    {"itemId":726,"name":"photography","value":2},
+    {"itemId":712,"name":"Archives","value":1},
+    {"itemId":715,"name":"capoeira","value":1},
+    {"itemId":703,"name":"Christianity","value":1},
+    {"itemId":710,"name":"Colonialism","value":1},
+    {"itemId":709,"name":"Education","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":713,"name":"Kinship","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":720,"name":"pilgrimage","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "sunburst": [
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"capoeira","value":1},
+            {"name":"Kinship","value":1},
+            {"name":"mobile phones","value":1},
+            {"name":"Urbanization","value":1}
+          ],
+          "name": "Swahili"
+        }
+      ],
+      "name": "Field notes"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"Gender","value":1},
+            {"name":"Language policy","value":1},
+            {"name":"Music","value":1}
+          ],
+          "name": "Yoruba"
+        },
+        {
+          "children": [
+            {"name":"Gender","value":1},
+            {"name":"Music","value":1}
+          ],
+          "name": "Mooré"
+        },
+        {
+          "children": [
+            {"name":"Archives","value":1},
+            {"name":"photography","value":1},
+            {"name":"pilgrimage","value":1}
+          ],
+          "name": "Hausa"
+        }
+      ],
+      "name": "Video"
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {"name":"Christianity","value":1},
+            {"name":"Colonialism","value":1},
+            {"name":"Education","value":1},
+            {"name":"photography","value":1}
+          ],
+          "name": "French"
+        },
+        {
+          "children": [
+            {"name":"Christianity","value":1},
+            {"name":"Colonialism","value":1},
+            {"name":"Education","value":1},
+            {"name":"photography","value":1}
+          ],
+          "name": "Mooré"
+        }
+      ],
+      "name": "Interview"
+    }
+  ],
+  "timeline": {"2020":1,"2022":1,"2023":2,"2024":1},
+  "totalItems": 5,
+  "treemap": [
+    {
+      "children": [
+        {"name":"Video","value":3},
+        {"name":"Field notes","value":1},
+        {"name":"Interview","value":1}
+      ],
+      "name": "Faith and Public Morality",
+      "value": 5
+    }
+  ],
+  "types": [
+    {"itemId":804,"name":"Video","value":3},
+    {"itemId":802,"name":"Field notes","value":1},
+    {"itemId":800,"name":"Interview","value":1}
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "reference": "2026-09-30",
+  "windows": [
+    {
+      "count": 31,
+      "items": [
+        {"created":"2026-09-30","id":2454,"title":"Acervo APMESTRENO005"},
+        {"created":"2026-09-29","id":1015,"title":"City family (16)"},
+        {"created":"2026-09-26","id":2311,"title":"Video 12: Multiple lecture"},
+        {"created":"2026-09-21","id":2501,"title":"ILAM article 2"},
+        {"created":"2026-09-09","id":1065,"title":"Mosque language (66)"},
+        {"created":"2026-09-04","id":2451,"title":"Acervo APMESTRENO002"},
+        {"created":"2026-09-01","id":2504,"title":"ILAM article 5"},
+        {"created":"2026-08-26","id":2202,"title":"Episode 3: Langues archive africa research"},
+        {"created":"2026-08-24","id":1032,"title":"City river archive market (33)"},
+        {"created":"2026-08-23","id":1052,"title":"Festival language (53)"},
+        {"created":"2026-08-21","id":2122,"title":"Archive and africa: Religion heritage city ritual"},
+        {"created":"2026-08-17","id":2201,"title":"Episode 2: Travaille communities knowledge"},
+        {"created":"2026-08-17","id":2400,"title":"Field photograph 1"},
+        {"created":"2026-08-15","id":1013,"title":"Road harvest (14)"},
+        {"created":"2026-08-13","id":1006,"title":"Mosque memory archive (7)"},
+        {"created":"2026-08-13","id":2106,"title":"Mobility and diaspora: Language city kinship"},
+        {"created":"2026-08-09","id":1088,"title":"Drum family church city (89)"},
+        {"created":"2026-08-06","id":2300,"title":"Video 1: Sound sound"},
+        {"created":"2026-08-03","id":1075,"title":"Road festival voices (76)"},
+        {"created":"2026-08-02","id":2209,"title":"Episode 10: Langues heritage music"},
+        {"created":"2026-08-01","id":1047,"title":"Market ritual ritual (48)"},
+        {"created":"2026-07-30","id":1087,"title":"Harvest city (88)"},
+        {"created":"2026-07-30","id":1107,"title":"Song healing memory road (108)"},
+        {"created":"2026-07-27","id":1004,"title":"Voices city river (5)"}
+      ],
+      "months": 3,
+      "topProjects": [
+        {"itemId":306,"name":"Digital Return of Sound Archives","value":4},
+        {"itemId":304,"name":"Afro-Brazilian Memory Work","value":3},
+        {"itemId":300,"name":"Sonic Archives of the Sahel","value":2},
+        {"itemId":303,"name":"Kinship Across Borders","value":2},
+        {"itemId":305,"name":"Urban Ecologies of Lagos","value":2},
+        {"itemId":302,"name":"Faith and Public Morality","value":1}
+      ]
+    },
+    {
+      "count": 61,
+      "items": [
+        {"created":"2026-09-30","id":2454,"title":"Acervo APMESTRENO005"},
+        {"created":"2026-09-29","id":1015,"title":"City family (16)"},
+        {"created":"2026-09-26","id":2311,"title":"Video 12: Multiple lecture"},
+        {"created":"2026-09-21","id":2501,"title":"ILAM article 2"},
+        {"created":"2026-09-09","id":1065,"title":"Mosque language (66)"},
+        {"created":"2026-09-04","id":2451,"title":"Acervo APMESTRENO002"},
+        {"created":"2026-09-01","id":2504,"title":"ILAM article 5"},
+        {"created":"2026-08-26","id":2202,"title":"Episode 3: Langues archive africa research"},
+        {"created":"2026-08-24","id":1032,"title":"City river archive market (33)"},
+        {"created":"2026-08-23","id":1052,"title":"Festival language (53)"},
+        {"created":"2026-08-21","id":2122,"title":"Archive and africa: Religion heritage city ritual"},
+        {"created":"2026-08-17","id":2201,"title":"Episode 2: Travaille communities knowledge"},
+        {"created":"2026-08-17","id":2400,"title":"Field photograph 1"},
+        {"created":"2026-08-15","id":1013,"title":"Road harvest (14)"},
+        {"created":"2026-08-13","id":1006,"title":"Mosque memory archive (7)"},
+        {"created":"2026-08-13","id":2106,"title":"Mobility and diaspora: Language city kinship"},
+        {"created":"2026-08-09","id":1088,"title":"Drum family church city (89)"},
+        {"created":"2026-08-06","id":2300,"title":"Video 1: Sound sound"},
+        {"created":"2026-08-03","id":1075,"title":"Road festival voices (76)"},
+        {"created":"2026-08-02","id":2209,"title":"Episode 10: Langues heritage music"},
+        {"created":"2026-08-01","id":1047,"title":"Market ritual ritual (48)"},
+        {"created":"2026-07-30","id":1087,"title":"Harvest city (88)"},
+        {"created":"2026-07-30","id":1107,"title":"Song healing memory road (108)"},
+        {"created":"2026-07-27","id":1004,"title":"Voices city river (5)"}
+      ],
+      "months": 6,
+      "topProjects": [
+        {"itemId":300,"name":"Sonic Archives of the Sahel","value":6},
+        {"itemId":304,"name":"Afro-Brazilian Memory Work","value":5},
+        {"itemId":306,"name":"Digital Return of Sound Archives","value":5},
+        {"itemId":303,"name":"Kinship Across Borders","value":4},
+        {"itemId":305,"name":"Urban Ecologies of Lagos","value":4},
+        {"itemId":301,"name":"Mobile Knowledges in East Africa","value":3},
+        {"itemId":302,"name":"Faith and Public Morality","value":2}
+      ]
+    },
+    {
+      "count": 126,
+      "items": [
+        {"created":"2026-09-30","id":2454,"title":"Acervo APMESTRENO005"},
+        {"created":"2026-09-29","id":1015,"title":"City family (16)"},
+        {"created":"2026-09-26","id":2311,"title":"Video 12: Multiple lecture"},
+        {"created":"2026-09-21","id":2501,"title":"ILAM article 2"},
+        {"created":"2026-09-09","id":1065,"title":"Mosque language (66)"},
+        {"created":"2026-09-04","id":2451,"title":"Acervo APMESTRENO002"},
+        {"created":"2026-09-01","id":2504,"title":"ILAM article 5"},
+        {"created":"2026-08-26","id":2202,"title":"Episode 3: Langues archive africa research"},
+        {"created":"2026-08-24","id":1032,"title":"City river archive market (33)"},
+        {"created":"2026-08-23","id":1052,"title":"Festival language (53)"},
+        {"created":"2026-08-21","id":2122,"title":"Archive and africa: Religion heritage city ritual"},
+        {"created":"2026-08-17","id":2201,"title":"Episode 2: Travaille communities knowledge"},
+        {"created":"2026-08-17","id":2400,"title":"Field photograph 1"},
+        {"created":"2026-08-15","id":1013,"title":"Road harvest (14)"},
+        {"created":"2026-08-13","id":1006,"title":"Mosque memory archive (7)"},
+        {"created":"2026-08-13","id":2106,"title":"Mobility and diaspora: Language city kinship"},
+        {"created":"2026-08-09","id":1088,"title":"Drum family church city (89)"},
+        {"created":"2026-08-06","id":2300,"title":"Video 1: Sound sound"},
+        {"created":"2026-08-03","id":1075,"title":"Road festival voices (76)"},
+        {"created":"2026-08-02","id":2209,"title":"Episode 10: Langues heritage music"},
+        {"created":"2026-08-01","id":1047,"title":"Market ritual ritual (48)"},
+        {"created":"2026-07-30","id":1087,"title":"Harvest city (88)"},
+        {"created":"2026-07-30","id":1107,"title":"Song healing memory road (108)"},
+        {"created":"2026-07-27","id":1004,"title":"Voices city river (5)"}
+      ],
+      "months": 12,
+      "topProjects": [
+        {"itemId":300,"name":"Sonic Archives of the Sahel","value":14},
+        {"itemId":304,"name":"Afro-Brazilian Memory Work","value":13},
+        {"itemId":306,"name":"Digital Return of Sound Archives","value":13},
+        {"itemId":301,"name":"Mobile Knowledges in East Africa","value":11},
+        {"itemId":303,"name":"Kinship Across Borders","value":10},
+        {"itemId":305,"name":"Urban Ecologies of Lagos","value":4},
+        {"itemId":302,"name":"Faith and Public Morality","value":3}
+      ]
+    }
+  ]
+}

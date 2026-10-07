@@ -1,0 +1,163 @@
+{
+  "coAuthors": [
+    {"itemId":413,"name":"Nkosi, Sipho","value":3},
+    {"itemId":401,"name":"Bakari, Amina","value":2},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":2},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":1},
+    {"itemId":418,"name":"Ferreira, Luíza","value":1},
+    {"itemId":419,"name":"Hoffmann, Felix","value":1},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1},
+    {"itemId":409,"name":"Schmidt, Jonas","value":1}
+  ],
+  "contributorNetwork": {
+    "categories": ["person","project"],
+    "links": [
+      {"source":"Sawadogo, Mariam","target":"Kinship Across Borders","value":1},
+      {"source":"Dlamini, Thandiwe","target":"Kinship Across Borders","value":1},
+      {"source":"Mensah, Kwame","target":"Kinship Across Borders","value":1},
+      {"source":"Okonkwo, Chinedu","target":"Urban Ecologies of Lagos","value":1},
+      {"source":"Mensah, Kwame","target":"Urban Ecologies of Lagos","value":1},
+      {"source":"Bakari, Amina","target":"Sonic Archives of the Sahel","value":2},
+      {"source":"Mensah, Kwame","target":"Sonic Archives of the Sahel","value":2}
+    ],
+    "nodes": [
+      {"category":"person","itemId":420,"name":"Mensah, Kwame","value":4},
+      {"category":"person","itemId":401,"name":"Bakari, Amina","value":2},
+      {"category":"person","itemId":405,"name":"Okonkwo, Chinedu","value":1},
+      {"category":"person","itemId":407,"name":"Sawadogo, Mariam","value":1},
+      {"category":"person","itemId":408,"name":"Dlamini, Thandiwe","value":1},
+      {"category":"project","itemId":300,"name":"Sonic Archives of the Sahel","value":2},
+      {"category":"project","itemId":303,"name":"Kinship Across Borders","value":1},
+      {"category":"project","itemId":305,"name":"Urban Ecologies of Lagos","value":1}
+    ]
+  },
+  "currentLocations": [
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1087,"title":"Harvest city (88)"},
+        {"id":1005,"title":"Memory market drum (6)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 2
+    },
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1035,"title":"Language ritual mosque market (36)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":811,"name":"French","value":5},
+    {"itemId":815,"name":"Hausa","value":2},
+    {"itemId":814,"name":"Swahili","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1015,"title":"City family (16)"},
+        {"id":1033,"title":"Market road road (34)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 2
+    },
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1087,"title":"Harvest city (88)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    }
+  ],
+  "radar": {
+    "indicator": [
+      {"max":39,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":23,"name":"Subjects"},
+      {"max":19,"name":"People"},
+      {"max":8,"name":"Types"},
+      {"max":13,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [9,3,15,8,5,5]
+      }
+    ]
+  },
+  "resourceType": "person",
+  "roles": [
+    {"name":"Interviewer","value":2},
+    {"name":"Contributor","value":1},
+    {"name":"Interviewee","value":1},
+    {"name":"Photographer","value":1},
+    {"name":"Speaker","value":1}
+  ],
+  "subjects": [
+    {"itemId":709,"name":"Education","value":3},
+    {"itemId":711,"name":"Collective memory","value":2},
+    {"itemId":721,"name":"healing","value":2},
+    {"itemId":717,"name":"Afrobeat","value":1},
+    {"itemId":710,"name":"Colonialism","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":706,"name":"Oral tradition","value":1},
+    {"itemId":726,"name":"photography","value":1},
+    {"itemId":707,"name":"Popular music","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":722,"name":"urban farming","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "templates": [
+    {"name":"Research Item","value":5},
+    {"name":"Book Chapter","value":1},
+    {"name":"Journal Article","value":1},
+    {"name":"Podcast Episode","value":1},
+    {"name":"Project","value":1}
+  ],
+  "timeline": {"2020":1,"2021":3,"2023":1,"2025":1},
+  "totalItems": 9,
+  "types": [
+    {"itemId":800,"name":"Interview","value":2},
+    {"itemId":801,"name":"Photograph","value":2},
+    {"itemId":802,"name":"Field notes","value":1},
+    {"itemId":805,"name":"Journal article","value":1},
+    {"itemId":807,"name":"Monograph","value":1}
+  ]
+}

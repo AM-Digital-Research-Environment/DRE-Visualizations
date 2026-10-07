@@ -18,6 +18,8 @@ if ($hook === null) {
     exit($failed ? 1 : 0);
 }
 require $omeka . '/vendor/autoload.php';
+// Warnings fail the run here too; this harness deliberately skips bootstrap.php.
+require __DIR__ . '/../lib/strict-errors.php';
 
 $check = static function (bool $condition, string $message): void {
     if (!$condition) throw new RuntimeException($message);

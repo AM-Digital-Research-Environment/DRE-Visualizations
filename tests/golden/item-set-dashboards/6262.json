@@ -1,0 +1,68 @@
+{
+  "contributors": [
+    {"itemId":1219,"name":"DECCA West Africa","value":5},
+    {"itemId":1222,"name":"Jambo Records","value":3}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 608,
+      "items": [
+        {"id":2600,"title":"Gramophone side 1"},
+        {"id":2601,"title":"Gramophone side 2"},
+        {"id":2602,"title":"Gramophone side 3"},
+        {"id":2603,"title":"Gramophone side 4"},
+        {"id":2604,"title":"Gramophone side 5"},
+        {"id":2605,"title":"Gramophone side 6"},
+        {"id":2606,"title":"Gramophone side 7"},
+        {"id":2607,"title":"Gramophone side 8"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 8
+    }
+  ],
+  "languages": [
+    {"itemId":813,"name":"Yoruba","value":5},
+    {"itemId":814,"name":"Swahili","value":3}
+  ],
+  "locations": [
+    {
+      "itemId": 600,
+      "items": [
+        {"id":2600,"title":"Gramophone side 1"},
+        {"id":2601,"title":"Gramophone side 2"},
+        {"id":2602,"title":"Gramophone side 3"},
+        {"id":2603,"title":"Gramophone side 4"},
+        {"id":2604,"title":"Gramophone side 5"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 5
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":2605,"title":"Gramophone side 6"},
+        {"id":2606,"title":"Gramophone side 7"},
+        {"id":2607,"title":"Gramophone side 8"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 3
+    }
+  ],
+  "resourceType": "researchItem",
+  "subjects": [
+    {"itemId":716,"name":"highlife","value":3},
+    {"itemId":707,"name":"Popular music","value":3},
+    {"itemId":717,"name":"Afrobeat","value":2}
+  ],
+  "timeline": {"1955":1,"1956":1,"1957":1,"1958":1,"1959":1,"1960":1,"1961":1,"1962":1},
+  "totalItems": 8,
+  "types": [
+    {"itemId":803,"name":"Sound recording","value":8}
+  ]
+}

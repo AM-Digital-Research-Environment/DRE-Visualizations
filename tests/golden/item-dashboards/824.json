@@ -1,0 +1,273 @@
+{
+  "contributors": [
+    {"itemId":402,"name":"Ouédraogo, Issa","value":5},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":3},
+    {"itemId":417,"name":"Kaboré, Paul","value":3},
+    {"itemId":410,"name":"Oliveira, Rafael","value":3},
+    {"itemId":403,"name":"Santos, Ana Clara","value":3},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":3},
+    {"itemId":422,"name":"Abubakar, Hauwa","value":2},
+    {"itemId":424,"name":"Item 424","value":2},
+    {"itemId":420,"name":"Mensah, Kwame","value":2},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":2},
+    {"itemId":416,"name":"Achieng, Grace","value":1},
+    {"itemId":400,"name":"Adeyemi, Folake","value":1},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
+    {"itemId":511,"name":"Digital Research Environment Team","value":1},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":1},
+    {"itemId":419,"name":"Hoffmann, Felix","value":1},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":412,"name":"Traoré, Aïssata","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1003,"title":"Migration harvest (4)"},
+        {"id":1024,"title":"Migration city voices (25)"},
+        {"id":1089,"title":"River migration healing (90)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 3
+    },
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1054,"title":"Family migration voices voices (55)"},
+        {"id":1083,"title":"School migration church archive (84)"},
+        {"id":1087,"title":"Harvest city (88)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 3
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1001,"title":"Festival radio memory voices (2)"},
+        {"id":1044,"title":"School harvest city family (45)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 2
+    },
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1016,"title":"Voices city (17)"},
+        {"id":1076,"title":"Church mosque road (77)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 2
+    },
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1030,"title":"Archive language (31)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1042,"title":"Song family (43)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    },
+    {
+      "itemId": 500,
+      "items": [
+        {"id":1036,"title":"Radio road mosque healing (37)"}
+      ],
+      "lat": 49.9456,
+      "lon": 11.5713,
+      "name": "University of Bayreuth",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":811,"name":"French","value":4},
+    {"itemId":814,"name":"Swahili","value":4},
+    {"itemId":813,"name":"Yoruba","value":4},
+    {"itemId":810,"name":"English","value":3},
+    {"itemId":815,"name":"Hausa","value":3},
+    {"itemId":816,"name":"Mooré","value":3},
+    {"itemId":812,"name":"Portuguese","value":3}
+  ],
+  "locations": [
+    {
+      "itemId": 610,
+      "items": [
+        {"id":1024,"title":"Migration city voices (25)"},
+        {"id":1076,"title":"Church mosque road (77)"}
+      ],
+      "lat": 12.6392,
+      "lon": -8.0029,
+      "name": "Bamako",
+      "value": 2
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1016,"title":"Voices city (17)"},
+        {"id":1033,"title":"Market road road (34)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 2
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1001,"title":"Festival radio memory voices (2)"},
+        {"id":1044,"title":"School harvest city family (45)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 2
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1042,"title":"Song family (43)"},
+        {"id":1087,"title":"Harvest city (88)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 2
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1083,"title":"School migration church archive (84)"},
+        {"id":1089,"title":"River migration healing (90)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 2
+    },
+    {
+      "itemId": 613,
+      "items": [
+        {"id":1089,"title":"River migration healing (90)"}
+      ],
+      "lat": 7.18,
+      "lon": 1.99,
+      "name": "Abomey",
+      "value": 1
+    },
+    {
+      "itemId": 612,
+      "items": [
+        {"id":1044,"title":"School harvest city family (45)"}
+      ],
+      "lat": 9.03,
+      "lon": 38.74,
+      "name": "Addis Ababa",
+      "value": 1
+    },
+    {
+      "itemId": 603,
+      "items": [
+        {"id":1079,"title":"City road (80)"}
+      ],
+      "lat": 11.1771,
+      "lon": -4.2979,
+      "name": "Bobo-Dioulasso",
+      "value": 1
+    },
+    {
+      "itemId": 615,
+      "items": [
+        {"id":1016,"title":"Voices city (17)"}
+      ],
+      "lat": -6.7924,
+      "lon": 39.2083,
+      "name": "Dar es Salaam",
+      "value": 1
+    },
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1036,"title":"Radio road mosque healing (37)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1086,"title":"Song migration church migration (87)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1104,"title":"Festival family road river (105)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    }
+  ],
+  "resourceType": "genre",
+  "subjects": [
+    {"itemId":726,"name":"photography","value":5},
+    {"itemId":722,"name":"urban farming","value":4},
+    {"itemId":717,"name":"Afrobeat","value":3},
+    {"itemId":709,"name":"Education","value":3},
+    {"itemId":704,"name":"Migration","value":3},
+    {"itemId":715,"name":"capoeira","value":2},
+    {"itemId":703,"name":"Christianity","value":2},
+    {"itemId":710,"name":"Colonialism","value":2},
+    {"itemId":723,"name":"diaspora","value":2},
+    {"itemId":728,"name":"griot","value":2},
+    {"itemId":721,"name":"healing","value":2},
+    {"itemId":708,"name":"Language policy","value":2},
+    {"itemId":719,"name":"sound recording","value":2},
+    {"itemId":712,"name":"Archives","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":706,"name":"Oral tradition","value":1},
+    {"itemId":720,"name":"pilgrimage","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":724,"name":"restitution","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "timeline": {"2019":3,"2020":3,"2021":4,"2022":1,"2023":2,"2024":4,"2025":1},
+  "totalItems": 21,
+  "types": [
+    {"itemId":800,"name":"Interview","value":9},
+    {"itemId":801,"name":"Photograph","value":4},
+    {"itemId":802,"name":"Field notes","value":3},
+    {"itemId":803,"name":"Sound recording","value":3},
+    {"itemId":804,"name":"Video","value":3}
+  ]
+}

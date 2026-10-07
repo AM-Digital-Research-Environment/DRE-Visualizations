@@ -1,0 +1,111 @@
+{
+  "contributors": [
+    {"itemId":400,"name":"Adeyemi, Folake","value":2},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":419,"name":"Hoffmann, Felix","value":1},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":1},
+    {"itemId":414,"name":"Weber, Lena","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1022,"title":"Ritual radio (23)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1116,"title":"Church archive (117)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    }
+  ],
+  "geoFlows": {
+    "links": [
+      {"from":"Ouagadougou","fromLat":12.3714,"fromLon":-1.5197,"to":"Rhodes University","toLat":-33.3106,"toLon":26.5256,"value":1},
+      {"from":"Zanzibar","fromLat":-6.1659,"fromLon":39.2026,"to":"Rhodes University","toLat":-33.3106,"toLon":26.5256,"value":1},
+      {"from":"Zanzibar","fromLat":-6.1659,"fromLon":39.2026,"to":"Salvador","toLat":-12.9777,"toLon":-38.5016,"value":1}
+    ],
+    "nodes": [
+      {"itemId":614,"lat":-6.1659,"lon":39.2026,"name":"Zanzibar"},
+      {"itemId":504,"lat":-33.3106,"lon":26.5256,"name":"Rhodes University"},
+      {"itemId":602,"lat":12.3714,"lon":-1.5197,"name":"Ouagadougou"},
+      {"itemId":607,"lat":-12.9777,"lon":-38.5016,"name":"Salvador"}
+    ]
+  },
+  "languages": [
+    {"itemId":810,"name":"English","value":2},
+    {"itemId":816,"name":"Mooré","value":2},
+    {"itemId":812,"name":"Portuguese","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 614,
+      "items": [
+        {"id":1022,"title":"Ritual radio (23)"},
+        {"id":1066,"title":"Migration river festival (67)"},
+        {"id":1095,"title":"Road river (96)"},
+        {"id":1116,"title":"Church archive (117)"}
+      ],
+      "lat": -6.1659,
+      "lon": 39.2026,
+      "name": "Zanzibar",
+      "value": 4
+    },
+    {
+      "itemId": 612,
+      "items": [
+        {"id":1095,"title":"Road river (96)"}
+      ],
+      "lat": 9.03,
+      "lon": 38.74,
+      "name": "Addis Ababa",
+      "value": 1
+    },
+    {
+      "itemId": 608,
+      "items": [
+        {"id":1066,"title":"Migration river festival (67)"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1022,"title":"Ritual radio (23)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    }
+  ],
+  "resourceType": "location",
+  "selfLocation": {"itemId":614,"lat":-6.1659,"lon":39.2026,"name":"Zanzibar"},
+  "subjects": [
+    {"itemId":717,"name":"Afrobeat","value":2},
+    {"itemId":727,"name":"Candomblé","value":1},
+    {"itemId":710,"name":"Colonialism","value":1},
+    {"itemId":709,"name":"Education","value":1},
+    {"itemId":726,"name":"photography","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "timeline": {"2021":1,"2024":1,"2025":1},
+  "totalItems": 4,
+  "types": [
+    {"itemId":801,"name":"Photograph","value":3},
+    {"itemId":803,"name":"Sound recording","value":2},
+    {"itemId":802,"name":"Field notes","value":1}
+  ]
+}

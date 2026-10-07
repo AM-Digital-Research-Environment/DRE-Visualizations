@@ -1,0 +1,155 @@
+{
+  "affiliationMap": [
+    {"itemId":501,"lat":6.5244,"lon":3.3792,"name":"University of Lagos African Cluster Centre (LACC)"}
+  ],
+  "coAuthors": [
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":4},
+    {"itemId":419,"name":"Hoffmann, Felix","value":2},
+    {"itemId":416,"name":"Achieng, Grace","value":1},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":1},
+    {"itemId":418,"name":"Ferreira, Luíza","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":411,"name":"Kiprop, David","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1},
+    {"itemId":414,"name":"Weber, Lena","value":1}
+  ],
+  "contributorNetwork": {
+    "categories": ["person","project"],
+    "links": [
+      {"source":"Abubakar, Hauwa","target":"Faith and Public Morality","value":2},
+      {"source":"Santos, Ana Clara","target":"Faith and Public Morality","value":1},
+      {"source":"Müller, Katharina","target":"Faith and Public Morality","value":1},
+      {"source":"Diallo, Fatoumata","target":"Kinship Across Borders","value":1},
+      {"source":"Mwangi, Wanjiru","target":"Kinship Across Borders","value":1},
+      {"source":"Abubakar, Hauwa","target":"Kinship Across Borders","value":2},
+      {"source":"Mwangi, Wanjiru","target":"Mobile Knowledges in East Africa","value":1},
+      {"source":"Hoffmann, Felix","target":"Mobile Knowledges in East Africa","value":1},
+      {"source":"Abubakar, Hauwa","target":"Mobile Knowledges in East Africa","value":2},
+      {"source":"Kiprop, David","target":"Mobile Knowledges in East Africa","value":1},
+      {"source":"Sawadogo, Mariam","target":"Mobile Knowledges in East Africa","value":1},
+      {"source":"Kaboré, Paul","target":"Kinship Across Borders","value":1}
+    ],
+    "nodes": [
+      {"category":"person","itemId":422,"name":"Abubakar, Hauwa","value":6},
+      {"category":"person","itemId":406,"name":"Mwangi, Wanjiru","value":2},
+      {"category":"person","itemId":403,"name":"Santos, Ana Clara","value":1},
+      {"category":"person","itemId":404,"name":"Müller, Katharina","value":1},
+      {"category":"person","itemId":407,"name":"Sawadogo, Mariam","value":1},
+      {"category":"person","itemId":411,"name":"Kiprop, David","value":1},
+      {"category":"person","itemId":417,"name":"Kaboré, Paul","value":1},
+      {"category":"person","itemId":419,"name":"Hoffmann, Felix","value":1},
+      {"category":"person","itemId":421,"name":"Diallo, Fatoumata","value":1},
+      {"category":"project","itemId":301,"name":"Mobile Knowledges in East Africa","value":2},
+      {"category":"project","itemId":302,"name":"Faith and Public Morality","value":2},
+      {"category":"project","itemId":303,"name":"Kinship Across Borders","value":2}
+    ]
+  },
+  "currentLocations": [],
+  "languages": [
+    {"itemId":812,"name":"Portuguese","value":3},
+    {"itemId":814,"name":"Swahili","value":3},
+    {"itemId":810,"name":"English","value":2},
+    {"itemId":811,"name":"French","value":1},
+    {"itemId":815,"name":"Hausa","value":1},
+    {"itemId":813,"name":"Yoruba","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 603,
+      "items": [
+        {"id":1026,"title":"Migration festival song harvest (27)"}
+      ],
+      "lat": 11.1771,
+      "lon": -4.2979,
+      "name": "Bobo-Dioulasso",
+      "value": 1
+    },
+    {
+      "itemId": 615,
+      "items": [
+        {"id":1091,"title":"Voices language market ritual (92)"}
+      ],
+      "lat": -6.7924,
+      "lon": 39.2083,
+      "name": "Dar es Salaam",
+      "value": 1
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1091,"title":"Voices language market ritual (92)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1026,"title":"Migration festival song harvest (27)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    }
+  ],
+  "radar": {
+    "indicator": [
+      {"max":39,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":23,"name":"Subjects"},
+      {"max":19,"name":"People"},
+      {"max":8,"name":"Types"},
+      {"max":13,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [11,6,15,12,6,5]
+      }
+    ]
+  },
+  "resourceType": "person",
+  "roles": [
+    {"name":"Contributor","value":3},
+    {"name":"Creator","value":2},
+    {"name":"Interviewer","value":1}
+  ],
+  "subjects": [
+    {"itemId":713,"name":"Kinship","value":3},
+    {"itemId":703,"name":"Christianity","value":2},
+    {"itemId":718,"name":"mobile phones","value":2},
+    {"itemId":726,"name":"photography","value":2},
+    {"itemId":720,"name":"pilgrimage","value":2},
+    {"itemId":705,"name":"Urbanization","value":2},
+    {"itemId":717,"name":"Afrobeat","value":1},
+    {"itemId":715,"name":"capoeira","value":1},
+    {"itemId":710,"name":"Colonialism","value":1},
+    {"itemId":723,"name":"diaspora","value":1},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":716,"name":"highlife","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":722,"name":"urban farming","value":1}
+  ],
+  "templates": [
+    {"name":"Research Item","value":6},
+    {"name":"Journal Article","value":3},
+    {"name":"Book Chapter","value":1},
+    {"name":"Project","value":1}
+  ],
+  "timeline": {"2019":2,"2020":3,"2022":1,"2023":2,"2024":2},
+  "totalItems": 11,
+  "types": [
+    {"itemId":805,"name":"Journal article","value":3},
+    {"itemId":802,"name":"Field notes","value":2},
+    {"itemId":803,"name":"Sound recording","value":2},
+    {"itemId":804,"name":"Video","value":2},
+    {"itemId":800,"name":"Interview","value":1},
+    {"itemId":807,"name":"Monograph","value":1}
+  ]
+}

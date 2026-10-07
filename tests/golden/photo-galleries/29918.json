@@ -1,0 +1,15 @@
+{
+  "photos": [
+    {"date":"2019","ext":"jpg","id":2100,"lat":null,"lon":null,"place":null,"storage":"publication-0000","title":"Memory and sound: Africa kinship diaspora","year":2019},
+    {"date":"2022","ext":"jpg","id":2103,"lat":null,"lon":null,"place":null,"storage":"publication-0003","title":"Archive and mobility: Music religion gender","year":2022},
+    {"date":"2025","ext":"jpg","id":2106,"lat":null,"lon":null,"place":null,"storage":"publication-0006","title":"Mobility and diaspora: Language city kinship","year":2025},
+    {"date":"2021","ext":"jpg","id":2109,"lat":null,"lon":null,"place":null,"storage":"publication-0009","title":"Heritage and africa: Heritage postcolonial ritual gender","year":2021},
+    {"date":"2024","ext":"jpg","id":2112,"lat":null,"lon":null,"place":null,"storage":"publication-0012","title":"Mobility and gender: Africa language brazil ritual","year":2024},
+    {"date":"2020","ext":"jpg","id":2115,"lat":null,"lon":null,"place":null,"storage":"publication-0015","title":"Diaspora and music: Memory ritual mobility archive","year":2020},
+    {"date":"2023","ext":"jpg","id":2118,"lat":null,"lon":null,"place":null,"storage":"publication-0018","title":"Heritage and africa: Sound music memory","year":2023},
+    {"date":"2019","ext":"jpg","id":2121,"lat":null,"lon":null,"place":null,"storage":"publication-0021","title":"Education and mobility: Diaspora archive religion mobility","year":2019},
+    {"date":"2022","ext":"jpg","id":2124,"lat":null,"lon":null,"place":null,"storage":"publication-0024","title":"Sound and music: City memory kinship mobility diaspora","year":2022},
+    {"date":"2025","ext":"jpg","id":2127,"lat":null,"lon":null,"place":null,"storage":"publication-0027","title":"Ritual and religion: Knowledge postcolonial religion","year":2025}
+  ],
+  "total": 10
+}

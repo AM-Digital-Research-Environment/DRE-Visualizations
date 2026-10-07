@@ -1,0 +1,84 @@
+{
+  "contributors": [
+    {"itemId":402,"name":"Ouédraogo, Issa","value":3},
+    {"itemId":415,"name":"Balogun, Tunde","value":1},
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":1},
+    {"itemId":418,"name":"Ferreira, Luíza","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1},
+    {"itemId":412,"name":"Traoré, Aïssata","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1089,"title":"River migration healing (90)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    }
+  ],
+  "geoFlows": {
+    "links": [
+      {"from":"Nairobi","fromLat":-1.2921,"fromLon":36.8219,"to":"Makhanda","toLat":-33.3106,"toLon":26.5256,"value":1},
+      {"from":"Abomey","fromLat":7.18,"fromLon":1.99,"to":"Makhanda","toLat":-33.3106,"toLon":26.5256,"value":1}
+    ],
+    "nodes": [
+      {"itemId":613,"lat":7.18,"lon":1.99,"name":"Abomey"},
+      {"itemId":604,"lat":-33.3106,"lon":26.5256,"name":"Makhanda"},
+      {"itemId":606,"lat":-1.2921,"lon":36.8219,"name":"Nairobi"}
+    ]
+  },
+  "languages": [
+    {"itemId":813,"name":"Yoruba","value":2},
+    {"itemId":815,"name":"Hausa","value":1},
+    {"itemId":816,"name":"Mooré","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 613,
+      "items": [
+        {"id":1037,"title":"Harvest memory (38)"},
+        {"id":1089,"title":"River migration healing (90)"},
+        {"id":1108,"title":"Festival language river harvest (109)"},
+        {"id":2400,"title":"Field photograph 1"},
+        {"id":2410,"title":"Field photograph 11"}
+      ],
+      "lat": 7.18,
+      "lon": 1.99,
+      "name": "Abomey",
+      "value": 5
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1089,"title":"River migration healing (90)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    }
+  ],
+  "resourceType": "location",
+  "selfLocation": {"itemId":613,"lat":7.18,"lon":1.99,"name":"Abomey"},
+  "subjects": [
+    {"itemId":714,"name":"Gender","value":2},
+    {"itemId":717,"name":"Afrobeat","value":1},
+    {"itemId":727,"name":"Candomblé","value":1},
+    {"itemId":715,"name":"capoeira","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":726,"name":"photography","value":1},
+    {"itemId":725,"name":"radio","value":1}
+  ],
+  "timeline": {"2019":1,"2023":3},
+  "totalItems": 5,
+  "types": [
+    {"itemId":801,"name":"Photograph","value":2},
+    {"itemId":802,"name":"Field notes","value":1},
+    {"itemId":800,"name":"Interview","value":1},
+    {"itemId":804,"name":"Video","value":1}
+  ]
+}

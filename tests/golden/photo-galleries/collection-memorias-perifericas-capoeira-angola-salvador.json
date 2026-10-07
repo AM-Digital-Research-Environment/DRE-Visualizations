@@ -1,0 +1,11 @@
+{
+  "photos": [
+    {"date":"1970","ext":"jpg","id":2450,"ident":"APMESTRENO001","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno001","title":"Acervo APMESTRENO001","year":1970},
+    {"date":"1973","ext":"jpg","id":2451,"ident":"APMESTRENO002","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno002","title":"Acervo APMESTRENO002","year":1973},
+    {"date":"1976","ext":"jpg","id":2452,"ident":"APMESTRENO003","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno003","title":"Acervo APMESTRENO003","year":1976},
+    {"date":"1979","ext":"jpg","id":2453,"ident":"APMESTRENO004","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno004","title":"Acervo APMESTRENO004","year":1979},
+    {"date":"1982","ext":"jpg","id":2454,"ident":"APMESTRENO005","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno005","title":"Acervo APMESTRENO005","year":1982},
+    {"date":"1988","ext":"jpg","id":2456,"ident":"APMESTRENO007","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno007","title":"Acervo APMESTRENO007","year":1988}
+  ],
+  "total": 6
+}

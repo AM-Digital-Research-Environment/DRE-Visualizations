@@ -1,0 +1,51 @@
+{
+  "affiliationNetwork": {
+    "categories": ["person","institution"],
+    "links": [
+      {"source":"Ouédraogo, Issa","target":"University Joseph Ki-Zerbo","value":1},
+      {"source":"Okonkwo, Chinedu","target":"University Joseph Ki-Zerbo","value":1},
+      {"source":"Sawadogo, Mariam","target":"University Joseph Ki-Zerbo","value":1},
+      {"source":"Schmidt, Jonas","target":"University Joseph Ki-Zerbo","value":1},
+      {"source":"Oliveira, Rafael","target":"University Joseph Ki-Zerbo","value":1},
+      {"source":"Kiprop, David","target":"University Joseph Ki-Zerbo","value":1},
+      {"source":"Diallo, Fatoumata","target":"University Joseph Ki-Zerbo","value":1}
+    ],
+    "nodes": [
+      {"category":"institution","isSelf":true,"itemId":502,"name":"University Joseph Ki-Zerbo","value":7},
+      {"category":"person","itemId":402,"name":"Ouédraogo, Issa","value":1},
+      {"category":"person","itemId":405,"name":"Okonkwo, Chinedu","value":1},
+      {"category":"person","itemId":407,"name":"Sawadogo, Mariam","value":1},
+      {"category":"person","itemId":409,"name":"Schmidt, Jonas","value":1},
+      {"category":"person","itemId":410,"name":"Oliveira, Rafael","value":1},
+      {"category":"person","itemId":411,"name":"Kiprop, David","value":1},
+      {"category":"person","itemId":421,"name":"Diallo, Fatoumata","value":1}
+    ]
+  },
+  "contributors": [
+    {"itemId":402,"name":"Ouédraogo, Issa","value":1}
+  ],
+  "currentLocations": [],
+  "languages": [],
+  "locations": [],
+  "radar": {
+    "indicator": [
+      {"max":28,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":20,"name":"Subjects"},
+      {"max":15,"name":"People"},
+      {"max":8,"name":"Types"},
+      {"max":55,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [1,0,0,1,0,0]
+      }
+    ]
+  },
+  "resourceType": "organisation",
+  "selfLocation": {"itemId":502,"lat":12.3714,"lon":-1.5197,"name":"University Joseph Ki-Zerbo"},
+  "subjects": [],
+  "timeline": {},
+  "totalItems": 1,
+  "types": []
+}

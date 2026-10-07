@@ -1,0 +1,45 @@
+{
+  "categories": [
+    {"name":"Organization"},
+    {"name":"Project"},
+    {"name":"Linked Item"},
+    {"name":"Research Item"},
+    {"name":"Shared Item"}
+  ],
+  "edges": [
+    {"name":"Is Part Of","source":"item_501","target":"resource_37685"},
+    {"name":"Is Part Of","source":"item_401","target":"item_501"},
+    {"name":"Is Part Of","source":"item_416","target":"item_501"},
+    {"name":"Is Part Of","source":"item_422","target":"item_501"},
+    {"name":"references","source":"item_302","target":"item_501"},
+    {"name":"references","source":"item_305","target":"item_501"},
+    {"name":"references","source":"item_1012","target":"item_501"},
+    {"name":"references","source":"item_1025","target":"item_501"},
+    {"name":"references","source":"item_1057","target":"item_501"},
+    {"name":"references","source":"item_1083","target":"item_501"},
+    {"name":"references","source":"item_1101","target":"item_501"},
+    {"freqPct":1.1,"idf":4.51,"isShared":true,"name":"Is Part Of","source":"item_502","target":"resource_37685"},
+    {"freqPct":1.1,"idf":4.51,"isShared":true,"name":"Is Part Of","source":"item_504","target":"resource_37685"},
+    {"freqPct":1.1,"idf":4.51,"isShared":true,"name":"Is Part Of","source":"item_505","target":"resource_37685"},
+    {"kind":"cross","name":"Member","source":"item_302","target":"item_422"},
+    {"kind":"cross","name":"Creator","source":"item_1057","target":"item_416"}
+  ],
+  "nodes": [
+    {"category":0,"community":-1,"id":"item_501","isCenter":true,"itemId":501,"name":"University of Lagos African Cluster Centre (LACC)","symbolSize":45},
+    {"category":1,"community":0,"freqPct":1.1,"id":"resource_37685","itemId":37685,"name":"Africa Multiple Research Centres","symbolSize":22},
+    {"category":2,"community":-1,"id":"item_401","itemId":401,"name":"Bakari, Amina","symbolSize":22},
+    {"category":2,"community":1,"id":"item_416","itemId":416,"name":"Achieng, Grace","symbolSize":22},
+    {"category":2,"community":2,"id":"item_422","itemId":422,"name":"Abubakar, Hauwa","symbolSize":22},
+    {"category":3,"community":2,"id":"item_302","itemId":302,"name":"Faith and Public Morality","symbolSize":16},
+    {"category":3,"community":-1,"id":"item_305","itemId":305,"name":"Urban Ecologies of Lagos","symbolSize":16},
+    {"category":3,"community":-1,"id":"item_1012","itemId":1012,"name":"Healing church (13)","symbolSize":16},
+    {"category":3,"community":-1,"id":"item_1025","itemId":1025,"name":"Healing river ritual (26)","symbolSize":16},
+    {"category":3,"community":1,"id":"item_1057","itemId":1057,"name":"Song road archive healing (58)","symbolSize":16},
+    {"category":3,"community":-1,"id":"item_1083","itemId":1083,"name":"School migration church archive (84)","symbolSize":16},
+    {"category":3,"community":-1,"id":"item_1101","itemId":1101,"name":"Family mosque (102)","symbolSize":16},
+    {"category":4,"community":0,"id":"item_502","itemId":502,"name":"University Joseph Ki-Zerbo","sharedCount":1,"strength":4.51,"symbolSize":16},
+    {"category":4,"community":0,"id":"item_504","itemId":504,"name":"Rhodes University","sharedCount":1,"strength":4.51,"symbolSize":16},
+    {"category":4,"community":0,"id":"item_505","itemId":505,"name":"Moi University","sharedCount":1,"strength":4.51,"symbolSize":16}
+  ],
+  "stats": {"candidateSearchTruncated":false,"candidatesExamined":3,"communityCount":3,"maxFreqPct":1.1,"maxPostingSample":256,"maxStrength":4.51}
+}

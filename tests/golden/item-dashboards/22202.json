@@ -1,0 +1,613 @@
+{
+  "choropleth": [
+    {"count":18,"country":"Brazil"},
+    {"count":7,"country":"Nigeria"},
+    {"count":6,"country":"Kenya"},
+    {"count":5,"country":"Burkina Faso"},
+    {"count":4,"country":"Senegal"},
+    {"count":3,"country":"Democratic Republic of the Congo"},
+    {"count":3,"country":"South Africa"},
+    {"count":2,"country":"United Republic of Tanzania"},
+    {"count":1,"country":"Benin"},
+    {"count":1,"country":"Ethiopia"},
+    {"count":1,"country":"Mali"}
+  ],
+  "contributors": [
+    {"itemId":403,"name":"Santos, Ana Clara","value":8},
+    {"itemId":401,"name":"Bakari, Amina","value":6},
+    {"itemId":419,"name":"Hoffmann, Felix","value":6},
+    {"itemId":1219,"name":"DECCA West Africa","value":5},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":5},
+    {"itemId":600,"name":"Lagos","value":5},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":5},
+    {"itemId":416,"name":"Achieng, Grace","value":4},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":4},
+    {"itemId":418,"name":"Ferreira, Luíza","value":4},
+    {"itemId":411,"name":"Kiprop, David","value":4},
+    {"itemId":604,"name":"Makhanda","value":4},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":4},
+    {"itemId":413,"name":"Nkosi, Sipho","value":4},
+    {"itemId":410,"name":"Oliveira, Rafael","value":4},
+    {"itemId":412,"name":"Traoré, Aïssata","value":4},
+    {"itemId":1222,"name":"Jambo Records","value":3},
+    {"itemId":420,"name":"Mensah, Kwame","value":3},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":3},
+    {"itemId":409,"name":"Schmidt, Jonas","value":3},
+    {"itemId":400,"name":"Adeyemi, Folake","value":2},
+    {"itemId":415,"name":"Balogun, Tunde","value":2},
+    {"itemId":424,"name":"Item 424","value":2},
+    {"itemId":417,"name":"Kaboré, Paul","value":2},
+    {"itemId":404,"name":"Müller, Katharina","value":2},
+    {"itemId":606,"name":"Nairobi","value":2},
+    {"itemId":423,"name":"Njoroge, Peter","value":2},
+    {"itemId":607,"name":"Salvador","value":2},
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
+    {"itemId":511,"name":"Digital Research Environment Team","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1025,"title":"Healing river ritual (26)"},
+        {"id":1083,"title":"School migration church archive (84)"},
+        {"id":1005,"title":"Memory market drum (6)"},
+        {"id":1040,"title":"Migration harvest drum healing (41)"},
+        {"id":1054,"title":"Family migration voices voices (55)"},
+        {"id":1065,"title":"Mosque language (66)"},
+        {"id":1069,"title":"City song language mosque (70)"},
+        {"id":1087,"title":"Harvest city (88)"},
+        {"id":1097,"title":"Drum song memory family (98)"},
+        {"id":1099,"title":"Festival road mosque voices (100)"},
+        {"id":1114,"title":"Market harvest harvest memory (115)"},
+        {"id":2450,"title":"Acervo APMESTRENO001"},
+        {"id":2451,"title":"Acervo APMESTRENO002"},
+        {"id":2452,"title":"Acervo APMESTRENO003"},
+        {"id":2453,"title":"Acervo APMESTRENO004"},
+        {"id":2454,"title":"Acervo APMESTRENO005"},
+        {"id":2455,"title":"Acervo APMESTRENO006"},
+        {"id":2456,"title":"Acervo APMESTRENO007"},
+        {"id":2457,"title":"Acervo TRABNEGRBA001"},
+        {"id":2458,"title":"Acervo TRABNEGRBA002"},
+        {"id":2459,"title":"Acervo TRABNEGRBA003"},
+        {"id":2460,"title":"Acervo TRABNEGRBA004"},
+        {"id":2461,"title":"Acervo TRABNEGRBA005"},
+        {"id":2462,"title":"Acervo ORIXAFGM001"},
+        {"id":2463,"title":"Acervo ORIXAFGM002"},
+        {"id":2464,"title":"Acervo ORIXAFGM003"},
+        {"id":2465,"title":"Acervo ORIXAFGM004"},
+        {"id":2466,"title":"Acervo OTHERPREFIX001"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 28
+    },
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1016,"title":"Voices city (17)"},
+        {"id":1022,"title":"Ritual radio (23)"},
+        {"id":1035,"title":"Language ritual mosque market (36)"},
+        {"id":1038,"title":"Migration radio harvest (39)"},
+        {"id":1046,"title":"School river (47)"},
+        {"id":1073,"title":"Archive mosque (74)"},
+        {"id":1076,"title":"Church mosque road (77)"},
+        {"id":1078,"title":"Festival river language song (79)"},
+        {"id":1107,"title":"Song healing memory road (108)"},
+        {"id":1109,"title":"Voices family city (110)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 10
+    },
+    {
+      "itemId": 608,
+      "items": [
+        {"id":2600,"title":"Gramophone side 1"},
+        {"id":2601,"title":"Gramophone side 2"},
+        {"id":2602,"title":"Gramophone side 3"},
+        {"id":2603,"title":"Gramophone side 4"},
+        {"id":2604,"title":"Gramophone side 5"},
+        {"id":2605,"title":"Gramophone side 6"},
+        {"id":2606,"title":"Gramophone side 7"},
+        {"id":2607,"title":"Gramophone side 8"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 8
+    },
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1023,"title":"Ritual festival school migration (24)"},
+        {"id":1030,"title":"Archive language (31)"},
+        {"id":1055,"title":"Drum voices (56)"},
+        {"id":1062,"title":"Road festival river radio (63)"},
+        {"id":1075,"title":"Road festival voices (76)"},
+        {"id":1105,"title":"Drum radio (106)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 6
+    },
+    {
+      "itemId": 500,
+      "items": [
+        {"id":1007,"title":"Archive festival archive (8)"},
+        {"id":1008,"title":"Market river river (9)"},
+        {"id":1036,"title":"Radio road mosque healing (37)"},
+        {"id":1064,"title":"Healing language ritual (65)"}
+      ],
+      "lat": 49.9456,
+      "lon": 11.5713,
+      "name": "University of Bayreuth",
+      "value": 4
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1042,"title":"Song family (43)"},
+        {"id":1049,"title":"Healing migration (50)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 2
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1089,"title":"River migration healing (90)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1012,"title":"Healing church (13)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1101,"title":"Family mosque (102)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    }
+  ],
+  "heatmap": {
+    "cols": ["English","French","Hausa","Mooré","Portuguese","Swahili","Yoruba"],
+    "rows": ["Book chapter","Field notes","Interview","Journal article","Monograph","Photograph","Sound recording","Video"],
+    "values": [
+      [3,5,1],
+      [2,2,4],
+      [0,0,1],
+      [0,3,6],
+      [4,3,5],
+      [1,3,6],
+      [0,4,2],
+      [6,1,2],
+      [6,7,2],
+      [1,6,3],
+      [2,7,2],
+      [4,1,1],
+      [5,6,6],
+      [1,2,4],
+      [3,1,1],
+      [2,1,1],
+      [0,1,1],
+      [4,6,1],
+      [6,5,1],
+      [3,7,1],
+      [6,2,1],
+      [5,2,2],
+      [0,5,1],
+      [1,5,1],
+      [5,5,1],
+      [3,2,1],
+      [0,6,1],
+      [4,2,2],
+      [1,7,1],
+      [5,1,1],
+      [1,4,3],
+      [4,4,2],
+      [4,0,1],
+      [6,6,5]
+    ]
+  },
+  "languageTimeline": {
+    "series": [
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1,1,2,3,1,1],
+        "name": "English"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,3,3,2,0,2,4],
+        "name": "French"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,0,2,1],
+        "name": "Hausa"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,2],
+        "name": "Mooré"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,0,2,3,2,2],
+        "name": "Portuguese"
+      },
+      {
+        "data": [0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,1,1,2,0,1],
+        "name": "Swahili"
+      },
+      {
+        "data": [1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,2,2],
+        "name": "Yoruba"
+      }
+    ],
+    "years": [1955,1956,1957,1958,1959,1960,1961,1962,1970,1973,1976,1979,1982,1985,1988,1991,1994,1997,2000,2003,2006,2009,2012,2015,2018,2019,2020,2021,2022,2023,2024,2025]
+  },
+  "languages": [
+    {"itemId":812,"name":"Portuguese","value":30},
+    {"itemId":811,"name":"French","value":17},
+    {"itemId":810,"name":"English","value":12},
+    {"itemId":813,"name":"Yoruba","value":12},
+    {"itemId":814,"name":"Swahili","value":11},
+    {"itemId":815,"name":"Hausa","value":7},
+    {"itemId":816,"name":"Mooré","value":5}
+  ],
+  "locations": [
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1101,"title":"Family mosque (102)"},
+        {"id":2450,"title":"Acervo APMESTRENO001"},
+        {"id":2451,"title":"Acervo APMESTRENO002"},
+        {"id":2452,"title":"Acervo APMESTRENO003"},
+        {"id":2453,"title":"Acervo APMESTRENO004"},
+        {"id":2454,"title":"Acervo APMESTRENO005"},
+        {"id":2455,"title":"Acervo APMESTRENO006"},
+        {"id":2456,"title":"Acervo APMESTRENO007"},
+        {"id":2457,"title":"Acervo TRABNEGRBA001"},
+        {"id":2458,"title":"Acervo TRABNEGRBA002"},
+        {"id":2459,"title":"Acervo TRABNEGRBA003"},
+        {"id":2460,"title":"Acervo TRABNEGRBA004"},
+        {"id":2461,"title":"Acervo TRABNEGRBA005"},
+        {"id":2462,"title":"Acervo ORIXAFGM001"},
+        {"id":2463,"title":"Acervo ORIXAFGM002"},
+        {"id":2464,"title":"Acervo ORIXAFGM003"},
+        {"id":2465,"title":"Acervo ORIXAFGM004"},
+        {"id":2466,"title":"Acervo OTHERPREFIX001"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 18
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1064,"title":"Healing language ritual (65)"},
+        {"id":1062,"title":"Road festival river radio (63)"},
+        {"id":2600,"title":"Gramophone side 1"},
+        {"id":2601,"title":"Gramophone side 2"},
+        {"id":2602,"title":"Gramophone side 3"},
+        {"id":2603,"title":"Gramophone side 4"},
+        {"id":2604,"title":"Gramophone side 5"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 7
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1089,"title":"River migration healing (90)"},
+        {"id":1083,"title":"School migration church archive (84)"},
+        {"id":2605,"title":"Gramophone side 6"},
+        {"id":2606,"title":"Gramophone side 7"},
+        {"id":2607,"title":"Gramophone side 8"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 5
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1005,"title":"Memory market drum (6)"},
+        {"id":1022,"title":"Ritual radio (23)"},
+        {"id":1046,"title":"School river (47)"},
+        {"id":1109,"title":"Voices family city (110)"},
+        {"id":1011,"title":"Ritual healing radio (12)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 5
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1040,"title":"Migration harvest drum healing (41)"},
+        {"id":1069,"title":"City song language mosque (70)"},
+        {"id":1109,"title":"Voices family city (110)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 3
+    },
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1036,"title":"Radio road mosque healing (37)"},
+        {"id":1025,"title":"Healing river ritual (26)"},
+        {"id":1005,"title":"Memory market drum (6)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 3
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1087,"title":"Harvest city (88)"},
+        {"id":1023,"title":"Ritual festival school migration (24)"},
+        {"id":1042,"title":"Song family (43)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 3
+    },
+    {
+      "itemId": 615,
+      "items": [
+        {"id":1016,"title":"Voices city (17)"},
+        {"id":1055,"title":"Drum voices (56)"}
+      ],
+      "lat": -6.7924,
+      "lon": 39.2083,
+      "name": "Dar es Salaam",
+      "value": 2
+    },
+    {
+      "itemId": 613,
+      "items": [
+        {"id":1089,"title":"River migration healing (90)"}
+      ],
+      "lat": 7.18,
+      "lon": 1.99,
+      "name": "Abomey",
+      "value": 1
+    },
+    {
+      "itemId": 612,
+      "items": [
+        {"id":1041,"title":"Road song festival (42)"}
+      ],
+      "lat": 9.03,
+      "lon": 38.74,
+      "name": "Addis Ababa",
+      "value": 1
+    },
+    {
+      "itemId": 610,
+      "items": [
+        {"id":1076,"title":"Church mosque road (77)"}
+      ],
+      "lat": 12.6392,
+      "lon": -8.0029,
+      "name": "Bamako",
+      "value": 1
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1016,"title":"Voices city (17)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 1
+    },
+    {
+      "itemId": 609,
+      "items": [
+        {"id":1049,"title":"Healing migration (50)"}
+      ],
+      "lat": 14.15,
+      "lon": -16.07,
+      "name": "Kaolack",
+      "value": 1
+    },
+    {
+      "itemId": 614,
+      "items": [
+        {"id":1022,"title":"Ritual radio (23)"}
+      ],
+      "lat": -6.1659,
+      "lon": 39.2026,
+      "name": "Zanzibar",
+      "value": 1
+    }
+  ],
+  "resourceType": "institutionOverview",
+  "roles": [
+    {"name":"Creator","value":47},
+    {"name":"Publication place","value":14},
+    {"name":"Contributor","value":13},
+    {"name":"Photographer","value":10},
+    {"name":"Interviewee","value":9},
+    {"name":"Production company","value":8},
+    {"name":"Interviewer","value":6},
+    {"name":"Contributor (role)","value":2}
+  ],
+  "stackedTimeline": {
+    "series": [
+      {
+        "data": [0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0,1,0,0,0,1],
+        "name": "(no type)"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
+        "name": "Book chapter"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,0,2,1,1],
+        "name": "Field notes"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,2,2,1,1,2],
+        "name": "Interview"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,2,1,3,3,2,3],
+        "name": "Journal article"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,1,1,0,2,0],
+        "name": "Monograph"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,3],
+        "name": "Photograph"
+      },
+      {
+        "data": [1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,2,1,0,2],
+        "name": "Sound recording"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,3,0],
+        "name": "Video"
+      }
+    ],
+    "years": [1955,1956,1957,1958,1959,1960,1961,1962,1970,1973,1976,1979,1982,1985,1988,1991,1994,1997,2000,2003,2006,2009,2012,2015,2018,2019,2020,2021,2022,2023,2024,2025]
+  },
+  "subjectTrends": {
+    "series": [
+      {
+        "data": [0,0,0,0,0,0,0,1,0,0,0,0,1,1,0,1,1,0,1,0,0,1,1,0,0,1,1,1,2],
+        "name": "capoeira"
+      },
+      {
+        "data": [0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,2],
+        "name": "Afrobeat"
+      },
+      {
+        "data": [0,0,0,0,0,1,1,0,1,1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1,1],
+        "name": "Candomblé"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,1,1,0,0,1,2,1,0,1,0],
+        "name": "Collective memory"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,1,1,0,2],
+        "name": "Religion"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,1,3,0,1,1],
+        "name": "Urbanization"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1,0,0,2,0,1],
+        "name": "Education"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,0,1,1],
+        "name": "Gender"
+      },
+      {
+        "data": [1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,0,0,1],
+        "name": "Popular music"
+      },
+      {
+        "data": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,2,1],
+        "name": "urban farming"
+      }
+    ],
+    "years": [1956,1957,1960,1961,1962,1970,1973,1976,1979,1982,1985,1988,1991,1994,1997,2000,2003,2006,2009,2012,2015,2018,2019,2020,2021,2022,2023,2024,2025]
+  },
+  "subjects": [
+    {"itemId":715,"name":"capoeira","value":13},
+    {"itemId":717,"name":"Afrobeat","value":10},
+    {"itemId":727,"name":"Candomblé","value":9},
+    {"itemId":711,"name":"Collective memory","value":9},
+    {"itemId":709,"name":"Education","value":8},
+    {"itemId":701,"name":"Religion","value":8},
+    {"itemId":705,"name":"Urbanization","value":8},
+    {"itemId":714,"name":"Gender","value":7},
+    {"itemId":707,"name":"Popular music","value":7},
+    {"itemId":722,"name":"urban farming","value":7},
+    {"itemId":721,"name":"healing","value":6},
+    {"itemId":704,"name":"Migration","value":6},
+    {"itemId":718,"name":"mobile phones","value":6},
+    {"itemId":724,"name":"restitution","value":6},
+    {"itemId":728,"name":"griot","value":5},
+    {"itemId":700,"name":"Music","value":5},
+    {"itemId":726,"name":"photography","value":5},
+    {"itemId":720,"name":"pilgrimage","value":5},
+    {"itemId":725,"name":"radio","value":5},
+    {"itemId":719,"name":"sound recording","value":5},
+    {"itemId":712,"name":"Archives","value":4},
+    {"itemId":710,"name":"Colonialism","value":4},
+    {"itemId":706,"name":"Oral tradition","value":4},
+    {"itemId":716,"name":"highlife","value":3},
+    {"itemId":703,"name":"Christianity","value":2},
+    {"itemId":723,"name":"diaspora","value":2},
+    {"itemId":708,"name":"Language policy","value":2},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":713,"name":"Kinship","value":1}
+  ],
+  "templates": [
+    {"name":"Research Item","value":39},
+    {"name":"Journal Article","value":17},
+    {"name":"Photograph","value":17},
+    {"name":"Book Chapter","value":9},
+    {"name":"Audio Recording","value":8},
+    {"name":"Project","value":8}
+  ],
+  "timeline": {"1955":1,"1956":1,"1957":1,"1958":1,"1959":1,"1960":1,"1961":1,"1962":1,"1970":1,"1973":1,"1976":1,"1979":1,"1982":1,"1985":1,"1988":1,"1991":1,"1994":1,"1997":1,"2000":1,"2003":1,"2006":1,"2009":1,"2012":1,"2015":1,"2018":1,"2019":9,"2020":8,"2021":9,"2022":8,"2023":9,"2024":8,"2025":12},
+  "topInstitutions": [
+    {"itemId":503,"name":"Universidade Federal da Bahia","value":28},
+    {"itemId":507,"name":"Deutsche Forschungsgemeinschaft","value":20},
+    {"itemId":500,"name":"University of Bayreuth","value":18},
+    {"itemId":504,"name":"Rhodes University","value":11},
+    {"itemId":505,"name":"Moi University","value":7},
+    {"itemId":501,"name":"University of Lagos African Cluster Centre (LACC)","value":7},
+    {"itemId":1219,"name":"DECCA West Africa","value":5},
+    {"itemId":1222,"name":"Jambo Records","value":3},
+    {"itemId":508,"name":"CEAO Centro de Estudos Afro-Orientais","value":1},
+    {"itemId":502,"name":"University Joseph Ki-Zerbo","value":1}
+  ],
+  "totalItems": 98,
+  "types": [
+    {"itemId":805,"name":"Journal article","value":17},
+    {"itemId":803,"name":"Sound recording","value":16},
+    {"itemId":800,"name":"Interview","value":12},
+    {"itemId":802,"name":"Field notes","value":7},
+    {"itemId":807,"name":"Monograph","value":7},
+    {"itemId":801,"name":"Photograph","value":5},
+    {"itemId":804,"name":"Video","value":5},
+    {"itemId":806,"name":"Book chapter","value":2}
+  ]
+}

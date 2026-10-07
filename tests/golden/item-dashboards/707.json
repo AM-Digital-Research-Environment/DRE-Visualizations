@@ -1,0 +1,219 @@
+{
+  "coSubjects": [
+    {"itemId":700,"name":"Music","value":3},
+    {"itemId":706,"name":"Oral tradition","value":3},
+    {"itemId":727,"name":"Candomblé","value":2},
+    {"itemId":714,"name":"Gender","value":2},
+    {"itemId":715,"name":"capoeira","value":2},
+    {"itemId":723,"name":"diaspora","value":2},
+    {"itemId":721,"name":"healing","value":2},
+    {"itemId":709,"name":"Education","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":705,"name":"Urbanization","value":1},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":716,"name":"highlife","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":726,"name":"photography","value":1},
+    {"itemId":724,"name":"restitution","value":1},
+    {"itemId":722,"name":"urban farming","value":1}
+  ],
+  "contributors": [
+    {"itemId":401,"name":"Bakari, Amina","value":4},
+    {"itemId":411,"name":"Kiprop, David","value":4},
+    {"itemId":400,"name":"Adeyemi, Folake","value":3},
+    {"itemId":413,"name":"Nkosi, Sipho","value":3},
+    {"itemId":416,"name":"Achieng, Grace","value":2},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":2},
+    {"itemId":1222,"name":"Jambo Records","value":2},
+    {"itemId":404,"name":"Müller, Katharina","value":2},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":2},
+    {"itemId":409,"name":"Schmidt, Jonas","value":2},
+    {"itemId":414,"name":"Weber, Lena","value":2},
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
+    {"itemId":1219,"name":"DECCA West Africa","value":1},
+    {"itemId":511,"name":"Digital Research Environment Team","value":1},
+    {"itemId":419,"name":"Hoffmann, Felix","value":1},
+    {"itemId":600,"name":"Lagos","value":1},
+    {"itemId":420,"name":"Mensah, Kwame","value":1},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":410,"name":"Oliveira, Rafael","value":1},
+    {"itemId":412,"name":"Traoré, Aïssata","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1082,"title":"Festival market market school (83)"},
+        {"id":2500,"title":"ILAM article 1"},
+        {"id":2504,"title":"ILAM article 5"},
+        {"id":2505,"title":"ILAM article 6"},
+        {"id":2506,"title":"ILAM article 7"},
+        {"id":2507,"title":"ILAM article 8"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 6
+    },
+    {
+      "itemId": 608,
+      "items": [
+        {"id":2601,"title":"Gramophone side 2"},
+        {"id":2605,"title":"Gramophone side 6"},
+        {"id":2606,"title":"Gramophone side 7"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 3
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1096,"title":"Ritual radio (97)"},
+        {"id":1111,"title":"Language language radio (112)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 2
+    },
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1105,"title":"Drum radio (106)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 1
+    },
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1107,"title":"Song healing memory road (108)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":811,"name":"French","value":6},
+    {"itemId":810,"name":"English","value":4},
+    {"itemId":815,"name":"Hausa","value":3},
+    {"itemId":812,"name":"Portuguese","value":2},
+    {"itemId":814,"name":"Swahili","value":2},
+    {"itemId":813,"name":"Yoruba","value":2},
+    {"itemId":816,"name":"Mooré","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 615,
+      "items": [
+        {"id":1006,"title":"Mosque memory archive (7)"},
+        {"id":1039,"title":"Ritual archive ritual (40)"},
+        {"id":1111,"title":"Language language radio (112)"}
+      ],
+      "lat": -6.7924,
+      "lon": 39.2083,
+      "name": "Dar es Salaam",
+      "value": 3
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1111,"title":"Language language radio (112)"},
+        {"id":2601,"title":"Gramophone side 2"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 2
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":2605,"title":"Gramophone side 6"},
+        {"id":2606,"title":"Gramophone side 7"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 2
+    },
+    {
+      "itemId": 612,
+      "items": [
+        {"id":1088,"title":"Drum family church city (89)"}
+      ],
+      "lat": 9.03,
+      "lon": 38.74,
+      "name": "Addis Ababa",
+      "value": 1
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1082,"title":"Festival market market school (83)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 1
+    },
+    {
+      "itemId": 616,
+      "items": [
+        {"id":1006,"title":"Mosque memory archive (7)"}
+      ],
+      "lat": 0.3476,
+      "lon": 32.5825,
+      "name": "Kampala",
+      "value": 1
+    },
+    {
+      "itemId": 608,
+      "items": [
+        {"id":1039,"title":"Ritual archive ritual (40)"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1088,"title":"Drum family church city (89)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1082,"title":"Festival market market school (83)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    }
+  ],
+  "resourceType": "authority",
+  "timeline": {"1956":1,"1960":1,"1961":1,"2012":1,"2013":2,"2014":2,"2019":4,"2020":1,"2021":4,"2022":3,"2023":2,"2025":1},
+  "totalItems": 23,
+  "types": [
+    {"itemId":803,"name":"Sound recording","value":9},
+    {"itemId":801,"name":"Photograph","value":4},
+    {"itemId":804,"name":"Video","value":3},
+    {"itemId":800,"name":"Interview","value":2},
+    {"itemId":806,"name":"Book chapter","value":1},
+    {"itemId":807,"name":"Monograph","value":1}
+  ]
+}

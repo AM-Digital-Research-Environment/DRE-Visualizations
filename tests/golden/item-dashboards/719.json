@@ -1,0 +1,149 @@
+{
+  "coSubjects": [
+    {"itemId":726,"name":"photography","value":4},
+    {"itemId":708,"name":"Language policy","value":3},
+    {"itemId":709,"name":"Education","value":2},
+    {"itemId":702,"name":"Islam","value":2},
+    {"itemId":716,"name":"highlife","value":2},
+    {"itemId":718,"name":"mobile phones","value":2},
+    {"itemId":727,"name":"Candomblé","value":1},
+    {"itemId":703,"name":"Christianity","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":706,"name":"Oral tradition","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":705,"name":"Urbanization","value":1},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":724,"name":"restitution","value":1}
+  ],
+  "contributors": [
+    {"itemId":416,"name":"Achieng, Grace","value":6},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":3},
+    {"itemId":410,"name":"Oliveira, Rafael","value":2},
+    {"itemId":415,"name":"Balogun, Tunde","value":1},
+    {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
+    {"itemId":419,"name":"Hoffmann, Felix","value":1},
+    {"itemId":424,"name":"Item 424","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":411,"name":"Kiprop, David","value":1},
+    {"itemId":600,"name":"Lagos","value":1},
+    {"itemId":604,"name":"Makhanda","value":1},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1002,"title":"Festival harvest mosque school (3)"},
+        {"id":1093,"title":"Road mosque ritual (94)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 2
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1063,"title":"Voices road church (64)"},
+        {"id":1085,"title":"Archive city (86)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 2
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 500,
+      "items": [
+        {"id":1036,"title":"Radio road mosque healing (37)"}
+      ],
+      "lat": 49.9456,
+      "lon": 11.5713,
+      "name": "University of Bayreuth",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":815,"name":"Hausa","value":4},
+    {"itemId":813,"name":"Yoruba","value":4},
+    {"itemId":812,"name":"Portuguese","value":3},
+    {"itemId":810,"name":"English","value":2},
+    {"itemId":811,"name":"French","value":2},
+    {"itemId":814,"name":"Swahili","value":2}
+  ],
+  "locations": [
+    {
+      "itemId": 601,
+      "items": [
+        {"id":1093,"title":"Road mosque ritual (94)"}
+      ],
+      "lat": 7.3775,
+      "lon": 3.947,
+      "name": "Ibadan",
+      "value": 1
+    },
+    {
+      "itemId": 609,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"}
+      ],
+      "lat": 14.15,
+      "lon": -16.07,
+      "name": "Kaolack",
+      "value": 1
+    },
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1036,"title":"Radio road mosque healing (37)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 1
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1102,"title":"Road drum memory river (103)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1020,"title":"Migration ritual memory (21)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    }
+  ],
+  "resourceType": "authority",
+  "timeline": {"2019":2,"2021":4,"2022":2,"2024":1,"2025":2},
+  "totalItems": 13,
+  "types": [
+    {"itemId":800,"name":"Interview","value":3},
+    {"itemId":805,"name":"Journal article","value":3},
+    {"itemId":804,"name":"Video","value":3},
+    {"itemId":803,"name":"Sound recording","value":2},
+    {"itemId":802,"name":"Field notes","value":1},
+    {"itemId":807,"name":"Monograph","value":1},
+    {"itemId":801,"name":"Photograph","value":1}
+  ]
+}

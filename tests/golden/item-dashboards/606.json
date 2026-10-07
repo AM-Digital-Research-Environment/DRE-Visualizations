@@ -1,0 +1,181 @@
+{
+  "contributors": [
+    {"itemId":1222,"name":"Jambo Records","value":3},
+    {"itemId":416,"name":"Achieng, Grace","value":2},
+    {"itemId":424,"name":"Item 424","value":2},
+    {"itemId":400,"name":"Adeyemi, Folake","value":1},
+    {"itemId":415,"name":"Balogun, Tunde","value":1},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":1},
+    {"itemId":418,"name":"Ferreira, Luíza","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":411,"name":"Kiprop, David","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1},
+    {"itemId":409,"name":"Schmidt, Jonas","value":1},
+    {"itemId":412,"name":"Traoré, Aïssata","value":1},
+    {"itemId":414,"name":"Weber, Lena","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1012,"title":"Healing church (13)"},
+        {"id":1013,"title":"Road harvest (14)"},
+        {"id":1063,"title":"Voices road church (64)"},
+        {"id":1085,"title":"Archive city (86)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 4
+    },
+    {
+      "itemId": 608,
+      "items": [
+        {"id":2605,"title":"Gramophone side 6"},
+        {"id":2606,"title":"Gramophone side 7"},
+        {"id":2607,"title":"Gramophone side 8"}
+      ],
+      "lat": 6.6885,
+      "lon": -1.6244,
+      "name": "Kumasi",
+      "value": 3
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1089,"title":"River migration healing (90)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1056,"title":"Language road (57)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    },
+    {
+      "itemId": 503,
+      "items": [
+        {"id":1083,"title":"School migration church archive (84)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 1
+    }
+  ],
+  "geoFlows": {
+    "links": [
+      {"from":"Nairobi","fromLat":-1.2921,"fromLon":36.8219,"to":"Kumasi","toLat":6.6885,"toLon":-1.6244,"value":3},
+      {"from":"Ouagadougou","fromLat":12.3714,"fromLon":-1.5197,"to":"Nairobi","toLat":-1.2921,"toLon":36.8219,"value":1},
+      {"from":"Nairobi","fromLat":-1.2921,"fromLon":36.8219,"to":"Universidade Federal da Bahia","toLat":-12.9777,"toLon":-38.5016,"value":1},
+      {"from":"Nairobi","fromLat":-1.2921,"fromLon":36.8219,"to":"Makhanda","toLat":-33.3106,"toLon":26.5256,"value":1},
+      {"from":"Nairobi","fromLat":-1.2921,"fromLon":36.8219,"to":"Salvador","toLat":-12.9777,"toLon":-38.5016,"value":1},
+      {"from":"Abomey","fromLat":7.18,"fromLon":1.99,"to":"Makhanda","toLat":-33.3106,"toLon":26.5256,"value":1},
+      {"from":"Dar es Salaam","fromLat":-6.7924,"fromLon":39.2083,"to":"Salvador","toLat":-12.9777,"toLon":-38.5016,"value":1}
+    ],
+    "nodes": [
+      {"itemId":606,"lat":-1.2921,"lon":36.8219,"name":"Nairobi"},
+      {"itemId":607,"lat":-12.9777,"lon":-38.5016,"name":"Salvador"},
+      {"itemId":615,"lat":-6.7924,"lon":39.2083,"name":"Dar es Salaam"},
+      {"itemId":503,"lat":-12.9777,"lon":-38.5016,"name":"Universidade Federal da Bahia"},
+      {"itemId":613,"lat":7.18,"lon":1.99,"name":"Abomey"},
+      {"itemId":604,"lat":-33.3106,"lon":26.5256,"name":"Makhanda"},
+      {"itemId":608,"lat":6.6885,"lon":-1.6244,"name":"Kumasi"},
+      {"itemId":602,"lat":12.3714,"lon":-1.5197,"name":"Ouagadougou"}
+    ]
+  },
+  "languages": [
+    {"itemId":814,"name":"Swahili","value":4},
+    {"itemId":815,"name":"Hausa","value":2},
+    {"itemId":813,"name":"Yoruba","value":2},
+    {"itemId":810,"name":"English","value":1},
+    {"itemId":811,"name":"French","value":1},
+    {"itemId":816,"name":"Mooré","value":1},
+    {"itemId":812,"name":"Portuguese","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1056,"title":"Language road (57)"},
+        {"id":1083,"title":"School migration church archive (84)"},
+        {"id":1089,"title":"River migration healing (90)"},
+        {"id":2206,"title":"Episode 7: Healing archive"},
+        {"id":2605,"title":"Gramophone side 6"},
+        {"id":2606,"title":"Gramophone side 7"},
+        {"id":2607,"title":"Gramophone side 8"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 7
+    },
+    {
+      "itemId": 613,
+      "items": [
+        {"id":1089,"title":"River migration healing (90)"}
+      ],
+      "lat": 7.18,
+      "lon": 1.99,
+      "name": "Abomey",
+      "value": 1
+    },
+    {
+      "itemId": 615,
+      "items": [
+        {"id":1056,"title":"Language road (57)"}
+      ],
+      "lat": -6.7924,
+      "lon": 39.2083,
+      "name": "Dar es Salaam",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1013,"title":"Road harvest (14)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    }
+  ],
+  "resourceType": "location",
+  "selfLocation": {"itemId":606,"lat":-1.2921,"lon":36.8219,"name":"Nairobi"},
+  "subjects": [
+    {"itemId":728,"name":"griot","value":3},
+    {"itemId":717,"name":"Afrobeat","value":2},
+    {"itemId":709,"name":"Education","value":2},
+    {"itemId":700,"name":"Music","value":2},
+    {"itemId":726,"name":"photography","value":2},
+    {"itemId":707,"name":"Popular music","value":2},
+    {"itemId":719,"name":"sound recording","value":2},
+    {"itemId":705,"name":"Urbanization","value":2},
+    {"itemId":712,"name":"Archives","value":1},
+    {"itemId":703,"name":"Christianity","value":1},
+    {"itemId":716,"name":"highlife","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":720,"name":"pilgrimage","value":1}
+  ],
+  "timeline": {"1960":1,"1961":1,"1962":1,"2019":1,"2021":1,"2022":2,"2023":1,"2025":1},
+  "totalItems": 11,
+  "types": [
+    {"itemId":802,"name":"Field notes","value":4},
+    {"itemId":800,"name":"Interview","value":3},
+    {"itemId":803,"name":"Sound recording","value":3},
+    {"itemId":804,"name":"Video","value":1}
+  ]
+}

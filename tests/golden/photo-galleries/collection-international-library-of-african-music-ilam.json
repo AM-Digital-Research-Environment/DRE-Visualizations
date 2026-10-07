@@ -1,0 +1,13 @@
+{
+  "photos": [
+    {"creator":"Adeyemi, Folake","date":"2012","ext":"jpg","id":2500,"issue":1,"lat":null,"lon":null,"pages":"1–14","place":null,"storage":"ilam-0000","title":"ILAM article 1","volume":9,"year":2012},
+    {"creator":"Santos, Ana Clara","date":"2012","ext":"jpg","id":2501,"issue":1,"lat":null,"lon":null,"pages":"15-32","place":null,"storage":"ilam-0001","title":"ILAM article 2","volume":9,"year":2012},
+    {"creator":"Dlamini, Thandiwe","date":"2013","ext":"jpg","id":2503,"issue":2,"lat":null,"lon":null,"pages":"ix-xii","place":null,"storage":"ilam-0003","title":"ILAM article 4","volume":9,"year":2013},
+    {"creator":"Müller, Katharina","date":"2013","ext":"jpg","id":2504,"issue":2,"lat":null,"lon":null,"pages":"45–60","place":null,"storage":"ilam-0004","title":"ILAM article 5","volume":9,"year":2013},
+    {"creator":"Adeyemi, Folake","date":"2013","ext":"jpg","id":2505,"issue":1,"lat":null,"lon":null,"pages":null,"place":null,"storage":"ilam-0005","title":"ILAM article 6","volume":10,"year":2013},
+    {"creator":"Nkosi, Sipho","date":"2014","ext":"jpg","id":2506,"issue":1,"lat":null,"lon":null,"pages":"21–40","place":null,"storage":"ilam-0006","title":"ILAM article 7","volume":10,"year":2014},
+    {"creator":"Müller, Katharina","date":"2014","ext":"jpg","id":2507,"issue":1,"lat":null,"lon":null,"pages":null,"place":null,"storage":"ilam-0007","title":"ILAM article 8","volume":10,"year":2014},
+    {"creator":null,"date":"2014","ext":"jpg","id":2508,"issue":null,"lat":null,"lon":null,"pages":null,"place":null,"storage":"ilam-0008","title":"ILAM article 9","volume":null,"year":2014}
+  ],
+  "total": 8
+}

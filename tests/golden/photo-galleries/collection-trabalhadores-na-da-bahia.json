@@ -1,0 +1,9 @@
+{
+  "photos": [
+    {"date":"1991","ext":"jpg","id":2457,"ident":"TRABNEGRBA001","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-trabnegrba001","title":"Acervo TRABNEGRBA001","year":1991},
+    {"date":"1994","ext":"jpg","id":2458,"ident":"TRABNEGRBA002","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-trabnegrba002","title":"Acervo TRABNEGRBA002","year":1994},
+    {"date":"1997","ext":"jpg","id":2459,"ident":"TRABNEGRBA003","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-trabnegrba003","title":"Acervo TRABNEGRBA003","year":1997},
+    {"date":"2000","ext":"jpg","id":2460,"ident":"TRABNEGRBA004","lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-trabnegrba004","title":"Acervo TRABNEGRBA004","year":2000}
+  ],
+  "total": 4
+}

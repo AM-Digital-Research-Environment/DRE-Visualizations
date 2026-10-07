@@ -1,0 +1,317 @@
+{
+  "contributors": [
+    {"itemId":403,"name":"Santos, Ana Clara","value":11},
+    {"itemId":418,"name":"Ferreira, Luíza","value":5},
+    {"itemId":410,"name":"Oliveira, Rafael","value":4},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":3},
+    {"itemId":401,"name":"Bakari, Amina","value":2},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":2},
+    {"itemId":415,"name":"Balogun, Tunde","value":1},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":1},
+    {"itemId":424,"name":"Item 424","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":411,"name":"Kiprop, David","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":409,"name":"Schmidt, Jonas","value":1}
+  ],
+  "currentLocations": [
+    {
+      "itemId": 503,
+      "items": [
+        {"id":2450,"title":"Acervo APMESTRENO001"},
+        {"id":2451,"title":"Acervo APMESTRENO002"},
+        {"id":2452,"title":"Acervo APMESTRENO003"},
+        {"id":2453,"title":"Acervo APMESTRENO004"},
+        {"id":2454,"title":"Acervo APMESTRENO005"},
+        {"id":2455,"title":"Acervo APMESTRENO006"},
+        {"id":2456,"title":"Acervo APMESTRENO007"},
+        {"id":2457,"title":"Acervo TRABNEGRBA001"},
+        {"id":2458,"title":"Acervo TRABNEGRBA002"},
+        {"id":2459,"title":"Acervo TRABNEGRBA003"},
+        {"id":2460,"title":"Acervo TRABNEGRBA004"},
+        {"id":2461,"title":"Acervo TRABNEGRBA005"},
+        {"id":2462,"title":"Acervo ORIXAFGM001"},
+        {"id":2463,"title":"Acervo ORIXAFGM002"},
+        {"id":2464,"title":"Acervo ORIXAFGM003"},
+        {"id":2465,"title":"Acervo ORIXAFGM004"},
+        {"id":2466,"title":"Acervo OTHERPREFIX001"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Universidade Federal da Bahia",
+      "value": 17
+    },
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1062,"title":"Road festival river radio (63)"},
+        {"id":1075,"title":"Road festival voices (76)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 2
+    },
+    {
+      "itemId": 504,
+      "items": [
+        {"id":1078,"title":"Festival river language song (79)"},
+        {"id":1109,"title":"Voices family city (110)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Rhodes University",
+      "value": 2
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1113,"title":"Voices church family song (114)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":1013,"title":"Road harvest (14)"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1101,"title":"Family mosque (102)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 1
+    },
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1028,"title":"School festival ritual (29)"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 1
+    },
+    {
+      "itemId": 500,
+      "items": [
+        {"id":1036,"title":"Radio road mosque healing (37)"}
+      ],
+      "lat": 49.9456,
+      "lon": 11.5713,
+      "name": "University of Bayreuth",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":812,"name":"Portuguese","value":18},
+    {"itemId":814,"name":"Swahili","value":7},
+    {"itemId":816,"name":"Mooré","value":4},
+    {"itemId":813,"name":"Yoruba","value":3},
+    {"itemId":810,"name":"English","value":2},
+    {"itemId":811,"name":"French","value":2},
+    {"itemId":815,"name":"Hausa","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 607,
+      "items": [
+        {"id":1010,"title":"Family radio (11)"},
+        {"id":1092,"title":"City song language (93)"},
+        {"id":1101,"title":"Family mosque (102)"},
+        {"id":2450,"title":"Acervo APMESTRENO001"},
+        {"id":2451,"title":"Acervo APMESTRENO002"},
+        {"id":2452,"title":"Acervo APMESTRENO003"},
+        {"id":2453,"title":"Acervo APMESTRENO004"},
+        {"id":2454,"title":"Acervo APMESTRENO005"},
+        {"id":2455,"title":"Acervo APMESTRENO006"},
+        {"id":2456,"title":"Acervo APMESTRENO007"},
+        {"id":2457,"title":"Acervo TRABNEGRBA001"},
+        {"id":2458,"title":"Acervo TRABNEGRBA002"},
+        {"id":2459,"title":"Acervo TRABNEGRBA003"},
+        {"id":2460,"title":"Acervo TRABNEGRBA004"},
+        {"id":2461,"title":"Acervo TRABNEGRBA005"},
+        {"id":2462,"title":"Acervo ORIXAFGM001"},
+        {"id":2463,"title":"Acervo ORIXAFGM002"},
+        {"id":2464,"title":"Acervo ORIXAFGM003"},
+        {"id":2465,"title":"Acervo ORIXAFGM004"},
+        {"id":2466,"title":"Acervo OTHERPREFIX001"}
+      ],
+      "lat": -12.9777,
+      "lon": -38.5016,
+      "name": "Salvador",
+      "value": 20
+    },
+    {
+      "itemId": 610,
+      "items": [
+        {"id":1010,"title":"Family radio (11)"},
+        {"id":1017,"title":"Radio city family (18)"}
+      ],
+      "lat": 12.6392,
+      "lon": -8.0029,
+      "name": "Bamako",
+      "value": 2
+    },
+    {
+      "itemId": 618,
+      "items": [
+        {"id":1092,"title":"City song language (93)"},
+        {"id":1109,"title":"Voices family city (110)"}
+      ],
+      "lat": 14.667,
+      "lon": -17.398,
+      "name": "Gorée",
+      "value": 2
+    },
+    {
+      "itemId": 601,
+      "items": [
+        {"id":1021,"title":"Road radio harvest (22)"},
+        {"id":1028,"title":"School festival ritual (29)"}
+      ],
+      "lat": 7.3775,
+      "lon": 3.947,
+      "name": "Ibadan",
+      "value": 2
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1013,"title":"Road harvest (14)"},
+        {"id":1109,"title":"Voices family city (110)"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 2
+    },
+    {
+      "itemId": 612,
+      "items": [
+        {"id":1041,"title":"Road song festival (42)"}
+      ],
+      "lat": 9.03,
+      "lon": 38.74,
+      "name": "Addis Ababa",
+      "value": 1
+    },
+    {
+      "itemId": 603,
+      "items": [
+        {"id":1118,"title":"Radio church language (119)"}
+      ],
+      "lat": 11.1771,
+      "lon": -4.2979,
+      "name": "Bobo-Dioulasso",
+      "value": 1
+    },
+    {
+      "itemId": 605,
+      "items": [
+        {"id":1028,"title":"School festival ritual (29)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Eldoret",
+      "value": 1
+    },
+    {
+      "itemId": 616,
+      "items": [
+        {"id":1113,"title":"Voices church family song (114)"}
+      ],
+      "lat": 0.3476,
+      "lon": 32.5825,
+      "name": "Kampala",
+      "value": 1
+    },
+    {
+      "itemId": 609,
+      "items": [
+        {"id":1072,"title":"Language language (73)"}
+      ],
+      "lat": 14.15,
+      "lon": -16.07,
+      "name": "Kaolack",
+      "value": 1
+    },
+    {
+      "itemId": 611,
+      "items": [
+        {"id":1036,"title":"Radio road mosque healing (37)"}
+      ],
+      "lat": -4.4419,
+      "lon": 15.2663,
+      "name": "Kinshasa",
+      "value": 1
+    },
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1062,"title":"Road festival river radio (63)"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 1
+    },
+    {
+      "itemId": 604,
+      "items": [
+        {"id":1017,"title":"Radio city family (18)"}
+      ],
+      "lat": -33.3106,
+      "lon": 26.5256,
+      "name": "Makhanda",
+      "value": 1
+    }
+  ],
+  "resourceType": "researchItem",
+  "subjects": [
+    {"itemId":715,"name":"capoeira","value":8},
+    {"itemId":727,"name":"Candomblé","value":7},
+    {"itemId":711,"name":"Collective memory","value":6},
+    {"itemId":712,"name":"Archives","value":4},
+    {"itemId":705,"name":"Urbanization","value":4},
+    {"itemId":700,"name":"Music","value":3},
+    {"itemId":724,"name":"restitution","value":3},
+    {"itemId":703,"name":"Christianity","value":2},
+    {"itemId":714,"name":"Gender","value":2},
+    {"itemId":713,"name":"Kinship","value":2},
+    {"itemId":725,"name":"radio","value":2},
+    {"itemId":717,"name":"Afrobeat","value":1},
+    {"itemId":709,"name":"Education","value":1},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":721,"name":"healing","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":726,"name":"photography","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":719,"name":"sound recording","value":1},
+    {"itemId":722,"name":"urban farming","value":1}
+  ],
+  "timeline": {"1970":1,"1973":1,"1976":1,"1979":1,"1982":1,"1985":1,"1988":1,"1991":1,"1994":1,"1997":1,"2000":1,"2003":1,"2006":1,"2009":1,"2012":1,"2015":1,"2018":1,"2019":4,"2020":3,"2021":1,"2022":4,"2023":2,"2024":1,"2025":4},
+  "totalItems": 36,
+  "types": [
+    {"itemId":800,"name":"Interview","value":6},
+    {"itemId":803,"name":"Sound recording","value":6},
+    {"itemId":802,"name":"Field notes","value":4},
+    {"itemId":804,"name":"Video","value":3},
+    {"itemId":801,"name":"Photograph","value":2}
+  ]
+}

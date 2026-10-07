@@ -1,0 +1,149 @@
+{
+  "affiliationMap": [
+    {"itemId":502,"lat":12.3714,"lon":-1.5197,"name":"University Joseph Ki-Zerbo"}
+  ],
+  "coAuthors": [
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":3},
+    {"itemId":413,"name":"Nkosi, Sipho","value":3},
+    {"itemId":416,"name":"Achieng, Grace","value":2},
+    {"itemId":401,"name":"Bakari, Amina","value":2},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":2},
+    {"itemId":419,"name":"Hoffmann, Felix","value":2},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":2},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":2},
+    {"itemId":415,"name":"Balogun, Tunde","value":1},
+    {"itemId":418,"name":"Ferreira, Luíza","value":1},
+    {"itemId":420,"name":"Mensah, Kwame","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":410,"name":"Oliveira, Rafael","value":1},
+    {"itemId":403,"name":"Santos, Ana Clara","value":1},
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1},
+    {"itemId":412,"name":"Traoré, Aïssata","value":1}
+  ],
+  "contributorNetwork": {
+    "categories": ["person","project"],
+    "links": [
+      {"source":"Santos, Ana Clara","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Schmidt, Jonas","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Diallo, Fatoumata","target":"Afro-Brazilian Memory Work","value":1},
+      {"source":"Bakari, Amina","target":"Sonic Archives of the Sahel","value":1},
+      {"source":"Schmidt, Jonas","target":"Sonic Archives of the Sahel","value":1},
+      {"source":"Mwangi, Wanjiru","target":"Sonic Archives of the Sahel","value":1}
+    ],
+    "nodes": [
+      {"category":"person","itemId":409,"name":"Schmidt, Jonas","value":2},
+      {"category":"person","itemId":401,"name":"Bakari, Amina","value":1},
+      {"category":"person","itemId":403,"name":"Santos, Ana Clara","value":1},
+      {"category":"person","itemId":406,"name":"Mwangi, Wanjiru","value":1},
+      {"category":"person","itemId":421,"name":"Diallo, Fatoumata","value":1},
+      {"category":"project","itemId":300,"name":"Sonic Archives of the Sahel","value":1},
+      {"category":"project","itemId":304,"name":"Afro-Brazilian Memory Work","value":1}
+    ]
+  },
+  "currentLocations": [
+    {
+      "itemId": 505,
+      "items": [
+        {"id":1062,"title":"Road festival river radio (63)"}
+      ],
+      "lat": 0.5143,
+      "lon": 35.2698,
+      "name": "Moi University",
+      "value": 1
+    }
+  ],
+  "languages": [
+    {"itemId":810,"name":"English","value":9},
+    {"itemId":811,"name":"French","value":4},
+    {"itemId":814,"name":"Swahili","value":2},
+    {"itemId":812,"name":"Portuguese","value":1},
+    {"itemId":813,"name":"Yoruba","value":1}
+  ],
+  "locations": [
+    {
+      "itemId": 600,
+      "items": [
+        {"id":1062,"title":"Road festival river radio (63)"},
+        {"id":2204,"title":"Episode 5: Knowledge city"},
+        {"id":2208,"title":"Episode 9: Archive city"}
+      ],
+      "lat": 6.5244,
+      "lon": 3.3792,
+      "name": "Lagos",
+      "value": 3
+    },
+    {
+      "itemId": 602,
+      "items": [
+        {"id":1011,"title":"Ritual healing radio (12)"},
+        {"id":2200,"title":"Episode 1: Projets africa studies music"},
+        {"id":2202,"title":"Episode 3: Langues archive africa research"}
+      ],
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "name": "Ouagadougou",
+      "value": 3
+    },
+    {
+      "itemId": 606,
+      "items": [
+        {"id":2206,"title":"Episode 7: Healing archive"}
+      ],
+      "lat": -1.2921,
+      "lon": 36.8219,
+      "name": "Nairobi",
+      "value": 1
+    }
+  ],
+  "radar": {
+    "indicator": [
+      {"max":39,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":23,"name":"Subjects"},
+      {"max":19,"name":"People"},
+      {"max":8,"name":"Types"},
+      {"max":13,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [18,5,12,19,4,5]
+      }
+    ]
+  },
+  "resourceType": "person",
+  "roles": [
+    {"name":"Host","value":10},
+    {"name":"Creator","value":2},
+    {"name":"Interviewer","value":2},
+    {"name":"Speaker","value":2}
+  ],
+  "subjects": [
+    {"itemId":705,"name":"Urbanization","value":5},
+    {"itemId":711,"name":"Collective memory","value":4},
+    {"itemId":712,"name":"Archives","value":3},
+    {"itemId":703,"name":"Christianity","value":3},
+    {"itemId":714,"name":"Gender","value":3},
+    {"itemId":709,"name":"Education","value":2},
+    {"itemId":707,"name":"Popular music","value":2},
+    {"itemId":725,"name":"radio","value":2},
+    {"itemId":701,"name":"Religion","value":2},
+    {"itemId":728,"name":"griot","value":1},
+    {"itemId":704,"name":"Migration","value":1},
+    {"itemId":700,"name":"Music","value":1}
+  ],
+  "templates": [
+    {"name":"Podcast Episode","value":10},
+    {"name":"Research Item","value":3},
+    {"name":"Journal Article","value":2},
+    {"name":"YouTube Video","value":2},
+    {"name":"Project","value":1}
+  ],
+  "timeline": {"2020":1,"2021":4,"2022":4,"2023":4,"2024":2,"2025":2},
+  "totalItems": 18,
+  "types": [
+    {"itemId":805,"name":"Journal article","value":2},
+    {"itemId":802,"name":"Field notes","value":1},
+    {"itemId":800,"name":"Interview","value":1},
+    {"itemId":803,"name":"Sound recording","value":1}
+  ]
+}
