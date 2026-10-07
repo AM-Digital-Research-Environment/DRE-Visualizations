@@ -1,4 +1,4 @@
-# Roadmap — 2.29.1 review implementation
+# Roadmap — 2.29.1 review implementation (released in 2.30.0)
 
 Tracks the fixes and improvements from the module review of 2026-10-07
 (PHP back end, browser JavaScript, tests/CI, and MapLibre/ECharts against their
