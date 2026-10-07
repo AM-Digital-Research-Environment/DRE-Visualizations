@@ -36,8 +36,8 @@ require_once __DIR__ . '/ForceLayout.php';
 /**
  * Pure aggregation + chart-data builders for the dashboard precompute.
  *
- * Every method is static and operates on plain arrays (no Omeka or DB
- * dependencies), so the logic can be unit-tested in isolation. The in-memory
+ * Every builder operates on plain arrays (no Omeka or DB dependencies), so
+ * the logic can be unit-tested in isolation. The in-memory
  * shapes are:
  *   - items:        [id => ['title'=>, 'template_id'=>, 'class_term'=>, 'class_label'=>]]
  *   - links:        [id => [[term, label, valueResourceId], ...]]
@@ -93,6 +93,14 @@ final class Aggregators
     private function universityLabel(string $title): string
     {
         return $this->universityLabels[$title] ?? $title;
+    }
+    private function layoutCacheDirectory(): ?string
+    {
+        return $this->layoutCacheDir;
+    }
+    private function checkpointCallback(): ?callable
+    {
+        return is_callable($this->checkpoint) ? $this->checkpoint : null;
     }
 
     public const RADAR_AXES = [

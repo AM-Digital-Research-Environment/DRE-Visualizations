@@ -2,7 +2,6 @@
 declare(strict_types=1);
 namespace DreVisualizations\Precompute;
 
-use DreVisualizations\FeaturedCollections\Registry;
 
 final class OverviewDashboardGenerator extends DashboardGenerator
 {
@@ -31,7 +30,7 @@ final class OverviewDashboardGenerator extends DashboardGenerator
         $allItems = [];
         $memberCounts = [];
         foreach ($members as $mid) {
-            $linked = $this->aggregators->findItemsLinkingTo($mid, $this->reverseLinks, $terms);
+            $linked = $this->linkingItems($mid, $terms);
             foreach ($linked as $iid) {
                 $allItems[$iid] = true;
             }
@@ -82,13 +81,10 @@ final class OverviewDashboardGenerator extends DashboardGenerator
     protected function generateCategoryOverviews(): void
     {
         $this->log('=== Category Overviews ===');
-        // Note: unlike generatePeople(), the person overview intentionally
-        // leaves out foaf:member (membership is not an item credit).
-        $personTerms = array_merge(
-            ['dcterms:creator', 'dcterms:contributor', 'bibo:authorList', 'bibo:editorList'],
-            $this->marcrelTerms()
-        );
-        $instTerms = array_merge(['frapo:isFundedBy', 'dcterms:provenance'], $this->marcrelTerms());
+        // Unlike the per-person dashboards, the person overview leaves out
+        // foaf:member (membership is not an item credit).
+        $personTerms = $this->personCreditTerms(withMembership: false);
+        $instTerms = $this->institutionCreditTerms();
 
         $isLcsh = function (int $sid): bool {
             foreach ($this->links[$sid] ?? [] as [$term, $label, $vrid]) {
@@ -104,8 +100,8 @@ final class OverviewDashboardGenerator extends DashboardGenerator
         $this->generateOverview($this->profile->overview('resourceType'), 'Resource Type', $this->itemSets[$this->profile->itemSet('resourceType')] ?? [], ['dcterms:type'], 'resourceTypeOverview', 'topResourceTypes');
         $this->generateOverview($this->profile->overview('targetAudience'), 'Target Audience', $this->itemSets[$this->profile->itemSet('targetAudience')] ?? [], ['dcterms:audience'], 'targetAudienceOverview', 'topAudiences');
         $this->generateOverview($this->profile->overview('person'), 'Person', $this->itemSets[$this->profile->itemSet('person')] ?? [], $personTerms, 'personOverview', 'topPersons');
-        $this->generateOverview($this->profile->overview('institution'), 'Institution', $this->itemSets[$this->profile->itemSet('institution')] ?? [], $instTerms, 'institutionOverview', 'topInstitutions', fn (int $iid) => ($this->items[$iid]['class_term'] ?? '') === 'foaf:Organization');
-        $this->generateOverview($this->profile->overview('group'), 'Group', $this->itemSets[$this->profile->itemSet('institution')] ?? [], $instTerms, 'groupOverview', 'topGroups', fn (int $iid) => ($this->items[$iid]['class_term'] ?? '') !== 'foaf:Organization');
+        $this->generateOverview($this->profile->overview('institution'), 'Institution', $this->itemSets[$this->profile->itemSet('institution')] ?? [], $instTerms, 'institutionOverview', 'topInstitutions', fn (int $iid) => ($this->items[$iid]['class_term'] ?? '') === self::CLASS_ORGANISATION);
+        $this->generateOverview($this->profile->overview('group'), 'Group', $this->itemSets[$this->profile->itemSet('institution')] ?? [], $instTerms, 'groupOverview', 'topGroups', fn (int $iid) => ($this->items[$iid]['class_term'] ?? '') !== self::CLASS_ORGANISATION);
         $this->generateOverview($this->profile->overview('lcsh'), 'LCSH Subject', $this->itemSets[$this->profile->itemSet('subject')] ?? [], ['dcterms:subject'], 'lcshOverview', 'topSubjects', $isLcsh);
         $this->generateOverview($this->profile->overview('tag'), 'Tag', $this->itemSets[$this->profile->itemSet('subject')] ?? [], ['dcterms:subject'], 'tagOverview', 'topTags', fn (int $sid) => !$isLcsh($sid));
 
@@ -135,7 +131,7 @@ final class OverviewDashboardGenerator extends DashboardGenerator
 
         $beeswarm = [];
         $grouped = [];
-        $sections = $this->itemsWhere(fn ($info) => ($info['class_term'] ?? '') === 'frapo:ResearchGroup');
+        $sections = $this->itemsOfClass(self::CLASS_SECTION);
         foreach ($sections as $sid => $sinfo) {
             $secProjects = [];
             foreach ($this->childrenOf[$sid] ?? [] as $pid) {
@@ -257,7 +253,7 @@ final class OverviewDashboardGenerator extends DashboardGenerator
         if ($v = $this->aggregators->buildTimeChord($overviewItems, $this->links, $this->items, $this->itemYear)) {
             $dashboard['timeChord'] = $v;
         }
-        $sections = $this->itemsWhere(fn ($info) => ($info['class_term'] ?? '') === 'frapo:ResearchGroup');
+        $sections = $this->itemsOfClass(self::CLASS_SECTION);
         if ($v = $this->aggregators->buildBoxplot($sections, $this->childrenOf)) {
             $dashboard['boxplot'] = $v;
         }
@@ -356,7 +352,7 @@ final class OverviewDashboardGenerator extends DashboardGenerator
         // overlay. External partner collections sit outside that hierarchy, so route
         // their item sets onto the synthetic "External" section by membership.
         $itemSection = [];
-        foreach ($this->itemsWhere(fn ($i) => ($i['class_term'] ?? '') === 'frapo:ResearchGroup') as $sid => $sinfo) {
+        foreach ($this->itemsOfClass(self::CLASS_SECTION) as $sid => $sinfo) {
             $name = $sinfo['title'] ?? '';
             if ($name === '') {
                 continue;
@@ -416,14 +412,9 @@ final class OverviewDashboardGenerator extends DashboardGenerator
             return;
         }
 
-        // Person / organisation contributor-role terms, assembled exactly as in
-        // generatePeople() / generateInstitutions() (the fixed credits plus every
-        // marcrel:* role actually present in the data).
-        $personTerms = array_merge(
-            ['dcterms:creator', 'dcterms:contributor', 'foaf:member', 'bibo:authorList', 'bibo:editorList'],
-            $this->marcrelTerms()
-        );
-        $instTerms = array_merge(['frapo:isFundedBy', 'dcterms:provenance'], $this->marcrelTerms());
+        // The same credits as the per-person and per-organisation dashboards.
+        $personTerms = $this->personCreditTerms();
+        $instTerms = $this->institutionCreditTerms();
 
         $entityPlaces = [];
 
@@ -468,7 +459,7 @@ final class OverviewDashboardGenerator extends DashboardGenerator
 
         // Research sections (uncapped — ~6): items unioned over their child projects.
         $sections = [];
-        foreach ($this->itemsWhere(fn ($i) => ($i['class_term'] ?? '') === 'frapo:ResearchGroup') as $sid => $sinfo) {
+        foreach ($this->itemsOfClass(self::CLASS_SECTION) as $sid => $sinfo) {
             $itemIds = [];
             foreach ($this->childrenOf[$sid] ?? [] as $pid) {
                 foreach ($this->childrenOf[$pid] ?? [] as $iid) {
@@ -481,19 +472,19 @@ final class OverviewDashboardGenerator extends DashboardGenerator
         // People (capped): the items they are credited on.
         $people = [];
         foreach ($this->itemsWhere(fn ($i) => ($i['template_id'] ?? null) === $this->profile->template('persons')) as $pid => $pinfo) {
-            $people[$pid] = ['label' => $pinfo['title'], 'itemIds' => $this->aggregators->findItemsLinkingTo($pid, $this->reverseLinks, $personTerms)];
+            $people[$pid] = ['label' => $pinfo['title'], 'itemIds' => $this->linkingItems($pid, $personTerms)];
         }
 
         // Organisations (capped): items funded by / held by / credited to them.
         $orgs = [];
-        foreach ($this->itemsWhere(fn ($i) => ($i['class_term'] ?? '') === 'foaf:Organization') as $oid => $oinfo) {
-            $orgs[$oid] = ['label' => $oinfo['title'], 'itemIds' => $this->aggregators->findItemsLinkingTo($oid, $this->reverseLinks, $instTerms)];
+        foreach ($this->itemsOfClass(self::CLASS_ORGANISATION) as $oid => $oinfo) {
+            $orgs[$oid] = ['label' => $oinfo['title'], 'itemIds' => $this->linkingItems($oid, $instTerms)];
         }
 
         // Subjects (capped): the items they classify (dcterms:subject).
         $subjects = [];
         foreach ($this->itemsWhere(fn ($i) => ($i['template_id'] ?? null) === $this->profile->template('authority')) as $sid => $sinfo) {
-            $subjects[$sid] = ['label' => $sinfo['title'], 'itemIds' => $this->aggregators->findItemsLinkingTo($sid, $this->reverseLinks, ['dcterms:subject'])];
+            $subjects[$sid] = ['label' => $sinfo['title'], 'itemIds' => $this->linkingItems($sid, ['dcterms:subject'])];
         }
 
         $pickers = [

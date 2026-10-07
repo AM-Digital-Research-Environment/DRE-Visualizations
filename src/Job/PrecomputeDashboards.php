@@ -99,7 +99,8 @@ class PrecomputeDashboards extends AbstractJob
                     static fn (string $message) => $logger->info($message),
                     $corpusStats,
                     $checkpoint,
-                    $sourceScope
+                    $sourceScope,
+                    $dataDir . '/layout-cache'
                 );
                 return $runner->run();
             }, static fn () => $checkpoint(true));

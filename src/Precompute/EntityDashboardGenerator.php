@@ -2,7 +2,6 @@
 declare(strict_types=1);
 namespace DreVisualizations\Precompute;
 
-use DreVisualizations\FeaturedCollections\Registry;
 
 final class EntityDashboardGenerator extends DashboardGenerator
 {
@@ -22,7 +21,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
 
     protected function generateSections(): void
     {
-        $sections = $this->itemsWhere(fn ($info) => ($info['class_term'] ?? '') === 'frapo:ResearchGroup');
+        $sections = $this->itemsOfClass(self::CLASS_SECTION);
         $this->log('=== Research Sections (' . count($sections) . ') ===');
         $allBeeswarm = [];
 
@@ -99,7 +98,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
             }
             $sectionNames = [];
             foreach ($this->links[$pid] ?? [] as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:isPartOf' && ($this->items[$vrid]['class_term'] ?? '') === 'frapo:ResearchGroup') {
+                if ($term === 'dcterms:isPartOf' && ($this->items[$vrid]['class_term'] ?? '') === self::CLASS_SECTION) {
                     $sectionNames[] = $this->items[$vrid]['title'];
                 }
             }
@@ -132,14 +131,11 @@ final class EntityDashboardGenerator extends DashboardGenerator
         $people = $this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === $this->profile->template('persons'));
         $this->log('=== People (' . count($people) . ') ===');
 
-        $personTerms = array_merge(
-            ['dcterms:creator', 'dcterms:contributor', 'foaf:member', 'bibo:authorList', 'bibo:editorList'],
-            $this->marcrelTerms()
-        );
+        $personTerms = $this->personCreditTerms();
 
         $radarProfiles = [];
         foreach ($people as $pid => $_) {
-            $ids = $this->aggregators->findItemsLinkingTo($pid, $this->reverseLinks, $personTerms);
+            $ids = $this->linkingItems($pid, $personTerms);
             if ($ids) {
                 $radarProfiles[$pid] = $this->aggregators->profileFromItems($ids, $this->links, $this->itemYear);
             }
@@ -148,7 +144,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
 
         $index = [];
         foreach ($people as $pid => $pinfo) {
-            $itemIds = $this->aggregators->findItemsLinkingTo($pid, $this->reverseLinks, $personTerms);
+            $itemIds = $this->linkingItems($pid, $personTerms);
             if (!$itemIds) {
                 continue;
             }
@@ -197,18 +193,18 @@ final class EntityDashboardGenerator extends DashboardGenerator
 
     protected function generateInstitutions(): void
     {
-        $institutions = $this->itemsWhere(fn ($info) => ($info['class_term'] ?? '') === 'foaf:Organization');
+        $institutions = $this->itemsOfClass(self::CLASS_ORGANISATION);
         $this->log('=== Institutions (' . count($institutions) . ') ===');
 
         $instSet = [];
         foreach ($institutions as $iid => $_) {
             $instSet[$iid] = true;
         }
-        $instTerms = array_merge(['frapo:isFundedBy', 'dcterms:provenance'], $this->marcrelTerms());
+        $instTerms = $this->institutionCreditTerms();
 
         $radarProfiles = [];
         foreach ($institutions as $iid => $_) {
-            $ids = $this->aggregators->findItemsLinkingTo($iid, $this->reverseLinks, $instTerms);
+            $ids = $this->linkingItems($iid, $instTerms);
             if ($ids) {
                 $radarProfiles[$iid] = $this->aggregators->profileFromItems($ids, $this->links, $this->itemYear);
             }
@@ -217,7 +213,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
 
         $index = [];
         foreach ($institutions as $iid => $iinfo) {
-            $itemIds = $this->aggregators->findItemsLinkingTo($iid, $this->reverseLinks, $instTerms);
+            $itemIds = $this->linkingItems($iid, $instTerms);
             if (!$itemIds) {
                 continue;
             }
@@ -254,7 +250,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
         $this->log('=== Locations (' . count($locs) . ') ===');
         $withItems = 0;
         foreach ($locs as $lid => $linfo) {
-            $itemIds = $this->aggregators->findItemsLinkingTo($lid, $this->reverseLinks, ['dcterms:spatial', 'dcterms:provenance']);
+            $itemIds = $this->linkingItems($lid, ['dcterms:spatial', 'dcterms:provenance']);
             if (!$itemIds) {
                 continue;
             }
@@ -279,7 +275,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
         $this->log('=== Subjects/Authority (' . count($subjects) . ') ===');
         $index = [];
         foreach ($subjects as $sid => $sinfo) {
-            $itemIds = $this->aggregators->findItemsLinkingTo($sid, $this->reverseLinks, ['dcterms:subject']);
+            $itemIds = $this->linkingItems($sid, ['dcterms:subject']);
             if (!$itemIds) {
                 continue;
             }
@@ -312,7 +308,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
         $this->log('=== ' . $label . ' (item set ' . $setId . ', ' . count($setItems) . ') ===');
         $index = [];
         foreach ($setItems as $eid) {
-            $itemIds = $this->aggregators->findItemsLinkingTo($eid, $this->reverseLinks, [$term]);
+            $itemIds = $this->linkingItems($eid, [$term]);
             if (!$itemIds) {
                 continue;
             }

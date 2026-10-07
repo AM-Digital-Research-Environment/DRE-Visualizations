@@ -13,6 +13,11 @@ namespace DreVisualizations\Precompute\Aggregators;
  */
 trait TemporalChartsTrait
 {
+    // Provided by SupportTrait / Aggregators (or another trait); declared so
+    // this trait states what it relies on and PHP checks the signatures.
+    abstract public function buildChord(array $itemIds, array $links, array $items, string $termFilter = 'dcterms:subject', int $maxNodes = 20, int $minCooccurrence = 2): ?array;
+    abstract private function sortCounts(array &$counts): void;
+
     /**
      * Build stacked timeline: items by year, stacked by resource type.
      *

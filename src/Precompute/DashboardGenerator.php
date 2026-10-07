@@ -2,7 +2,6 @@
 declare(strict_types=1);
 namespace DreVisualizations\Precompute;
 
-use DreVisualizations\FeaturedCollections\Registry;
 
 /** Shared immutable corpus input and artifact utilities for focused generators. */
 abstract class DashboardGenerator
@@ -31,15 +30,17 @@ abstract class DashboardGenerator
      * Extra literals (dcterms:identifier, dcterms:description, bibo:doi) for the
      * items of the featured-collections item sets only — used to split Museu
      * Afro-Digital by identifier prefix and to derive ILAM volume/issue/pages.
-     * Keyed item id => ['ident'=>?, 'desc'=>?, 'doi'=>?]. Loaded scoped (not in
-     * the global DataLoader) so the general literal map stays lean.
+     * Keyed item id => ['ident'=>?, 'desc'=>?, 'doi'=>?], read from the shared
+     * literal map by CollectionGalleryGenerator.
      */
     protected array $featuredLiterals = [];
 
     /**
-     * Entity counts for the Collection Overview stat cards, filled by the
-     * per-entity index passes (each counts entities that have ≥1 linked item)
-     * and read by {@see self::buildOverviewStats()}.
+     * Entity counts for the Collection Overview stat cards. The per-entity
+     * index passes (EntityDashboardGenerator) count entities with ≥1 linked
+     * item; Runner hands those counts (counts()) to the next generator's
+     * constructor, and OverviewDashboardGenerator reads them — so Runner must
+     * run EntityDashboardGenerator first.
      */
     protected array $statCounts = [];
 
@@ -72,7 +73,7 @@ abstract class DashboardGenerator
     public function __construct(
         protected readonly CorpusSnapshot $corpus,
         protected readonly AmiraProfile $profile,
-        array $paths,
+        protected readonly GeneratorPaths $paths,
         ?callable $logFn = null,
         protected readonly ?array $corpusStats = null,
         ?callable $checkpoint = null,
@@ -85,12 +86,71 @@ abstract class DashboardGenerator
         $this->artifacts = new JsonArtifactWriter();
         $this->statCounts = $statCounts;
         foreach (['items', 'links', 'reverseLinks', 'childrenOf', 'itemYear', 'itemDate', 'temporal', 'geo', 'itemSets', 'templateLabels', 'literals', 'primaryMedia', 'mediaItems'] as $key) $this->{$key} = $corpus->{$key};
-        foreach ($paths as $key => $path) $this->{$key} = $path;
-        $this->aggregators = new Aggregators($profile->template('persons'), $profile->template('projects'), $profile->universityLabels(), dirname($this->outputDir, 3) . '/layout-cache', $this->checkpoint);
+        $this->outputDir = $paths->outputDir;
+        $this->communitiesDir = $paths->communitiesDir;
+        $this->countriesGeojson = $paths->countriesGeojson;
+        $this->knowledgeGraphsDir = $paths->knowledgeGraphsDir;
+        $this->galleriesDir = $paths->galleriesDir;
+        $this->featuredDir = $paths->featuredDir;
+        $this->itemSetDashboardsDir = $paths->itemSetDashboardsDir;
+        $this->wordcloudsDir = $paths->wordcloudsDir;
+        $this->aggregators = new Aggregators($profile->template('persons'), $profile->template('projects'), $profile->universityLabels(), $paths->layoutCacheDir, $this->checkpoint);
         $this->countryIndex = $countryIndex;
     }
 
+    /** Resource classes the generators group by (the profile pins templates, not classes). */
+    protected const CLASS_SECTION = 'frapo:ResearchGroup';
+    protected const CLASS_ORGANISATION = 'foaf:Organization';
+
+    /** @var array<string,array<int,array>> class term => items of that class */
+    private array $byClass = [];
+    /** @var array<string,int[]> memo for linkingItems() */
+    private array $linking = [];
+
     abstract public function generate(): int;
+
+    /** Items of one resource class, id => info, built once per generator. */
+    protected function itemsOfClass(string $classTerm): array
+    {
+        return $this->byClass[$classTerm] ??= $this->itemsWhere(fn ($info) => ($info['class_term'] ?? '') === $classTerm);
+    }
+
+    /**
+     * Item ids that credit a person: creator, contributor, author/editor lists
+     * and every marcrel:* role present in the data. Membership (foaf:member)
+     * makes someone part of a group, not the author of its items, so the
+     * category overviews leave it out ($withMembership = false).
+     *
+     * @return string[]
+     */
+    protected function personCreditTerms(bool $withMembership = true): array
+    {
+        return array_merge(
+            $withMembership
+                ? ['dcterms:creator', 'dcterms:contributor', 'foaf:member', 'bibo:authorList', 'bibo:editorList']
+                : ['dcterms:creator', 'dcterms:contributor', 'bibo:authorList', 'bibo:editorList'],
+            $this->marcrelTerms()
+        );
+    }
+
+    /** @return string[] Terms that credit an organisation: funding, holding, and marcrel:* roles. */
+    protected function institutionCreditTerms(): array
+    {
+        return array_merge(['frapo:isFundedBy', 'dcterms:provenance'], $this->marcrelTerms());
+    }
+
+    /**
+     * Items linking to an entity through any of the terms — memoised, since
+     * the radar pass, the dashboard pass and the spatial picker each ask for
+     * the same entity.
+     *
+     * @return int[]
+     */
+    protected function linkingItems(int $entityId, array $terms): array
+    {
+        return $this->linking[$entityId . '|' . implode(',', $terms)]
+            ??= $this->aggregators->findItemsLinkingTo($entityId, $this->reverseLinks, $terms);
+    }
     public function counts(): array { return $this->statCounts; }
 
     protected function log(string $msg): void

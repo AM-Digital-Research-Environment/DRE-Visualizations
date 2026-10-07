@@ -13,6 +13,18 @@ namespace DreVisualizations\Precompute\Aggregators;
  */
 trait NetworkChartsTrait
 {
+    // Provided by SupportTrait / Aggregators (or another trait); declared so
+    // this trait states what it relies on and PHP checks the signatures.
+    abstract public function findItemsLinkingTo(int $entityId, array $reverseLinks, array $terms): array;
+    abstract private function louvain(array $adj, array $deg, float $m): array;
+    abstract private function personTemplateId(): int;
+    abstract private function projectTemplateId(): int;
+    abstract private function sortCounts(array &$counts): void;
+    abstract private function sortCountsByName(array &$counts, array $titles): void;
+    abstract private function titlesFor(array $ids, array $items, string $placeholder): array;
+    abstract private function uniqueNames(array $titles): array;
+    abstract private function weightedPagerank(array $adj, array $deg, float $alpha = 0.85, int $iters = 100, float $tol = 1.0e-6): array;
+
     private function isPersonContributionTerm(string $term): bool
     {
         return str_starts_with($term, 'marcrel:')

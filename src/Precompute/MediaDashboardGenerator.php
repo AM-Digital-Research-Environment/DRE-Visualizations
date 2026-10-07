@@ -2,7 +2,6 @@
 declare(strict_types=1);
 namespace DreVisualizations\Precompute;
 
-use DreVisualizations\FeaturedCollections\Registry;
 
 final class MediaDashboardGenerator extends DashboardGenerator
 {

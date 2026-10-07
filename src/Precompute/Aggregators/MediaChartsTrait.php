@@ -12,6 +12,10 @@ namespace DreVisualizations\Precompute\Aggregators;
  */
 trait MediaChartsTrait
 {
+    // Provided by SupportTrait / Aggregators (or another trait); declared so
+    // this trait states what it relies on and PHP checks the signatures.
+    abstract private function sortCounts(array &$counts): void;
+
     /**
      * Episode-length histogram from a list of durations in seconds. Returns the
      * populated length bands in natural order (so the front-end buildHistogram

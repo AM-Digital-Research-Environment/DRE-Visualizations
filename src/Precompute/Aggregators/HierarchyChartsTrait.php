@@ -12,6 +12,11 @@ namespace DreVisualizations\Precompute\Aggregators;
  */
 trait HierarchyChartsTrait
 {
+    // Provided by SupportTrait / Aggregators (or another trait); declared so
+    // this trait states what it relies on and PHP checks the signatures.
+    abstract private function projectTemplateId(): int;
+    abstract private function sortCounts(array &$counts): void;
+
     /** Build type -> language -> subject sunburst hierarchy. */
     public function buildSunburst(array $itemIds, array $links, array $items): ?array
     {

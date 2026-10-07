@@ -13,6 +13,11 @@ namespace DreVisualizations\Precompute\Aggregators;
  */
 trait OverviewChartsTrait
 {
+    // Provided by SupportTrait / Aggregators (or another trait); declared so
+    // this trait states what it relies on and PHP checks the signatures.
+    abstract private function projectTemplateId(): int;
+    abstract private function universityLabel(string $title): string;
+
     /**
      * Normalise a list of stat-card specs into the render-ready `stats` array
      * the front-end draws (dashboard-stat-cards.js → ns.renderStatCards).

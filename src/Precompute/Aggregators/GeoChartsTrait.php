@@ -12,6 +12,11 @@ namespace DreVisualizations\Precompute\Aggregators;
  */
 trait GeoChartsTrait
 {
+    // Provided by SupportTrait / Aggregators (or another trait); declared so
+    // this trait states what it relies on and PHP checks the signatures.
+    abstract private function sortByValueDesc(array $rows): array;
+    abstract private function sortCounts(array &$counts): void;
+
     /** Build geographic flow data: origin -> current location arcs. */
     public function buildGeoFlows(array $itemIds, array $links, array $items, array $geo): ?array
     {

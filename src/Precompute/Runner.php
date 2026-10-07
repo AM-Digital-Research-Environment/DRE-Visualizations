@@ -2,7 +2,6 @@
 declare(strict_types=1);
 namespace DreVisualizations\Precompute;
 
-use DreVisualizations\FeaturedCollections\Registry;
 
 use Doctrine\DBAL\Connection;
 
@@ -29,6 +28,9 @@ final class Runner
         private readonly ?array $corpusStats = null,
         ?callable $checkpoint = null,
         private readonly array $sourceScope = [],
+        // Persists ForceAtlas2 layouts between generations. Defaults to the
+        // store root three levels above <store>/generations/<id>/item-dashboards.
+        private readonly ?string $layoutCacheDir = null,
     ) {
         $this->checkpoint = $checkpoint ?? static function (): void {};
         $this->logFn = $logFn;
@@ -39,11 +41,14 @@ final class Runner
     {
         $this->artifacts->ensureDirectory($this->outputDir);
         $data = (new DataLoader($this->connection, $this->siteId, $this->checkpoint))->load($this->logFn);
-        $paths = [];
-        foreach (['outputDir','communitiesDir','countriesGeojson','knowledgeGraphsDir','galleriesDir','featuredDir','itemSetDashboardsDir','wordcloudsDir'] as $key) $paths[$key] = $this->{$key};
+        $paths = new GeneratorPaths(
+            $this->outputDir, $this->communitiesDir, $this->countriesGeojson, $this->knowledgeGraphsDir,
+            $this->galleriesDir, $this->featuredDir, $this->itemSetDashboardsDir, $this->wordcloudsDir,
+            $this->layoutCacheDir ?? dirname($this->outputDir, 3) . '/layout-cache',
+        );
         foreach (['map', 'similar', 'report'] as $name) {
-            $input = ScopedInput::read(dirname($this->wordcloudsDir) . '/embeddings/' . $name . '.php', $this->sourceScope);
-            if ($input !== null) $this->artifacts->write(dirname($this->outputDir) . '/embeddings/' . $name . '.json', $input);
+            $input = ScopedInput::read($paths->embeddingsInputDir() . '/' . $name . '.php', $this->sourceScope);
+            if ($input !== null) $this->artifacts->write($paths->generationDir() . '/embeddings/' . $name . '.json', $input);
         }
         $aggregators = new Aggregators();
         $countries = $aggregators->buildCountryIndex($data->geo, $aggregators->loadCountryFeatures($this->countriesGeojson));
@@ -54,13 +59,15 @@ final class Runner
                 if ($term === 'dcterms:isPartOf' && ($data->items[$target]['template_id'] ?? null) === $this->profile->template('projects'))
                     $parents[] = ['id' => $target, 'name' => $data->items[$target]['title']];
             }
-            $this->artifacts->write(dirname($this->outputDir) . '/item-contexts/' . $id . '.json', [
+            $this->artifacts->write($paths->generationDir() . '/item-contexts/' . $id . '.json', [
                 'itemId' => $id, 'year' => $data->itemYear[$id] ?? null, 'parents' => $parents,
                 // Publications keep their abstract in bibo:abstract; everything else in dcterms:abstract.
                 'abstract' => $data->literals[$id]['dcterms:abstract'][0] ?? $data->literals[$id]['bibo:abstract'][0] ?? '',
             ]);
         }
         $count = 0;
+        // Order matters: each generator receives the stat counts gathered so far
+        // (OverviewDashboardGenerator reads EntityDashboardGenerator's).
         $stats = [];
         foreach ([EntityDashboardGenerator::class, OverviewDashboardGenerator::class, MediaDashboardGenerator::class, CollectionGalleryGenerator::class] as $class) {
             ($this->checkpoint)();

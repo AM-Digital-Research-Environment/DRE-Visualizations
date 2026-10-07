@@ -12,7 +12,7 @@ use DreVisualizations\Precompute\ForceLayout;
  * are joined when they appear together on the same item; the edge weight is
  * the number of items in which they co-occur.
  *
- * This is the multi-entity, collection-scale sibling of {@see CommunityTrait}
+ * This is the multi-entity, collection-scale sibling of the co-occurrence networks in {@see NetworkChartsTrait}
  * (subjects only) and the per-item {@see \DreVisualizations\Precompute\KnowledgeGraphs}.
  * Node positions are baked here with {@see ForceLayout} (a pure-PHP ForceAtlas2)
  * and projected to pseudo lng/lat, so the MapLibre front end (entity-graph.js)
@@ -31,6 +31,13 @@ use DreVisualizations\Precompute\ForceLayout;
  */
 trait EntityGraphTrait
 {
+    // Provided by SupportTrait / Aggregators (or another trait); declared so
+    // this trait states what it relies on and PHP checks the signatures.
+    abstract private function louvain(array $adj, array $deg, float $m): array;
+    abstract private function sortCounts(array &$counts): void;
+    abstract private function layoutCacheDirectory(): ?string;
+    abstract private function checkpointCallback(): ?callable;
+
     /** Entity-type indices (also the order of the emitted `types` array). */
     // Reader-facing legend/filter labels for the Entity Network, so British
     // spelling — the Spatial Exploration picker and the site's own vocabulary
@@ -303,9 +310,10 @@ trait EntityGraphTrait
         // Bake node positions with ForceAtlas2 (the algorithm + settings the
         // browser used to run live), then project [-1,1] → pseudo lng/lat so
         // MapLibre renders the network without any client-side layout work.
-        $options = ['checkpoint' => $this->checkpoint];
+        $options = ['checkpoint' => $this->checkpointCallback()];
         $cacheKey = hash('sha256', json_encode(['barnes-hut-v1', count($nodes), $edges, $massByIndex], JSON_THROW_ON_ERROR));
-        $cacheFile = $this->layoutCacheDir ? $this->layoutCacheDir . '/' . $cacheKey . '.json' : null;
+        $cacheDir = $this->layoutCacheDirectory();
+        $cacheFile = $cacheDir ? $cacheDir . '/' . $cacheKey . '.json' : null;
         $xy = $cacheFile && is_file($cacheFile) ? json_decode((string) file_get_contents($cacheFile), true) : null;
         if (is_array($xy) && count($xy) === count($nodes)) {
             // Mark the entry as used by this run; PrecomputeDashboards prunes the rest.

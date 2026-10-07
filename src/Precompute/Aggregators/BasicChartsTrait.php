@@ -13,6 +13,10 @@ namespace DreVisualizations\Precompute\Aggregators;
  */
 trait BasicChartsTrait
 {
+    // Provided by SupportTrait / Aggregators (or another trait); declared so
+    // this trait states what it relies on and PHP checks the signatures.
+    abstract private function sortByValueDesc(array $rows): array;
+
     /**
      * Aggregate dashboard data from a list of item IDs.
      *
