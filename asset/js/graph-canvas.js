@@ -14,6 +14,11 @@
  *
  * Depends on: dashboard-core.js (ns.THEME, ns.truncateLabel, ns.exportBg).
  *
+ * The hit-testing geometry — screen projection, node and link hit tests — is
+ * pure maths over a { x, y, k } view and is published separately as
+ * ns.graphGeometry, so tests/js/graph-geometry.test.mjs can exercise it with
+ * no DOM at all.
+ *
  * A scene is:
  *   { nodes, links,                              // already visibility-filtered
  *     categories, colorOf, haloOf, linkColorOf,  // style hooks
@@ -31,8 +36,74 @@
     var MIN_ZOOM = 0.2;
     var MAX_ZOOM = 6;
     var LABEL_BUDGET = 46;      // labels drawn before the painter stops trying
+
+    /* ------------------------------------------------------------------ */
+    /*  Hit-testing geometry — pure: no DOM, no canvas                     */
+    /* ------------------------------------------------------------------ */
+
     var HIT_SLOP = 3;           // px added to a node's radius when hit testing
+    var MIN_HIT_RADIUS = 6;     // px: a node zoomed out to a speck stays clickable
     var LINK_HIT = 36;          // 6px, squared
+
+    /** Screen x / y of a world-space point under the view { x, y, k }. */
+    function screenXIn(view, n) { return n.x * view.k + view.x; }
+    function screenYIn(view, n) { return n.y * view.k + view.y; }
+
+    /** A node's clickable radius on screen: its drawn radius, floored, plus slop. */
+    function hitRadius(r, k) { return Math.max(MIN_HIT_RADIUS, r * k) + HIT_SLOP; }
+
+    /**
+     * The node under a screen point, or null. Where hit areas overlap the
+     * nearest centre wins, and on a tie the node painted last (on top).
+     */
+    function nodeAt(nodes, view, px, py) {
+        var best = null, bestD = Infinity;
+        for (var i = nodes.length - 1; i >= 0; i--) {
+            var n = nodes[i];
+            var r = hitRadius(n.r, view.k);
+            var dx = screenXIn(view, n) - px, dy = screenYIn(view, n) - py;
+            var d = dx * dx + dy * dy;
+            if (d <= r * r && d < bestD) { best = n; bestD = d; }
+        }
+        return best;
+    }
+
+    /** The link nearest a screen point within LINK_HIT (squared px), or null. */
+    function linkAt(links, view, px, py) {
+        var best = null, bestD = LINK_HIT;
+        for (var i = 0; i < links.length; i++) {
+            var l = links[i];
+            var d = distToSegment(px, py, screenXIn(view, l.source), screenYIn(view, l.source),
+                screenXIn(view, l.target), screenYIn(view, l.target));
+            if (d < bestD) { bestD = d; best = l; }
+        }
+        return best;
+    }
+
+    /** Squared distance point→segment — the arc's chord is close enough here. */
+    function distToSegment(px, py, x1, y1, x2, y2) {
+        var dx = x2 - x1, dy = y2 - y1;
+        var len = dx * dx + dy * dy;
+        var t = clamp(len ? ((px - x1) * dx + (py - y1) * dy) / len : 0, 0, 1);
+        var ex = x1 + t * dx - px, ey = y1 + t * dy - py;
+        return ex * ex + ey * ey;
+    }
+
+    ns.graphGeometry = {
+        HIT_SLOP: HIT_SLOP,
+        MIN_HIT_RADIUS: MIN_HIT_RADIUS,
+        LINK_HIT: LINK_HIT,
+        screenX: screenXIn,
+        screenY: screenYIn,
+        hitRadius: hitRadius,
+        nodeAt: nodeAt,
+        linkAt: linkAt,
+        distToSegment: distToSegment
+    };
+
+    /* ------------------------------------------------------------------ */
+    /*  Canvas                                                             */
+    /* ------------------------------------------------------------------ */
 
     function create(host, canvas) {
         var ctx = canvas.getContext('2d');
@@ -45,8 +116,8 @@
         function toWorld(sx, sy) {
             return { x: (sx - view.x) / view.k, y: (sy - view.y) / view.k };
         }
-        function screenX(n) { return n.x * view.k + view.x; }
-        function screenY(n) { return n.y * view.k + view.y; }
+        function screenX(n) { return screenXIn(view, n); }
+        function screenY(n) { return screenYIn(view, n); }
 
         function zoomAt(sx, sy, factor) {
             var k = clamp(view.k * factor, MIN_ZOOM, MAX_ZOOM);
@@ -126,40 +197,6 @@
             canvas.style.width = W + 'px';
             canvas.style.height = H + 'px';
             return true;
-        }
-
-        /* ---- Hit testing ----------------------------------------------- */
-
-        function nodeAt(nodes, px, py) {
-            var best = null, bestD = Infinity;
-            for (var i = nodes.length - 1; i >= 0; i--) {
-                var n = nodes[i];
-                var r = Math.max(6, n.r * view.k) + HIT_SLOP;
-                var dx = screenX(n) - px, dy = screenY(n) - py;
-                var d = dx * dx + dy * dy;
-                if (d <= r * r && d < bestD) { best = n; bestD = d; }
-            }
-            return best;
-        }
-
-        function linkAt(links, px, py) {
-            var best = null, bestD = LINK_HIT;
-            for (var i = 0; i < links.length; i++) {
-                var l = links[i];
-                var d = distToSegment(px, py,
-                    screenX(l.source), screenY(l.source), screenX(l.target), screenY(l.target));
-                if (d < bestD) { bestD = d; best = l; }
-            }
-            return best;
-        }
-
-        /** Squared distance point→segment — the arc's chord is close enough here. */
-        function distToSegment(px, py, x1, y1, x2, y2) {
-            var dx = x2 - x1, dy = y2 - y1;
-            var len = dx * dx + dy * dy;
-            var t = clamp(len ? ((px - x1) * dx + (py - y1) * dy) / len : 0, 0, 1);
-            var ex = x1 + t * dx - px, ey = y1 + t * dy - py;
-            return ex * ex + ey * ey;
         }
 
         /* ---- Painting -------------------------------------------------- */
@@ -467,12 +504,12 @@
             toWorld: toWorld,
             screenX: screenX,
             screenY: screenY,
-            nodeAt: nodeAt,
-            linkAt: linkAt,
+            nodeAt: function (nodes, px, py) { return nodeAt(nodes, view, px, py); },
+            linkAt: function (links, px, py) { return linkAt(links, view, px, py); },
             paint: paint,
             exportPng: exportPng
         };
     }
 
-    ns.GraphCanvas = { create: create, MIN_ZOOM: MIN_ZOOM, MAX_ZOOM: MAX_ZOOM };
+    ns.GraphCanvas = { create: create };
 })();

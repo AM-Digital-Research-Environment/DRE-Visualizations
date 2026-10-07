@@ -343,7 +343,8 @@ DreVisualizations/
 │   │   ├── knowledge-graph-ui.js                 # Toolbar, filter panel, legend, text alternative
 │   │   ├── item-location-map.js                  # MapLibre origin / current-location panel
 │   │   ├── knowledge-graph.js                    # Controller wiring the five together
-│   │   ├── dashboard-core.js                     # THEME, COLORS, helpers (window.RV)
+│   │   ├── core/                                 # dashboard-core sources (theme, data, libs, maps, …)
+│   │   ├── dashboard-core.js                     # Generated from core/ by npm run build: THEME, COLORS, helpers (window.RV)
 │   │   ├── dashboard-layouts.js                  # Per-resource-type layout configs
 │   │   ├── dashboard-charts-timeline.js          # Timeline (bar by year)
 │   │   ├── dashboard-charts-pie.js               # Pie/donut chart

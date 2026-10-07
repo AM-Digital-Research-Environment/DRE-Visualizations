@@ -1,12 +1,15 @@
 /**
- * Knowledge-graph chrome — the filter panel, the legend, the toolbar and the text
- * alternative. Everything a reader touches that is NOT the canvas.
+ * Knowledge-graph chrome — the filter panel, the toolbar, the text alternative,
+ * the tooltip and the detail card's contents. Everything a reader touches that is
+ * NOT the canvas and is specific to the knowledge graph; the legend, the detail
+ * card itself and the hint are the shared graphChrome pieces (graph-chrome.js).
  *
  * Split out from the graph itself so the renderer (graph-force.js) stays a
  * renderer: this file only ever talks to a ForceGraph controller through its
  * public methods (toggleLabels, toggleHalos, setGraph, …), never to its internals.
  *
- * Depends on: dashboard-core.js (ns.el, ns.iconButton, ns.iconSvg, ns.t).
+ * Depends on: dashboard-core.js (ns.el, ns.iconButton, ns.iconSvg, ns.t) and
+ * graph-chrome.js (ns.graphChrome), both loaded before it.
  */
 (function () {
     'use strict';
@@ -175,48 +178,6 @@
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Legend                                                             */
-    /* ------------------------------------------------------------------ */
-
-    /**
-     * Clickable category swatches, BELOW the stage rather than over it — the same
-     * rule the module's map legends follow, so a legend never covers the data.
-     * Toggling a chip hides that entity type.
-     */
-    function buildLegend(graph, categories, colorOf) {
-        var wrap = el('div', 'rv-kg-legend');
-        var used = graph.categoriesInUse();
-        var chips = [];
-
-        categories.forEach(function (cat, i) {
-            if (!used[i]) return;
-            var chip = document.createElement('button');
-            chip.type = 'button';
-            chip.className = 'rv-kg-legend-chip';
-            chip.setAttribute('aria-pressed', 'true');
-            var swatch = el('span', 'rv-kg-legend-swatch');
-            swatch.style.background = colorOf(i);
-            chip.appendChild(swatch);
-            chip.appendChild(el('span', null, cat.name));
-            chip.addEventListener('click', function () {
-                var on = chip.getAttribute('aria-pressed') !== 'true';
-                chip.setAttribute('aria-pressed', String(on));
-                chip.classList.toggle('rv-kg-legend-off', !on);
-                graph.toggleCategory(i, on);
-            });
-            chips.push({ swatch: swatch, i: i });
-            wrap.appendChild(chip);
-        });
-
-        return {
-            el: wrap,
-            recolour: function () {
-                chips.forEach(function (c) { c.swatch.style.background = colorOf(c.i); });
-            }
-        };
-    }
-
-    /* ------------------------------------------------------------------ */
     /*  Text alternative                                                   */
     /* ------------------------------------------------------------------ */
 
@@ -274,92 +235,46 @@
     /* ------------------------------------------------------------------ */
 
     /**
-     * The panel that appears when a reader selects an entity.
+     * What the graph knows about a node beyond its name and type, one line each:
+     * the connections in view, how common it is, what it shares with the item,
+     * and whether it is pinned. The tooltip and the detail card list the same.
+     */
+    function metaLines(node) {
+        var d = node.data || {};
+        var lines = [];
+        if (node.deg) lines.push(ns.plural(node.deg, 'kgConnection', 'connection shown', 'connections shown', true));
+        if (d.freqPct !== undefined && d.freqPct !== null) {
+            lines.push(t('kgSharedBy', 'Also on') + ' ' + d.freqPct + '% ' + t('kgOfItems', 'of all records'));
+        }
+        if (d.strength !== undefined) {
+            lines.push(ns.plural(d.sharedCount, 'kgShared', 'thing in common', 'things in common', true));
+        }
+        if (node.pinned) lines.push(t('kgPinnedHint', 'Held in place. Alt-click to let it go'));
+        return lines;
+    }
+
+    /**
+     * The panel that appears when a reader selects an entity — the shared
+     * graphChrome card (graph-chrome.js), filled with the knowledge graph's own
+     * type, meta lines and record link.
      *
      * This is what lets a click *select* instead of navigate. Clicking a node used
      * to jump straight to its Omeka page, which fought exploration — the obvious
      * gesture for "tell me more" threw away the graph — and on touch, with no hover,
      * there was no way to read a node without leaving. Now the click anchors the
-     * neighbourhood and the jump lives here as a real `<a>`: keyboard-reachable,
-     * long-pressable, openable in a new tab.
-     *
-     * Mounted inside the stage so it travels into fullscreen with the graph.
+     * neighbourhood and the jump lives in the card as a real `<a>`.
      */
     function buildDetailCard(graph, categories, colorOf) {
-        var card = el('div', 'rv-kg-card');
-        card.hidden = true;
-
-        var close = ns.iconButton('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
-            t('close', 'Close'), t('close', 'Close'));
-        close.classList.add('rv-kg-card-close');
-        close.addEventListener('click', function () { graph.select(null); });
-
-        var title = el('h4', 'rv-kg-card-title');
-        var type = el('p', 'rv-kg-card-type');
-        var meta = el('ul', 'rv-kg-card-meta');
-        var link = el('a', 'rv-kg-card-link');
-        var rels = el('p', 'rv-kg-card-rels');
-
-        card.appendChild(close);
-        card.appendChild(title);
-        card.appendChild(type);
-        card.appendChild(meta);
-        card.appendChild(rels);
-        card.appendChild(link);
-
-        /** Render (or hide, on null) — called by graph.onSelect. */
-        function show(node) {
-            if (!node) {
-                card.hidden = true;
-                return;
-            }
-            var d = node.data || {};
-            title.textContent = node.name;
-
-            var cat = categories[node.category];
-            type.textContent = cat ? cat.name : '';
-            type.style.color = colorOf(node.category);
-
-            ns.setChildren(meta);
-            function addMeta(text) {
-                if (text) meta.appendChild(el('li', null, text));
-            }
-            addMeta(node.deg
-                ? ns.plural(node.deg, 'kgConnection', 'connection shown', 'connections shown', true)
-                : null);
-            if (d.freqPct !== undefined && d.freqPct !== null) {
-                addMeta(t('kgSharedBy', 'Also on') + ' ' + d.freqPct + '% ' + t('kgOfItems', 'of all records'));
-            }
-            if (d.strength !== undefined) {
-                addMeta(ns.plural(d.sharedCount, 'kgShared', 'thing in common', 'things in common', true));
-            }
-            if (node.pinned) addMeta(t('kgPinnedHint', 'Held in place. Alt-click to let it go'));
-
-            // Name the relationships this entity actually participates in, so the
-            // reader gets the *kind* of connection without chasing each edge label.
-            var adj = graph.adjacency()[node.id] || {};
-            var seen = {}, names = [];
-            Object.keys(adj).forEach(function (other) {
-                var name = adj[other] && adj[other].name;
-                if (name && !seen[name]) { seen[name] = true; names.push(name); }
-            });
-            rels.textContent = names.length
-                ? t('kgVia', 'Connected through') + ': ' + names.slice(0, 6).join(', ')
-                    + (names.length > 6 ? '…' : '')
-                : '';
-
-            if (node.url) {
-                link.href = node.url;
-                link.textContent = t('kgOpenRecord', 'Open this record') + ' →';
-                link.hidden = false;
-            } else {
-                link.hidden = true;
-                link.removeAttribute('href');
-            }
-            card.hidden = false;
-        }
-
-        return { el: card, show: show };
+        return ns.graphChrome.buildDetailCard(graph, {
+            typeLabel: function (node) {
+                var cat = categories[node.category];
+                return cat ? cat.name : '';
+            },
+            typeColor: function (node) { return colorOf(node.category); },
+            metaRows: metaLines,
+            url: function (node) { return node.url; },
+            openLabel: t('kgOpenRecord', 'Open this record')
+        });
     }
 
     /* ------------------------------------------------------------------ */
@@ -374,7 +289,6 @@
         return function (node, link, opts) {
             var rows = [];
             if (node) {
-                var d = node.data || {};
                 rows.push(el('strong', null, node.name));
                 var cat = categories[node.category];
                 if (cat) {
@@ -382,21 +296,9 @@
                     cs.style.color = colorOf(node.category);
                     rows.push(cs);
                 }
-                if (node.deg) {
-                    rows.push(el('span', 'rv-kg-tip-meta',
-                        ns.plural(node.deg, 'kgConnection', 'connection shown', 'connections shown', true)));
-                }
-                if (d.freqPct !== undefined && d.freqPct !== null) {
-                    rows.push(el('span', 'rv-kg-tip-meta',
-                        t('kgSharedBy', 'Also on') + ' ' + d.freqPct + '% ' + t('kgOfItems', 'of all records')));
-                }
-                if (d.strength !== undefined) {
-                    rows.push(el('span', 'rv-kg-tip-meta',
-                        ns.plural(d.sharedCount, 'kgShared', 'thing in common', 'things in common', true)));
-                }
-                if (node.pinned) {
-                    rows.push(el('span', 'rv-kg-tip-meta', t('kgPinnedHint', 'Held in place. Alt-click to let it go')));
-                }
+                metaLines(node).forEach(function (line) {
+                    rows.push(el('span', 'rv-kg-tip-meta', line));
+                });
                 // A click no longer navigates, so say what it actually does. The
                 // link to the record lives in the detail card the click opens.
                 rows.push(el('span', 'rv-kg-tip-meta', t('kgClickToFocus', 'Click for details')));
@@ -548,16 +450,12 @@
         });
     }
 
-    /** The gesture hint that sits under the graph. */
+    /** The gesture hint that sits under the graph (graphChrome's, with the graph's own words). */
     function buildHint() {
-        return el('p', 'rv-kg-hint', t('kgHint', 'Click an entity to see what it is connected to; the panel that opens links to its record. Drag an entity to move it, and it stays where you put it (Alt-click to let it go). Double-click the background, or hold Ctrl and scroll, to zoom.'));
+        return ns.graphChrome.buildHint(t('kgHint', 'Click an entity to see what it is connected to; the panel that opens links to its record. Drag an entity to move it, and it stays where you put it (Alt-click to let it go). Double-click the background, or hold Ctrl and scroll, to zoom.'));
     }
 
     ns.kgUI = {
-        ICON: ICON,
-        makeSlider: makeSlider,
-        buildFilterPanel: buildFilterPanel,
-        buildLegend: buildLegend,
         buildListPanel: buildListPanel,
         buildDetailCard: buildDetailCard,
         buildHint: buildHint,

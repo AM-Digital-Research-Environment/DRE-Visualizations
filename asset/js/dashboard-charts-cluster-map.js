@@ -113,13 +113,9 @@
             }
 
             function fitToVisible() {
-                var pts = points.filter(function (p) { return visible[p.category]; });
-                if (!pts.length) return;
-                var bounds = new maplibregl.LngLatBounds();
-                pts.forEach(function (p) { bounds.extend([p.longitude, p.latitude]); });
-                if (!bounds.isEmpty()) {
-                    map.fitBounds(bounds, { padding: 48, maxZoom: 4, duration: 0 });
-                }
+                ns.fitToPoints(map, points.filter(function (p) { return visible[p.category]; }),
+                    { padding: 48, maxZoom: 4, duration: 0 },
+                    function (p) { return [p.longitude, p.latitude]; });
             }
 
             // Markers are HTML overlays, so — unlike GeoJSON sources/layers — they

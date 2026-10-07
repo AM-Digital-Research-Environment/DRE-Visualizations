@@ -4,8 +4,20 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const source = readFileSync(new URL('../../asset/js/dashboard.js', import.meta.url), 'utf8');
-const core = readFileSync(new URL('../../asset/js/dashboard-core.js', import.meta.url), 'utf8');
+// The data loader's own source file, whole: the served dashboard-core.js is
+// generated from asset/js/core/*.js, and this one needs nothing from the others.
+const dataSource = readFileSync(new URL('../../asset/js/core/data.js', import.meta.url), 'utf8');
 const flush = () => new Promise(resolve => setImmediate(resolve));
+
+// The real shared helpers the orchestrator reads from dashboard-core (escaping,
+// lazy mounting), from their source file. With no IntersectionObserver in the
+// sandbox, ns.mountWhenVisible renders at once.
+const base = (() => {
+    const window = { RV: {} };
+    vm.runInNewContext(readFileSync(new URL('../../asset/js/core/base.js', import.meta.url), 'utf8'),
+        { window, document: { documentElement: { lang: 'en' } }, navigator: {} }, { filename: 'asset/js/core/base.js' });
+    return window.RV;
+})();
 
 function element() {
     return {
@@ -40,6 +52,8 @@ async function dashboard({ data, libraryError, builderError } = {}) {
             totalItems: 2, resourceType: 'generic', stats: [1], curated: [1], second: [2], generic: [3],
         }),
         renderStatCards: () => 'DUPLICATE_STATS',
+        escapeHtml: base.escapeHtml,
+        mountWhenVisible: base.mountWhenVisible,
         buildChart: build => build(),
         attachToolbar() {},
         CHART_MAP: Object.fromEntries(['curated', 'second'].map(key => [key, () => {
@@ -98,14 +112,14 @@ test('one failing chart does not erase other charts or announce full success', a
 
 function dataLoader(respond) {
     const calls = [];
-    const ns = { moduleAsset: path => '/' + path, dataBase: () => '/s/test/dre-data/' };
-    // Execute the production data-loader section, with HTTP as its only stub.
-    const section = core.slice(core.indexOf('    ns.dataAsset ='), core.indexOf('    /* ------------------------------------------------------------------ */', core.indexOf('    ns.fetchDataJson =')));
-    vm.runInNewContext(section, { ns, fetch: async url => {
+    // Execute the production data loader, with HTTP as its only stub; the
+    // snapshot endpoint comes from RV_DATA_BASE exactly as the page sets it.
+    const window = { RV: {}, RV_DATA_BASE: '/s/test/dre-data/' };
+    vm.runInNewContext(dataSource, { window, fetch: async url => {
         calls.push(url);
         return respond(url);
-    } });
-    return { ns, calls };
+    } }, { filename: 'asset/js/core/data.js' });
+    return { ns: window.RV, calls };
 }
 const response = (status, body) => ({ ok: status === 200, status, json: async () => body, text: async () => JSON.stringify(body) });
 const oldId = '20260901T000000Z-aaaaaaaaaaaa';

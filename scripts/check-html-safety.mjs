@@ -9,6 +9,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import vm from 'node:vm';
+import { isGeneratedJs } from './lib/frontend-sources.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const JS_DIR = join(ROOT, 'asset/js');
@@ -26,7 +27,11 @@ function collect(dir, files = []) {
   for (const name of readdirSync(dir)) {
     const path = join(dir, name);
     if (statSync(path).isDirectory()) collect(path, files);
-    else if (name.endsWith('.js') && !name.endsWith('.bundle.js')) files.push(path);
+    // Sources only: a generated bundle (dashboard-core.js, the chart bundle)
+    // repeats them and would count every sink twice.
+    else if (name.endsWith('.js') && !isGeneratedJs(relative(join(ROOT, 'asset'), path).split(sep).join('/'))) {
+      files.push(path);
+    }
   }
   return files;
 }
@@ -72,7 +77,8 @@ const requiredFixes = [
   // when the graph switched to the d3-force canvas renderer; the guard follows it.
   ['asset/js/item-location-map.js', "ns.escapeHtml(loc.name || '')"],
   ['asset/js/item-location-map.js', 'ns.escapeHtml(ns.itemUrl(siteBase, loc.itemId))'],
-  ['asset/js/dashboard-core.js', "ns.escapeHtml(src) + '\" title=\"' + ns.escapeHtml(title || '')"],
+  // dashboard-core.js is generated from asset/js/core/; the embed snippet lives in embed.js.
+  ['asset/js/core/embed.js', "ns.escapeHtml(src) + '\" title=\"' + ns.escapeHtml(title || '')"],
   ['asset/js/dashboard-charts-treemap.js', 'echarts.format.encodeHTML(n.name'],
 ];
 for (const [file, fragment] of requiredFixes) {

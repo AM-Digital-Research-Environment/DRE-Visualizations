@@ -11,14 +11,17 @@
  *
  * Self-contained controller (it does NOT use the ECharts window.RV.charts
  * registry — MapLibre is a separate renderer): it fetches the data, builds the
- * UI, and owns all interaction. It reuses dashboard-core.js only for the shared
- * theme tokens (ns.THEME / ns.COLORS / ns.HALO, resolved to concrete RGB), which
- * it re-reads on every light/dark toggle to recolour the layers in place.
+ * UI, and owns all interaction. From dashboard-core.js it takes the shared theme
+ * tokens (ns.THEME / ns.COLORS / ns.HALO, resolved to concrete RGB), which it
+ * re-reads on every light/dark toggle to recolour the layers in place, and the
+ * shared helpers below.
  *
- * Depends on (loaded first, deferred):
- *   - asset/js/dashboard-core.js → window.RV (theme tokens, basePath helpers, and
- *     ns.ensureLibs — the shared lazy loader that pulls in MapLibre GL on mount,
- *     so a page with both a dashboard and this graph loads MapLibre exactly once)
+ * Depends on (loaded first, deferred — the module never renders this block
+ * without them, so there are no local fallbacks):
+ *   - asset/js/dashboard-core.js → window.RV (theme tokens, ns.el / ns.fold /
+ *     ns.t, ns.moveHover, ns.mountWhenVisible, and ns.ensureLibs — the shared
+ *     lazy loader that pulls in MapLibre GL on mount, so a page with both a
+ *     dashboard and this graph loads MapLibre exactly once)
  *   - asset/js/entity-graph-ui.js → ns.egUI (the keyboard walker and its live
  *     region, the text alternative, the cluster filter, export + fullscreen)
  *
@@ -35,22 +38,11 @@
 (function () {
     'use strict';
 
-    var ns = window.RV || (window.RV = {});
-    var el = ns.el || function (tag, cls, text) {
-        var node = document.createElement(tag);
-        if (cls) node.className = cls;
-        if (text != null) node.textContent = text;
-        return node;
-    };
-    var escapeHtml = ns.escapeHtml || function (value) {
-        return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
-            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
-        });
-    };
-
-    function t(key, fallback) { return typeof ns.t === 'function' ? ns.t(key, fallback) : fallback; }
-
-    var LABEL_FONT = ns.MAP_LABEL_FONT || ['Noto Sans Regular'];
+    var ns = window.RV;
+    if (!ns) { console.warn('DreVisualizations: dashboard-core.js must load before entity-graph.js'); return; }
+    var el = ns.el;
+    var escapeHtml = ns.escapeHtml;
+    function t(key, fallback) { return ns.t(key, fallback); }
 
     var SRC_NODES = 'eg-nodes';
     var SRC_EDGES = 'eg-edges';
@@ -61,51 +53,22 @@
     var MIN_RADIUS = 3;
     var MAX_RADIUS = 18;
 
-    /** Lower-case + strip diacritics, so "Laïcité" matches a "laicite" query. */
-    function fold(s) {
-        s = (s == null ? '' : String(s)).toLowerCase();
-        return s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s;
-    }
-
     /* ------------------------------------------------------------------ */
     /*  Theme bridge (dashboard-core.js) — concrete RGB, mutated in place  */
     /* ------------------------------------------------------------------ */
 
-    // Only reached if dashboard-core hasn't resolved, so it never paints in
-    // practice — which is precisely how it came to hold a teal accent, cold
-    // greys and, below, four stock Material hues. The guard path is still part
-    // of the design system: these are the DRE theme's own light values, from
-    // its generated dre-tokens-fallback.json.
-    var THEME_FALLBACK = {
-        text: '#3c342d', textMuted: '#5f5650', accent: '#007a50', surface: '#fdfcf9',
-        grid: '#dbd7d1', gridLight: '#eae8e3',
-        fontFamily: '"Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif'
-    };
-    function theme() { return ns.THEME || THEME_FALLBACK; }
-    function isDark() { return typeof ns.isDark === 'function' ? ns.isDark() : false; }
+    // ns.THEME / ns.COLORS / ns.HALO are re-read in place on every light/dark
+    // toggle, so they are always looked up at paint time, never captured.
 
-    function colors() {
-        // The cluster brand palette (_PALETTE_LIGHT in dashboard-core), not the
-        // stock Material purple/pink/blue/brown this used to fall back to.
-        return (ns.COLORS && ns.COLORS.length) ? ns.COLORS
-            : ['#009260', '#f59c08', '#44b8f2', '#d57912', '#00268a', '#cca352', '#0e7c71'];
-    }
-    function halo() {
-        return (ns.HALO && ns.HALO.length) ? ns.HALO : colors();
-    }
     // Resolved through the type NAME via the shared registry, so Person here is the
     // same hue as Person on an item's knowledge graph and on a contributor network.
     // Indexing the palette by the position in `types` used to make Organisation the
     // project colour. `_types` is set by build() once the payload is decoded.
     var _types = [];
     function typeColor(typeIdx) {
-        if (typeof ns.entityColor === 'function') {
-            return ns.entityColor(_types[typeIdx] || '');
-        }
-        var pal = colors();
-        return pal[typeIdx % pal.length];
+        return ns.entityColor(_types[typeIdx] || '');
     }
-    function dimColor() { return isDark() ? 'rgba(120,130,140,0.30)' : 'rgba(150,160,170,0.30)'; }
+    function dimColor() { return ns.isDark() ? 'rgba(120,130,140,0.30)' : 'rgba(150,160,170,0.30)'; }
 
     /* ------------------------------------------------------------------ */
     /*  Decode the compact payload                                         */
@@ -277,14 +240,13 @@
         /* ------------------------------------------------------------------ */
 
         function sectionColor(i) {
-            var pal = colors();
-            return pal[i % pal.length];
+            return ns.COLORS[i % ns.COLORS.length];
         }
 
         function nodeColorExpr() {
             var expr, pal, i;
             if (colorMode === 'community') {
-                pal = halo();
+                pal = ns.HALO;
                 expr = ['match', ['get', 'comm']];
                 for (i = 0; i < commIds.length; i++) {
                     expr.push(commIds[i], pal[commIds[i] % pal.length]);
@@ -309,7 +271,7 @@
             for (i = 0; i < types.length; i++) {
                 expr.push(i, typeColor(i));
             }
-            expr.push(theme().textMuted);
+            expr.push(ns.THEME.textMuted);
             return expr;
         }
 
@@ -329,8 +291,8 @@
         }
         function strokeColorExpr() {
             return ['case',
-                ['boolean', ['feature-state', 'focus'], false], theme().accent,
-                theme().surface];
+                ['boolean', ['feature-state', 'focus'], false], ns.THEME.accent,
+                ns.THEME.surface];
         }
 
         /* ------------------------------------------------------------------ */
@@ -440,7 +402,7 @@
                 : ['case', ['boolean', ['feature-state', 'sel'], false], 1, 0.16]);
         }
         function edgeColorExpr() {
-            return ['case', ['boolean', ['feature-state', 'hl'], false], theme().accent, theme().grid];
+            return ['case', ['boolean', ['feature-state', 'hl'], false], ns.THEME.accent, ns.THEME.grid];
         }
 
         /**
@@ -544,7 +506,7 @@
                 id: L_LABELS, type: 'symbol', source: SRC_NODES,
                 layout: {
                     'text-field': ['get', 'label'],
-                    'text-font': LABEL_FONT,
+                    'text-font': ns.MAP_LABEL_FONT,
                     'text-size': 12,
                     'text-variable-anchor': ['top', 'bottom', 'right', 'left'],
                     'text-radial-offset': ['+', 0.4, ['/', ['get', 'r'], 14]],
@@ -552,8 +514,8 @@
                     'symbol-sort-key': ['get', 'rank']
                 },
                 paint: {
-                    'text-color': theme().text,
-                    'text-halo-color': theme().surface,
+                    'text-color': ns.THEME.text,
+                    'text-halo-color': ns.THEME.surface,
                     'text-halo-width': 1.3
                 }
             });
@@ -585,12 +547,7 @@
             var f = e.features && e.features[0];
             if (!f) return;
             map.getCanvas().style.cursor = 'pointer';
-            var newId = f.id;
-            if (hoverId !== null && hoverId !== newId) {
-                map.setFeatureState({ source: SRC_NODES, id: hoverId }, { hover: false });
-            }
-            hoverId = newId;
-            map.setFeatureState({ source: SRC_NODES, id: hoverId }, { hover: true });
+            hoverId = ns.moveHover(map, SRC_NODES, hoverId, f.id);
             var node = data.nodes[Number(f.properties.i)];
             if (!node) return;
             if (!hoverPopup) {
@@ -602,10 +559,7 @@
         }
         function hideHover() {
             map.getCanvas().style.cursor = '';
-            if (hoverId !== null) {
-                map.setFeatureState({ source: SRC_NODES, id: hoverId }, { hover: false });
-                hoverId = null;
-            }
+            hoverId = ns.moveHover(map, SRC_NODES, hoverId, null);
             if (hoverPopup) hoverPopup.remove();
         }
 
@@ -620,7 +574,7 @@
                 version: 8,
                 glyphs: ns.mapGlyphs(),
                 sources: {},
-                layers: [{ id: 'bg', type: 'background', paint: { 'background-color': theme().surface } }]
+                layers: [{ id: 'bg', type: 'background', paint: { 'background-color': ns.THEME.surface } }]
             };
         }
 
@@ -800,14 +754,14 @@
         });
 
         search.addEventListener('input', function () {
-            var q = fold(search.value.trim());
+            var q = ns.fold(search.value.trim());
             ns.setChildren(results);
             if (q.length < 2) { closeResults(); searchKeys.sync(); return; }
             var hits = [];
             for (var i = 0; i < data.nodes.length && hits.length < 8; i++) {
                 // Only what the reader could actually navigate to: a hit filtered
                 // out by a type chip or an isolated cluster is a dead end.
-                if (visibleNode(i) && fold(data.nodes[i].label).indexOf(q) !== -1) hits.push(i);
+                if (visibleNode(i) && ns.fold(data.nodes[i].label).indexOf(q) !== -1) hits.push(i);
             }
             if (!hits.length) { closeResults(); searchKeys.sync(); return; }
             hits.forEach(function (idx) {
@@ -1092,17 +1046,17 @@
         /* ------------------------------------------------------------------ */
 
         function applyTheme() {
-            if (typeof ns.readTheme === 'function') ns.readTheme();
+            ns.readTheme();
             if (map && map.getLayer(L_NODES)) {
-                map.setPaintProperty('bg', 'background-color', theme().surface);
+                map.setPaintProperty('bg', 'background-color', ns.THEME.surface);
                 map.setPaintProperty(L_NODES, 'circle-color', nodeColorExpr());
                 // The expression, not a flat colour: it also carries the accent the
                 // keyboard focus ring is drawn in, which a flat value would erase.
                 map.setPaintProperty(L_NODES, 'circle-stroke-color', strokeColorExpr());
                 map.setPaintProperty(L_EDGES, 'line-color', edgeColorExpr());
                 if (map.getLayer(L_LABELS)) {
-                    map.setPaintProperty(L_LABELS, 'text-color', theme().text);
-                    map.setPaintProperty(L_LABELS, 'text-halo-color', theme().surface);
+                    map.setPaintProperty(L_LABELS, 'text-color', ns.THEME.text);
+                    map.setPaintProperty(L_LABELS, 'text-halo-color', ns.THEME.surface);
                 }
             }
             Array.prototype.forEach.call(chips.querySelectorAll('.deg-chip'), function (chip) {
@@ -1217,10 +1171,9 @@
         // Load MapLibre on demand through the shared loader (dashboard-core.js) —
         // the same path the dashboards use — so a page with both a dashboard and
         // this graph loads MapLibre exactly once. Fetch the data in parallel.
-        var libs = (typeof ns.ensureLibs === 'function') ? ns.ensureLibs({ maplibre: true }) : Promise.resolve();
         Promise.all([
             ns.fetchDataJson('communities/entity-graph.json'),
-            libs
+            ns.ensureLibs({ maplibre: true })
         ]).then(function (res) {
             var data = decode(res[0]);
             if (!data.nodes.length) {
@@ -1238,21 +1191,12 @@
         });
     }
 
-    /** Defer the (heavier) fetch + render until the block nears the viewport. */
-    function mountWhenVisible(container) {
-        var run = function () { initContainer(container); };
-        if (!('IntersectionObserver' in window)) { run(); return; }
-        var io = new IntersectionObserver(function (entries) {
-            for (var i = 0; i < entries.length; i++) {
-                if (entries[i].isIntersecting) { io.disconnect(); run(); break; }
-            }
-        }, { rootMargin: '600px 0px' });
-        io.observe(container);
-    }
-
+    // Defer the (heavier) fetch + render until the block nears the viewport.
     function init() {
         var cs = document.querySelectorAll('.dre-entity-graph');
-        for (var i = 0; i < cs.length; i++) mountWhenVisible(cs[i]);
+        for (var i = 0; i < cs.length; i++) {
+            ns.mountWhenVisible(cs[i], initContainer.bind(null, cs[i]));
+        }
     }
 
     if (document.readyState === 'loading') {

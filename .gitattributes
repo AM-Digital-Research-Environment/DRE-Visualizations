@@ -54,5 +54,7 @@ asset/fonts/**/*.pbf -text -diff linguist-vendored
 /asset/js/dashboard-collab-network.js export-ignore
 /asset/js/dashboard-stat-cards.js export-ignore
 /asset/js/dashboard-registry.js export-ignore
+# dashboard-core.js is generated from these (npm run build) and ships instead.
+/asset/js/core/** export-ignore
 
 /package-lock.json export-ignore

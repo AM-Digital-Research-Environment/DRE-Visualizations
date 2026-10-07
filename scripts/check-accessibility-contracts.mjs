@@ -8,6 +8,7 @@
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { CORE_SOURCES } from './lib/frontend-sources.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const failures = [];
@@ -25,7 +26,9 @@ function rejectFragment(source, fragment, message) {
 }
 
 const dashboard = read('asset/js/dashboard.js');
-const core = read('asset/js/dashboard-core.js');
+// The core's sources (the served dashboard-core.js is generated from them): the
+// chart toolbar lives in toolbar.js, the per-chart embed button in embed.js.
+const core = CORE_SOURCES.map((path) => read('asset/' + path)).join('\n');
 const template = read('view/common/block-layout/partials/dashboard-async.phtml');
 const css = read('asset/css/dre-visualizations.css');
 

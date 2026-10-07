@@ -3,10 +3,10 @@
  * a clickable category legend, the detail card a selection opens, an edge-colour
  * key, and the gesture hint.
  *
- * Split out from knowledge-graph-ui.js so a second consumer does not have to pull
- * in the knowledge graph's own chrome (its slider filter panel, its relationship
- * list, its floating toolbar) to reuse the four pieces that are not
- * knowledge-graph-specific. Like graph-canvas.js and graph-force.js, this file
+ * The one implementation for every d3-force graph: the item-page knowledge graph
+ * (through knowledge-graph-ui.js, which keeps only its own filter panel,
+ * relationship list and floating toolbar) and the dashboards' co-occurrence
+ * networks. Like graph-canvas.js and graph-force.js, this file
  * knows nothing about Omeka: every label and row comes from a hook the caller
  * supplies, so it can serve a co-occurrence network as easily as a knowledge graph.
  *

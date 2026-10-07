@@ -47,7 +47,6 @@
         peerReviewed: '<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76"/><path d="m9 12 2 2 4-4"/>',
         fullText: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m9 15 2 2 4-4"/>'
     };
-    ns.STAT_ICONS = ICONS;
 
     // Synonyms → a canonical key, so callers can use natural names on any
     // dashboard without duplicating SVG (e.g. a per-entity dashboard's
@@ -66,7 +65,6 @@
         series: 'playlists',
         places: 'locations'
     };
-    ns.STAT_ICON_ALIAS = ALIAS;
 
     // Generic fallback (lucide chart-column) for any unmapped key.
     var DEFAULT_ICON = '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>';

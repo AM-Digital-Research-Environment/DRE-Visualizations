@@ -49,28 +49,16 @@
     /*  Lazy MapLibre loader (shared across every gallery on the page)     */
     /* ------------------------------------------------------------------ */
 
-    // This block renders without dashboard-core.js, so it cannot borrow
-    // ns.ensureLibs and keeps its own loader. MapLibre 6 is ESM: a <script> tag
-    // would fetch the file, fail to parse `import` as a classic script and still
-    // fire load, leaving `maplibregl` undefined — so it has to be import()ed,
-    // and the namespace published under the name the map code below uses.
-    var _maplibrePromise = null;
+    // The block template loads dashboard-core.js but, unlike the blocks that go
+    // through the DashboardAssets helper, emits no window.RV_LIBS: it hands the
+    // vendored MapLibre URLs over on the container instead. Merge them in BELOW
+    // any RV_LIBS another block on the page already set, then load through the
+    // shared ns.ensureLibs, so a page carrying this gallery and a map block
+    // imports MapLibre (an ES module, published as window.maplibregl) once.
     function loadMapLibre(cssUrl, jsUrl, workerUrl) {
-        if (window.maplibregl) return Promise.resolve();
-        if (_maplibrePromise) return _maplibrePromise;
-        if (cssUrl && !document.querySelector('link[href="' + cssUrl + '"]')) {
-            var link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = cssUrl;
-            document.head.appendChild(link);
-        }
-        _maplibrePromise = import(jsUrl).then(function (mod) {
-            window.maplibregl = mod;
-            // Named explicitly because the vendored file name (.js) differs from
-            // the .mjs one MapLibre derives from import.meta.url.
-            if (workerUrl && typeof mod.setWorkerUrl === 'function') mod.setWorkerUrl(workerUrl);
-        });
-        return _maplibrePromise;
+        window.RV_LIBS = Object.assign({ maplibre: jsUrl, maplibreWorker: workerUrl, maplibreCss: cssUrl },
+            window.RV_LIBS || {});
+        return ns.ensureLibs({ maplibre: true });
     }
 
     /* ------------------------------------------------------------------ */
@@ -116,7 +104,7 @@
             // Build on first use.
             if (!views[name].built) {
                 if (name === 'map') {
-                    buildMap(views[name], photos, lightbox, mlCss, mlJs, stage);
+                    buildMap(views[name], photos, lightbox, mlCss, mlJs, mlWorker, stage);
                 } else if (name === 'timeline') {
                     views[name].el = buildTimeline(photos, lightbox, grouping, toc);
                     views[name].built = true;
@@ -612,7 +600,7 @@
     /*  Map view (clustered MapLibre, lazy-loaded)                         */
     /* ------------------------------------------------------------------ */
 
-    function buildMap(slot, photos, lightbox, mlCss, mlJs, stage) {
+    function buildMap(slot, photos, lightbox, mlCss, mlJs, mlWorker, stage) {
         var view = document.createElement('div');
         view.className = 'photo-view photo-map-view';
         var mapEl = document.createElement('div');
@@ -711,11 +699,8 @@
                 });
 
                 try {
-                    var b = new maplibregl.LngLatBounds();
-                    geo.forEach(function (f) { b.extend(f.geometry.coordinates); });
-                    if (!b.isEmpty()) {
-                        map.fitBounds(b, { padding: 48, maxZoom: 12, duration: 0 });
-                    }
+                    ns.fitToPoints(map, geo, { padding: 48, maxZoom: 12, duration: 0 },
+                        function (f) { return f.geometry.coordinates; });
                 } catch (e) { /* noop */ }
             });
 

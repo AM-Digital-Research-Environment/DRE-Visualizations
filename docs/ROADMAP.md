@@ -69,9 +69,9 @@ Status: `[x]` done · `[~]` partly done / see note · `[ ]` open · `[-]` decide
 
 ## Phase 4 — Front-end structure
 
-- [ ] S1 Shared helpers replace duplicates: graph legend, keyboard walker, `mountWhenVisible`, local `fold`/`el`/escape fallbacks, choropleth colour maths, marker-map factory, photo-views MapLibre loader.
-- [ ] S2 `dashboard-core.js` split into focused sources concatenated into one core bundle.
-- [~] S3 Dead code and stale comments removed (`kgData.buildFromApi`, `ns.helpers`, sparkline `data-api-base`, outdated headers).
+- [x] S1 Shared helpers replace duplicates: graph legend, keyboard walker, `mountWhenVisible`, local `fold`/`el`/escape fallbacks, choropleth colour maths, marker-map factory, photo-views MapLibre loader. — plus ns.moveHover / ns.fitToPoints / ns.graphStep; the marker maps share fitToPoints rather than a factory (their markers and popups differ)
+- [x] S2 `dashboard-core.js` split into focused sources concatenated into one core bundle. — eleven sources in `asset/js/core/`, concatenated by the build into the same served `dashboard-core.js`
+- [x] S3 Dead code and stale comments removed (`kgData.buildFromApi`, `ns.helpers`, sparkline `data-api-base`, outdated headers).
 
 ## Phase 5 — ECharts 6
 
@@ -105,8 +105,8 @@ Status: `[x]` done · `[~]` partly done / see note · `[ ]` open · `[-]` decide
 - [x] T4 HTML-sink ceilings become an exact ratchet; detection covers `||` formatters, `insertAdjacentHTML`, `outerHTML`.
 - [x] T5 PHPStan in CI against Omeka S core, with a baseline.
 - [ ] T6 ESLint flat config with `no-unsanitized`.
-- [ ] T7 Graph hit-testing geometry extracted and unit-tested.
-- [ ] T8 JS unit test loads `dashboard-core.js` whole instead of slicing it.
+- [x] T7 Graph hit-testing geometry extracted and unit-tested. — `ns.graphGeometry` in graph-canvas.js, tests/js/graph-geometry.test.mjs; also tests for the shared keyboard step
+- [x] T8 JS unit test loads `dashboard-core.js` whole instead of slicing it.
 - [x] T9 Property tests: community partitions, aggregate totals, artifact path rejection, stat cards.
 - [x] T10 CI: reusable workflow gates releases; integration on PHP 8.5; Node pinned; Playwright traces on failure; bot PRs trigger CI; Dependabot.
 - [x] T11 Action and Python dependency pins brought current.

@@ -1560,25 +1560,14 @@
             }
 
             // --- Fit bounds ---
-            var bounds = new maplibregl.LngLatBounds();
-            if (features.length) {
-                features.forEach(function (f) { bounds.extend(f.geometry.coordinates); });
-            }
-            if (hasFlows) {
-                geoFlows.links.forEach(function (l) {
-                    bounds.extend([l.toLon, l.toLat]);
-                });
-            }
-            if (hasCurrent) {
-                currentData.forEach(function (loc) { bounds.extend([loc.lon, loc.lat]); });
-            }
-            if (!bounds.isEmpty()) {
-                if (features.length === 1 && !hasFlows && !hasCurrent) {
-                    map.setCenter(features[0].geometry.coordinates);
-                    map.setZoom(4);
-                } else {
-                    map.fitBounds(bounds, { padding: 40, maxZoom: 6 });
-                }
+            if (features.length === 1 && !hasFlows && !hasCurrent) {
+                map.setCenter(features[0].geometry.coordinates);
+                map.setZoom(4);
+            } else {
+                var pts = features.map(function (f) { return f.geometry.coordinates; })
+                    .concat(hasFlows ? geoFlows.links.map(function (l) { return [l.toLon, l.toLat]; }) : [])
+                    .concat(hasCurrent ? currentData.map(function (loc) { return [loc.lon, loc.lat]; }) : []);
+                ns.fitToPoints(map, pts, { padding: 40, maxZoom: 6 });
             }
 
             // --- Legend (rendered below the map; see ns.mountMapLegend) ---
@@ -1746,13 +1735,9 @@
             }
 
             function fitToVisible() {
-                var pts = points.filter(function (p) { return visible[p.category]; });
-                if (!pts.length) return;
-                var bounds = new maplibregl.LngLatBounds();
-                pts.forEach(function (p) { bounds.extend([p.longitude, p.latitude]); });
-                if (!bounds.isEmpty()) {
-                    map.fitBounds(bounds, { padding: 48, maxZoom: 4, duration: 0 });
-                }
+                ns.fitToPoints(map, points.filter(function (p) { return visible[p.category]; }),
+                    { padding: 48, maxZoom: 4, duration: 0 },
+                    function (p) { return [p.longitude, p.latitude]; });
             }
 
             // Markers are HTML overlays, so — unlike GeoJSON sources/layers — they
@@ -1844,9 +1829,7 @@
                 });
 
                 if (data.length > 1) {
-                    var bounds = new maplibregl.LngLatBounds();
-                    data.forEach(function (org) { bounds.extend([org.lon, org.lat]); });
-                    map.fitBounds(bounds, { padding: 50, maxZoom: 8 });
+                    ns.fitToPoints(map, data, { padding: 50, maxZoom: 8 });
                 } else {
                     map.setCenter([data[0].lon, data[0].lat]);
                     map.setZoom(5);
@@ -2310,27 +2293,15 @@
         return ns._countriesGeoJSON;
     }
 
-    /** Parse an 'rgb(r,g,b)' / 'rgba(...)' string to [r, g, b]. */
-    function parseRGB(str) {
-        var m = /(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/.exec(str || '');
-        return m ? [+m[1], +m[2], +m[3]] : [34, 129, 123];
-    }
-
-    function mix(a, b, t) {
-        return 'rgb(' + Math.round(a[0] + (b[0] - a[0]) * t) + ','
-            + Math.round(a[1] + (b[1] - a[1]) * t) + ','
-            + Math.round(a[2] + (b[2] - a[2]) * t) + ')';
-    }
-
-    /** Five sequential stops (light tint → accent) + a neutral no-data fill. */
+    /**
+     * Five sequential stops (light tint → accent) + a neutral no-data fill. The
+     * shared ns.accentRamp, a touch lighter at the low end than a visualMap's so
+     * the faintest countries still read against the basemap's land fill.
+     */
     function buildRamp() {
-        var isDark = ns.isDark();
-        var accent = parseRGB(THEME.accent);
-        var base = parseRGB(ns.cssColor('--surface', isDark ? '#0e1612' : '#fdfcf9'));
-        var ratios = [0.82, 0.62, 0.42, 0.22, 0]; // mix toward base; 0 = full accent
         return {
-            stops: ratios.map(function (r) { return mix(accent, base, r); }),
-            empty: ns.cssColor('--border-light', isDark ? '#1e2622' : '#eae8e3')
+            stops: ns.accentRamp([0.82, 0.62, 0.42, 0.22, 0]), // toward the surface; 0 = full accent
+            empty: ns.cssColor('--border-light', ns.isDark() ? '#1e2622' : '#eae8e3')
         };
     }
 
@@ -3138,7 +3109,6 @@
         peerReviewed: '<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76"/><path d="m9 12 2 2 4-4"/>',
         fullText: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m9 15 2 2 4-4"/>'
     };
-    ns.STAT_ICONS = ICONS;
 
     // Synonyms → a canonical key, so callers can use natural names on any
     // dashboard without duplicating SVG (e.g. a per-entity dashboard's
@@ -3157,7 +3127,6 @@
         series: 'playlists',
         places: 'locations'
     };
-    ns.STAT_ICON_ALIAS = ALIAS;
 
     // Generic fallback (lucide chart-column) for any unmapped key.
     var DEFAULT_ICON = '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>';

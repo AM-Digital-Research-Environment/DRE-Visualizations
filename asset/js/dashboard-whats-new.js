@@ -97,7 +97,7 @@
             ns.fetchDataJson('item-dashboards/whats-new.json'),
             // Wait for ECharts rather than leaving the spinner up if it is
             // still loading or failed to load.
-            ns.ensureLibs ? ns.ensureLibs({ echarts: true }) : Promise.resolve()
+            ns.ensureLibs({ echarts: true })
         ]).then(function (values) {
             var data = values[0];
             if (!data || !data.windows || !data.windows.length) {

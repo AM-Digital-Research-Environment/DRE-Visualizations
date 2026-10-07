@@ -51,9 +51,7 @@
                 });
 
                 if (data.length > 1) {
-                    var bounds = new maplibregl.LngLatBounds();
-                    data.forEach(function (org) { bounds.extend([org.lon, org.lat]); });
-                    map.fitBounds(bounds, { padding: 50, maxZoom: 8 });
+                    ns.fitToPoints(map, data, { padding: 50, maxZoom: 8 });
                 } else {
                     map.setCenter([data[0].lon, data[0].lat]);
                     map.setZoom(5);

@@ -93,7 +93,7 @@
                     if (tl && Object.keys(tl).length > 1) {
                         // Applicable: pull ECharts on demand, then render. Items
                         // without a matching multi-year project never load it.
-                        (ns.ensureLibs ? ns.ensureLibs({ echarts: true }) : Promise.resolve()).then(function () {
+                        ns.ensureLibs({ echarts: true }).then(function () {
                             render(container, block, tl, iYear, p.name, siteBase, p.id);
                         }).catch(function () {});
                     } else {

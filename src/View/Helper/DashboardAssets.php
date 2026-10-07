@@ -339,13 +339,12 @@ class DashboardAssets extends AbstractHelper
                 ]) . ', window.RV_LIBS||{});');
                 $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
             } else {
-                // Dedicated dashboard pages (compare / explorer / network /
-                // whatsNew): the dashboard IS the page content and sits in the
-                // viewport, so load the libraries eagerly (deferred) up front.
-                // Their controllers render straight from their own fetch without
-                // going through ns.ensureLibs, so d3 has to be here rather than
-                // handed over as a URL — the Network Explorer's co-authorship tab
-                // would otherwise find no simulation to build with.
+                // The Network Explorer and What's New blocks render as soon as
+                // their data arrives, so load the libraries eagerly (deferred) in
+                // parallel with the page. Their controllers still wait on
+                // ns.ensureLibs, which resolves at once for an eager library and
+                // shows an error instead of a spinner if one failed; d3 is here
+                // for the Network Explorer's co-authorship tab.
                 $headScript->appendFile($asset(self::ECHARTS_JS), 'text/javascript', $defer);
                 $headScript->appendFile($asset(self::WORDCLOUD_JS), 'text/javascript', $defer);
                 $headLink->appendStylesheet($asset(self::MAPLIBRE_CSS));

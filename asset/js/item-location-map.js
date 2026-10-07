@@ -62,9 +62,7 @@
 
                 // Fit bounds to all markers.
                 if (all.length > 1) {
-                    var bounds = new maplibregl.LngLatBounds();
-                    all.forEach(function (loc) { bounds.extend([loc.lon, loc.lat]); });
-                    map.fitBounds(bounds, { padding: 50, maxZoom: 8 });
+                    ns.fitToPoints(map, all, { padding: 50, maxZoom: 8 });
                 }
             });
 
@@ -103,10 +101,10 @@
         wrapper.appendChild(mapEl);
         host.appendChild(wrapper);
 
-        (ns.ensureLibs ? ns.ensureLibs({ maplibre: true }) : Promise.resolve())
+        ns.ensureLibs({ maplibre: true })
             .then(function () { render(mapEl, itemMap, siteBase); })
             .catch(function (err) { console.error('DreVisualizations:', err); });
     }
 
-    ns.itemLocationMap = { mount: mount, render: render };
+    ns.itemLocationMap = { mount: mount };
 })();

@@ -237,7 +237,7 @@
             ns.fetchDataJson('network-explorer.json'),
             // ECharts may still be loading (or have failed to): wait for it, so a
             // failure shows a message instead of a spinner that never ends.
-            ns.ensureLibs ? ns.ensureLibs({ echarts: true, d3: true }) : Promise.resolve()
+            ns.ensureLibs({ echarts: true, d3: true })
         ]).then(function (values) {
             var payload = values[0];
             if (!payload || typeof payload !== 'object') {

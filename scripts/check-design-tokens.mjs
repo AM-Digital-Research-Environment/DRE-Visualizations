@@ -52,6 +52,9 @@ const BASE_RULES = {
   hex: {
     allow: [
       'asset/js/dashboard-core.js',
+      // dashboard-core.js's sources: the palettes (theme.js) and the
+      // self-hosted basemap's guard-path fallbacks (maps.js).
+      'asset/js/core/',
       'asset/js/entity-graph.js',
       'asset/js/graph-canvas.js',
       'asset/js/knowledge-graph.js',

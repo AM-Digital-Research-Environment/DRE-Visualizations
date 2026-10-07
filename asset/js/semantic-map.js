@@ -242,21 +242,11 @@
         }).catch(function () { showError(container); });
     }
 
-    function mount(container) {
-        var run = function () { init(container); };
-        if (!('IntersectionObserver' in window)) { run(); return; }
-        var observer = new IntersectionObserver(function (entries) {
-            if (entries.some(function (entry) { return entry.isIntersecting; })) {
-                observer.disconnect();
-                run();
-            }
-        }, { rootMargin: '600px 0px' });
-        observer.observe(container);
-    }
-
     function start() {
         var containers = document.querySelectorAll('.semantic-map-container');
-        for (var i = 0; i < containers.length; i++) mount(containers[i]);
+        for (var i = 0; i < containers.length; i++) {
+            ns.mountWhenVisible(containers[i], init.bind(null, containers[i]));
+        }
     }
 
     if (document.readyState === 'loading') {

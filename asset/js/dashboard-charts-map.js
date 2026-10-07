@@ -372,25 +372,14 @@
             }
 
             // --- Fit bounds ---
-            var bounds = new maplibregl.LngLatBounds();
-            if (features.length) {
-                features.forEach(function (f) { bounds.extend(f.geometry.coordinates); });
-            }
-            if (hasFlows) {
-                geoFlows.links.forEach(function (l) {
-                    bounds.extend([l.toLon, l.toLat]);
-                });
-            }
-            if (hasCurrent) {
-                currentData.forEach(function (loc) { bounds.extend([loc.lon, loc.lat]); });
-            }
-            if (!bounds.isEmpty()) {
-                if (features.length === 1 && !hasFlows && !hasCurrent) {
-                    map.setCenter(features[0].geometry.coordinates);
-                    map.setZoom(4);
-                } else {
-                    map.fitBounds(bounds, { padding: 40, maxZoom: 6 });
-                }
+            if (features.length === 1 && !hasFlows && !hasCurrent) {
+                map.setCenter(features[0].geometry.coordinates);
+                map.setZoom(4);
+            } else {
+                var pts = features.map(function (f) { return f.geometry.coordinates; })
+                    .concat(hasFlows ? geoFlows.links.map(function (l) { return [l.toLon, l.toLat]; }) : [])
+                    .concat(hasCurrent ? currentData.map(function (loc) { return [loc.lon, loc.lat]; }) : []);
+                ns.fitToPoints(map, pts, { padding: 40, maxZoom: 6 });
             }
 
             // --- Legend (rendered below the map; see ns.mountMapLegend) ---

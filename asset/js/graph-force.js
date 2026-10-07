@@ -547,36 +547,31 @@
         }
 
         // Tab is deliberately NOT handled: it must always take the reader out of the
-        // canvas. Left/Right step through every node and set the "hub"; Up/Down then
-        // walk that hub's own neighbours. Holding the hub across an Up/Down run is
-        // what makes the walk predictable — otherwise every step would re-root on
-        // whatever it just landed on and wander off.
-        var hubId = null;
-        var neighbourCursor = -1;
+        // canvas. The arrows follow the hub-and-neighbours model every graph on the
+        // site shares (ns.graphStep, dashboard-core); this keeps its walk state.
+        var walk = { hub: null, cursor: -1 };
+
+        function visibleNeighbours(id) {
+            return Object.keys(pass.adj[id] || {}).filter(function (other) {
+                return byId[other] && isVisible(byId[other]);
+            });
+        }
 
         canvas.addEventListener('keydown', function (ev) {
-            var order = keyboardOrder();
+            var order = keyboardOrder().map(function (n) { return n.id; });
             if (!order.length) return;
-            var idx = focusId ? order.findIndex(function (n) { return n.id === focusId; }) : -1;
-            var next = null;
+            var nextId = ns.graphStep(ev.key, order, focusId, walk, visibleNeighbours);
+            var next = nextId == null ? null : byId[nextId];
+            if (next) {
+                focusId = next.id;
+                gc.centerOn(next);
+                announce(next);
+                requestPaint();
+                ev.preventDefault();
+                return;
+            }
 
-            if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') {
-                next = order[(idx + (ev.key === 'ArrowRight' ? 1 : -1) + order.length) % order.length];
-                hubId = next.id;
-                neighbourCursor = -1;
-            } else if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
-                if (!hubId) hubId = focusId || order[0].id;
-                var nb = Object.keys(pass.adj[hubId] || {}).filter(function (id) {
-                    return byId[id] && isVisible(byId[id]);
-                });
-                if (!nb.length) {
-                    next = order[(idx + (ev.key === 'ArrowDown' ? 1 : -1) + order.length) % order.length];
-                    hubId = next.id;
-                } else {
-                    neighbourCursor = (neighbourCursor + (ev.key === 'ArrowDown' ? 1 : -1) + nb.length) % nb.length;
-                    next = byId[nb[neighbourCursor]];
-                }
-            } else if (ev.key === 'Enter' || ev.key === ' ') {
+            if (ev.key === 'Enter' || ev.key === ' ') {
                 if (focusId && byId[focusId]) { activate(byId[focusId], ev.altKey); ev.preventDefault(); }
                 return;
             } else if (ev.key === '+' || ev.key === '=') {
@@ -593,24 +588,13 @@
                 // while there is still something in the graph to clear.
                 if (selectedId) { select(null); ev.stopPropagation(); return; }
                 if (focusId) { focusId = null; announce(null); requestPaint(); ev.stopPropagation(); }
-                return;
-            } else {
-                return;
-            }
-
-            if (next) {
-                focusId = next.id;
-                gc.centerOn(next);
-                announce(next);
-                requestPaint();
-                ev.preventDefault();
             }
         });
 
         canvas.addEventListener('blur', function () {
             focusId = null;
-            hubId = null;
-            neighbourCursor = -1;
+            walk.hub = null;
+            walk.cursor = -1;
             announce(null);
             requestPaint();
         });
@@ -663,13 +647,10 @@
 
         // A light/dark toggle only needs a repaint with the freshly read tokens —
         // the layout must survive it, so this deliberately does not re-simulate.
-        var untrack = null;
-        if (typeof ns.trackRenderer === 'function') {
-            untrack = ns.trackRenderer(container, function () {
-                gc.paint(scene());
-                if (onThemeCb) onThemeCb();
-            }, destroy);
-        }
+        var untrack = ns.trackRenderer(container, function () {
+            gc.paint(scene());
+            if (onThemeCb) onThemeCb();
+        }, destroy);
 
         /* ---- Public surface ------------------------------------------- */
 
@@ -719,5 +700,5 @@
         };
     }
 
-    ns.ForceGraph = { create: create, makeRng: makeRng, DEFAULT_FORCES: DEFAULT_FORCES, radiusOf: radiusOf };
+    ns.ForceGraph = { create: create, DEFAULT_FORCES: DEFAULT_FORCES };
 })();

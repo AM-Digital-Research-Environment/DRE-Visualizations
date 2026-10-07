@@ -139,7 +139,11 @@ Overview is the first consumer (`Runner::buildOverviewStats`).
   `geoFlows`-on-`locations` pattern) rather than a new panel.
 - **Reuse `window.RV`** (`THEME`, `COLORS`, `initChart`, `initMap`, `truncateLabel`,
   `toEntries`, `escapeHtml`, `formatNumber`, `el`, `addClickHandler`,
-  `attachToolbar`, `trackMap`, `getBasemapStyle`, `cssColor`). No new globals.
+  `attachToolbar`, `trackMap`, `getBasemapStyle`, `cssColor`, `itemUrl`, `plural`,
+  `fill`, `fold`, `mountWhenVisible`, `buildChart`, `createMap`). No new globals.
+  These live in `asset/js/core/`; `asset/js/dashboard-core.js` is generated from
+  them by `npm run build` (order: `scripts/lib/frontend-sources.mjs`) — edit the
+  sources, never the generated file.
 - **Theme: read DRE tokens, never hard-code a colour.** The module styles itself
   entirely from the [DRE theme](https://github.com/AM-Digital-Research-Environment/DRE-theme)
   design tokens and follows light/dark automatically:

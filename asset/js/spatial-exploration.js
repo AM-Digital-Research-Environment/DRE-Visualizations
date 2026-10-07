@@ -12,15 +12,17 @@
  *
  * Self-contained controller (it does NOT use the ECharts window.RV.charts registry
  * — MapLibre is a separate renderer): it fetches the data, builds the UI and owns
- * all interaction, reusing dashboard-core.js only for the shared theme tokens
- * (ns.THEME / ns.COLORS / ns.cssColor, the Positron/Dark-Matter basemap and
- * ns.trackMap), which it re-reads on every light/dark toggle to recolour in place.
+ * all interaction, reusing dashboard-core.js for the shared theme tokens
+ * (ns.THEME / ns.COLORS / ns.cssColor, the configured basemap and ns.trackMap),
+ * which it re-reads on every light/dark toggle to recolour in place.
  *
- * Depends on (loaded first, deferred):
+ * Depends on (loaded first, deferred — never rendered without it, so there are
+ * no local fallbacks):
  *   - asset/js/dashboard-core.js → window.RV (theme tokens, getBasemapStyle,
- *     trackMap, and ns.ensureLibs — the shared lazy loader that pulls in MapLibre
- *     GL on mount, so a page with this block plus a dashboard / entity graph loads
- *     MapLibre exactly once)
+ *     trackMap, ns.el / ns.fold / ns.moveHover / ns.mountWhenVisible, and
+ *     ns.ensureLibs — the shared lazy loader that pulls in MapLibre GL on mount,
+ *     so a page with this block plus a dashboard / entity graph loads MapLibre
+ *     exactly once)
  *
  * Data (compact row arrays, see Aggregators::buildSpatialPlaces + Runner):
  *   { types: ['Project','Section','Person','Organisation','Subject'],
@@ -32,35 +34,20 @@
 (function () {
     'use strict';
 
-    var ns = window.RV || (window.RV = {});
-    var el = ns.el || function (tag, cls, text) {
-        var node = document.createElement(tag);
-        if (cls) node.className = cls;
-        if (text != null) node.textContent = text;
-        return node;
-    };
-    var escapeHtml = ns.escapeHtml || function (value) {
-        return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
-            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
-        });
-    };
+    var ns = window.RV;
+    if (!ns) { console.warn('DreVisualizations: dashboard-core.js must load before spatial-exploration.js'); return; }
+    var el = ns.el;
+    var escapeHtml = ns.escapeHtml;
 
     var SRC = 'rv-spatial-places';
     var L_ORIGIN = 'rv-spatial-origin';
     var L_CURRENT = 'rv-spatial-current';
     var L_LABELS = 'rv-spatial-labels';
-    var LABEL_FONT = ns.MAP_LABEL_FONT || ['Noto Sans Regular'];
     var LIST_CAP = 60;
     var TOP_PLACES = 10;
 
-    /** Lower-case + strip diacritics, so "Côte" matches a "cote" query. */
-    function fold(s) {
-        s = (s == null ? '' : String(s)).toLowerCase();
-        return s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s;
-    }
-
     // Shared grouping style ("1,234") — see ns.formatNumber in dashboard-core.
-    var fmtNum = ns.formatNumber || function (n) { return String(n); };
+    var fmtNum = ns.formatNumber;
 
     /**
      * The "open its page" link for one of the payload's fixed entity types. The
@@ -82,15 +69,12 @@
     /*  Theme bridge (dashboard-core.js)                                   */
     /* ------------------------------------------------------------------ */
 
-    var THEME_FALLBACK = { text: '#473e33', border: '#dcd6cb', accent: '#007a50' };
-    function theme() { return ns.THEME || THEME_FALLBACK; }
-    function originColor() {
-        return ns.cssColor ? ns.cssColor('--primary', THEME_FALLBACK.accent) : (theme().accent || THEME_FALLBACK.accent);
-    }
+    // Read at paint time: ns.THEME / ns.COLORS are re-resolved in place on a
+    // light/dark toggle.
+    /** Origin colour — the brand accent (--primary), as the dashboard map uses. */
+    function originColor() { return ns.cssColor('--primary', '#007a50'); }
     /** Current-location colour — the cluster Hellblau (COLORS[2]), as the dashboard map uses. */
-    function currentColor() {
-        return (ns.COLORS && ns.COLORS[2]) ? ns.COLORS[2] : '#44b8f2';
-    }
+    function currentColor() { return ns.COLORS[2]; }
 
     /* ------------------------------------------------------------------ */
     /*  Decode the compact payload                                         */
@@ -310,11 +294,7 @@
             var f = e.features && e.features[0];
             if (!f) return;
             map.getCanvas().style.cursor = 'pointer';
-            if (hoverId !== null && hoverId !== f.id) {
-                map.setFeatureState({ source: SRC, id: hoverId }, { hover: false });
-            }
-            hoverId = f.id;
-            map.setFeatureState({ source: SRC, id: hoverId }, { hover: true });
+            hoverId = ns.moveHover(map, SRC, hoverId, f.id);
             var p = placeById[f.properties.id];
             if (!p) return;
             if (!hoverPopup) {
@@ -330,10 +310,7 @@
         function hideHover() {
             if (!map) return;
             map.getCanvas().style.cursor = '';
-            if (hoverId !== null) {
-                map.setFeatureState({ source: SRC, id: hoverId }, { hover: false });
-                hoverId = null;
-            }
+            hoverId = ns.moveHover(map, SRC, hoverId, null);
             if (hoverPopup) hoverPopup.remove();
         }
 
@@ -385,7 +362,7 @@
                         'circle-color': currentColor(),
                         'circle-opacity': hoverPaint(0.6, 0.9),
                         'circle-stroke-width': hoverPaint(1, 2),
-                        'circle-stroke-color': theme().border
+                        'circle-stroke-color': ns.THEME.border
                     }
                 });
             }
@@ -398,7 +375,7 @@
                         'circle-color': originColor(),
                         'circle-opacity': hoverPaint(0.72, 0.95),
                         'circle-stroke-width': hoverPaint(1.2, 2.5),
-                        'circle-stroke-color': theme().border
+                        'circle-stroke-color': ns.THEME.border
                     }
                 });
             }
@@ -407,7 +384,7 @@
                     id: L_LABELS, type: 'symbol', source: SRC,
                     layout: {
                         'text-field': ['get', 'name'],
-                        'text-font': LABEL_FONT,
+                        'text-font': ns.MAP_LABEL_FONT,
                         'text-size': 11,
                         'text-offset': [0, 1.1],
                         'text-anchor': 'top',
@@ -415,8 +392,8 @@
                         'symbol-sort-key': ['*', -1, ['get', 'total']]
                     },
                     paint: {
-                        'text-color': theme().text,
-                        'text-halo-color': theme().border,
+                        'text-color': ns.THEME.text,
+                        'text-halo-color': ns.THEME.border,
                         'text-halo-width': 1.3
                     }
                 });
@@ -563,10 +540,10 @@
                 ? document.activeElement.dataset.entityId : null;
             listEl.innerHTML = '';
             var rows = data.pickers[entityType] || [];
-            var q = fold(searchInput.value.trim());
+            var q = ns.fold(searchInput.value.trim());
             var shown = 0;
             for (var i = 0; i < rows.length && shown < LIST_CAP; i++) {
-                if (q && fold(rows[i][1]).indexOf(q) === -1) continue;
+                if (q && ns.fold(rows[i][1]).indexOf(q) === -1) continue;
                 shown++;
                 var row = pickerRow(rows[i]);
                 listEl.appendChild(row);
@@ -671,7 +648,7 @@
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
         ns.basePath = basePath;
-        var libs = (typeof ns.ensureLibs === 'function') ? ns.ensureLibs({ maplibre: true }) : Promise.resolve();
+        var libs = ns.ensureLibs({ maplibre: true });
         Promise.all([
             ns.fetchDataJson('item-dashboards/spatial-exploration.json'),
             libs
@@ -692,21 +669,12 @@
         });
     }
 
-    /** Defer the (heavier) fetch + render until the block nears the viewport. */
-    function mountWhenVisible(container) {
-        var run = function () { initContainer(container); };
-        if (!('IntersectionObserver' in window)) { run(); return; }
-        var io = new IntersectionObserver(function (entries) {
-            for (var i = 0; i < entries.length; i++) {
-                if (entries[i].isIntersecting) { io.disconnect(); run(); break; }
-            }
-        }, { rootMargin: '600px 0px' });
-        io.observe(container);
-    }
-
+    // Defer the (heavier) fetch + render until the block nears the viewport.
     function init() {
         var cs = document.querySelectorAll('.dre-spatial-exploration');
-        for (var i = 0; i < cs.length; i++) mountWhenVisible(cs[i]);
+        for (var i = 0; i < cs.length; i++) {
+            ns.mountWhenVisible(cs[i], initContainer.bind(null, cs[i]));
+        }
     }
 
     if (document.readyState === 'loading') {

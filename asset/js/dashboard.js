@@ -14,11 +14,7 @@
 
     var ns = window.RV;
     if (!ns) return;
-    var escapeHtml = ns.escapeHtml || function (value) {
-        return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
-            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
-        });
-    };
+    var escapeHtml = ns.escapeHtml;
 
     /* ------------------------------------------------------------------ */
     /*  Render dashboard                                                   */
@@ -270,7 +266,7 @@
                 finish(emptyMessage);
                 return;
             }
-            return Promise.resolve(ns.ensureLibs ? ns.ensureLibs(ns.chartLibraries ? ns.chartLibraries(data, container) : { echarts: true }) : undefined).then(function () {
+            return ns.ensureLibs(ns.chartLibraries ? ns.chartLibraries(data, container) : { echarts: true }).then(function () {
             content.innerHTML = '';
             var failures = renderDashboard(content, data, siteBase, true, container);
             container.dataset.state = failures ? 'partial' : 'ready';
@@ -291,7 +287,7 @@
         var data;
         try { data = JSON.parse(raw); } catch (e) { return; }
         var siteBase = container.dataset.siteBase || '';
-        return Promise.resolve(ns.ensureLibs ? ns.ensureLibs(ns.chartLibraries ? ns.chartLibraries(data, container) : { echarts: true }) : undefined).then(function () {
+        return ns.ensureLibs(ns.chartLibraries ? ns.chartLibraries(data, container) : { echarts: true }).then(function () {
             renderDashboard(container.parentElement || container, data, siteBase);
         });
     }
@@ -307,20 +303,13 @@
     // view (a dedicated dashboard page, or libraries loaded eagerly) fires the
     // observer at once and ensureLibs resolves immediately — unchanged there.
     function mountWhenVisible(container, render) {
-        var run = function () {
+        ns.mountWhenVisible(container, function () {
             Promise.resolve().then(render).catch(function (error) {
                 console.warn('[DreVisualizations] Dashboard failed', error);
                 showMessage(container, container.dataset.errorStatus
                     || ns.t('visualizationsUnavailable', 'Visualisations are unavailable.'), 'error');
             });
-        };
-        if (!('IntersectionObserver' in window)) { run(); return; }
-        var io = new IntersectionObserver(function (entries) {
-            for (var i = 0; i < entries.length; i++) {
-                if (entries[i].isIntersecting) { io.disconnect(); run(); break; }
-            }
-        }, { rootMargin: '600px 0px' });
-        io.observe(container);
+        });
     }
 
     function init() {

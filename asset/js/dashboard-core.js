@@ -1,31 +1,28 @@
 /**
- * Dashboard core: shared design tokens, helpers, and utilities.
+ * Generated dashboard core. Do not edit directly.
+ * Source order: scripts/lib/frontend-sources.mjs CORE_SOURCES (asset/js/core/).
+ * Rebuild: npm run build
+ */
+/* ---- js/core/base.js ---- */
+/**
+ * Dashboard core: the namespace and the small helpers every other file uses —
+ * translation, text and number formatting, escaping, DOM construction, and the
+ * lazy-mount observer.
  *
- * Initialises the window.RV namespace and exposes THEME, COLORS,
- * and helper functions used by all chart modules.
- *
- * THEMING — follows the DRE theme.
- * ----------------------------------------------------------------------------
- * Chart colours are NOT hard-coded here; they are read at runtime from the
- * Africa Multiple "Digital Research Environment" theme's CSS custom properties
- * (design tokens):
- *   https://github.com/AM-Digital-Research-Environment/DRE-theme
- *
- * `readTheme()` resolves the theme tokens (--primary, --ink, --surface, …) into
- * the shared THEME object and builds an ECharts theme from them. Because the
- * theme re-defines those tokens for dark mode (on `body[data-theme="dark"]`
- * and `@media (prefers-color-scheme: dark)`), the module follows the active
- * light / dark theme — including the live theme toggle, watched below via a
- * MutationObserver — by re-reading the tokens and calling `chart.setTheme()`
- * (ECharts 6) on every live chart and rebuilding every map.
- *
- * ►► Resolve colours through `ns.cssColor('--token', fallback)` — never add a
- *    raw hex value that won't react to the theme. ◄◄
+ * SOURCE FILE. asset/js/core/*.js are concatenated, in the order
+ * scripts/lib/frontend-sources.mjs lists, into the served asset/js/dashboard-core.js
+ * by `npm run build`; edit these files, never the generated one. Each file is its
+ * own IIFE that reaches the others only through `window.RV`. Apart from setting
+ * initial values, only reveal.js and startup.js act on load, so they come last.
  */
 (function () {
     'use strict';
 
     var ns = window.RV = window.RV || {};
+
+    /* ------------------------------------------------------------------ */
+    /*  Interface strings                                                  */
+    /* ------------------------------------------------------------------ */
 
     // Omeka emits the active site language on <html>. Keep all number and date
     // formatting aligned with it, falling back to the visitor locale only when
@@ -45,6 +42,185 @@
             return params && Object.prototype.hasOwnProperty.call(params, name) ? String(params[name]) : whole;
         });
     };
+
+    /* ------------------------------------------------------------------ */
+    /*  Text, numbers and escaping                                         */
+    /* ------------------------------------------------------------------ */
+
+    /** Truncate a string with ellipsis if it exceeds maxLen. */
+    ns.truncateLabel = function (str, maxLen) {
+        if (!str) return '';
+        return str.length > maxLen ? str.substring(0, maxLen) + '…' : str;
+    };
+
+    /** Convert either format to array of { name, value, itemId? }. */
+    ns.toEntries = function (data) {
+        if (!data) return [];
+        if (Array.isArray(data)) return data;
+        return Object.keys(data).map(function (k) { return { name: k, value: data[k] }; });
+    };
+
+    /**
+     * A public item page URL. The id is URI-encoded, so the result is safe in
+     * an href; inside HTML markup it still goes through ns.escapeHtml.
+     */
+    ns.itemUrl = function (siteBase, id) {
+        return (siteBase || '') + '/item/' + encodeURIComponent(String(id));
+    };
+
+    /**
+     * A count with its noun, translated and pluralised for the page locale:
+     * ns.plural(3, 'member', 'Member', 'Members') → "3 Members". `key` names a
+     * pair of RV_I18N entries, `<key>One` and `<key>Other`; omit the count by
+     * passing `withCount` false (for a label such as "Members: …").
+     */
+    ns.plural = function (count, key, one, other, withCount) {
+        var rule;
+        try { rule = new Intl.PluralRules(ns.locale).select(Number(count)); } catch (e) { rule = count === 1 ? 'one' : 'other'; }
+        var word = rule === 'one' ? ns.t(key + 'One', one) : ns.t(key + 'Other', other);
+        return withCount ? ns.formatNumber(count) + ' ' + word : word;
+    };
+
+    /** Escape plain text before inserting it through innerHTML. */
+    ns.escapeHtml = function (value) {
+        return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
+            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+        });
+    };
+
+    /**
+     * Lower-case and strip diacritics, so a "cote" query finds "Côte" and
+     * "laicite" finds "Laïcité". For matching only — never for display.
+     */
+    ns.fold = function (value) {
+        var s = (value == null ? '' : String(value)).toLowerCase();
+        return s.normalize ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : s;
+    };
+
+    /** Locale-consistent count formatting for stat cards, popups and tooltips. */
+    ns.formatNumber = function (n) {
+        var v = Number(n);
+        return isFinite(v) ? new Intl.NumberFormat(ns.locale).format(v) : String(n == null ? '' : n);
+    };
+
+    /** Locale-consistent date formatting, with one safe fallback for bad input. */
+    ns.formatDate = function (value, options) {
+        var date = value instanceof Date ? value : new Date(value);
+        if (!isFinite(date.getTime())) return '';
+        return new Intl.DateTimeFormat(ns.locale, options || {}).format(date);
+    };
+
+    /** Live check of the user's reduced-motion preference (vestibular safety). */
+    ns.prefersReducedMotion = function () {
+        return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    };
+
+    /**
+     * Run `run` once `el` comes within `rootMargin` (default 600px) of the
+     * viewport, or at once where IntersectionObserver is missing. Every block
+     * that sits below the fold defers its fetch, its libraries and its render
+     * through here, so a page pays for a visualisation only when a reader nears it.
+     */
+    ns.mountWhenVisible = function (el, run, rootMargin) {
+        if (!('IntersectionObserver' in window)) { run(); return; }
+        var io = new IntersectionObserver(function (entries) {
+            for (var i = 0; i < entries.length; i++) {
+                if (entries[i].isIntersecting) { io.disconnect(); run(); break; }
+            }
+        }, { rootMargin: rootMargin || '600px 0px' });
+        io.observe(el);
+    };
+
+    /* ------------------------------------------------------------------ */
+    /*  DOM and icon buttons                                               */
+    /* ------------------------------------------------------------------ */
+
+    /** Create a DOM element with optional class and text content. */
+    ns.el = function (tag, className, text) {
+        var node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined && text !== null) node.textContent = text;
+        return node;
+    };
+
+    // One innerHTML sink for every inline icon in the module. The bodies passed in
+    // are module-authored path constants, never curator data — routing them all
+    // through here is what keeps the count in check-html-safety.mjs flat as blocks
+    // gain controls, instead of one sink per button.
+    var _iconHost = null;
+
+    /** Build an inline 24×24 stroke icon from an SVG path body. */
+    ns.iconSvg = function (body, size) {
+        if (!_iconHost) _iconHost = document.createElement('div');
+        size = size || 14;
+        _iconHost.innerHTML = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24"'
+            + ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"'
+            + ' stroke-linejoin="round" aria-hidden="true">' + body + '</svg>';
+        return _iconHost.firstChild;   // appending it elsewhere detaches it from the host
+    };
+
+    /**
+     * Replace an element's children with the given nodes (none = clear it).
+     *
+     * Two reasons this exists rather than `innerHTML = ''` plus appendChild: it
+     * keeps clearing a node off the innerHTML sink inventory
+     * (scripts/check-html-safety.mjs), and it falls back to a removal loop so no
+     * shipped surface depends on `replaceChildren` — a 2020 DOM API, newer than
+     * anything else the module relies on.
+     */
+    ns.setChildren = function (el, nodes) {
+        nodes = nodes || [];
+        if (el.replaceChildren) {
+            el.replaceChildren.apply(el, nodes);
+            return el;
+        }
+        while (el.firstChild) el.removeChild(el.firstChild);
+        for (var i = 0; i < nodes.length; i++) el.appendChild(nodes[i]);
+        return el;
+    };
+
+    /** A `.rv-btn` toolbar button carrying one ns.iconSvg glyph. */
+    ns.iconButton = function (body, label, title) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'rv-btn';
+        btn.setAttribute('aria-label', label);
+        btn.title = title || label;
+        btn.appendChild(ns.iconSvg(body));
+        return btn;
+    };
+})();
+;
+
+/* ---- js/core/theme.js ---- */
+/**
+ * Dashboard core: shared design tokens — the categorical, halo and entity-type
+ * palettes, the THEME object, and the ECharts theme built from them.
+ *
+ * THEMING — follows the DRE theme.
+ * ----------------------------------------------------------------------------
+ * Chart colours are NOT hard-coded here; they are read at runtime from the
+ * Africa Multiple "Digital Research Environment" theme's CSS custom properties
+ * (design tokens):
+ *   https://github.com/AM-Digital-Research-Environment/DRE-theme
+ *
+ * `readTheme()` resolves the theme tokens (--primary, --ink, --surface, …) into
+ * the shared THEME object and builds an ECharts theme from them. Because the
+ * theme re-defines those tokens for dark mode (on `body[data-theme="dark"]`
+ * and `@media (prefers-color-scheme: dark)`), the module follows the active
+ * light / dark theme — including the live theme toggle, watched in startup.js
+ * via a MutationObserver — by re-reading the tokens and calling `chart.setTheme()`
+ * (ECharts 6) on every live chart and rebuilding every map (ns.refresh, charts.js).
+ *
+ * ►► Resolve colours through `ns.cssColor('--token', fallback)` — never add a
+ *    raw hex value that won't react to the theme. ◄◄
+ *
+ * Source file of the generated asset/js/dashboard-core.js (see base.js).
+ */
+(function () {
+    'use strict';
+
+    var ns = window.RV = window.RV || {};
 
     // Categorical palette for multi-series charts — led by the Africa Multiple
     // cluster brand colours, then harmonious extensions for charts with many
@@ -234,11 +410,262 @@
         barMaxWidthWide: 40
     };
 
-    ns._allCharts = [];   // tracked ECharts instances
-    ns._allMaps = [];     // tracked MapLibre maps: { map, rebuild }
-    ns._allRenderers = []; // tracked custom renderers: { el, redraw }
     ns._echartsTheme = null;
     ns._darkMode = false;
+
+    /* ------------------------------------------------------------------ */
+    /*  Theme-token resolution                                             */
+    /* ------------------------------------------------------------------ */
+
+    // Hidden probe + 1px canvas, used to resolve CSS custom properties — which
+    // are oklch()/color-mix() in the DRE theme — into a plain sRGB string in the
+    // *currently active* theme. This matters: zrender (ECharts) and MapLibre both
+    // FAIL to parse oklch()/oklab(), so handing them the raw token makes text and
+    // shapes fall back to wrong colours. We must rasterise to rgb() ourselves.
+    var _probe = null;
+    var _ctx = null;
+
+    function getProbe() {
+        if (!_probe) {
+            _probe = document.createElement('span');
+            _probe.style.cssText = 'position:absolute;left:-9999px;top:-9999px;width:0;height:0;pointer-events:none';
+        }
+        // Keep the probe parented to <body> so it inherits the active
+        // body[data-theme] cascade (it may be created before <body> exists).
+        var host = document.body || document.documentElement;
+        if (host && _probe.parentNode !== host) host.appendChild(_probe);
+        return _probe;
+    }
+
+    /**
+     * Rasterise any browser-parseable CSS colour (incl. oklch()/oklab()/
+     * color-mix()) to a plain rgb()/rgba() string that zrender and MapLibre
+     * can parse.
+     */
+    ns.toRGB = function (color) {
+        if (!_ctx) {
+            var cv = document.createElement('canvas');
+            cv.width = cv.height = 1;
+            _ctx = cv.getContext('2d', { willReadFrequently: true });
+        }
+        _ctx.clearRect(0, 0, 1, 1);
+        _ctx.fillStyle = '#000';
+        _ctx.fillStyle = color;            // browser parses oklch/color-mix here
+        _ctx.fillRect(0, 0, 1, 1);
+        var d = _ctx.getImageData(0, 0, 1, 1).data;
+        if (d[3] === 0) return 'rgba(0,0,0,0)';
+        if (d[3] === 255) return 'rgb(' + d[0] + ',' + d[1] + ',' + d[2] + ')';
+        return 'rgba(' + d[0] + ',' + d[1] + ',' + d[2] + ',' + (d[3] / 255).toFixed(3) + ')';
+    };
+
+    /**
+     * Resolve a CSS custom property to a plain rgb()/rgba() colour string.
+     * @param {string} name  e.g. '--primary'
+     * @param {string} fallback  used when the host theme lacks the token
+     */
+    ns.cssColor = function (name, fallback) {
+        fallback = fallback || '#000';
+        var key = name + '|' + fallback;
+        if (key in _colorCache) return _colorCache[key];
+        var color;
+        try {
+            var probe = getProbe();
+            probe.style.color = '';
+            probe.style.color = 'var(' + name + ', ' + fallback + ')';
+            var resolved = getComputedStyle(probe).color;
+            color = ns.toRGB(resolved || fallback) || fallback;
+        } catch (e) {
+            return fallback; // not cached: the probe may simply not exist yet
+        }
+        _colorCache[key] = color;
+        return color;
+    };
+
+    /**
+     * Resolve a CSS custom property holding a font stack (e.g. --font-body)
+     * to the active theme's computed font-family string. Unlike colours this
+     * needs no rasterising — canvas font shorthand accepts a stack directly.
+     */
+    ns.cssFont = function (name, fallback) {
+        try {
+            var probe = getProbe();
+            probe.style.fontFamily = '';
+            probe.style.fontFamily = 'var(' + name + ', ' + fallback + ')';
+            return getComputedStyle(probe).fontFamily || fallback;
+        } catch (e) {
+            return fallback;
+        }
+    };
+
+    /** Parse an 'rgb(r,g,b)' / 'rgba(...)' string to a [r,g,b] array. */
+    function _parseRGB(s) {
+        var m = /(\d+)\D+(\d+)\D+(\d+)/.exec(s || '');
+        return m ? [+m[1], +m[2], +m[3]] : [0, 0, 0];
+    }
+
+    /** Lerp between two browser-parseable colours (incl. oklch / var()); → 'rgb()'. */
+    ns.mix = function (a, b, t) {
+        var pa = _parseRGB(ns.toRGB(a)), pb = _parseRGB(ns.toRGB(b));
+        return 'rgb(' + Math.round(pa[0] + (pb[0] - pa[0]) * t) + ','
+            + Math.round(pa[1] + (pb[1] - pa[1]) * t) + ','
+            + Math.round(pa[2] + (pb[2] - pa[2]) * t) + ')';
+    };
+
+    /**
+     * Five-stop sequential ramp from a faint surface tint (low values) to the
+     * brand accent / Uni-Grün (high values), resolved for the ACTIVE theme. Use
+     * for heatmap / density visualMaps so low cells sit quietly on the panel and
+     * the ramp follows light / dark instead of being locked to a light palette.
+     *
+     * @param {number[]} [ratios] how far each stop sits toward the surface
+     *     (0 = full accent); the default suits a visualMap, the choropleth
+     *     passes its own slightly lighter set
+     */
+    ns.accentRamp = function (ratios) {
+        var base = ns.cssColor('--surface', ns._darkMode ? '#0e1612' : '#fdfcf9');
+        return (ratios || [0.86, 0.65, 0.44, 0.22, 0]).map(function (r) {
+            return ns.mix(ns.THEME.accent, base, r);
+        });
+    };
+
+    /** Whether the active theme is dark: body[data-theme] wins, else system. */
+    ns.isDark = function () {
+        var attr = document.body && document.body.getAttribute('data-theme');
+        if (attr === 'dark') return true;
+        if (attr === 'light') return false;
+        return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    };
+
+    /** Read DRE theme tokens into THEME (in place) and rebuild the ECharts theme. */
+    ns.readTheme = function () {
+        _colorCache = Object.create(null);
+        ns._darkMode = ns.isDark();
+
+        // Re-point the categorical palette to the active light/dark cluster set,
+        // mutating the array in place so captured references stay valid.
+        var pal = ns.buildPalette(ns._darkMode);
+        ns.COLORS.length = 0;
+        Array.prototype.push.apply(ns.COLORS, pal);
+
+        // Same in-place swap for the knowledge-graph community halo rings.
+        var halo = ns.buildHaloPalette(ns._darkMode);
+        ns.HALO.length = 0;
+        Array.prototype.push.apply(ns.HALO, halo);
+
+        var t = ns.THEME;
+        var c = ns.cssColor;
+
+        // Type follows the DRE theme: Hanken Grotesk for in-chart UI text,
+        // Spectral for the rare in-canvas title — same stacks the page uses,
+        // with the theme's own fallbacks for non-DRE hosts.
+        t.fontFamily = ns.cssFont('--font-body',
+            '"Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif');
+        t.fontDisplay = ns.cssFont('--font-display',
+            '"Spectral", Georgia, "Times New Roman", serif');
+
+        t.accent      = c('--primary', '#22817b');
+        t.accentDark  = c('--primary-hover', '#1a655f');
+        t.accentLight = c('--primary-muted', '#b2dfdb');
+        t.gradientEnd = c('--primary-muted', '#b2dfdb');
+        t.text        = c('--ink', ns._darkMode ? '#e0e0e0' : '#333333');
+        t.textMuted   = c('--ink-light', ns._darkMode ? '#aaaaaa' : '#666666');
+        t.heading     = c('--ink-strong', ns._darkMode ? '#f0f0f0' : '#222222');
+        t.border      = c('--surface', ns._darkMode ? '#1e1e1e' : '#ffffff');
+        t.surface     = t.border;
+        t.grid        = c('--border', ns._darkMode ? '#3a3a3a' : '#e0e0e0');
+        t.gridLight   = c('--border-light', ns._darkMode ? '#333333' : '#f0f0f0');
+
+        ns._echartsTheme = ns.buildEchartsTheme();
+        return t;
+    };
+
+    /** Build an ECharts theme object from the resolved THEME tokens. */
+    ns.buildEchartsTheme = function () {
+        var t = ns.THEME;
+        // One clean axis style for every axis type. No split lines and no split
+        // areas anywhere: charts read cleanly on the panel surface and bar charts
+        // (value axis on the x-axis) no longer get vertical "graph paper" lines.
+        // ECharts keeps the baseline on category axes and hides it on value axes
+        // by default, which is exactly the clean look we want.
+        var axis = {
+            axisLine:  { lineStyle: { color: t.grid } },
+            axisTick:  { lineStyle: { color: t.grid } },
+            axisLabel: { color: t.textMuted, fontFamily: t.fontFamily },
+            splitLine: { show: false },
+            splitArea: { show: false }
+        };
+        return {
+            color: ns.COLORS,
+            backgroundColor: 'transparent',   // let the panel --surface show through
+            textStyle: { color: t.text, fontFamily: t.fontFamily },
+            title: {
+                // In-canvas titles take the display serif, matching the HTML
+                // <h3> headings the dashboard renders around the charts.
+                textStyle: { color: t.heading, fontFamily: t.fontDisplay },
+                subtextStyle: { color: t.textMuted, fontFamily: t.fontFamily }
+            },
+            legend: {
+                textStyle: { color: t.text, fontFamily: t.fontFamily },
+                pageTextStyle: { color: t.textMuted }
+            },
+            tooltip: {
+                backgroundColor: ns.cssColor('--surface-raised', t.surface),
+                borderColor: t.grid,
+                textStyle: { color: t.text, fontFamily: t.fontFamily }
+            },
+            categoryAxis: axis,
+            valueAxis: axis,
+            logAxis: axis,
+            timeAxis: axis,
+            line: { lineStyle: { width: 2 } },
+            pie: { itemStyle: { borderColor: t.border, borderWidth: 2 } },
+            scatter: { itemStyle: { borderColor: t.border, borderWidth: 1 } },
+            graph: {
+                itemStyle: { borderColor: t.border },
+                lineStyle: { color: t.grid },
+                label: { color: t.text, fontFamily: t.fontFamily }
+            },
+            treemap: {
+                itemStyle: { borderColor: t.border },
+                breadcrumb: { itemStyle: { color: t.gridLight, textStyle: { color: t.text } } }
+            },
+            sunburst: { itemStyle: { borderColor: t.border, borderWidth: 1 } },
+            heatmap: { itemStyle: { borderColor: t.border, borderWidth: 1 } },
+            sankey: {
+                label: { color: t.text },
+                lineStyle: { color: 'source', opacity: 0.4 }
+            },
+            visualMap: { textStyle: { color: t.text, fontFamily: t.fontFamily } },
+            timeline: {
+                lineStyle: { color: t.grid },
+                label: { color: t.textMuted, fontFamily: t.fontFamily },
+                controlStyle: { color: t.textMuted, borderColor: t.grid }
+            }
+        };
+    };
+
+    /** Background colour to use when exporting a chart as a PNG. */
+    ns.exportBg = function () {
+        return ns.cssColor('--surface', ns._darkMode ? '#0e1612' : '#fdfcf9');
+    };
+})();
+;
+
+/* ---- js/core/data.js ---- */
+/**
+ * Dashboard core: where module assets and generated data live, and the one
+ * loader every generated artifact goes through — the published-generation
+ * manifest, the per-page body cache, and the pruned-generation retry.
+ *
+ * Needs nothing from the other core files, so tests/js/dashboard.test.mjs runs
+ * it on its own with `fetch` as the only stub. Source file of the generated
+ * asset/js/dashboard-core.js (see base.js).
+ */
+(function () {
+    'use strict';
+
+    var ns = window.RV = window.RV || {};
+
     ns.basePath = '';     // Omeka base path, set by the dashboard orchestrator
 
     /** Resolve a module asset (under asset/) to an absolute URL, e.g.
@@ -340,10 +767,20 @@
             return payload;
         });
     };
+})();
+;
 
-    /* ------------------------------------------------------------------ */
-    /*  Lazy library loader                                                */
-    /* ------------------------------------------------------------------ */
+/* ---- js/core/libs.js ---- */
+/**
+ * Dashboard core: the lazy loader for the heavy third-party libraries (ECharts,
+ * its word-cloud extension, MapLibre and the d3-force stack).
+ *
+ * Source file of the generated asset/js/dashboard-core.js (see base.js).
+ */
+(function () {
+    'use strict';
+
+    var ns = window.RV = window.RV || {};
 
     /**
      * Inject the heavy chart/map libraries on demand, returning a Promise that
@@ -495,236 +932,29 @@
 
         return Promise.all(work);
     };
+})();
+;
+
+/* ---- js/core/charts.js ---- */
+/**
+ * Dashboard core: the lifecycle of every live visualisation — ECharts
+ * instances, MapLibre maps (registered by ns.trackMap in maps.js) and custom
+ * canvas renderers — from creation and resizing to re-theming and disposal,
+ * plus the chart-level helpers builders share.
+ *
+ * Source file of the generated asset/js/dashboard-core.js (see base.js).
+ */
+(function () {
+    'use strict';
+
+    var ns = window.RV = window.RV || {};
+
+    ns._allCharts = [];   // tracked ECharts instances
+    ns._allMaps = [];     // tracked MapLibre maps: { map, rebuild, el }
+    ns._allRenderers = []; // tracked custom renderers: { el, redraw, dispose }
 
     /* ------------------------------------------------------------------ */
-    /*  Theme-token resolution                                             */
-    /* ------------------------------------------------------------------ */
-
-    // Hidden probe + 1px canvas, used to resolve CSS custom properties — which
-    // are oklch()/color-mix() in the DRE theme — into a plain sRGB string in the
-    // *currently active* theme. This matters: zrender (ECharts) and MapLibre both
-    // FAIL to parse oklch()/oklab(), so handing them the raw token makes text and
-    // shapes fall back to wrong colours. We must rasterise to rgb() ourselves.
-    var _probe = null;
-    var _ctx = null;
-
-    function getProbe() {
-        if (!_probe) {
-            _probe = document.createElement('span');
-            _probe.style.cssText = 'position:absolute;left:-9999px;top:-9999px;width:0;height:0;pointer-events:none';
-        }
-        // Keep the probe parented to <body> so it inherits the active
-        // body[data-theme] cascade (it may be created before <body> exists).
-        var host = document.body || document.documentElement;
-        if (host && _probe.parentNode !== host) host.appendChild(_probe);
-        return _probe;
-    }
-
-    /**
-     * Rasterise any browser-parseable CSS colour (incl. oklch()/oklab()/
-     * color-mix()) to a plain rgb()/rgba() string that zrender and MapLibre
-     * can parse.
-     */
-    ns.toRGB = function (color) {
-        if (!_ctx) {
-            var cv = document.createElement('canvas');
-            cv.width = cv.height = 1;
-            _ctx = cv.getContext('2d', { willReadFrequently: true });
-        }
-        _ctx.clearRect(0, 0, 1, 1);
-        _ctx.fillStyle = '#000';
-        _ctx.fillStyle = color;            // browser parses oklch/color-mix here
-        _ctx.fillRect(0, 0, 1, 1);
-        var d = _ctx.getImageData(0, 0, 1, 1).data;
-        if (d[3] === 0) return 'rgba(0,0,0,0)';
-        if (d[3] === 255) return 'rgb(' + d[0] + ',' + d[1] + ',' + d[2] + ')';
-        return 'rgba(' + d[0] + ',' + d[1] + ',' + d[2] + ',' + (d[3] / 255).toFixed(3) + ')';
-    };
-
-    /**
-     * Resolve a CSS custom property to a plain rgb()/rgba() colour string.
-     * @param {string} name  e.g. '--primary'
-     * @param {string} fallback  used when the host theme lacks the token
-     */
-    ns.cssColor = function (name, fallback) {
-        fallback = fallback || '#000';
-        var key = name + '|' + fallback;
-        if (key in _colorCache) return _colorCache[key];
-        var color;
-        try {
-            var probe = getProbe();
-            probe.style.color = '';
-            probe.style.color = 'var(' + name + ', ' + fallback + ')';
-            var resolved = getComputedStyle(probe).color;
-            color = ns.toRGB(resolved || fallback) || fallback;
-        } catch (e) {
-            return fallback; // not cached: the probe may simply not exist yet
-        }
-        _colorCache[key] = color;
-        return color;
-    };
-
-    /**
-     * Resolve a CSS custom property holding a font stack (e.g. --font-body)
-     * to the active theme's computed font-family string. Unlike colours this
-     * needs no rasterising — canvas font shorthand accepts a stack directly.
-     */
-    ns.cssFont = function (name, fallback) {
-        try {
-            var probe = getProbe();
-            probe.style.fontFamily = '';
-            probe.style.fontFamily = 'var(' + name + ', ' + fallback + ')';
-            return getComputedStyle(probe).fontFamily || fallback;
-        } catch (e) {
-            return fallback;
-        }
-    };
-
-    /** Parse an 'rgb(r,g,b)' / 'rgba(...)' string to a [r,g,b] array. */
-    function _parseRGB(s) {
-        var m = /(\d+)\D+(\d+)\D+(\d+)/.exec(s || '');
-        return m ? [+m[1], +m[2], +m[3]] : [0, 0, 0];
-    }
-
-    /** Lerp between two browser-parseable colours (incl. oklch / var()); → 'rgb()'. */
-    ns.mix = function (a, b, t) {
-        var pa = _parseRGB(ns.toRGB(a)), pb = _parseRGB(ns.toRGB(b));
-        return 'rgb(' + Math.round(pa[0] + (pb[0] - pa[0]) * t) + ','
-            + Math.round(pa[1] + (pb[1] - pa[1]) * t) + ','
-            + Math.round(pa[2] + (pb[2] - pa[2]) * t) + ')';
-    };
-
-    /**
-     * Five-stop sequential ramp from a faint surface tint (low values) to the
-     * brand accent / Uni-Grün (high values), resolved for the ACTIVE theme. Use
-     * for heatmap / density visualMaps so low cells sit quietly on the panel and
-     * the ramp follows light / dark instead of being locked to a light palette.
-     */
-    ns.accentRamp = function () {
-        var base = ns.cssColor('--surface', ns._darkMode ? '#0e1612' : '#fdfcf9');
-        return [0.86, 0.65, 0.44, 0.22, 0].map(function (r) {
-            return ns.mix(ns.THEME.accent, base, r);
-        });
-    };
-
-    /** Whether the active theme is dark: body[data-theme] wins, else system. */
-    ns.isDark = function () {
-        var attr = document.body && document.body.getAttribute('data-theme');
-        if (attr === 'dark') return true;
-        if (attr === 'light') return false;
-        return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    };
-
-    /** Read DRE theme tokens into THEME (in place) and rebuild the ECharts theme. */
-    ns.readTheme = function () {
-        _colorCache = Object.create(null);
-        ns._darkMode = ns.isDark();
-
-        // Re-point the categorical palette to the active light/dark cluster set,
-        // mutating the array in place so captured references stay valid.
-        var pal = ns.buildPalette(ns._darkMode);
-        ns.COLORS.length = 0;
-        Array.prototype.push.apply(ns.COLORS, pal);
-
-        // Same in-place swap for the knowledge-graph community halo rings.
-        var halo = ns.buildHaloPalette(ns._darkMode);
-        ns.HALO.length = 0;
-        Array.prototype.push.apply(ns.HALO, halo);
-
-        var t = ns.THEME;
-        var c = ns.cssColor;
-
-        // Type follows the DRE theme: Hanken Grotesk for in-chart UI text,
-        // Spectral for the rare in-canvas title — same stacks the page uses,
-        // with the theme's own fallbacks for non-DRE hosts.
-        t.fontFamily = ns.cssFont('--font-body',
-            '"Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif');
-        t.fontDisplay = ns.cssFont('--font-display',
-            '"Spectral", Georgia, "Times New Roman", serif');
-
-        t.accent      = c('--primary', '#22817b');
-        t.accentDark  = c('--primary-hover', '#1a655f');
-        t.accentLight = c('--primary-muted', '#b2dfdb');
-        t.gradientEnd = c('--primary-muted', '#b2dfdb');
-        t.text        = c('--ink', ns._darkMode ? '#e0e0e0' : '#333333');
-        t.textMuted   = c('--ink-light', ns._darkMode ? '#aaaaaa' : '#666666');
-        t.heading     = c('--ink-strong', ns._darkMode ? '#f0f0f0' : '#222222');
-        t.border      = c('--surface', ns._darkMode ? '#1e1e1e' : '#ffffff');
-        t.surface     = t.border;
-        t.grid        = c('--border', ns._darkMode ? '#3a3a3a' : '#e0e0e0');
-        t.gridLight   = c('--border-light', ns._darkMode ? '#333333' : '#f0f0f0');
-
-        ns._echartsTheme = ns.buildEchartsTheme();
-        return t;
-    };
-
-    /** Build an ECharts theme object from the resolved THEME tokens. */
-    ns.buildEchartsTheme = function () {
-        var t = ns.THEME;
-        // One clean axis style for every axis type. No split lines and no split
-        // areas anywhere: charts read cleanly on the panel surface and bar charts
-        // (value axis on the x-axis) no longer get vertical "graph paper" lines.
-        // ECharts keeps the baseline on category axes and hides it on value axes
-        // by default, which is exactly the clean look we want.
-        var axis = {
-            axisLine:  { lineStyle: { color: t.grid } },
-            axisTick:  { lineStyle: { color: t.grid } },
-            axisLabel: { color: t.textMuted, fontFamily: t.fontFamily },
-            splitLine: { show: false },
-            splitArea: { show: false }
-        };
-        return {
-            color: ns.COLORS,
-            backgroundColor: 'transparent',   // let the panel --surface show through
-            textStyle: { color: t.text, fontFamily: t.fontFamily },
-            title: {
-                // In-canvas titles take the display serif, matching the HTML
-                // <h3> headings the dashboard renders around the charts.
-                textStyle: { color: t.heading, fontFamily: t.fontDisplay },
-                subtextStyle: { color: t.textMuted, fontFamily: t.fontFamily }
-            },
-            legend: {
-                textStyle: { color: t.text, fontFamily: t.fontFamily },
-                pageTextStyle: { color: t.textMuted }
-            },
-            tooltip: {
-                backgroundColor: ns.cssColor('--surface-raised', t.surface),
-                borderColor: t.grid,
-                textStyle: { color: t.text, fontFamily: t.fontFamily }
-            },
-            categoryAxis: axis,
-            valueAxis: axis,
-            logAxis: axis,
-            timeAxis: axis,
-            line: { lineStyle: { width: 2 } },
-            pie: { itemStyle: { borderColor: t.border, borderWidth: 2 } },
-            scatter: { itemStyle: { borderColor: t.border, borderWidth: 1 } },
-            graph: {
-                itemStyle: { borderColor: t.border },
-                lineStyle: { color: t.grid },
-                label: { color: t.text, fontFamily: t.fontFamily }
-            },
-            treemap: {
-                itemStyle: { borderColor: t.border },
-                breadcrumb: { itemStyle: { color: t.gridLight, textStyle: { color: t.text } } }
-            },
-            sunburst: { itemStyle: { borderColor: t.border, borderWidth: 1 } },
-            heatmap: { itemStyle: { borderColor: t.border, borderWidth: 1 } },
-            sankey: {
-                label: { color: t.text },
-                lineStyle: { color: 'source', opacity: 0.4 }
-            },
-            visualMap: { textStyle: { color: t.text, fontFamily: t.fontFamily } },
-            timeline: {
-                lineStyle: { color: t.grid },
-                label: { color: t.textMuted, fontFamily: t.fontFamily },
-                controlStyle: { color: t.textMuted, borderColor: t.grid }
-            }
-        };
-    };
-
-    /* ------------------------------------------------------------------ */
-    /*  Chart / map lifecycle                                              */
+    /*  ECharts instances                                                  */
     /* ------------------------------------------------------------------ */
 
     /**
@@ -818,6 +1048,247 @@
     };
 
     /**
+     * Track a renderer that owns its own canvas — neither an ECharts instance nor
+     * a MapLibre map, so neither of the two lists above can re-theme it. The
+     * knowledge graph is the one such surface: it paints nodes and edges itself,
+     * and on a light/dark toggle it only needs a repaint with the freshly read
+     * tokens (no re-layout — node positions must survive the toggle).
+     *
+     * `redraw` is a zero-arg closure invoked by ns.refresh() AFTER readTheme(), so
+     * it sees the new ns.THEME / ns.COLORS / ns.HALO values. Entries whose element
+     * has left the document are dropped instead of called.
+     *
+     * @param {HTMLElement} el      the container, used as the liveness check
+     * @param {Function}    redraw  repaint with the current theme
+     * @param {Function}   [dispose] release workers, observers and simulations
+     *                               when ns.disposeWithin removes the element
+     * @returns {Function} untrack — drop the entry without disposing it
+     */
+    ns.trackRenderer = function (el, redraw, dispose) {
+        var entry = { el: el, redraw: redraw, dispose: dispose };
+        ns._allRenderers.push(entry);
+        return function () {
+            ns._allRenderers = ns._allRenderers.filter(function (candidate) { return candidate !== entry; });
+        };
+    };
+
+    /* ------------------------------------------------------------------ */
+    /*  Disposal and re-theming                                            */
+    /* ------------------------------------------------------------------ */
+
+    /**
+     * Dispose the charts, maps and renderers inside `root` — and any whose
+     * element has left the document — BEFORE an owner replaces its DOM.
+     */
+    ns.disposeWithin = function (root) {
+        function removed(el) { return !el || !el.isConnected || (root && (el === root || root.contains(el))); }
+        ns._allCharts = ns._allCharts.filter(function (chart) {
+            if (chart.isDisposed()) return false;
+            if (!removed(chart.getDom())) return true;
+            if (_resizeObserver) _resizeObserver.unobserve(chart.getDom());
+            chart.dispose();
+            return false;
+        });
+        ns._allMaps = ns._allMaps.filter(function (entry) {
+            if (!removed(entry.el)) return true;
+            try { entry.map.remove(); } catch (e) { /* already removed */ }
+            return false;
+        });
+        ns._allRenderers = ns._allRenderers.filter(function (entry) {
+            if (!removed(entry.el)) return true;
+            if (entry.dispose) entry.dispose();
+            return false;
+        });
+    };
+    /** Drop (and dispose) every tracked visualisation that has left the document. */
+    ns.pruneCharts = function () { ns.disposeWithin(null); };
+
+    /**
+     * Re-assert the ACTIVE theme's resolved style colours (tooltip, legend, base
+     * text, axes) onto a chart. Necessary because getOption() pins the PREVIOUS
+     * theme's resolved values, so re-applying that option (notMerge) would keep
+     * e.g. a light tooltip / light axis labels on the dark theme. A final merge
+     * setOption with the fresh theme styles overrides those stale pins — this is
+     * what makes the hover tooltip and axes follow light / dark.
+     */
+    ns._reapplyThemeStyles = function (c) {
+        var th = ns._echartsTheme, t = ns.THEME, opt = c.getOption();
+        var axisStyle = {
+            axisLabel: { color: t.textMuted },
+            axisLine: { lineStyle: { color: t.grid } },
+            axisTick: { lineStyle: { color: t.grid } }
+        };
+        var ov = {
+            color: ns.COLORS,
+            textStyle: { color: t.text },
+            tooltip: th.tooltip,
+            legend: th.legend,
+            title: th.title
+        };
+        ['xAxis', 'yAxis', 'radiusAxis', 'angleAxis', 'singleAxis', 'parallelAxis'].forEach(function (k) {
+            if (opt[k] && opt[k].length) ov[k] = opt[k].map(function () { return axisStyle; });
+        });
+        c.setOption(ov);
+    };
+
+    /**
+     * Re-apply the active theme to every live chart and map. Triggered when the
+     * DRE theme toggles between light and dark (or the system preference does).
+     */
+    ns.refresh = function () {
+        ns.readTheme();
+        ns.pruneCharts();
+
+        // ECharts 6: switch the instance theme live, then re-assert the resolved
+        // theme styles. Graph-type charts re-apply their structural (per-node /
+        // edge) colours via _rvRebuild; the rest get their option re-applied with
+        // notMerge (setTheme's documented caveat after merge-mode setOptions).
+        // _reapplyThemeStyles then overrides the stale colours getOption() pinned.
+        ns._allCharts.forEach(function (c) {
+            try {
+                c.setTheme(ns._echartsTheme);
+                if (typeof c._rvRebuild === 'function') {
+                    c._rvRebuild();
+                    // A dashboard rebuild disposes this instance and builds a
+                    // fresh one from the data, already in the new theme.
+                    if (c.isDisposed()) return;
+                } else {
+                    c.setOption(c.getOption(), { notMerge: true });
+                }
+                ns._reapplyThemeStyles(c);
+            } catch (e) { /* keep going */ }
+        });
+
+        // MapLibre: rebuild each map so it picks up the new basemap + colours.
+        var maps = ns._allMaps.slice();
+        ns._allMaps = [];
+        maps.forEach(function (entry) {
+            try { if (entry.map && entry.map.remove) entry.map.remove(); } catch (e) { /* noop */ }
+            try { if (typeof entry.rebuild === 'function') entry.rebuild(); } catch (e) { /* noop */ }
+        });
+
+        // Custom canvas renderers (the knowledge graph): repaint in place, so the
+        // simulation's node positions survive the toggle. Drop detached entries.
+        ns._allRenderers = ns._allRenderers.filter(function (entry) {
+            return entry.el && entry.el.isConnected;
+        });
+        ns._allRenderers.forEach(function (entry) {
+            try { entry.redraw(); } catch (e) { /* keep going */ }
+        });
+    };
+
+    /* ------------------------------------------------------------------ */
+    /*  Builder helpers                                                    */
+    /* ------------------------------------------------------------------ */
+
+    /** Build a dataZoom config (slider + scroll) for timeline-type charts. */
+    ns.buildDataZoom = function (count) {
+        if (count <= 15) return [];
+        return [
+            { type: 'slider', start: 0, end: 100, bottom: 8, height: 22 },
+            { type: 'inside' }
+        ];
+    };
+
+    /**
+     * Add click-to-navigate and pointer cursor on chart elements. Builders put
+     * `itemId` on each series data item, which identifies the clicked datum even
+     * when two share a name; `entries` (an array, or a function returning the
+     * current one) is only the fallback lookup by name.
+     */
+    ns.addClickHandler = function (chart, entries, siteBase) {
+        if (!siteBase) return;
+        chart.on('click', function (params) {
+            var id = params.data && typeof params.data === 'object' ? params.data.itemId : null;
+            if (id == null) {
+                var list = typeof entries === 'function' ? entries() : entries;
+                var entry = (list || []).find(function (e) { return e.name === params.name; });
+                id = entry && entry.itemId;
+            }
+            if (id != null && id !== '') {
+                window.location.href = ns.itemUrl(siteBase, id);
+            }
+        });
+        chart.getZr().on('mousemove', function (e) {
+            chart.getZr().setCursorStyle(e.target ? 'pointer' : 'default');
+        });
+    };
+})();
+;
+
+/* ---- js/core/maps.js ---- */
+/**
+ * Dashboard core: the shared MapLibre layer — map construction and controls,
+ * the self-hosted basemap and its glyphs, attribution, legends, PNG export,
+ * and the small hover / fit helpers the map surfaces have in common.
+ *
+ * Source file of the generated asset/js/dashboard-core.js (see base.js).
+ */
+(function () {
+    'use strict';
+
+    var ns = window.RV = window.RV || {};
+
+    /* ------------------------------------------------------------------ */
+    /*  Construction and tracking                                          */
+    /* ------------------------------------------------------------------ */
+
+    /**
+     * Construct a MapLibre map, or return null after showing a notice in its
+     * container. Since MapLibre 6.7 the constructor THROWS (GPUInitializationError)
+     * when WebGL2 is unavailable — blocked GPU, old device, some VMs — instead of
+     * firing an `error` event, so every surface creates its maps through here
+     * and simply returns on null.
+     */
+    ns.createMap = function (options) {
+        try {
+            return new maplibregl.Map(options);
+        } catch (error) {
+            console.warn('DreVisualizations: map unavailable', error);
+            var container = typeof options.container === 'string'
+                ? document.getElementById(options.container) : options.container;
+            if (container) {
+                ns.setChildren(container, [ns.el('div', 'rv-no-data rv-map-unavailable', ns.t('mapUnavailable',
+                    'This map needs WebGL, which this browser or device cannot provide.'))]);
+            }
+            return null;
+        }
+    };
+
+    /**
+     * Standard MapLibre map bootstrap shared by the map chart builders: themed
+     * basemap, visible source attribution, cooperative gestures, and the common
+     * control set. Options:
+     *   center, zoom  — initial camera (default [0, 15] / 1.5);
+     *   nav           — NavigationControl options ({ visualizePitch: true } by
+     *                   default; e.g. { showCompass: false }) or false to skip;
+     *   globe         — false to skip the GlobeControl (default on when the
+     *                   vendored MapLibre provides it).
+     * Callers still wire theme rebuilds themselves via ns.trackMap(map, rebuild),
+     * and must return when it gives null (no WebGL; see ns.createMap).
+     */
+    ns.initMap = function (el, opts) {
+        opts = opts || {};
+        var map = ns.createMap({
+            container: el,
+            style: ns.getBasemapStyle(),
+            center: opts.center || [0, 15],
+            zoom: opts.zoom != null ? opts.zoom : 1.5,
+            attributionControl: ns.getMapAttributionOptions(),
+            cooperativeGestures: true
+        });
+        if (!map) return null;
+        if (opts.nav !== false) {
+            map.addControl(new maplibregl.NavigationControl(opts.nav || { visualizePitch: true }), 'top-right');
+        }
+        map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+        if (opts.globe !== false && maplibregl.GlobeControl) {
+            map.addControl(new maplibregl.GlobeControl(), 'top-right');
+        }
+        return map;
+    };
+
+    /**
      * Track a MapLibre map for re-theming. `rebuild` is a zero-arg closure that
      * re-creates the map (with the current basemap + theme colours) into the
      * same container; it is invoked on theme change.
@@ -832,77 +1303,8 @@
     };
 
     /* ------------------------------------------------------------------ */
-    /*  Icon buttons                                                       */
+    /*  Legend and export                                                  */
     /* ------------------------------------------------------------------ */
-
-    // One innerHTML sink for every inline icon in the module. The bodies passed in
-    // are module-authored path constants, never curator data — routing them all
-    // through here is what keeps the count in check-html-safety.mjs flat as blocks
-    // gain controls, instead of one sink per button.
-    var _iconHost = null;
-
-    /** Build an inline 24×24 stroke icon from an SVG path body. */
-    ns.iconSvg = function (body, size) {
-        if (!_iconHost) _iconHost = document.createElement('div');
-        size = size || 14;
-        _iconHost.innerHTML = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24"'
-            + ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"'
-            + ' stroke-linejoin="round" aria-hidden="true">' + body + '</svg>';
-        return _iconHost.firstChild;   // appending it elsewhere detaches it from the host
-    };
-
-    /**
-     * Replace an element's children with the given nodes (none = clear it).
-     *
-     * Two reasons this exists rather than `innerHTML = ''` plus appendChild: it
-     * keeps clearing a node off the innerHTML sink inventory
-     * (scripts/check-html-safety.mjs), and it falls back to a removal loop so no
-     * shipped surface depends on `replaceChildren` — a 2020 DOM API, newer than
-     * anything else the module relies on.
-     */
-    ns.setChildren = function (el, nodes) {
-        nodes = nodes || [];
-        if (el.replaceChildren) {
-            el.replaceChildren.apply(el, nodes);
-            return el;
-        }
-        while (el.firstChild) el.removeChild(el.firstChild);
-        for (var i = 0; i < nodes.length; i++) el.appendChild(nodes[i]);
-        return el;
-    };
-
-    /** A `.rv-btn` toolbar button carrying one ns.iconSvg glyph. */
-    ns.iconButton = function (body, label, title) {
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'rv-btn';
-        btn.setAttribute('aria-label', label);
-        btn.title = title || label;
-        btn.appendChild(ns.iconSvg(body));
-        return btn;
-    };
-
-    /**
-     * Track a renderer that owns its own canvas — neither an ECharts instance nor
-     * a MapLibre map, so neither of the two lists above can re-theme it. The
-     * knowledge graph is the one such surface: it paints nodes and edges itself,
-     * and on a light/dark toggle it only needs a repaint with the freshly read
-     * tokens (no re-layout — node positions must survive the toggle).
-     *
-     * `redraw` is a zero-arg closure invoked by ns.refresh() AFTER readTheme(), so
-     * it sees the new ns.THEME / ns.COLORS / ns.HALO values. Entries whose element
-     * has left the document are dropped instead of called.
-     *
-     * @param {HTMLElement} el      the container, used as the liveness check
-     * @param {Function}    redraw  repaint with the current theme
-     */
-    ns.trackRenderer = function (el, redraw, dispose) {
-        var entry = { el: el, redraw: redraw, dispose: dispose };
-        ns._allRenderers.push(entry);
-        return function () {
-            ns._allRenderers = ns._allRenderers.filter(function (candidate) { return candidate !== entry; });
-        };
-    };
 
     /**
      * Mount a map legend BELOW the map — appended to the enclosing .chart-panel,
@@ -929,11 +1331,6 @@
         return legend;
     };
 
-    /** Background colour to use when exporting a chart as a PNG. */
-    ns.exportBg = function () {
-        return ns.cssColor('--surface', ns._darkMode ? '#0e1612' : '#fdfcf9');
-    };
-
     /**
      * A MapLibre map as a PNG data URL, or null when it cannot be read.
      *
@@ -957,11 +1354,10 @@
         }
     };
 
-    /**
-     * Get the configured basemap style. Blank configuration intentionally
-     * yields a same-document background style, making maps privacy-safe by
-     * default (no tile/style/glyph requests leave the Omeka origin).
-     */
+    /* ------------------------------------------------------------------ */
+    /*  Basemap and attribution                                            */
+    /* ------------------------------------------------------------------ */
+
     /**
      * Glyph endpoint for MapLibre text layers. Falls back to the Noto Sans
      * ranges this module ships, so labels render with no third-party request.
@@ -1037,6 +1433,11 @@
         };
     };
 
+    /**
+     * Get the configured basemap style. Blank configuration falls back to the
+     * self-hosted style above, keeping maps privacy-safe by default (no
+     * tile/style/glyph requests leave the Omeka origin).
+     */
     ns.getBasemapStyle = function () {
         var config = window.RV_MAP_CONFIG || {};
         var configured = ns._darkMode
@@ -1081,9 +1482,7 @@
             if (!credited) {
                 var text = String((window.RV_MAP_CONFIG || {}).attribution || '');
                 if (!text) return; // nothing to credit — no empty control
-                options.customAttribution = text.replace(/[&<>"']/g, function (ch) {
-                    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
-                });
+                options.customAttribution = ns.escapeHtml(text);
             }
             map.addControl(new maplibregl.AttributionControl(options));
         };
@@ -1095,325 +1494,53 @@
         return map;
     };
 
-    /**
-     * Standard MapLibre map bootstrap shared by the map chart builders: themed
-     * basemap, visible source attribution, cooperative gestures, and the common
-     * control set. Options:
-     *   center, zoom  — initial camera (default [0, 15] / 1.5);
-     *   nav           — NavigationControl options ({ visualizePitch: true } by
-     *                   default; e.g. { showCompass: false }) or false to skip;
-     *   globe         — false to skip the GlobeControl (default on when the
-     *                   vendored MapLibre provides it).
-     * Callers still wire theme rebuilds themselves via ns.trackMap(map, rebuild),
-     * and must return when it gives null (no WebGL; see ns.createMap).
-     */
-    /**
-     * Construct a MapLibre map, or return null after showing a notice in its
-     * container. Since MapLibre 6.7 the constructor THROWS (GPUInitializationError)
-     * when WebGL2 is unavailable — blocked GPU, old device, some VMs — instead of
-     * firing an `error` event, so every surface creates its maps through here
-     * and simply returns on null.
-     */
-    ns.createMap = function (options) {
-        try {
-            return new maplibregl.Map(options);
-        } catch (error) {
-            console.warn('DreVisualizations: map unavailable', error);
-            var container = typeof options.container === 'string'
-                ? document.getElementById(options.container) : options.container;
-            if (container) {
-                ns.setChildren(container, [ns.el('div', 'rv-no-data rv-map-unavailable', ns.t('mapUnavailable',
-                    'This map needs WebGL, which this browser or device cannot provide.'))]);
-            }
-            return null;
-        }
-    };
-
-    ns.initMap = function (el, opts) {
-        opts = opts || {};
-        var map = ns.createMap({
-            container: el,
-            style: ns.getBasemapStyle(),
-            center: opts.center || [0, 15],
-            zoom: opts.zoom != null ? opts.zoom : 1.5,
-            attributionControl: ns.getMapAttributionOptions(),
-            cooperativeGestures: true
-        });
-        if (!map) return null;
-        if (opts.nav !== false) {
-            map.addControl(new maplibregl.NavigationControl(opts.nav || { visualizePitch: true }), 'top-right');
-        }
-        map.addControl(new maplibregl.FullscreenControl(), 'top-right');
-        if (opts.globe !== false && maplibregl.GlobeControl) {
-            map.addControl(new maplibregl.GlobeControl(), 'top-right');
-        }
-        return map;
-    };
-
-    /** Remove disposed charts from the tracking array. */
-    /** Dispose an owner's charts, workers, observers and simulations BEFORE replacing its DOM. */
-    ns.disposeWithin = function (root) {
-        function removed(el) { return !el || !el.isConnected || (root && (el === root || root.contains(el))); }
-        ns._allCharts = ns._allCharts.filter(function (chart) {
-            if (chart.isDisposed()) return false;
-            if (!removed(chart.getDom())) return true;
-            if (_resizeObserver) _resizeObserver.unobserve(chart.getDom());
-            chart.dispose();
-            return false;
-        });
-        ns._allMaps = ns._allMaps.filter(function (entry) {
-            if (!removed(entry.el)) return true;
-            try { entry.map.remove(); } catch (e) { /* already removed */ }
-            return false;
-        });
-        ns._allRenderers = ns._allRenderers.filter(function (entry) {
-            if (!removed(entry.el)) return true;
-            if (entry.dispose) entry.dispose();
-            return false;
-        });
-    };
-    ns.pruneCharts = function () { ns.disposeWithin(null); };
-
-    /**
-     * Re-apply the active theme to every live chart and map. Triggered when the
-     * DRE theme toggles between light and dark (or the system preference does).
-     */
-    /**
-     * Re-assert the ACTIVE theme's resolved style colours (tooltip, legend, base
-     * text, axes) onto a chart. Necessary because getOption() pins the PREVIOUS
-     * theme's resolved values, so re-applying that option (notMerge) would keep
-     * e.g. a light tooltip / light axis labels on the dark theme. A final merge
-     * setOption with the fresh theme styles overrides those stale pins — this is
-     * what makes the hover tooltip and axes follow light / dark.
-     */
-    ns._reapplyThemeStyles = function (c) {
-        var th = ns._echartsTheme, t = ns.THEME, opt = c.getOption();
-        var axisStyle = {
-            axisLabel: { color: t.textMuted },
-            axisLine: { lineStyle: { color: t.grid } },
-            axisTick: { lineStyle: { color: t.grid } }
-        };
-        var ov = {
-            color: ns.COLORS,
-            textStyle: { color: t.text },
-            tooltip: th.tooltip,
-            legend: th.legend,
-            title: th.title
-        };
-        ['xAxis', 'yAxis', 'radiusAxis', 'angleAxis', 'singleAxis', 'parallelAxis'].forEach(function (k) {
-            if (opt[k] && opt[k].length) ov[k] = opt[k].map(function () { return axisStyle; });
-        });
-        c.setOption(ov);
-    };
-
-    ns.refresh = function () {
-        ns.readTheme();
-        ns.pruneCharts();
-
-        // ECharts 6: switch the instance theme live, then re-assert the resolved
-        // theme styles. Graph-type charts re-apply their structural (per-node /
-        // edge) colours via _rvRebuild; the rest get their option re-applied with
-        // notMerge (setTheme's documented caveat after merge-mode setOptions).
-        // _reapplyThemeStyles then overrides the stale colours getOption() pinned.
-        ns._allCharts.forEach(function (c) {
-            try {
-                c.setTheme(ns._echartsTheme);
-                if (typeof c._rvRebuild === 'function') {
-                    c._rvRebuild();
-                    // A dashboard rebuild disposes this instance and builds a
-                    // fresh one from the data, already in the new theme.
-                    if (c.isDisposed()) return;
-                } else {
-                    c.setOption(c.getOption(), { notMerge: true });
-                }
-                ns._reapplyThemeStyles(c);
-            } catch (e) { /* keep going */ }
-        });
-
-        // MapLibre: rebuild each map so it picks up the new basemap + colours.
-        var maps = ns._allMaps.slice();
-        ns._allMaps = [];
-        maps.forEach(function (entry) {
-            try { if (entry.map && entry.map.remove) entry.map.remove(); } catch (e) { /* noop */ }
-            try { if (typeof entry.rebuild === 'function') entry.rebuild(); } catch (e) { /* noop */ }
-        });
-
-        // Custom canvas renderers (the knowledge graph): repaint in place, so the
-        // simulation's node positions survive the toggle. Drop detached entries.
-        ns._allRenderers = ns._allRenderers.filter(function (entry) {
-            return entry.el && entry.el.isConnected;
-        });
-        ns._allRenderers.forEach(function (entry) {
-            try { entry.redraw(); } catch (e) { /* keep going */ }
-        });
-    };
-
     /* ------------------------------------------------------------------ */
-    /*  Helpers                                                            */
+    /*  Interaction helpers                                                */
     /* ------------------------------------------------------------------ */
 
-    /** Build a dataZoom config (slider + scroll) for timeline-type charts. */
-    ns.buildDataZoom = function (count) {
-        if (count <= 15) return [];
-        return [
-            { type: 'slider', start: 0, end: 100, bottom: 8, height: 22 },
-            { type: 'inside' }
-        ];
-    };
-
-    /** Truncate a string with ellipsis if it exceeds maxLen. */
-    ns.truncateLabel = function (str, maxLen) {
-        if (!str) return '';
-        return str.length > maxLen ? str.substring(0, maxLen) + '…' : str;
-    };
-
-    /** Convert either format to array of { name, value, itemId? }. */
-    ns.toEntries = function (data) {
-        if (!data) return [];
-        if (Array.isArray(data)) return data;
-        return Object.keys(data).map(function (k) { return { name: k, value: data[k] }; });
+    /**
+     * Move the `hover` feature-state from one feature of `source` to another,
+     * so exactly one feature reads as hovered. Either id may be null (null
+     * `next` clears the hover). Returns `next`, to store as the new current id:
+     *   hoverId = ns.moveHover(map, SRC, hoverId, f.id);
+     */
+    ns.moveHover = function (map, source, prev, next) {
+        if (prev !== null && prev !== next) map.setFeatureState({ source: source, id: prev }, { hover: false });
+        if (next !== null) map.setFeatureState({ source: source, id: next }, { hover: true });
+        return next;
     };
 
     /**
-     * A public item page URL. The id is URI-encoded, so the result is safe in
-     * an href; inside HTML markup it still goes through ns.escapeHtml.
+     * Fit a map to a set of points: [lng, lat] pairs or { lon, lat } objects,
+     * or anything else through `lngLat(point)` → [lng, lat]. Nothing happens
+     * for an empty set, so callers need no guard of their own.
      */
-    ns.itemUrl = function (siteBase, id) {
-        return (siteBase || '') + '/item/' + encodeURIComponent(String(id));
-    };
-
-    /**
-     * A count with its noun, translated and pluralised for the page locale:
-     * ns.plural(3, 'member', 'Member', 'Members') → "3 Members". `key` names a
-     * pair of RV_I18N entries, `<key>One` and `<key>Other`; omit the count by
-     * passing `withCount` false (for a label such as "Members: …").
-     */
-    ns.plural = function (count, key, one, other, withCount) {
-        var rule;
-        try { rule = new Intl.PluralRules(ns.locale).select(Number(count)); } catch (e) { rule = count === 1 ? 'one' : 'other'; }
-        var word = rule === 'one' ? ns.t(key + 'One', one) : ns.t(key + 'Other', other);
-        return withCount ? ns.formatNumber(count) + ' ' + word : word;
-    };
-
-    /** Escape plain text before inserting it through innerHTML. */
-    ns.escapeHtml = function (value) {
-        return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
-            return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+    ns.fitToPoints = function (map, points, options, lngLat) {
+        var bounds = new maplibregl.LngLatBounds();
+        (points || []).forEach(function (p) {
+            bounds.extend(lngLat ? lngLat(p) : (Array.isArray(p) ? p : [p.lon, p.lat]));
         });
+        if (!bounds.isEmpty()) map.fitBounds(bounds, options);
+        return bounds;
     };
+})();
+;
 
-    /** Locale-consistent count formatting for stat cards, popups and tooltips. */
-    ns.formatNumber = function (n) {
-        var v = Number(n);
-        return isFinite(v) ? new Intl.NumberFormat(ns.locale).format(v) : String(n == null ? '' : n);
-    };
+/* ---- js/core/toolbar.js ---- */
+/**
+ * Dashboard core: the per-chart toolbar — save as image, download as CSV, and
+ * the fill-pattern (decal) toggle every chart shares.
+ *
+ * Source file of the generated asset/js/dashboard-core.js (see base.js).
+ */
+(function () {
+    'use strict';
 
-    /** Locale-consistent date formatting, with one safe fallback for bad input. */
-    ns.formatDate = function (value, options) {
-        var date = value instanceof Date ? value : new Date(value);
-        if (!isFinite(date.getTime())) return '';
-        return new Intl.DateTimeFormat(ns.locale, options || {}).format(date);
-    };
-
-    /** Live check of the user's reduced-motion preference (vestibular safety). */
-    ns.prefersReducedMotion = function () {
-        return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-    };
-
-    /** Create a DOM element with optional class and text content. */
-    ns.el = function (tag, className, text) {
-        var node = document.createElement(tag);
-        if (className) node.className = className;
-        if (text !== undefined && text !== null) node.textContent = text;
-        return node;
-    };
-
-    /**
-     * Add click-to-navigate and pointer cursor on chart elements. Builders put
-     * `itemId` on each series data item, which identifies the clicked datum even
-     * when two share a name; `entries` (an array, or a function returning the
-     * current one) is only the fallback lookup by name.
-     */
-    ns.addClickHandler = function (chart, entries, siteBase) {
-        if (!siteBase) return;
-        chart.on('click', function (params) {
-            var id = params.data && typeof params.data === 'object' ? params.data.itemId : null;
-            if (id == null) {
-                var list = typeof entries === 'function' ? entries() : entries;
-                var entry = (list || []).find(function (e) { return e.name === params.name; });
-                id = entry && entry.itemId;
-            }
-            if (id != null && id !== '') {
-                window.location.href = ns.itemUrl(siteBase, id);
-            }
-        });
-        chart.getZr().on('mousemove', function (e) {
-            chart.getZr().setCursorStyle(e.target ? 'pointer' : 'default');
-        });
-    };
+    var ns = window.RV = window.RV || {};
 
     /* ------------------------------------------------------------------ */
-    /*  Reveal-on-scroll (shared)                                          */
-    /*                                                                      */
-    /*  Fade + rise elements as they enter the viewport, one-shot. Mirrors  */
-    /*  the amira dashboard's revealOnScroll action. Two ways to use it:    */
-    /*   - dynamic nodes (e.g. masonry tiles built in JS): call             */
-    /*     ns.revealOnScroll(node, {delay}) right after creating them;      */
-    /*   - server-rendered nodes: add a `data-rv-reveal="<delayMs>"`        */
-    /*     attribute and the auto-init below observes them on load.         */
-    /*  The CSS (`[data-reveal=hidden|shown]`) does the actual transition,  */
-    /*  and honours prefers-reduced-motion; with JS off, nodes stay visible */
-    /*  (no `data-reveal` is ever set).                                     */
+    /*  Fill patterns (decals)                                             */
     /* ------------------------------------------------------------------ */
-
-    ns._revealObserver = null;
-    function revealObserver() {
-        if (ns._revealObserver) return ns._revealObserver;
-        if (!('IntersectionObserver' in window)) return null;
-        ns._revealObserver = new IntersectionObserver(function (entries, obs) {
-            entries.forEach(function (e) {
-                if (!e.isIntersecting) return;
-                var el = e.target;
-                var delay = +(el.dataset.rvRevealDelay || 0);
-                if (delay > 0) {
-                    setTimeout(function () { el.setAttribute('data-reveal', 'shown'); }, delay);
-                } else {
-                    el.setAttribute('data-reveal', 'shown');
-                }
-                obs.unobserve(el);
-            });
-        }, { rootMargin: '0px 0px -8% 0px' });
-        return ns._revealObserver;
-    }
-
-    var _reducedMotion = !!(window.matchMedia
-        && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-
-    ns.revealOnScroll = function (node, opts) {
-        opts = opts || {};
-        // Reduced motion (or no IntersectionObserver) → leave the node visible.
-        if (_reducedMotion) return;
-        var obs = revealObserver();
-        if (!obs) return;
-        if (opts.delay) node.dataset.rvRevealDelay = String(opts.delay);
-        node.setAttribute('data-reveal', 'hidden');
-        obs.observe(node);
-    };
-
-    function initReveal() {
-        var els = document.querySelectorAll('[data-rv-reveal]');
-        Array.prototype.forEach.call(els, function (el) {
-            var d = parseInt(el.getAttribute('data-rv-reveal'), 10);
-            ns.revealOnScroll(el, { delay: isFinite(d) ? d : 0 });
-        });
-    }
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initReveal, { once: true });
-    } else {
-        initReveal();
-    }
-
-    /* -- Global decal toggle state -- */
 
     ns._decalEnabled = false;
 
@@ -1557,6 +1684,19 @@
             }
         });
     };
+})();
+;
+
+/* ---- js/core/embed.js ---- */
+/**
+ * Dashboard core: the copy-embed-code buttons and the snippet they copy.
+ *
+ * Source file of the generated asset/js/dashboard-core.js (see base.js).
+ */
+(function () {
+    'use strict';
+
+    var ns = window.RV = window.RV || {};
 
     /* ------------------------------------------------------------------ */
     /*  Embed buttons (copy iframe snippet)                                */
@@ -1726,12 +1866,154 @@
             })(hosts[i]);
         }
     };
+})();
+;
 
-    /** Backward-compatible helpers bundle for external chart modules. */
-    ns.helpers = {
-        THEME: ns.THEME, COLORS: ns.COLORS,
-        initChart: ns.initChart, truncateLabel: ns.truncateLabel
+/* ---- js/core/graph-walk.js ---- */
+/**
+ * Dashboard core: the arrow-key model every graph on the site shares — the
+ * d3-force graphs (graph-force.js) and the MapLibre Entity Network
+ * (entity-graph-ui.js). Here so both renderer chains, which never load each
+ * other, walk with one implementation.
+ *
+ * Source file of the generated asset/js/dashboard-core.js (see base.js).
+ */
+(function () {
+    'use strict';
+
+    var ns = window.RV = window.RV || {};
+
+    /**
+     * One arrow-key step through a graph. Left/Right step through every visible
+     * node in reading order and make the node they land on the "hub"; Up/Down
+     * then walk that hub's own neighbours, falling back to the reading order
+     * when the hub has none. Holding the hub across an Up/Down run is what keeps
+     * the walk predictable — re-rooting on every step would wander off.
+     *
+     * Pure: no DOM, no rendering. The caller owns focus, announcements and
+     * every other key (Enter, zoom, Escape), which differ per renderer.
+     *
+     * @param {string}   key        the KeyboardEvent.key
+     * @param {Array}    order      visible node keys, in reading order (non-empty)
+     * @param {*}        focus      the focused node key, or null
+     * @param {Object}   walk       { hub, cursor } — the caller's walk state,
+     *                              updated in place; start it at { hub: null, cursor: -1 }
+     * @param {Function} neighbours hub key → its visible neighbours' keys
+     * @returns {*} the key to focus next, or null when `key` is not an arrow
+     */
+    ns.graphStep = function (key, order, focus, walk, neighbours) {
+        var at = focus == null ? -1 : order.indexOf(focus);
+        var dir;
+        if (key === 'ArrowRight' || key === 'ArrowLeft') {
+            dir = key === 'ArrowRight' ? 1 : -1;
+            walk.hub = order[(at + dir + order.length) % order.length];
+            walk.cursor = -1;
+            return walk.hub;
+        }
+        if (key === 'ArrowDown' || key === 'ArrowUp') {
+            dir = key === 'ArrowDown' ? 1 : -1;
+            if (walk.hub == null) walk.hub = focus == null ? order[0] : focus;
+            var nb = neighbours(walk.hub);
+            if (!nb.length) {
+                walk.hub = order[(at + dir + order.length) % order.length];
+                return walk.hub;
+            }
+            walk.cursor = (walk.cursor + dir + nb.length) % nb.length;
+            return nb[walk.cursor];
+        }
+        return null;
     };
+})();
+;
+
+/* ---- js/core/reveal.js ---- */
+/**
+ * Dashboard core: reveal-on-scroll. Observes server-rendered
+ * [data-rv-reveal] nodes as soon as it loads, so it comes late in the order.
+ *
+ * Source file of the generated asset/js/dashboard-core.js (see base.js).
+ */
+(function () {
+    'use strict';
+
+    var ns = window.RV = window.RV || {};
+
+    /* ------------------------------------------------------------------ */
+    /*  Reveal-on-scroll (shared)                                          */
+    /*                                                                      */
+    /*  Fade + rise elements as they enter the viewport, one-shot. Mirrors  */
+    /*  the amira dashboard's revealOnScroll action. Two ways to use it:    */
+    /*   - dynamic nodes (e.g. masonry tiles built in JS): call             */
+    /*     ns.revealOnScroll(node, {delay}) right after creating them;      */
+    /*   - server-rendered nodes: add a `data-rv-reveal="<delayMs>"`        */
+    /*     attribute and the auto-init below observes them on load.         */
+    /*  The CSS (`[data-reveal=hidden|shown]`) does the actual transition,  */
+    /*  and honours prefers-reduced-motion; with JS off, nodes stay visible */
+    /*  (no `data-reveal` is ever set).                                     */
+    /* ------------------------------------------------------------------ */
+
+    ns._revealObserver = null;
+    function revealObserver() {
+        if (ns._revealObserver) return ns._revealObserver;
+        if (!('IntersectionObserver' in window)) return null;
+        ns._revealObserver = new IntersectionObserver(function (entries, obs) {
+            entries.forEach(function (e) {
+                if (!e.isIntersecting) return;
+                var el = e.target;
+                var delay = +(el.dataset.rvRevealDelay || 0);
+                if (delay > 0) {
+                    setTimeout(function () { el.setAttribute('data-reveal', 'shown'); }, delay);
+                } else {
+                    el.setAttribute('data-reveal', 'shown');
+                }
+                obs.unobserve(el);
+            });
+        }, { rootMargin: '0px 0px -8% 0px' });
+        return ns._revealObserver;
+    }
+
+    var _reducedMotion = !!(window.matchMedia
+        && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+    ns.revealOnScroll = function (node, opts) {
+        opts = opts || {};
+        // Reduced motion (or no IntersectionObserver) → leave the node visible.
+        if (_reducedMotion) return;
+        var obs = revealObserver();
+        if (!obs) return;
+        if (opts.delay) node.dataset.rvRevealDelay = String(opts.delay);
+        node.setAttribute('data-reveal', 'hidden');
+        obs.observe(node);
+    };
+
+    function initReveal() {
+        var els = document.querySelectorAll('[data-rv-reveal]');
+        Array.prototype.forEach.call(els, function (el) {
+            var d = parseInt(el.getAttribute('data-rv-reveal'), 10);
+            ns.revealOnScroll(el, { delay: isFinite(d) ? d : 0 });
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initReveal, { once: true });
+    } else {
+        initReveal();
+    }
+})();
+;
+
+/* ---- js/core/startup.js ---- */
+/**
+ * Dashboard core: start-up. Resolves the theme, watches for light/dark
+ * switches, mounts the block embed buttons and installs the global resize
+ * fallbacks. It calls into every other core file as soon as it runs, so it
+ * MUST stay last in the concatenation order.
+ *
+ * Source file of the generated asset/js/dashboard-core.js (see base.js).
+ */
+(function () {
+    'use strict';
+
+    var ns = window.RV = window.RV || {};
 
     /* ------------------------------------------------------------------ */
     /*  Theme watchers + global resize                                     */
@@ -1811,3 +2093,4 @@
         });
     }, true);
 })();
+;

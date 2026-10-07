@@ -22,24 +22,6 @@
     var ns = window.RV;
     if (!ns) { console.warn('DreVisualizations: dashboard-core.js must load before knowledge-graph-data.js'); return; }
 
-    // Property -> category mapping (used in the API fallback only; the precompute
-    // owns the same table in PHP).
-    var PROP_CAT = {
-        'dcterms:creator': 'Person', 'dcterms:contributor': 'Person', 'foaf:member': 'Person',
-        'dcterms:subject': 'Subject', 'dcterms:spatial': 'Location', 'dcterms:provenance': 'Location',
-        'dcterms:isPartOf': 'Project', 'dcterms:format': 'Genre', 'frapo:isFundedBy': 'Institution',
-        'dcterms:relation': 'Related item', 'dcterms:hasPart': 'Related item',
-        'dcterms:replaces': 'Related item', 'dcterms:isReplacedBy': 'Related item',
-        'dcterms:hasVersion': 'Related item', 'dcterms:isVersionOf': 'Related item',
-        'dcterms:hasFormat': 'Related item'
-    };
-
-    function getCat(term) {
-        if (PROP_CAT[term]) return PROP_CAT[term];
-        if (term.indexOf('marcrel:') === 0) return 'Contributor';
-        return null;
-    }
-
     /* ------------------------------------------------------------------ */
     /*  Loading                                                            */
     /* ------------------------------------------------------------------ */
@@ -52,60 +34,6 @@
         ns.basePath = container.dataset.basePath || '';
 
         return ns.fetchDataJson('knowledge-graphs/' + encodeURIComponent(itemId) + '.json');
-    }
-
-    /** Build a graph from a single REST API item response (no shared items). */
-    function buildFromApi(item) {
-        var itemId = item['o:id'];
-        var rc = item['o:resource_class'];
-        var centerCat = (rc && rc['o:label']) || ns.t('itemFallback', 'Item');
-
-        var nodes = [], edges = [], categories = [{ name: centerCat }];
-        var catMap = {}; catMap[centerCat] = 0;
-        var seen = {};
-        // Omeka happily stores the same linked resource twice on one property. Those
-        // are one statement, and drawing them twice would double the node's degree —
-        // which now feeds the hub sizing and the "connections in view" count.
-        var edgeSeen = {};
-
-        function ensureCat(name) {
-            if (catMap[name] === undefined) { catMap[name] = categories.length; categories.push({ name: name }); }
-            return catMap[name];
-        }
-
-        nodes.push({
-            id: 'item_' + itemId, name: item['o:title'] || ns.t('itemFallback', 'Item'),
-            category: 0, symbolSize: 45, isCenter: true, itemId: itemId
-        });
-
-        Object.keys(item).forEach(function (key) {
-            if (!Array.isArray(item[key]) || key.indexOf(':') === -1) return;
-            if (key.indexOf('o:') === 0 || key.indexOf('@') === 0) return;
-
-            var cat = getCat(key);
-            if (!cat) return;
-            var catIdx = ensureCat(cat);
-
-            item[key].forEach(function (v) {
-                if (!v.value_resource_id) return;
-                var nid = 'resource_' + v.value_resource_id;
-                if (!seen[nid]) {
-                    seen[nid] = true;
-                    nodes.push({
-                        id: nid, name: v.display_title || '', category: catIdx,
-                        symbolSize: 22, itemId: v.value_resource_id
-                    });
-                }
-                // Keyed by property too, so the same resource under two different
-                // properties stays two statements — only exact repeats collapse.
-                var ekey = nid + ' ' + key;
-                if (edgeSeen[ekey]) return;
-                edgeSeen[ekey] = true;
-                edges.push({ source: 'item_' + itemId, target: nid, name: v.property_label || key });
-            });
-        });
-
-        return { nodes: nodes, edges: edges, categories: categories };
     }
 
     /* ------------------------------------------------------------------ */
@@ -260,10 +188,6 @@
 
     ns.kgData = {
         load: load,
-        buildFromApi: buildFromApi,
-        getCategory: getCat,
-        edgeWidth: edgeWidth,
-        edgeOpacity: edgeOpacity,
         hasFilterData: hasFilterData,
         hasSharedNodes: hasSharedNodes,
         filterGraph: filterGraph,

@@ -31,27 +31,15 @@
         return ns._countriesGeoJSON;
     }
 
-    /** Parse an 'rgb(r,g,b)' / 'rgba(...)' string to [r, g, b]. */
-    function parseRGB(str) {
-        var m = /(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/.exec(str || '');
-        return m ? [+m[1], +m[2], +m[3]] : [34, 129, 123];
-    }
-
-    function mix(a, b, t) {
-        return 'rgb(' + Math.round(a[0] + (b[0] - a[0]) * t) + ','
-            + Math.round(a[1] + (b[1] - a[1]) * t) + ','
-            + Math.round(a[2] + (b[2] - a[2]) * t) + ')';
-    }
-
-    /** Five sequential stops (light tint → accent) + a neutral no-data fill. */
+    /**
+     * Five sequential stops (light tint → accent) + a neutral no-data fill. The
+     * shared ns.accentRamp, a touch lighter at the low end than a visualMap's so
+     * the faintest countries still read against the basemap's land fill.
+     */
     function buildRamp() {
-        var isDark = ns.isDark();
-        var accent = parseRGB(THEME.accent);
-        var base = parseRGB(ns.cssColor('--surface', isDark ? '#0e1612' : '#fdfcf9'));
-        var ratios = [0.82, 0.62, 0.42, 0.22, 0]; // mix toward base; 0 = full accent
         return {
-            stops: ratios.map(function (r) { return mix(accent, base, r); }),
-            empty: ns.cssColor('--border-light', isDark ? '#1e2622' : '#eae8e3')
+            stops: ns.accentRamp([0.82, 0.62, 0.42, 0.22, 0]), // toward the surface; 0 = full accent
+            empty: ns.cssColor('--border-light', ns.isDark() ? '#1e2622' : '#eae8e3')
         };
     }
 

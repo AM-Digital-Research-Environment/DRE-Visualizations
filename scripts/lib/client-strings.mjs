@@ -13,8 +13,9 @@
  * hand-maintained list drifting from the code.
  */
 import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, sep } from 'node:path';
 import vm from 'node:vm';
+import { isGeneratedJs } from './frontend-sources.mjs';
 
 const STRING = String.raw`'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"`;
 const T_CALL = new RegExp(String.raw`(?:\bns\.t|(?<![\w.])t)\(\s*'([\w.]+)'\s*,\s*(${STRING})\s*\)`, 'g');
@@ -34,8 +35,10 @@ export function collectClientStrings(root) {
     }
   };
 
-  for (const name of readdirSync(jsDir).sort()) {
-    if (!name.endsWith('.js') || name.endsWith('.bundle.js')) continue;
+  // Sources only (asset/js and asset/js/core): a generated bundle repeats them.
+  const names = readdirSync(jsDir, { recursive: true }).map((name) => String(name).split(sep).join('/')).sort();
+  for (const name of names) {
+    if (!name.endsWith('.js') || isGeneratedJs('js/' + name)) continue;
     const source = readFileSync(join(jsDir, name), 'utf8');
     for (const match of source.matchAll(T_CALL)) add(match[1], literal(match[2]), name);
     for (const match of source.matchAll(PLURAL)) {

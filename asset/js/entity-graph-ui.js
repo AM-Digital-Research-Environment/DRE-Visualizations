@@ -39,11 +39,10 @@
      *
      * A WebGL canvas is opaque to both: before this the Entity Network carried
      * role="application" and a label but had no key handling at all, so there was
-     * no way in. The key model is deliberately the one graph-force.js already uses
-     * on the knowledge graph — left/right step through the entities and set the
-     * "hub", up/down then walk that hub's own neighbours — so there is one set of
-     * gestures for every graph on the site. Holding the hub across an up/down run
-     * is what makes the walk predictable; re-rooting on each step would wander off.
+     * no way in. The arrow keys run the one walk every graph on the site shares
+     * (ns.graphStep, dashboard-core) — left/right step through the entities and set
+     * the "hub", up/down then walk that hub's own neighbours — so there is one set
+     * of gestures for the knowledge graph, the co-occurrence networks and this map.
      *
      * @param {HTMLElement} host  the focusable stage (a click target already)
      * @param {Object} spec {
@@ -64,8 +63,7 @@
         host.appendChild(status);
 
         var focusIdx = null;
-        var hubIdx = null;
-        var cursor = -1;
+        var walk = { hub: null, cursor: -1 };
 
         function announce(text) { status.textContent = text || ''; }
 
@@ -77,8 +75,8 @@
 
         function clear() {
             focusIdx = null;
-            hubIdx = null;
-            cursor = -1;
+            walk.hub = null;
+            walk.cursor = -1;
             announce('');
         }
 
@@ -91,24 +89,10 @@
 
             var order = spec.order();
             if (!order.length) return;
-            var at = focusIdx == null ? -1 : order.indexOf(focusIdx);
-            var next = null;
+            var next = ns.graphStep(ev.key, order, focusIdx, walk, spec.neighbours);
+            if (next != null) { moveTo(next); ev.preventDefault(); return; }
 
-            if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') {
-                next = order[(at + (ev.key === 'ArrowRight' ? 1 : -1) + order.length) % order.length];
-                hubIdx = next;
-                cursor = -1;
-            } else if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
-                if (hubIdx == null) hubIdx = focusIdx == null ? order[0] : focusIdx;
-                var nb = spec.neighbours(hubIdx);
-                if (!nb.length) {
-                    next = order[(at + (ev.key === 'ArrowDown' ? 1 : -1) + order.length) % order.length];
-                    hubIdx = next;
-                } else {
-                    cursor = (cursor + (ev.key === 'ArrowDown' ? 1 : -1) + nb.length) % nb.length;
-                    next = nb[cursor];
-                }
-            } else if (ev.key === 'Enter' || ev.key === ' ') {
+            if (ev.key === 'Enter' || ev.key === ' ') {
                 if (focusIdx != null) { spec.onActivate(focusIdx); ev.preventDefault(); }
                 return;
             } else if (ev.key === '+' || ev.key === '=') {
@@ -122,12 +106,7 @@
                 // not leave fullscreen while a selection is open behind it.
                 if (spec.onEscape()) { ev.stopPropagation(); return; }
                 if (focusIdx != null) { clear(); spec.onFocus(null); ev.stopPropagation(); }
-                return;
-            } else {
-                return;
             }
-
-            if (next != null) { moveTo(next); ev.preventDefault(); }
         });
 
         host.addEventListener('blur', function () {
@@ -398,7 +377,6 @@
     }
 
     ns.egUI = {
-        ICON: ICON,
         attachKeyboard: attachKeyboard,
         wireSearchKeys: wireSearchKeys,
         buildClusterSelect: buildClusterSelect,

@@ -1,9 +1,10 @@
 /**
  * Knowledge Graph controller — wires the four pieces together on an item page.
  *
- *   knowledge-graph-data.js  → the payload, the REST fallback, the IDF filters
+ *   knowledge-graph-data.js  → the payload and the IDF filters
  *   graph-force.js           → the reusable d3-force canvas renderer
- *   knowledge-graph-ui.js    → the toolbar, filter panel, legend, text alternative
+ *   graph-chrome.js          → the shared legend, detail card and hint
+ *   knowledge-graph-ui.js    → the toolbar, filter panel, text alternative
  *   item-location-map.js     → the MapLibre panel below, when the item is placed
  *
  * This file owns only the sequence: lazy-mount → load → build → mount chrome. It
@@ -92,7 +93,7 @@
         // Chrome below the stage: legend, gesture hint, text alternative. Below —
         // never over the canvas — the same rule the module's map legends follow.
         var panel = container.parentElement;
-        var legend = kgUI.buildLegend(graph, categories, colorOf);
+        var legend = ns.graphChrome.buildLegend(graph, categories, colorOf);
         if (panel) {
             panel.appendChild(legend.el);
             panel.appendChild(kgUI.buildHint());
@@ -149,31 +150,24 @@
 
     /**
      * Lazy-mount: the graph sits below the item metadata, so defer the d3-force
-     * stack and the render until the block nears the viewport. Mirrors dashboard.js.
+     * stack and the render until the block nears the viewport (ns.mountWhenVisible).
      * Note it asks for d3 ONLY — an item page whose one viz block is the graph never
      * downloads ECharts, and MapLibre follows later if the item has coordinates.
      */
-    function mountWhenVisible(container) {
-        var run = function () {
-            (ns.ensureLibs ? ns.ensureLibs({ d3: true }) : Promise.resolve())
+    function mount(container) {
+        ns.mountWhenVisible(container, function () {
+            ns.ensureLibs({ d3: true })
                 .then(function () { initKnowledgeGraph(container); })
                 .catch(function (err) {
                     console.error('DreVisualizations:', err);
                     showMessage(container, 'rv-error', t('kgNoEngine', 'The graph could not be loaded. Please try again.'));
                 });
-        };
-        if (!('IntersectionObserver' in window)) { run(); return; }
-        var io = new IntersectionObserver(function (entries) {
-            for (var i = 0; i < entries.length; i++) {
-                if (entries[i].isIntersecting) { io.disconnect(); run(); break; }
-            }
-        }, { rootMargin: '600px 0px' });
-        io.observe(container);
+        });
     }
 
     function init() {
         var cs = document.querySelectorAll('.knowledge-graph-container');
-        for (var i = 0; i < cs.length; i++) mountWhenVisible(cs[i]);
+        for (var i = 0; i < cs.length; i++) mount(cs[i]);
     }
 
     if (document.readyState === 'loading') {
