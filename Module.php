@@ -39,6 +39,7 @@ class Module extends AbstractModule
 
     public function upgrade($oldVersion, $newVersion, ServiceLocatorInterface $serviceLocator)
     {
+        self::registerAutoloader();
         $this->withdrawSnapshots();
         // Old module versions exposed these paths directly. Purge them on upgrade.
         $publisher = new Precompute\SnapshotPublisher(__DIR__ . '/asset/data', 1, (string) $newVersion);
@@ -47,6 +48,7 @@ class Module extends AbstractModule
 
     public function uninstall(ServiceLocatorInterface $serviceLocator)
     {
+        self::registerAutoloader();
         $this->withdrawSnapshots();
         $settings = $serviceLocator->get('Omeka\Settings');
         foreach ([
@@ -58,6 +60,25 @@ class Module extends AbstractModule
         ] as $key) {
             $settings->delete($key);
         }
+    }
+
+    /**
+     * Omeka loads only active modules, yet runs upgrade() on a needs_upgrade
+     * module and uninstall() on a deactivated one. There the src/ autoloader was
+     * never registered (nor the module config merged), so register it before
+     * touching any module class.
+     */
+    private static function registerAutoloader(): void
+    {
+        static $registered = false;
+        if ($registered) return;
+        $registered = true;
+        spl_autoload_register(static function (string $class): void {
+            $prefix = __NAMESPACE__ . '\\';
+            if (!str_starts_with($class, $prefix)) return;
+            $path = __DIR__ . '/src/' . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+            if (is_file($path)) require_once $path;
+        });
     }
 
     public function getConfigForm(PhpRenderer $renderer)

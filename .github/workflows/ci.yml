@@ -67,6 +67,7 @@ jobs:
           php scripts/check-module-contract.php "$RUNNER_TEMP/omeka-s"
           php tests/integration/CoreContractsTest.php "$RUNNER_TEMP/omeka-s"
           php tests/integration/DatabaseTest.php "$RUNNER_TEMP/omeka-s"
+          php tests/integration/LifecycleTest.php "$RUNNER_TEMP/omeka-s"
 
   embeddings:
     runs-on: ubuntu-latest

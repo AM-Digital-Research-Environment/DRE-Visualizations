@@ -39,6 +39,7 @@ jobs:
           php tests/integration/CoreContractsTest.php "$RUNNER_TEMP/omeka-s"
           php scripts/test-php.php
           php tests/integration/DatabaseTest.php "$RUNNER_TEMP/omeka-s"
+          php tests/integration/LifecycleTest.php "$RUNNER_TEMP/omeka-s"
       - name: Build Omeka-ready archive
         run: |
           git archive --format=zip --prefix=DreVisualizations/ "${GITHUB_SHA}" -o DreVisualizations.zip

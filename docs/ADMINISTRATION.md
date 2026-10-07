@@ -37,6 +37,14 @@ mount a private volume at `/var/lib/omeka/dre-visualizations` with ownership
 assigned to the Omeka runtime user. Configure the same value for PHP-FPM and
 job workers. The module code need not be writable for generation.
 
+Under Docker, the directory must already exist in the image, owned by the
+runtime user, before the volume is first mounted. A named volume mounted at a
+path the image lacks starts out root-owned, and a container running as
+`www-data` without `CAP_CHOWN` cannot then write to its own store. Create it in
+the Dockerfile, e.g. `RUN install -d -o www-data -g www-data -m 0700
+/var/lib/omeka/dre-visualizations`, or `chown` an existing volume once from a
+privileged one-off container.
+
 If unset, storage uses an installation-specific OS temporary directory. A host
 cleanup can remove it, requiring regeneration. Separate containers must share
 the private volume and support filesystem locks. Web-root paths and directory

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.29.1 — 2026-10-07
+
+### Fixed
+
+- Upgrading to 2.29.0 stopped at `Class "DreVisualizations\Precompute\SnapshotStore" not found` and left the module in `needs_upgrade`, which hides every visualization. Omeka runs `upgrade()`, and `uninstall()` on a deactivated module, without loading the module, so none of its classes autoloaded. Both hooks now register the module autoloader themselves.
+- Add an Omeka-core regression that runs both hooks as Omeka does: no module autoloader, no merged module configuration.
+- Document creating the private storage directory, owned by the runtime user, before a Docker volume is first mounted there.
+
+**Upgrade:** like 2.29.0, upgrading withdraws publication, so regenerate afterwards. Sites still on 2.28.x upgrade straight to 2.29.1; a 2.29.0 upgrade that was completed by hand needs nothing extra.
+
 ## 2.29.0 — 2026-10-05
 
 - Serve only the current canonical-site snapshot through a no-store Omeka endpoint, backed by private storage outside the document root. Withdraw on data changes, reject stale publications, and honor job cancellation. Upgrade removes old public generated files.

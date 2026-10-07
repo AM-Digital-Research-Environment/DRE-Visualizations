@@ -26,6 +26,7 @@ php scripts/test-php.php
 php scripts/check-module-contract.php /path/to/omeka-s
 php tests/integration/DatabaseTest.php /path/to/omeka-s
 php tests/integration/CoreContractsTest.php /path/to/omeka-s
+php tests/integration/LifecycleTest.php /path/to/omeka-s
 python -m unittest discover -s tools/embeddings/tests -v
 ```
 
