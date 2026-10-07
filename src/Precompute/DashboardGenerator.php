@@ -181,46 +181,33 @@ abstract class DashboardGenerator
         $this->artifacts->write($path, $payload);
     }
 
+    /**
+     * The charts every entity dashboard shares, as dashboard key => builder.
+     * A builder returning null (nothing to show) leaves its key out, which the
+     * browser treats as "no panel".
+     */
     protected function addStandardCharts(array &$dashboard, int $entityId, string $entityTitle, array $itemIds): void
     {
-        if ($v = $this->aggregators->buildHeatmap($itemIds, $this->links, $this->items)) {
-            $dashboard['heatmap'] = $v;
-        }
-        if ($v = $this->aggregators->buildChord($itemIds, $this->links, $this->items)) {
-            $dashboard['chord'] = $v;
-        }
-        if ($v = $this->aggregators->buildStackedTimeline($itemIds, $this->links, $this->items, $this->itemYear)) {
-            $dashboard['stackedTimeline'] = $v;
-        }
-        if ($v = $this->aggregators->buildSankey($itemIds, $this->links, $this->items)) {
-            $dashboard['sankey'] = $v;
-        }
-        if ($v = $this->aggregators->buildSunburst($itemIds, $this->links, $this->items)) {
-            $dashboard['sunburst'] = $v;
-        }
-        if ($v = $this->aggregators->buildRoles($itemIds, $this->links, $this->items)) {
-            $dashboard['roles'] = $v;
-        }
-        if ($v = $this->aggregators->buildContributorNetwork($entityId, $entityTitle, $itemIds, $this->items, $this->links, $this->childrenOf)) {
-            $dashboard['contributorNetwork'] = $v;
-        }
-        if ($v = $this->aggregators->buildSubjectTrends($itemIds, $this->links, $this->items, $this->itemYear)) {
-            $dashboard['subjectTrends'] = $v;
-        }
-        if ($v = $this->aggregators->buildLanguageTimeline($itemIds, $this->links, $this->items, $this->itemYear)) {
-            $dashboard['languageTimeline'] = $v;
-        }
-        if ($v = $this->aggregators->buildTreemap($itemIds, $this->links, $this->items, $this->childrenOf, $entityTitle)) {
-            $dashboard['treemap'] = $v;
-        }
-        if ($v = $this->aggregators->buildGeoFlows($itemIds, $this->links, $this->items, $this->geo)) {
-            $dashboard['geoFlows'] = $v;
-        }
-        if ($v = $this->aggregators->buildChoropleth($itemIds, $this->links, $this->countryIndex)) {
-            $dashboard['choropleth'] = $v;
-        }
-        if ($v = $this->aggregators->buildTimeChord($itemIds, $this->links, $this->items, $this->itemYear)) {
-            $dashboard['timeChord'] = $v;
+        $a = $this->aggregators;
+        $charts = [
+            'heatmap' => fn () => $a->buildHeatmap($itemIds, $this->links, $this->items),
+            'chord' => fn () => $a->buildChord($itemIds, $this->links, $this->items),
+            'stackedTimeline' => fn () => $a->buildStackedTimeline($itemIds, $this->links, $this->items, $this->itemYear),
+            'sankey' => fn () => $a->buildSankey($itemIds, $this->links, $this->items),
+            'sunburst' => fn () => $a->buildSunburst($itemIds, $this->links, $this->items),
+            'roles' => fn () => $a->buildRoles($itemIds, $this->links, $this->items),
+            'contributorNetwork' => fn () => $a->buildContributorNetwork($entityId, $entityTitle, $itemIds, $this->items, $this->links, $this->childrenOf),
+            'subjectTrends' => fn () => $a->buildSubjectTrends($itemIds, $this->links, $this->items, $this->itemYear),
+            'languageTimeline' => fn () => $a->buildLanguageTimeline($itemIds, $this->links, $this->items, $this->itemYear),
+            'treemap' => fn () => $a->buildTreemap($itemIds, $this->links, $this->items, $this->childrenOf, $entityTitle),
+            'geoFlows' => fn () => $a->buildGeoFlows($itemIds, $this->links, $this->items, $this->geo),
+            'choropleth' => fn () => $a->buildChoropleth($itemIds, $this->links, $this->countryIndex),
+            'timeChord' => fn () => $a->buildTimeChord($itemIds, $this->links, $this->items, $this->itemYear),
+        ];
+        foreach ($charts as $key => $build) {
+            if ($value = $build()) {
+                $dashboard[$key] = $value;
+            }
         }
     }
 
