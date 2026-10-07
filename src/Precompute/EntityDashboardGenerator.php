@@ -172,7 +172,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
             usort($coauthors, static fn ($a, $b) => ($b['value'] <=> $a['value'])
                 ?: strcmp((string) $a['name'], (string) $b['name'])
                 ?: ((int) $a['itemId'] <=> (int) $b['itemId']));
-            $dashboard['coAuthors'] = array_slice(array_values($coauthors), 0, 20);
+            $dashboard['coAuthors'] = array_slice($coauthors, 0, 20);
             unset($dashboard['contributors']);
 
             if ($roles = $this->aggregators->buildRolesFor($pid, $itemIds, $this->links)) {
@@ -293,7 +293,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
             usort($cosubs, static fn ($a, $b) => ($b['value'] <=> $a['value'])
                 ?: strcmp((string) $a['name'], (string) $b['name'])
                 ?: ((int) $a['itemId'] <=> (int) $b['itemId']));
-            $dashboard['coSubjects'] = array_slice(array_values($cosubs), 0, 30);
+            $dashboard['coSubjects'] = array_slice($cosubs, 0, 30);
             unset($dashboard['subjects']);
             $dashboard['resourceType'] = 'authority';
             $this->save($sid, $dashboard);

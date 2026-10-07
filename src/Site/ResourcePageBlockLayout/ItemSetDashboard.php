@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace DreVisualizations\Site\ResourcePageBlockLayout;
 
 use Laminas\View\Renderer\PhpRenderer;

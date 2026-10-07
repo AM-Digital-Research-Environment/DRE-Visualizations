@@ -1,7 +1,10 @@
 name: CI
 
+# Also called by release.yml (workflow_call), so a release runs exactly these
+# gates rather than a reduced copy of them.
 on:
   workflow_dispatch:
+  workflow_call:
   pull_request:
   push:
     branches: [main]
@@ -10,71 +13,98 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # A release calls this workflow; keep its run separate from branch runs.
+  group: ci-${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+env:
+  OMEKA_S_VERSION: 4.2.1
+  PHPSTAN_VERSION: 2.3.0
 
 jobs:
   browser-contracts:
     runs-on: ubuntu-latest
     steps:
-      # actions/checkout v7.0.1, verified upstream 2026-07-31.
+      # actions/checkout v7.0.1, verified upstream 2026-10-07.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      # actions/setup-node v7.0.0, verified upstream 2026-10-07.
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version-file: .nvmrc
+          cache: npm
       - run: npm ci
       - run: npm run check
+      # actions/cache v6.1.0, verified upstream 2026-10-07. The browser build is
+      # keyed on the exact Playwright version in the lockfile.
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:browser
+      - name: Browser lifecycle tests
+        env:
+          PLAYWRIGHT_ARTIFACT_DIR: ${{ runner.temp }}/playwright
+        run: npm run test:browser
+      # actions/upload-artifact v7.0.2, verified upstream 2026-10-07.
+      - name: Upload browser failure evidence
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: playwright-failure
+          path: ${{ runner.temp }}/playwright
+          if-no-files-found: ignore
+          retention-days: 7
 
   php:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.2', '8.3', '8.4', '8.5']
+        # The supported range (module.ini php_version_constraint >=8.4);
+        # production runs 8.5.
+        php: ['8.4', '8.5']
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      # shivammathur/setup-php 2.37.2, verified upstream 2026-06-08.
+      # shivammathur/setup-php 2.37.2, verified upstream 2026-10-07.
       - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
         with:
           php-version: ${{ matrix.php }}
           coverage: none
           tools: none
       - name: PHP syntax
-        run: find . \( -name '*.php' -o -name '*.phtml' \) -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
+        run: find . \( -name '*.php' -o -name '*.phtml' \) -not -path './vendor/*' -not -path './node_modules/*' -print0 | xargs -0 -n1 -P4 php -l > /dev/null
       - name: Pure PHP regression harnesses
-        run: |
-          php scripts/test-php.php
-
-  # `php -l` parses; it does not check an override against its parent. Declaring
-  # the module's classes against a real Omeka S core does, which is the only way
-  # a bad hook signature fails here instead of blanking an admin page.
-  module-contract:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
-        with:
-          php-version: '8.4'
-          coverage: none
-          tools: none
-      # Omeka S 4.2.1, the current release of the supported ^4.0.0 line.
+        run: php scripts/test-php.php
+      # Omeka S core: declaring the module's classes against it is the only way
+      # a bad hook signature fails here instead of blanking an admin page, and
+      # the integration suites run the generators against its Doctrine stack.
       - name: Fetch Omeka S core
         run: |
           curl -fsSL -o "$RUNNER_TEMP/omeka-s.zip" \
-            https://github.com/omeka/omeka-s/releases/download/v4.2.1/omeka-s-4.2.1.zip
+            "https://github.com/omeka/omeka-s/releases/download/v${OMEKA_S_VERSION}/omeka-s-${OMEKA_S_VERSION}.zip"
           unzip -q "$RUNNER_TEMP/omeka-s.zip" -d "$RUNNER_TEMP"
-      - name: Module classes declare against Omeka S
+      - name: Module contract and integration suites
         run: |
           php scripts/check-module-contract.php "$RUNNER_TEMP/omeka-s"
           php tests/integration/CoreContractsTest.php "$RUNNER_TEMP/omeka-s"
           php tests/integration/DatabaseTest.php "$RUNNER_TEMP/omeka-s"
           php tests/integration/LifecycleTest.php "$RUNNER_TEMP/omeka-s"
+          php tests/integration/GoldenTest.php "$RUNNER_TEMP/omeka-s"
+      - name: Static analysis (PHPStan)
+        if: matrix.php == '8.5'
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/phpstan.phar" \
+            "https://github.com/phpstan/phpstan/releases/download/${PHPSTAN_VERSION}/phpstan.phar"
+          php -d memory_limit=2G "$RUNNER_TEMP/phpstan.phar" analyse -c phpstan.neon.dist \
+            --autoload-file "$RUNNER_TEMP/omeka-s/vendor/autoload.php" --no-progress
 
   embeddings:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      # actions/setup-python v6.3.0, verified upstream 2026-07-31.
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+      # actions/setup-python v7.0.0, verified upstream 2026-10-07.
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: '3.12'
           cache: pip

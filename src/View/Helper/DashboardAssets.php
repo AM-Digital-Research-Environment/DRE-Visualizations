@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace DreVisualizations\View\Helper;
 
 use DreVisualizations\Module;
@@ -178,10 +179,10 @@ class DashboardAssets extends AbstractHelper
 
     /**
      * @param array $options {
-     *     @var bool   $cdn        Inject the CSS + vendored library URLs/eager
+     *     bool   cdn        Inject the CSS + vendored library URLs/eager
      *                             scripts + dashboard-core.js prelude. Legacy
      *                             option name; use on site-page blocks. Default false.
-     *     @var string $controller Controller chain to append after the builders:
+     *     string controller Controller chain to append after the builders:
      *                             'dashboard' (default), 'compare', or '' / null
      *                             for none (e.g. a block with its own controller).
      * }

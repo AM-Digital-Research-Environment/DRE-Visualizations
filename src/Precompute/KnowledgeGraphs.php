@@ -120,7 +120,7 @@ final class KnowledgeGraphs
         $freqPct = [];
         if ($totalItems > 0) {
             foreach ($docFreq as $vrid => $df) {
-                $idf[$vrid] = $df > 0 ? round(log($totalItems / $df), 2) : 0.0;
+                $idf[$vrid] = round(log($totalItems / $df), 2);
                 $freqPct[$vrid] = round($df / $totalItems * 100, 1);
             }
         }

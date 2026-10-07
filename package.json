@@ -17,7 +17,8 @@
     "test": "node --test tests/js/*.test.mjs",
     "check": "npm test && npm run check:bundles && npm run lint:tokens && npm run check:js && npm run check:registry && npm run check:html && npm run check:a11y && npm run check:graph && npm run check:release",
     "test:browser": "node tests/browser/lifecycle.mjs",
-    "test:php": "node scripts/test-php-docker.mjs"
+    "test:php": "node scripts/test-php-docker.mjs",
+    "phpstan": "node scripts/phpstan.mjs"
   },
   "author": "Frédérick Madore",
   "license": "GPL-3.0-or-later",

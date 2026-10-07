@@ -116,7 +116,7 @@ final class SnapshotStore
     public function revision(): string
     {
         if (!is_file($this->directory . '/revision.json')) {
-            (new JsonArtifactWriter())->write($this->directory . '/revision.json', ['revision' => bin2hex(random_bytes(16))]);
+            (new JsonArtifactWriter())->write($this->directory . '/revision.json', ['revision' => bin2hex(random_bytes(16))], durable: true);
         }
         return $this->readRevision() ?? throw new RuntimeException('Invalid publication revision.');
     }
@@ -134,8 +134,8 @@ final class SnapshotStore
         $this->locked(function (): void {
             // Changing the revision also revokes the old manifest if the tombstone write fails.
             $writer = new JsonArtifactWriter();
-            $writer->write($this->directory . '/revision.json', ['revision' => bin2hex(random_bytes(16))]);
-            $writer->write($this->directory . '/current.json', ['withdrawn' => true]);
+            $writer->write($this->directory . '/revision.json', ['revision' => bin2hex(random_bytes(16))], durable: true);
+            $writer->write($this->directory . '/current.json', ['withdrawn' => true], durable: true);
         });
     }
 

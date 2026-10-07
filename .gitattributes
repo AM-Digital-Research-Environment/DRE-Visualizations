@@ -33,6 +33,9 @@ asset/fonts/**/*.pbf -text -diff linguist-vendored
 /.gitignore export-ignore
 /CONTRIBUTING.md export-ignore
 /package.json export-ignore
+/.nvmrc export-ignore
+/phpstan.neon.dist export-ignore
+/phpstan-baseline.neon export-ignore
 
 # Never ship installation-derived legacy JSON. Runtime generations are created
 # after installation and are already ignored by Git.

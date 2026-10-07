@@ -104,9 +104,22 @@ final class PublicCorpus
         return $projected;
     }
 
-    /** @param array<int|string,mixed> $values @param array<int,bool> $allowed */
+    /**
+     * The entries whose key is allowed. DataLoader's queries are already
+     * site-scoped, so normally nothing is dropped: then the input array itself
+     * is returned and copy-on-write keeps one copy of the (large) literal and
+     * date maps instead of two while the loader's locals are still alive.
+     *
+     * @param array<int|string,mixed> $values
+     * @param array<int,bool> $allowed
+     */
     private function filterKeyed(array $values, array $allowed): array
     {
-        return array_intersect_key($values, $allowed);
+        foreach ($values as $key => $_) {
+            if (!isset($allowed[$key])) {
+                return array_intersect_key($values, $allowed);
+            }
+        }
+        return $values;
     }
 }

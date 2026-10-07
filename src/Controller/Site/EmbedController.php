@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace DreVisualizations\Controller\Site;
 
 use Laminas\Mvc\Controller\AbstractActionController;
@@ -184,7 +185,7 @@ class EmbedController extends AbstractActionController
         // A :viz segment requests a single chart; only the dashboard blocks
         // (rendered by dashboard.js from a chart-key layout) support it.
         $viz = (string) $this->params()->fromRoute('viz', '');
-        if ($viz !== '' && (($info['kind'] ?? '') !== 'dashboard'
+        if ($viz !== '' && ($info['kind'] !== 'dashboard'
             || !in_array($viz, self::layoutCharts((string) ($info['layout'] ?? '')), true))) {
             return $this->notFound();
         }

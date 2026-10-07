@@ -25,6 +25,9 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  # A PR opened with GITHUB_TOKEN triggers no pull_request workflows, so CI is
+  # dispatched on the bot branch explicitly (gh workflow run, below).
+  actions: write
 
 concurrency:
   group: semantic-embeddings
@@ -43,8 +46,8 @@ jobs:
       # actions/checkout v7.0.1, verified upstream 2026-07-31.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      # actions/setup-python v6.3.0, verified upstream 2026-07-31.
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+      # actions/setup-python v7.0.0, verified upstream 2026-10-07.
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: '3.12'
           cache: pip
@@ -101,6 +104,7 @@ jobs:
             gh pr create --base main --head "$branch" \
               --title "Semantic embeddings: refresh public artifacts" \
               --body "Automated public-only semantic-map and recommendation refresh from workflow run ${GITHUB_RUN_ID}."
+            gh workflow run ci.yml --ref "$branch"
           fi
 
       - name: Publish versioned full-vector release

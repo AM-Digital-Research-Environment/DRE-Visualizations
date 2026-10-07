@@ -1,0 +1,33 @@
+# Static analysis against a real Omeka S core (its vendor autoloader resolves
+# Omeka, Laminas and Doctrine classes). Run with `npm run phpstan` (Docker, needs
+# OMEKA_CORE) or in CI. New findings fail; the baseline lists accepted ones and
+# should only shrink.
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 5
+    phpVersion: 80400
+    paths:
+        - Module.php
+        - src
+    bootstrapFiles:
+        - tests/bootstrap.php
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: true
+    ignoreErrors:
+        # Laminas resolves view helpers and controller plugins through __call
+        # (PhpRenderer::translate(), AbstractController::messenger(), …), and
+        # MVC hands controllers the HTTP request/response behind the generic
+        # Stdlib interfaces; PHPStan cannot see either without a Laminas
+        # extension, which would be a dependency for no other gain.
+        - identifier: method.notFound
+          message: '#^Call to an undefined method Laminas\\View\\Renderer\\(PhpRenderer|RendererInterface)::\w+\(\)\.$#'
+        - identifier: method.notFound
+          message: '#^Call to an undefined method (DreVisualizations\\Controller\\\w+\\\w+|Laminas\\Mvc\\Controller\\AbstractController)::\w+\(\)\.$#'
+        - identifier: method.notFound
+          message: '#^Call to an undefined method Laminas\\Stdlib\\(Request|Response)Interface::\w+\(\)\.$#'
+        # AbstractActionController documents indexAction() as returning a
+        # ViewModel; the data endpoint deliberately returns the response.
+        - identifier: return.type
+          path: src/Controller/Site/DataController.php

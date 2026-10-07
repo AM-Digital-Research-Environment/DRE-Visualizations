@@ -113,7 +113,7 @@ final class SnapshotPublisher
                 if ($store->revision() !== $revision) {
                     throw new RuntimeException('The corpus changed during generation; publication was withdrawn. Regenerate again.');
                 }
-                $this->artifacts->write($this->dataDir . '/current.json', $manifest);
+                $this->artifacts->write($this->dataDir . '/current.json', $manifest, durable: true);
             });
             $this->prune($generationsDir, $generationId);
             return $manifest;

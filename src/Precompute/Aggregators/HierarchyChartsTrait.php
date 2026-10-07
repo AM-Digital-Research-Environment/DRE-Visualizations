@@ -68,7 +68,7 @@ trait HierarchyChartsTrait
             }
             $result[] = $typeNode;
         }
-        return $result ?: null;
+        return $result;
     }
 
     /** Build Project -> Type treemap hierarchy. */

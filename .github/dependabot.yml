@@ -1,0 +1,19 @@
+# Monthly version updates. Every pin in this repository is exact (actions by
+# commit SHA), so these PRs are the routine way pins move; review the upstream
+# release notes before merging a major bump.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+  - package-ecosystem: pip
+    directories:
+      - /tools/embeddings
+      - /tools/wordclouds
+    schedule:
+      interval: monthly

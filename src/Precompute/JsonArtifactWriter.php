@@ -19,12 +19,21 @@ final class JsonArtifactWriter
         if (is_dir($dir)) {
             return;
         }
-        if (!mkdir($dir, 0775, true) && !is_dir($dir)) {
+        // Private: everything written here lives in the snapshot store and is
+        // served only through DataController, never directly by the web server.
+        if (!mkdir($dir, 0700, true) && !is_dir($dir)) {
             throw new RuntimeException(sprintf('Unable to create directory "%s".', $dir));
         }
     }
 
-    public function write(string $path, array $payload): void
+    /**
+     * Atomically replace $path with the JSON encoding of $payload. A $durable
+     * write is flushed to disk before the rename, so the file survives a crash
+     * or power loss — for the publication state (current.json, revision.json),
+     * not for each of the thousands of artifacts in a generation, which are
+     * only reachable once the durable manifest names them.
+     */
+    public function write(string $path, array $payload, bool $durable = false): void
     {
         $dir = dirname($path);
         $this->ensureDirectory($dir);
@@ -38,8 +47,14 @@ final class JsonArtifactWriter
             ));
         }
 
+        // The temporary name is unique to this process, so no lock is needed.
         $tmp = $this->temporaryPath($path);
-        if (file_put_contents($tmp, $json, LOCK_EX) === false) {
+        $handle = fopen($tmp, 'xb');
+        $ok = $handle !== false && fwrite($handle, $json) === strlen($json)
+            && (!$durable || (fflush($handle) && fsync($handle)));
+        if ($handle !== false) fclose($handle);
+        if (!$ok) {
+            @unlink($tmp);
             throw new RuntimeException(sprintf('Unable to write temporary JSON artifact "%s".', $tmp));
         }
 

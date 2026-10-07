@@ -12,44 +12,33 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Every CI gate — both PHP versions, the integration and golden suites,
+  # PHPStan, the browser tests and the embedding contracts — not a subset.
+  ci:
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
   release:
+    needs: ci
     runs-on: ubuntu-latest
     steps:
-      # actions/checkout v7.0.1, verified upstream 2026-07-31.
+      # actions/checkout v7.0.1, verified upstream 2026-10-07.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
-      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+      # actions/setup-node v7.0.0, verified upstream 2026-10-07.
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
-          php-version: '8.4'
-          coverage: none
-          tools: none
-      # Omeka S 4.2.1, the current release of the supported ^4.0.0 line.
-      - name: Fetch Omeka S core
-        run: |
-          curl -fsSL -o "$RUNNER_TEMP/omeka-s.zip" \
-            https://github.com/omeka/omeka-s/releases/download/v4.2.1/omeka-s-4.2.1.zip
-          unzip -q "$RUNNER_TEMP/omeka-s.zip" -d "$RUNNER_TEMP"
-      - name: Validate tag, metadata, and source
-        run: |
-          npm run check
-          node scripts/check-release-metadata.mjs --tag "${GITHUB_REF_NAME}"
-          find . \( -name '*.php' -o -name '*.phtml' \) -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
-          php scripts/check-module-contract.php "$RUNNER_TEMP/omeka-s"
-          php tests/integration/CoreContractsTest.php "$RUNNER_TEMP/omeka-s"
-          php scripts/test-php.php
-          php tests/integration/DatabaseTest.php "$RUNNER_TEMP/omeka-s"
-          php tests/integration/LifecycleTest.php "$RUNNER_TEMP/omeka-s"
+          node-version-file: .nvmrc
+      - name: Validate tag against release metadata
+        run: node scripts/check-release-metadata.mjs --tag "${GITHUB_REF_NAME}"
       - name: Build Omeka-ready archive
         run: |
           git archive --format=zip --prefix=DreVisualizations/ "${GITHUB_SHA}" -o DreVisualizations.zip
           test "$(unzip -Z1 DreVisualizations.zip | cut -d/ -f1 | sort -u)" = "DreVisualizations"
           unzip -p DreVisualizations.zip DreVisualizations/config/module.ini | grep -F "version = \"${GITHUB_REF_NAME#v}\""
-          unzip -Z1 DreVisualizations.zip | grep -Fx 'DreVisualizations/asset/js/dashboard-charts.bundle.js'
-          if unzip -Z1 DreVisualizations.zip | grep -Eq '^DreVisualizations/asset/data/((item-dashboards|communities|knowledge-graphs|photo-galleries|featured-collections|item-set-dashboards)/|network-explorer\.json$)'; then
-            echo 'Release archive contains installation-derived generated data.' >&2
-            exit 1
-          fi
+          node scripts/check-release-archive.mjs DreVisualizations.zip
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}

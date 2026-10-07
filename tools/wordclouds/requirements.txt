@@ -1,7 +1,7 @@
 # Word-cloud builder (CI only — see .github/workflows/wordclouds.yml).
 # The exact spaCy language-model wheels are installed in the workflow.
-spacy==3.8.14
-click==8.4.2
+spacy==3.8.16
+click==8.5.0
 # Language detection for items with no declared dcterms:language.
 langdetect==1.0.9
 
