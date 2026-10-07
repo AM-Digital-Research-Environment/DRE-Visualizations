@@ -1,5 +1,8 @@
 # Repository-review roadmap status
 
+> Superseded: the review of 2.29.1 (2026-10-07) is tracked in
+> [ROADMAP.md](ROADMAP.md).
+
 This status tracks implementation of the review performed against `a93ab945`.
 
 ## Implemented in 2.21.0

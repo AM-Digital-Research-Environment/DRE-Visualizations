@@ -22,16 +22,38 @@ npm run build
 npm run check
 npx playwright install chromium
 npm run test:browser
-php scripts/test-php.php
-php scripts/check-module-contract.php /path/to/omeka-s
-php tests/integration/DatabaseTest.php /path/to/omeka-s
-php tests/integration/CoreContractsTest.php /path/to/omeka-s
-php tests/integration/LifecycleTest.php /path/to/omeka-s
+OMEKA_CORE=/path/to/omeka-s npm run test:php   # PHP 8.5 in Docker; add -- --php 8.4
+OMEKA_CORE=/path/to/omeka-s npm run phpstan
 python -m unittest discover -s tools/embeddings/tests -v
 ```
 
-The aggregators are dependency-free and unit-tested — add a mock-data case for
-every new builder.
+`npm run test:php` needs only Docker: it lints every PHP file and runs the
+harnesses, the module contract and every integration suite (including the
+golden output) against the Omeka S core in `OMEKA_CORE`. Without `OMEKA_CORE`
+it runs the dependency-free harnesses only. With a local PHP the same commands
+are listed in `.github/workflows/ci.yml`.
+
+The PHP harnesses fail on any warning, notice or deprecation the module raises
+(`tests/lib/strict-errors.php`). The aggregators are dependency-free and
+unit-tested — add a mock-data case for every new builder.
+
+**Golden output.** `tests/integration/GoldenTest.php` runs the whole precompute
+on a fixed synthetic corpus (`tests/integration/fixtures/GoldenCorpus.php`) and
+compares every artifact with `tests/golden/`. A change that alters generated
+JSON fails it; when the change is intended, regenerate with `UPDATE_GOLDEN=1`
+(e.g. `docker run … -e UPDATE_GOLDEN=1 php:8.5-cli php
+tests/integration/GoldenTest.php /omeka-s`) and review the diff in the commit.
+
+**Artifact schema.** If a change alters the shape of an artifact the browser
+reads — a renamed or re-typed key, a new required key, a different id scheme —
+bump `SnapshotPublisher::SCHEMA_VERSION`. Older snapshots then stop being
+served after the upgrade until an administrator regenerates; otherwise the
+published snapshot keeps being served across module upgrades.
+
+**Interface strings.** Write every visible string as `ns.t('key', 'English')`
+(`ns.plural` for counts, `ns.fill` for placeholders). `npm run build` collects
+them into `config/client-strings.json`, which PHP translates; a key used with
+two different English texts fails the build.
 
 Whenever you touch a class that extends an Omeka base — `Module.php`, a block
 layout, a controller, a job — remember that `php -l` cannot see a bad override:

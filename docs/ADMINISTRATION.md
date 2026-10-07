@@ -50,10 +50,14 @@ cleanup can remove it, requiring regeneration. Separate containers must share
 the private volume and support filesystem locks. Web-root paths and directory
 symlinks are rejected. Restrict storage permissions to the Omeka runtime user.
 
-Upgrade through Omeka's module screen. The 2.29 upgrade withdraws publication
-and removes old public generations, manifests, generated directories and derived
-inputs under `asset/data`, preserving static geography. Purge any proxy cache
-of the old URLs, then regenerate.
+Upgrade through Omeka's module screen. From 2.30 on, an upgrade keeps serving
+the published snapshot unless the new version reads a different artifact schema
+(the changelog says so, and the old snapshot then stops being served until you
+regenerate). Upgrading from a version before 2.29 still withdraws publication
+and removes old public generations, manifests, generated directories and
+derived inputs under `asset/data`, preserving static geography; purge any proxy
+cache of the old URLs, then regenerate. Uninstalling removes the generated data
+from private storage (the directory itself stays, as it may be a volume).
 
 Use **DRE Visualizations → Regenerate now**. One destination-wide lock covers
 all publishers, including canonical-site changes. Artifacts are validated in

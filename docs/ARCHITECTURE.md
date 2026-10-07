@@ -1,8 +1,10 @@
 # Architecture
 
-1. DataLoader streams public, site-scoped rows through Omeka's DBAL connection.
+1. DataLoader reads public, site-scoped rows through Omeka's DBAL connection.
    It reads the property map once and loads all generator inputs, including public
-   literals/media, without supplemental SQL in individual generators.
+   literals/media, without supplemental SQL in individual generators. Only links
+   and the literal properties generators use (`DataLoader::LITERAL_TERMS`) are
+   fetched; asking a generator for any other literal term throws.
 2. PublicCorpus deduplicates exact source/term/target statements, filters both
    endpoints and rebuilds consistent relationship indexes. Distinct roles remain.
 3. CorpusSnapshot validates and freezes the complete generator input.
@@ -14,8 +16,12 @@
    policy lock coordinates withdrawal, protected reads and the final revision/site
    check. An additional source-write guard prevents revision capture or publication
    during an active API mutation. Publication uses validated staging plus atomic manifests.
-6. DataController and PublishedSnapshot read current private storage. Browser
-   requests fail closed; there is no legacy or permission-dependent API fallback.
+6. DataController and PublishedSnapshot read current private storage under a
+   shared lock (writers lock exclusively), open the artifact, and stream it after
+   releasing the lock. Manifests of another `SnapshotPublisher::SCHEMA_VERSION`
+   are not served. Browser requests fail closed; there is no legacy or
+   permission-dependent API fallback, and blocks render nothing unless their
+   artifact is published for the canonical site (`Site\PublishedData`).
 
 Generated groups include dashboards, communities, graphs, galleries, featured
 collections, item contexts, the network explorer and validated semantic inputs.
