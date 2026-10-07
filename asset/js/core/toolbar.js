@@ -125,6 +125,7 @@
         bar.className = 'rv-chart-toolbar';
         bar.setAttribute('role', 'toolbar');
         bar.setAttribute('aria-label', panelTitle ? toolbarLabel + ': ' + panelTitle : toolbarLabel);
+        // eslint-disable-next-line no-unsanitized/property -- icon constants + escaped titles
         bar.innerHTML = (showDecal
             ? '<button type="button" class="rv-toolbar-btn' + (ns._decalEnabled ? ' rv-toolbar-btn-active' : '') + '" data-action="decal" title="' + ns.escapeHtml(decalTitle) + '" aria-label="' + ns.escapeHtml(decalTitle) + '">'
             + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><line x1="4" y1="14" x2="14" y2="4"/><line x1="4" y1="8" x2="8" y2="4"/><line x1="10" y1="20" x2="20" y2="10"/><line x1="16" y1="20" x2="20" y2="16"/></svg>'

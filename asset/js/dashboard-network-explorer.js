@@ -199,6 +199,7 @@
 
         if (ns.renderStatCards) {
             var statsWrap = document.createElement('div');
+            // eslint-disable-next-line no-unsanitized/property -- renderStatCards escapes labels and values
             statsWrap.innerHTML = ns.renderStatCards(tab.stats(graph));
             while (statsWrap.firstChild) tabPanel.appendChild(statsWrap.firstChild);
         }

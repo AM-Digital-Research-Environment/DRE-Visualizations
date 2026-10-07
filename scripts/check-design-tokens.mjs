@@ -67,13 +67,14 @@ const BASE_RULES = {
   // not the "accent side-stripe" tell. The theme allowlists the same idiom in
   // _linked-resources.scss and _navigation.scss.
   stripe: { allow: ['asset/css/dre-visualizations.css'] },
-  radius: { allow: ['view/dre-visualizations/admin/'] },
   // Page geometry in JS is layout maths (canvas sizes, force-graph radii), not
   // CSS, and the px rules do not apply to it.
   pxGeometry: { allow: ['asset/js/', 'view/'] },
   fontSize: { allow: ['asset/js/'] },
   spacing: { allow: ['asset/js/'] },
-  radius: { allow: ['asset/js/'] },
+  // Also the admin maintenance view, which Omeka's admin theme styles; this
+  // key was once declared twice, so that exemption was silently dropped.
+  radius: { allow: ['asset/js/', 'view/dre-visualizations/admin/'] },
   leading: { allow: ['asset/js/'] },
   zindex: { allow: ['asset/js/'] },
 };

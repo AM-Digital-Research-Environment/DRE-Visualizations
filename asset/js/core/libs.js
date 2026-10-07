@@ -92,6 +92,7 @@
             if (ns._libPromises[key]) return ns._libPromises[key];
             ns._libPromises[key] = !src
                 ? Promise.resolve()
+                // eslint-disable-next-line no-unsanitized/method -- server-configured RV_LIBS URL
                 : import(src).then(function (mod) {
                     if (register) register(mod);
                 });

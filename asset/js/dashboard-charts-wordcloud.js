@@ -168,6 +168,7 @@
             var dc = defaultCount();
             var slider = document.createElement('div');
             slider.className = 'rv-word-slider';
+            // eslint-disable-next-line no-unsanitized/property -- escaped caption + numbers
             slider.innerHTML = '<label><span class="rv-word-slider-caption">' + ns.escapeHtml(ns.t('words', 'Number of words')) + '</span>'
                 + '<input type="range" min="5" max="' + entries.length + '" value="' + dc + '" step="1">'
                 + '<span class="rv-word-slider-value">' + dc + '</span></label>';

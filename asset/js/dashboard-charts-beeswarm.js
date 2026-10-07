@@ -15,19 +15,6 @@
 
     ns.charts = ns.charts || {};
 
-    /**
-     * Deterministic pseudo-random jitter from a string seed.
-     * Returns a value in [-amplitude, +amplitude].
-     */
-    function jitter(seed, amplitude) {
-        var h = 0;
-        for (var i = 0; i < seed.length; i++) {
-            h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
-        }
-        // Map hash to [-1, 1] range, then scale
-        return (((h & 0x7fffffff) % 1000) / 500 - 1) * amplitude;
-    }
-
     ns.charts.buildBeeswarm = function (el, data, siteBase) {
         if (!data || !data.length) return;
         var chart = initChart(el);
@@ -55,9 +42,10 @@
         var sizeRange = maxSize - minSize || 1;
         var minSymbol = 10, maxSymbol = 36;
 
-        // Build scatter data: [x, y + jitter, size, label, itemId, category]
+        // Build scatter data: [start year, section index]. The y-axis spreads
+        // points within their section band itself (ECharts 6 axis jitter).
         var seriesData = data.map(function (d) {
-            var y = catIdx[d.category] + jitter(d.label + d.value, 0.3);
+            var y = catIdx[d.category];
             var normSize = (d.size - minSize) / sizeRange;
             var symbolSize = minSymbol + normSize * (maxSymbol - minSymbol);
             return {
@@ -95,7 +83,8 @@
                 }
             },
             aria: { enabled: true },
-            grid: { left: 160, right: 30, top: 20, bottom: 40 },
+            // Sized to the real label width (ECharts 6 outer bounds).
+            grid: { left: 8, right: 30, top: 20, bottom: 40 },
             xAxis: {
                 type: 'value',
                 name: ns.t('beeswarmStartYear', 'Start year'),
@@ -111,6 +100,12 @@
             yAxis: {
                 type: 'category',
                 data: catOrder,
+                // A true beeswarm: ECharts places each point in its band
+                // without overlap (jitterOverlap: false, deterministic), where a
+                // hashed offset used to stack equal start years on one another.
+                jitter: Math.max(8, Math.round(((el.clientHeight || 420) - 60) / Math.max(1, catOrder.length) * 0.8)),
+                jitterOverlap: false,
+                jitterMargin: 1,
                 axisLabel: {
                     fontSize: THEME.fontSize,
                     width: 140,

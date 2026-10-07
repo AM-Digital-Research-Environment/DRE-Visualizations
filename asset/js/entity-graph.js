@@ -233,7 +233,6 @@
         var hoverPopup = null;
         var hoverId = null;
         var listPanel = null;          // the text alternative, mounted at the end
-        var keys = null;               // the keyboard walker (ns.egUI.attachKeyboard)
 
         /* ------------------------------------------------------------------ */
         /*  Paint expressions                                                  */
@@ -1115,7 +1114,7 @@
         /* ------------------------------------------------------------------ */
 
         function attachKeyboard() {
-            keys = ns.egUI.attachKeyboard(canvas, {
+            ns.egUI.attachKeyboard(canvas, {
                 // Hubs first (the precompute's own `rank`), so the walk starts where
                 // the graph is densest rather than at an arbitrary array position.
                 order: function () {

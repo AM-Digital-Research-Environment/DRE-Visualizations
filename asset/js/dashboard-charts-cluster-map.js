@@ -133,6 +133,7 @@
                 btn.className = 'rv-cluster-legend__item';
                 btn.setAttribute('aria-pressed', String(visible[k]));
                 if (!visible[k]) btn.classList.add('is-off');
+                // eslint-disable-next-line no-unsanitized/property -- palette colour + escaped label
                 btn.innerHTML = '<span class="rv-cluster-legend__dot" style="background:' + colorFor[k] + '"></span>'
                     + '<span class="rv-cluster-legend__label">' + esc(labelFor[k] || k) + '</span>';
                 btn.addEventListener('click', function () {

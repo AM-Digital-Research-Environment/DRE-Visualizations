@@ -135,6 +135,7 @@
         // render path (inline mode, Project Explorer) leaves `collapsible`
         // undefined and keeps the flat layout it has always used.
         if (collapsible) {
+            // eslint-disable-next-line no-unsanitized/property -- escaped heading, labels and descriptions
             container.innerHTML = '<details class="rv-collapsible" open>'
                 + '<summary class="rv-collapsible__head">'
                 + headInner
@@ -146,6 +147,7 @@
                 + '</div>'
                 + '</details>';
         } else {
+            // eslint-disable-next-line no-unsanitized/property -- escaped heading, labels and descriptions
             container.innerHTML = statsHtml
                 + (chartOnly ? '' : '<div class="dashboard-header">' + headInner + '</div>')
                 + chartsHtml;

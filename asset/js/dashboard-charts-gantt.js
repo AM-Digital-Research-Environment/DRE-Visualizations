@@ -44,7 +44,8 @@
                 }
             },
             aria: { enabled: true },
-            grid: { left: 220, right: 30, top: 10, bottom: 30 },
+            // Sized to the real label width (ECharts 6 outer bounds), not a fixed 220px.
+            grid: { left: 8, right: 30, top: 10, bottom: 30 },
             xAxis: {
                 type: 'time',
                 min: new Date(minYear, 0, 1).getTime(),

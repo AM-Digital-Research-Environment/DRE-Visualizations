@@ -92,7 +92,7 @@
         return '<div class="rv-stat-card">'
             + '<div class="rv-stat-body">'
             + '<p class="rv-stat-label">' + esc(s.label) + '</p>'
-            + '<p class="rv-stat-value">' + fmt(s.value) + '</p>'
+            + '<p class="rv-stat-value">' + esc(fmt(s.value)) + '</p>'
             + (s.subtitle ? '<p class="rv-stat-sub">' + esc(s.subtitle) + '</p>' : '')
             + '</div>'
             + '<span class="rv-stat-badge">' + SVG_OPEN + iconFor(s.key) + '</svg></span>'

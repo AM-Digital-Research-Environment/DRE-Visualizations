@@ -107,6 +107,7 @@
         if (stale) stale.remove();
         var legend = document.createElement('div');
         legend.className = 'rv-map-legend' + (extraClass ? ' ' + extraClass : '');
+        // eslint-disable-next-line no-unsanitized/property -- callers pass legend markup built with ns.escapeHtml
         legend.innerHTML = innerHtml;
         panel.appendChild(legend);
         return legend;

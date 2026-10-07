@@ -147,6 +147,7 @@
     ns.iconSvg = function (body, size) {
         if (!_iconHost) _iconHost = document.createElement('div');
         size = size || 14;
+        // eslint-disable-next-line no-unsanitized/property -- module-authored SVG path constants; size is a number
         _iconHost.innerHTML = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24"'
             + ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"'
             + ' stroke-linejoin="round" aria-hidden="true">' + body + '</svg>';

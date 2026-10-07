@@ -256,6 +256,7 @@
     function chip(iconInner, label) {
         var span = document.createElement('span');
         span.className = 'photo-card-chip';
+        // eslint-disable-next-line no-unsanitized/property -- module-authored icon
         span.innerHTML = svg(iconInner, 'photo-chip-icon');
         span.appendChild(document.createTextNode(' ' + label));
         return span;
@@ -376,6 +377,7 @@
         box.setAttribute('aria-modal', 'true');
         box.setAttribute('aria-labelledby', titleId);
         box.hidden = true;
+        // eslint-disable-next-line no-unsanitized/property -- module-authored dialog frame; escaped aria labels
         box.innerHTML =
             '<div class="photo-toc-backdrop" data-close="1"></div>' +
             '<div class="photo-toc-frame">' +
@@ -448,6 +450,7 @@
                 }
                 var arr = document.createElement('span');
                 arr.className = 'photo-toc-item-arrow';
+                // eslint-disable-next-line no-unsanitized/property -- module-authored icon
                 arr.innerHTML = svg(ICON.arrow);
                 metaWrap.appendChild(arr);
                 a.appendChild(metaWrap);
@@ -737,6 +740,7 @@
         box.setAttribute('role', 'dialog');
         box.setAttribute('aria-modal', 'true');
         box.hidden = true;
+        // eslint-disable-next-line no-unsanitized/property -- module-authored dialog frame; escaped aria labels
         box.innerHTML =
             '<div class="photo-lightbox-backdrop" data-close="1"></div>' +
             '<button type="button" class="photo-lightbox-close" data-close="1" aria-label="' + escapeHtml(ns.t('close', 'Close')) + '">' + svg(ICON.close) + '</button>' +

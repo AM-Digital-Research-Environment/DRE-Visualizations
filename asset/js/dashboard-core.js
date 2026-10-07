@@ -153,6 +153,7 @@
     ns.iconSvg = function (body, size) {
         if (!_iconHost) _iconHost = document.createElement('div');
         size = size || 14;
+        // eslint-disable-next-line no-unsanitized/property -- module-authored SVG path constants; size is a number
         _iconHost.innerHTML = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24"'
             + ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"'
             + ' stroke-linejoin="round" aria-hidden="true">' + body + '</svg>';
@@ -865,6 +866,7 @@
             if (ns._libPromises[key]) return ns._libPromises[key];
             ns._libPromises[key] = !src
                 ? Promise.resolve()
+                // eslint-disable-next-line no-unsanitized/method -- server-configured RV_LIBS URL
                 : import(src).then(function (mod) {
                     if (register) register(mod);
                 });
@@ -1326,6 +1328,7 @@
         if (stale) stale.remove();
         var legend = document.createElement('div');
         legend.className = 'rv-map-legend' + (extraClass ? ' ' + extraClass : '');
+        // eslint-disable-next-line no-unsanitized/property -- callers pass legend markup built with ns.escapeHtml
         legend.innerHTML = innerHtml;
         panel.appendChild(legend);
         return legend;
@@ -1654,6 +1657,7 @@
         bar.className = 'rv-chart-toolbar';
         bar.setAttribute('role', 'toolbar');
         bar.setAttribute('aria-label', panelTitle ? toolbarLabel + ': ' + panelTitle : toolbarLabel);
+        // eslint-disable-next-line no-unsanitized/property -- icon constants + escaped titles
         bar.innerHTML = (showDecal
             ? '<button type="button" class="rv-toolbar-btn' + (ns._decalEnabled ? ' rv-toolbar-btn-active' : '') + '" data-action="decal" title="' + ns.escapeHtml(decalTitle) + '" aria-label="' + ns.escapeHtml(decalTitle) + '">'
             + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><line x1="4" y1="14" x2="14" y2="4"/><line x1="4" y1="8" x2="8" y2="4"/><line x1="10" y1="20" x2="20" y2="10"/><line x1="16" y1="20" x2="20" y2="16"/></svg>'
@@ -1717,10 +1721,12 @@
     // Guarded + idempotent, so pasting several snippets on one page installs it
     // once. The escaped <\/script> keeps a copied snippet from closing an inline
     // <script> on the host page; its runtime value is a real </script>.
+    /* eslint-disable no-useless-escape -- the escaped <\/script> is deliberate, see above */
     ns.embedListener = "<script>(function(){if(window.__dreEmbedResize)return;window.__dreEmbedResize=1;"
         + "window.addEventListener('message',function(e){if(!e.data||e.data.type!=='dre-embed-height')return;"
         + "var f=document.getElementsByTagName('iframe');for(var i=0;i<f.length;i++){"
         + "if(f[i].contentWindow===e.source){f[i].style.height=e.data.height+'px';}}});})();<\/script>";
+    /* eslint-enable no-useless-escape */
 
     /** Build the copy-paste embed snippet (iframe + the resize listener). */
     ns.embedSnippet = function (src, title, height) {
@@ -1760,11 +1766,13 @@
     // Briefly swap a button to a "copied" check, then restore its markup/title.
     function flashCopied(btn, restoreHtml, restoreTitle) {
         var copied = ns.t('copied', 'Copied');
+        // eslint-disable-next-line no-unsanitized/property -- icon constant + escaped label
         btn.innerHTML = CHECK_ICON + (btn.dataset.embedLabel ? '<span>' + ns.escapeHtml(copied) + '</span>' : '');
         btn.classList.add('rv-toolbar-btn-active');
         btn.title = copied;
         clearTimeout(btn._embedTimer);
         btn._embedTimer = setTimeout(function () {
+            // eslint-disable-next-line no-unsanitized/property -- restores the escaped markup built above
             btn.innerHTML = restoreHtml;
             btn.classList.remove('rv-toolbar-btn-active');
             btn.title = restoreTitle;
@@ -1784,6 +1792,7 @@
         btn.className = 'rv-toolbar-btn rv-embed-btn' + (labelTxt ? ' rv-embed-btn--labeled' : '');
         if (labelTxt) btn.dataset.embedLabel = labelTxt;
         var baseHtml = EMBED_ICON + (labelTxt ? '<span>' + ns.escapeHtml(labelTxt) + '</span>' : '');
+        // eslint-disable-next-line no-unsanitized/property -- icon constant + escaped label
         btn.innerHTML = baseHtml;
         var copyTitle = ns.t('copyEmbed', 'Copy the code to put this on another website');
         btn.title = copyTitle;

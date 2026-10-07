@@ -47,6 +47,7 @@
         var body = document.createElement('div');
         body.className = 'explorer-abstract-body';
         body.hidden = true;
+        // eslint-disable-next-line no-unsanitized/property -- paragraphs built with esc() in formatAbstract
         body.innerHTML = html;
         btn.addEventListener('click', function () {
             var show = body.hidden;

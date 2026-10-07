@@ -19,7 +19,8 @@
     "test:browser": "node tests/browser/lifecycle.mjs",
     "test:php": "node scripts/test-php-docker.mjs",
     "phpstan": "node scripts/phpstan.mjs",
-    "check:formatters": "node scripts/check-formatters.mjs"
+    "check:formatters": "node scripts/check-formatters.mjs",
+    "lint": "eslint ."
   },
   "author": "Frédérick Madore",
   "license": "GPL-3.0-or-later",
@@ -28,6 +29,10 @@
     "url": "git+https://github.com/AM-Digital-Research-Environment/DRE-Visualizations.git"
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.12.0",
+    "eslint-plugin-no-unsanitized": "4.1.5",
+    "globals": "17.13.0",
     "playwright": "1.63.0"
   }
 }

@@ -27,10 +27,12 @@
     // Guarded + idempotent, so pasting several snippets on one page installs it
     // once. The escaped <\/script> keeps a copied snippet from closing an inline
     // <script> on the host page; its runtime value is a real </script>.
+    /* eslint-disable no-useless-escape -- the escaped <\/script> is deliberate, see above */
     ns.embedListener = "<script>(function(){if(window.__dreEmbedResize)return;window.__dreEmbedResize=1;"
         + "window.addEventListener('message',function(e){if(!e.data||e.data.type!=='dre-embed-height')return;"
         + "var f=document.getElementsByTagName('iframe');for(var i=0;i<f.length;i++){"
         + "if(f[i].contentWindow===e.source){f[i].style.height=e.data.height+'px';}}});})();<\/script>";
+    /* eslint-enable no-useless-escape */
 
     /** Build the copy-paste embed snippet (iframe + the resize listener). */
     ns.embedSnippet = function (src, title, height) {
@@ -70,11 +72,13 @@
     // Briefly swap a button to a "copied" check, then restore its markup/title.
     function flashCopied(btn, restoreHtml, restoreTitle) {
         var copied = ns.t('copied', 'Copied');
+        // eslint-disable-next-line no-unsanitized/property -- icon constant + escaped label
         btn.innerHTML = CHECK_ICON + (btn.dataset.embedLabel ? '<span>' + ns.escapeHtml(copied) + '</span>' : '');
         btn.classList.add('rv-toolbar-btn-active');
         btn.title = copied;
         clearTimeout(btn._embedTimer);
         btn._embedTimer = setTimeout(function () {
+            // eslint-disable-next-line no-unsanitized/property -- restores the escaped markup built above
             btn.innerHTML = restoreHtml;
             btn.classList.remove('rv-toolbar-btn-active');
             btn.title = restoreTitle;
@@ -94,6 +98,7 @@
         btn.className = 'rv-toolbar-btn rv-embed-btn' + (labelTxt ? ' rv-embed-btn--labeled' : '');
         if (labelTxt) btn.dataset.embedLabel = labelTxt;
         var baseHtml = EMBED_ICON + (labelTxt ? '<span>' + ns.escapeHtml(labelTxt) + '</span>' : '');
+        // eslint-disable-next-line no-unsanitized/property -- icon constant + escaped label
         btn.innerHTML = baseHtml;
         var copyTitle = ns.t('copyEmbed', 'Copy the code to put this on another website');
         btn.title = copyTitle;

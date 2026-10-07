@@ -169,6 +169,7 @@
             // subjects → subjectsTags. Omitted gracefully if the helper is absent.
             var icon = ns.statIconFor ? ns.statIconFor(type) : '';
             if (icon) {
+                // eslint-disable-next-line no-unsanitized/property -- module-authored stat icon path
                 btn.innerHTML = '<svg class="compare-type-icon" xmlns="http://www.w3.org/2000/svg"'
                     + ' viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"'
                     + ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
@@ -675,6 +676,7 @@
                 }
 
                 var statsDiv = document.createElement('div');
+                // eslint-disable-next-line no-unsanitized/property -- buildStatsPanel escapes every value it inserts
                 statsDiv.innerHTML = buildStatsPanel(leftData, rightData, cfg);
                 content.appendChild(statsDiv);
 

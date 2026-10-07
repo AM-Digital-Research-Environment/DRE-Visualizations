@@ -26,12 +26,10 @@
         chart.setOption({
             tooltip: { trigger: 'axis', confine: true, axisPointer: { type: 'shadow' } },
             aria: { enabled: true },
-            grid: {
-                left: Math.min(220, Math.max(80, names.reduce(function (m, n) {
-                    return Math.max(m, n.length);
-                }, 0) * 6.5)),
-                right: 20, top: 10, bottom: 20
-            },
+            // ECharts 6 keeps axis labels inside the canvas by default (grid
+            // outerBoundsMode), so the grid sizes itself to the real label width
+            // instead of an estimate from the character count.
+            grid: { left: 8, right: 20, top: 10, bottom: 20 },
             xAxis: { type: 'value', minInterval: 1 },
             yAxis: {
                 type: 'category', data: names,

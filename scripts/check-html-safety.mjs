@@ -60,7 +60,7 @@ const inventory = {
 // An exact ratchet: a new sink fails until it is reviewed and the baseline is
 // raised, and a removed one fails until the baseline is lowered — so the
 // numbers never drift into headroom that would hide the next sink.
-const reviewedCounts = { setHTML: 11, innerHTML: 62, insertAdjacentHTML: 0, tooltipFormatters: 14 };
+const reviewedCounts = { setHTML: 11, innerHTML: 62, insertAdjacentHTML: 0, tooltipFormatters: 13 };
 for (const [kind, value] of Object.entries(inventory)) {
   if (value !== reviewedCounts[kind]) {
     fail(`${kind} sink count is ${value}, reviewed baseline is ${reviewedCounts[kind]} — review the change and update reviewedCounts`);

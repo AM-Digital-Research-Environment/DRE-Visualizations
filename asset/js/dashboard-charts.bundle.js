@@ -389,12 +389,10 @@
         chart.setOption({
             tooltip: { trigger: 'axis', confine: true, axisPointer: { type: 'shadow' } },
             aria: { enabled: true },
-            grid: {
-                left: Math.min(220, Math.max(80, names.reduce(function (m, n) {
-                    return Math.max(m, n.length);
-                }, 0) * 6.5)),
-                right: 20, top: 10, bottom: 20
-            },
+            // ECharts 6 keeps axis labels inside the canvas by default (grid
+            // outerBoundsMode), so the grid sizes itself to the real label width
+            // instead of an estimate from the character count.
+            grid: { left: 8, right: 20, top: 10, bottom: 20 },
             xAxis: { type: 'value', minInterval: 1 },
             yAxis: {
                 type: 'category', data: names,
@@ -640,6 +638,7 @@
             var dc = defaultCount();
             var slider = document.createElement('div');
             slider.className = 'rv-word-slider';
+            // eslint-disable-next-line no-unsanitized/property -- escaped caption + numbers
             slider.innerHTML = '<label><span class="rv-word-slider-caption">' + ns.escapeHtml(ns.t('words', 'Number of words')) + '</span>'
                 + '<input type="range" min="5" max="' + entries.length + '" value="' + dc + '" step="1">'
                 + '<span class="rv-word-slider-value">' + dc + '</span></label>';
@@ -706,7 +705,8 @@
                 }
             },
             aria: { enabled: true },
-            grid: { left: 220, right: 30, top: 10, bottom: 30 },
+            // Sized to the real label width (ECharts 6 outer bounds), not a fixed 220px.
+            grid: { left: 8, right: 30, top: 10, bottom: 30 },
             xAxis: {
                 type: 'time',
                 min: new Date(minYear, 0, 1).getTime(),
@@ -1053,19 +1053,6 @@
 
     ns.charts = ns.charts || {};
 
-    /**
-     * Deterministic pseudo-random jitter from a string seed.
-     * Returns a value in [-amplitude, +amplitude].
-     */
-    function jitter(seed, amplitude) {
-        var h = 0;
-        for (var i = 0; i < seed.length; i++) {
-            h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
-        }
-        // Map hash to [-1, 1] range, then scale
-        return (((h & 0x7fffffff) % 1000) / 500 - 1) * amplitude;
-    }
-
     ns.charts.buildBeeswarm = function (el, data, siteBase) {
         if (!data || !data.length) return;
         var chart = initChart(el);
@@ -1093,9 +1080,10 @@
         var sizeRange = maxSize - minSize || 1;
         var minSymbol = 10, maxSymbol = 36;
 
-        // Build scatter data: [x, y + jitter, size, label, itemId, category]
+        // Build scatter data: [start year, section index]. The y-axis spreads
+        // points within their section band itself (ECharts 6 axis jitter).
         var seriesData = data.map(function (d) {
-            var y = catIdx[d.category] + jitter(d.label + d.value, 0.3);
+            var y = catIdx[d.category];
             var normSize = (d.size - minSize) / sizeRange;
             var symbolSize = minSymbol + normSize * (maxSymbol - minSymbol);
             return {
@@ -1133,7 +1121,8 @@
                 }
             },
             aria: { enabled: true },
-            grid: { left: 160, right: 30, top: 20, bottom: 40 },
+            // Sized to the real label width (ECharts 6 outer bounds).
+            grid: { left: 8, right: 30, top: 20, bottom: 40 },
             xAxis: {
                 type: 'value',
                 name: ns.t('beeswarmStartYear', 'Start year'),
@@ -1149,6 +1138,12 @@
             yAxis: {
                 type: 'category',
                 data: catOrder,
+                // A true beeswarm: ECharts places each point in its band
+                // without overlap (jitterOverlap: false, deterministic), where a
+                // hashed offset used to stack equal start years on one another.
+                jitter: Math.max(8, Math.round(((el.clientHeight || 420) - 60) / Math.max(1, catOrder.length) * 0.8)),
+                jitterOverlap: false,
+                jitterMargin: 1,
                 axisLabel: {
                     fontSize: THEME.fontSize,
                     width: 140,
@@ -1755,6 +1750,7 @@
                 btn.className = 'rv-cluster-legend__item';
                 btn.setAttribute('aria-pressed', String(visible[k]));
                 if (!visible[k]) btn.classList.add('is-off');
+                // eslint-disable-next-line no-unsanitized/property -- palette colour + escaped label
                 btn.innerHTML = '<span class="rv-cluster-legend__dot" style="background:' + colorFor[k] + '"></span>'
                     + '<span class="rv-cluster-legend__label">' + esc(labelFor[k] || k) + '</span>';
                 btn.addEventListener('click', function () {
@@ -3154,7 +3150,7 @@
         return '<div class="rv-stat-card">'
             + '<div class="rv-stat-body">'
             + '<p class="rv-stat-label">' + esc(s.label) + '</p>'
-            + '<p class="rv-stat-value">' + fmt(s.value) + '</p>'
+            + '<p class="rv-stat-value">' + esc(fmt(s.value)) + '</p>'
             + (s.subtitle ? '<p class="rv-stat-sub">' + esc(s.subtitle) + '</p>' : '')
             + '</div>'
             + '<span class="rv-stat-badge">' + SVG_OPEN + iconFor(s.key) + '</svg></span>'
