@@ -27,11 +27,14 @@
                 formatter: function (p) {
                     if (p.dataType === 'node') {
                         return '<strong>' + echarts.format.encodeHTML(p.name) + '</strong><br/>'
-                            + p.data.value + (p.data.isSelf ? ' total items' : ' shared items');
+                            + echarts.format.encodeHTML(p.data.isSelf
+                                ? ns.plural(p.data.value, 'totalItem', 'item in total', 'items in total', true)
+                                : ns.plural(p.data.value, 'sharedItem', 'shared item', 'shared items', true));
                     }
                     if (p.dataType === 'edge') {
                         return echarts.format.encodeHTML(p.data.source) + ' \u2194 '
-                            + echarts.format.encodeHTML(p.data.target) + ': ' + p.data.value + ' shared items';
+                            + echarts.format.encodeHTML(p.data.target) + ': '
+                            + echarts.format.encodeHTML(ns.plural(p.data.value, 'sharedItem', 'shared item', 'shared items', true));
                     }
                     return '';
                 }

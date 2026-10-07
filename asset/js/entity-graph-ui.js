@@ -280,7 +280,7 @@
      * @returns {HTMLElement[]}
      */
     function buildExportButtons(spec) {
-        var png = ns.iconButton(ICON.save, t('saveImage', 'Save this graph as an image'), t('saveImage', 'Save this graph as an image'));
+        var png = ns.iconButton(ICON.save, t('saveGraphImage', 'Save this graph as an image'), t('saveGraphImage', 'Save this graph as an image'));
         png.addEventListener('click', function () {
             var url = spec.png();
             if (!url) return;
@@ -290,7 +290,7 @@
             a.click();
         });
 
-        var csv = ns.iconButton(ICON.csv, t('downloadCsv', 'Download the data'),
+        var csv = ns.iconButton(ICON.csv, t('downloadGraphData', 'Download the data'),
             t('degCsvTitle', 'Download the entities you can see as a spreadsheet (CSV)'));
         csv.addEventListener('click', function () {
             // Reuses the module's one CSV writer (BOM + CRLF + quoting) through the
@@ -360,7 +360,7 @@
             while (details.childNodes.length > 1) details.removeChild(details.lastChild);
             var groups = spec.groups();
             if (!groups.length) {
-                details.appendChild(el('p', 'rv-kg-list-meta', t('noData', 'No data')));
+                details.appendChild(el('p', 'rv-kg-list-meta', t('noData', 'Nothing to show')));
                 return;
             }
             groups.forEach(function (group) {

@@ -123,7 +123,7 @@
             for (var i = 0; i < NAME_PROPS.length; i++) {
                 if (typeof props[NAME_PROPS[i]] === 'string') return props[NAME_PROPS[i]];
             }
-            return 'Unknown';
+            return ns.t('unknownCountry', 'Unknown');
         }
 
         // Wrapped so the theme engine can rebuild the map on a light/dark toggle.
@@ -166,25 +166,31 @@
 
                     // --- Hover popup (country, count, share) ---
                     var activePopup = null;
+                    var activeCountry = null; // the popup's HTML is rebuilt only when this changes
                     map.on('mousemove', 'country-fill', function (e) {
                         if (!e.features || !e.features.length) return;
                         var props = e.features[0].properties || {};
-                        var count = Number(props.count || 0);
-                        map.getCanvas().style.cursor = count > 0 ? 'pointer' : '';
-                        var share = total > 0 ? (count / total * 100) : 0;
-                        var html = '<div class="rv-popup-content"><strong>' + ns.escapeHtml(countryName(props)) + '</strong>'
-                            + (count > 0
-                                ? '<br/><span class="rv-popup-count">' + ns.formatNumber(count) + ' item' + (count === 1 ? '' : 's')
-                                  + ' · ' + share.toFixed(1) + '%</span>'
-                                : '<br/><em>No items</em>')
-                            + '</div>';
+                        var name = countryName(props);
                         if (!activePopup) {
                             activePopup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 8, className: 'rv-map-popup' });
                         }
-                        activePopup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+                        activePopup.setLngLat(e.lngLat);
+                        if (name === activeCountry && activePopup.isOpen()) return;
+                        activeCountry = name;
+                        var count = Number(props.count || 0);
+                        map.getCanvas().style.cursor = count > 0 ? 'pointer' : '';
+                        var share = total > 0 ? (count / total * 100) : 0;
+                        var html = '<div class="rv-popup-content"><strong>' + ns.escapeHtml(name) + '</strong>'
+                            + (count > 0
+                                ? '<br/><span class="rv-popup-count">' + ns.escapeHtml(ns.plural(count, 'item', 'item', 'items', true)
+                                  + ' · ' + new Intl.NumberFormat(ns.locale, { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(share) + '%') + '</span>'
+                                : '<br/><em>' + ns.escapeHtml(ns.t('noItems', 'No items')) + '</em>')
+                            + '</div>';
+                        activePopup.setHTML(html).addTo(map);
                     });
                     map.on('mouseleave', 'country-fill', function () {
                         map.getCanvas().style.cursor = '';
+                        activeCountry = null;
                         if (activePopup) { activePopup.remove(); activePopup = null; }
                     });
 
@@ -205,7 +211,7 @@
                     ns.mountMapLegend(el,
                         '<div class="rv-map-legend-row"><span>1</span>' + swatches
                             + '<span>' + maxCount + '</span></div>'
-                            + '<div class="rv-map-legend-caption">Items per country</div>',
+                            + '<div class="rv-map-legend-caption">' + ns.escapeHtml(ns.t('itemsPerCountry', 'Items per country')) + '</div>',
                         'rv-choropleth-legend');
                 }).catch(function (err) {
                     if (window.console) console.error('Choropleth load failed:', err);

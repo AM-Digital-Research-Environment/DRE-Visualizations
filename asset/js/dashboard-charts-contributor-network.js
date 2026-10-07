@@ -51,13 +51,13 @@
                 formatter: tooltipFormatter || function (p) {
                     if (p.dataType === 'node') {
                         return '<strong>' + echarts.format.encodeHTML(p.name) + '</strong>'
-                            + '<br/>' + p.data.value + ' items'
-                            + (p.data.category ? '<br/><em>' + p.data.category + '</em>' : '');
+                            + '<br/>' + echarts.format.encodeHTML(ns.plural(p.data.value, 'item', 'item', 'items', true))
+                            + (p.data.category ? '<br/><em>' + echarts.format.encodeHTML(p.data.category) + '</em>' : '');
                     }
                     if (p.dataType === 'edge') {
                         return echarts.format.encodeHTML(p.data.source) + ' \u2194 '
                             + echarts.format.encodeHTML(p.data.target)
-                            + ': ' + p.data.value + ' items';
+                            + ': ' + echarts.format.encodeHTML(ns.plural(p.data.value, 'item', 'item', 'items', true));
                     }
                     return '';
                 }
@@ -124,15 +124,15 @@
     ns.charts.buildContributorNetwork = function (el, data, siteBase) {
         return buildBipartiteNetwork(el, data, siteBase, function (p) {
             if (p.dataType === 'node') {
-                var role = p.data.category === 0 ? 'contributor' : 'project';
+                var role = p.data.category === 0 ? ns.t('roleContributor', 'contributor') : ns.t('roleProject', 'project');
                 return '<strong>' + echarts.format.encodeHTML(p.name) + '</strong>'
-                    + '<br/>' + p.data.value + ' items'
-                    + '<br/><em>' + role + '</em>';
+                    + '<br/>' + echarts.format.encodeHTML(ns.plural(p.data.value, 'item', 'item', 'items', true))
+                    + '<br/><em>' + echarts.format.encodeHTML(role) + '</em>';
             }
             if (p.dataType === 'edge') {
                 return echarts.format.encodeHTML(p.data.source) + ' \u2192 '
                     + echarts.format.encodeHTML(p.data.target)
-                    + ': ' + p.data.value + ' contributions';
+                    + ': ' + echarts.format.encodeHTML(ns.plural(p.data.value, 'contribution', 'contribution', 'contributions', true));
             }
             return '';
         });
@@ -142,11 +142,11 @@
     ns.charts.buildAffiliationNetwork = function (el, data, siteBase) {
         return buildBipartiteNetwork(el, data, siteBase, function (p) {
             if (p.dataType === 'node') {
-                var type = p.data.isSelf ? 'this institution' :
-                    (p.data.category === 0 ? 'person' : 'institution');
+                var type = p.data.isSelf ? ns.t('roleThisInstitution', 'this institution') :
+                    (p.data.category === 0 ? ns.t('rolePerson', 'person') : ns.t('roleInstitution', 'institution'));
                 return '<strong>' + echarts.format.encodeHTML(p.name) + '</strong>'
-                    + '<br/>' + p.data.value + ' affiliations'
-                    + '<br/><em>' + type + '</em>';
+                    + '<br/>' + echarts.format.encodeHTML(ns.plural(p.data.value, 'affiliation', 'affiliation', 'affiliations', true))
+                    + '<br/><em>' + echarts.format.encodeHTML(type) + '</em>';
             }
             if (p.dataType === 'edge') {
                 return echarts.format.encodeHTML(p.data.source) + ' \u2194 '

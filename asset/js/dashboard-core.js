@@ -35,6 +35,16 @@
     ns.t = function (key, fallback) {
         return Object.prototype.hasOwnProperty.call(ns.strings, key) ? ns.strings[key] : fallback;
     };
+    /**
+     * Fill the `{name}` placeholders of a translated template, so a translation
+     * can reorder the parts: ns.fill(ns.t('inCountry', 'in {country}'), { country: c }).
+     * The result is plain text — escape it before any innerHTML.
+     */
+    ns.fill = function (template, params) {
+        return String(template).replace(/\{(\w+)\}/g, function (whole, name) {
+            return params && Object.prototype.hasOwnProperty.call(params, name) ? String(params[name]) : whole;
+        });
+    };
 
     // Categorical palette for multi-series charts — led by the Africa Multiple
     // cluster brand colours, then harmonious extensions for charts with many
@@ -185,6 +195,11 @@
         return token ? ns.cssColor(token, swatch) : swatch;
     };
 
+    // Resolved token colours, per theme. Resolving one costs a style write, a
+    // forced style recalculation and a canvas readback, and the canvas graphs
+    // ask for an entity colour per node per frame; readTheme() clears this.
+    var _colorCache = Object.create(null);
+
     // Shared design tokens. Colour values are placeholders here; readTheme()
     // overwrites them in place (so modules that captured `ns.THEME` see updates)
     // from the DRE theme's CSS variables on load and on every theme change.
@@ -263,18 +278,48 @@
         });
     };
 
+    // Artifact bodies by generation URL, for this page only. Generation URLs are
+    // immutable, so two blocks (or a block and the sparkline) asking for the
+    // same artifact share one download. Text, not parsed JSON, is shared: every
+    // caller gets its own objects and may sort or annotate them freely. The
+    // server's no-store still keeps withdrawn data out of the browser's cache.
+    ns._dataBodies = Object.create(null);
+
     /** Central JSON loader for every generated dashboard artifact. */
     ns.fetchDataJson = function (path, options) {
-        var requestOptions = Object.assign({ credentials: 'same-origin', cache: 'no-store' }, options || {});
+        options = options || {};
+        var signal = options.signal;
+        var requestOptions = Object.assign({ credentials: 'same-origin', cache: 'no-store' }, options);
+        delete requestOptions.signal; // a shared download must not die with one caller
+        function download(url) {
+            if (!ns._dataBodies[url]) {
+                ns._dataBodies[url] = fetch(url, requestOptions).then(function (response) {
+                    if (!response.ok) {
+                        var error = new Error('Generated data not found (' + response.status + '): ' + url);
+                        error.status = response.status;
+                        throw error;
+                    }
+                    return response.text();
+                });
+                ns._dataBodies[url].catch(function () { delete ns._dataBodies[url]; });
+            }
+            return ns._dataBodies[url];
+        }
         function read(url) {
-            return fetch(url, requestOptions).then(function (response) {
-                if (!response.ok) {
-                    var error = new Error('Generated data not found (' + response.status + '): ' + url);
-                    error.status = response.status;
-                    throw error;
-                }
-                return response.json();
-            });
+            var body = download(url);
+            if (signal) {
+                // Honour the caller's cancellation without cancelling the download.
+                body = Promise.race([body, new Promise(function (resolve, reject) {
+                    var abort = function () {
+                        var error = new Error('Aborted');
+                        error.name = 'AbortError';
+                        reject(error);
+                    };
+                    if (signal.aborted) abort();
+                    else signal.addEventListener('abort', abort, { once: true });
+                })]);
+            }
+            return body.then(function (text) { return JSON.parse(text); });
         }
         return ns.dataAsset(path).then(function (url) {
             var manifest = ns._dataManifestPromise;
@@ -503,15 +548,20 @@
      */
     ns.cssColor = function (name, fallback) {
         fallback = fallback || '#000';
+        var key = name + '|' + fallback;
+        if (key in _colorCache) return _colorCache[key];
+        var color;
         try {
             var probe = getProbe();
             probe.style.color = '';
             probe.style.color = 'var(' + name + ', ' + fallback + ')';
             var resolved = getComputedStyle(probe).color;
-            return ns.toRGB(resolved || fallback) || fallback;
+            color = ns.toRGB(resolved || fallback) || fallback;
         } catch (e) {
-            return fallback;
+            return fallback; // not cached: the probe may simply not exist yet
         }
+        _colorCache[key] = color;
+        return color;
     };
 
     /**
@@ -567,6 +617,7 @@
 
     /** Read DRE theme tokens into THEME (in place) and rebuild the ECharts theme. */
     ns.readTheme = function () {
+        _colorCache = Object.create(null);
         ns._darkMode = ns.isDark();
 
         // Re-point the categorical palette to the active light/dark cluster set,
@@ -676,11 +727,93 @@
     /*  Chart / map lifecycle                                              */
     /* ------------------------------------------------------------------ */
 
-    /** Init an ECharts instance using the current theme, tracking it for re-theming. */
+    /**
+     * Init an ECharts instance using the current theme, tracking it for
+     * re-theming and resizing. Every chart also gets:
+     *   - `role="img"` and an accessible name from its panel heading (and
+     *     description), unless the builder set its own — the canvas itself
+     *     says nothing to a screen reader;
+     *   - no animation when the reader prefers reduced motion (an option set
+     *     here is a default the builder's own `animation` still overrides).
+     */
     ns.initChart = function (el) {
         if (!ns._echartsTheme) ns.readTheme();
+        var existing = window.echarts.getInstanceByDom && window.echarts.getInstanceByDom(el);
+        if (existing) existing.dispose();
         var chart = echarts.init(el, ns._echartsTheme);
         ns._allCharts.push(chart);
+        if (ns.prefersReducedMotion()) chart.setOption({ animation: false });
+        var label = ns.labelChart(el);
+        // ECharts writes its own generic aria-label ("This is a chart…") on the
+        // container once a builder enables `aria`; a description replaces it.
+        if (label) chart.setOption({ aria: { label: { description: label } } });
+        ns.observeResize(el);
+        return chart;
+    };
+
+    /**
+     * Give a chart container an image role and a name from its panel heading
+     * and description. Returns the name, or '' when the container already has
+     * one (a builder that labels its own chart) or no heading to take it from.
+     */
+    ns.labelChart = function (el) {
+        if (!el || !el.setAttribute || el.hasAttribute('aria-label')) return '';
+        var panel = el.closest && el.closest('.chart-panel');
+        var heading = panel && panel.querySelector('h3');
+        var desc = panel && panel.querySelector('.chart-description');
+        var name = heading ? (heading.textContent || '').trim() : '';
+        if (!name) return '';
+        var label = name + (desc && desc.textContent ? ': ' + desc.textContent.trim() : '');
+        el.setAttribute('role', 'img');
+        el.setAttribute('aria-label', label);
+        return label;
+    };
+
+    // One ResizeObserver for every chart container: a chart resizes when ITS
+    // box changes — grid reflow, a sidebar, fullscreen, a late web font — not
+    // only on window resize. Callbacks are coalesced into one frame. MapLibre
+    // maps track their own container (trackResize), so they are not observed.
+    var _resizeObserver = null;
+    var _resizeQueued = null;
+    ns.observeResize = function (el) {
+        if (typeof window.ResizeObserver !== 'function') return;
+        if (!_resizeObserver) {
+            _resizeObserver = new window.ResizeObserver(function (entries) {
+                if (_resizeQueued) return;
+                _resizeQueued = entries.map(function (entry) { return entry.target; });
+                requestAnimationFrame(function () {
+                    var targets = _resizeQueued || [];
+                    _resizeQueued = null;
+                    targets.forEach(function (target) {
+                        var chart = window.echarts && echarts.getInstanceByDom(target);
+                        if (chart && !chart.isDisposed()) {
+                            try { chart.resize(); } catch (e) { /* detached */ }
+                        } else {
+                            _resizeObserver.unobserve(target);
+                        }
+                    });
+                });
+            });
+        }
+        _resizeObserver.observe(el);
+    };
+
+    /**
+     * Run a chart builder and make its result rebuildable on a light/dark
+     * switch. Builders bake palette and entity colours into their options, so
+     * re-applying the old option in a new theme keeps stale colours; instead
+     * ns.refresh() disposes the instance and runs `build` again. A builder that
+     * sets its own `_rvRebuild` (same instance, extra DOM — the word cloud,
+     * heatmap, boxplot) keeps it. Returns whatever `build` returns.
+     */
+    ns.buildChart = function (build) {
+        var chart = build();
+        if (chart && typeof chart.setOption === 'function' && typeof chart._rvRebuild !== 'function') {
+            chart._rvRebuild = function () {
+                if (!chart.isDisposed()) chart.dispose();
+                ns.buildChart(build);
+            };
+        }
         return chart;
     };
 
@@ -1024,6 +1157,7 @@
         ns._allCharts = ns._allCharts.filter(function (chart) {
             if (chart.isDisposed()) return false;
             if (!removed(chart.getDom())) return true;
+            if (_resizeObserver) _resizeObserver.unobserve(chart.getDom());
             chart.dispose();
             return false;
         });
@@ -1086,6 +1220,9 @@
                 c.setTheme(ns._echartsTheme);
                 if (typeof c._rvRebuild === 'function') {
                     c._rvRebuild();
+                    // A dashboard rebuild disposes this instance and builds a
+                    // fresh one from the data, already in the new theme.
+                    if (c.isDisposed()) return;
                 } else {
                     c.setOption(c.getOption(), { notMerge: true });
                 }
@@ -1346,9 +1483,36 @@
         setTimeout(function () { URL.revokeObjectURL(url); }, 0);
     };
 
+    /**
+     * The `.rv-chart-heading` row a toolbar mounts into. Dashboards render it;
+     * other surfaces (Compare, What's New, Network Explorer, the semantic map)
+     * have a bare <h3>, which gets wrapped, or no heading, which gets a row.
+     */
+    function chartHeading(panel) {
+        var heading = panel.querySelector('.rv-chart-heading');
+        if (heading) return heading;
+        heading = document.createElement('div');
+        heading.className = 'rv-chart-heading';
+        var title = panel.querySelector('h3');
+        if (title && title.parentNode) {
+            title.parentNode.insertBefore(heading, title);
+            heading.appendChild(title);
+        } else {
+            panel.insertBefore(heading, panel.firstChild);
+        }
+        return heading;
+    }
+
     /** Attach HTML-level toolbar (image, CSV, and pattern controls). */
     ns.attachToolbar = function (panel, chart) {
-        if (!chart || !chart.getDataURL) return;
+        if (!panel || !chart || !chart.getDataURL) return;
+        // A dashboard rebuild (light/dark switch) replaces the ECharts instance
+        // in the same container; the buttons act on whichever one is live.
+        var dom = typeof chart.getDom === 'function' ? chart.getDom() : null;
+        var live = function () {
+            var current = dom && window.echarts && echarts.getInstanceByDom(dom);
+            return current && !current.isDisposed() ? current : chart;
+        };
         var showDecal = !chart._noDecal;
         var decalTitle = ns._decalEnabled
             ? ns.t('hidePatterns', 'Hide the fill patterns')
@@ -1375,19 +1539,19 @@
                 ? '<button type="button" class="rv-toolbar-btn" data-action="csv" title="' + ns.escapeHtml(csvTitle) + '" aria-label="' + ns.escapeHtml(csvTitle) + '">'
                 + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/></svg></button>'
                 : '');
-        var heading = panel.querySelector('.rv-chart-heading');
-        if (heading) heading.appendChild(bar);
+        chartHeading(panel).appendChild(bar);
         bar.addEventListener('click', function (e) {
             var btn = e.target.closest('[data-action]');
             if (!btn) return;
+            var name = panelTitle || 'chart';
             if (btn.dataset.action === 'save') {
-                var url = chart.getDataURL({ pixelRatio: 2, backgroundColor: ns.exportBg() });
+                var url = live().getDataURL({ pixelRatio: 2, backgroundColor: ns.exportBg() });
                 var a = document.createElement('a');
                 a.href = url;
-                a.download = (panel.querySelector('h3').textContent || 'chart').trim() + '.png';
+                a.download = name.replace(/[\\/:*?"<>|]+/g, '-') + '.png';
                 a.click();
             } else if (btn.dataset.action === 'csv') {
-                ns.downloadChartCsv(chart, panel.querySelector('h3').textContent || 'chart');
+                ns.downloadChartCsv(live(), name);
             } else if (btn.dataset.action === 'decal') {
                 ns.toggleDecals();
             }
@@ -1529,7 +1693,7 @@
                 }
                 bar.appendChild(ns.makeEmbedButton({
                     src: ns.embedUrl(siteBase, slug, key),
-                    title: (ns.CHART_LABELS && ns.CHART_LABELS[key]) || key,
+                    title: ns.chartLabel ? ns.chartLabel(key) : ((ns.CHART_LABELS && ns.CHART_LABELS[key]) || key),
                     height: 520
                 }));
             })(panels[i]);
@@ -1556,7 +1720,7 @@
                     src: ns.embedUrl(host.getAttribute('data-site-base') || '', host.getAttribute('data-embed-slug')),
                     title: document.title || host.getAttribute('data-embed-slug'),
                     height: 600,
-                    label: 'Embed this'
+                    label: ns.t('embedThis', 'Embed this')
                 }));
                 wrap.insertBefore(bar, wrap.firstChild);
             })(hosts[i]);
@@ -1619,16 +1783,18 @@
         document.addEventListener('DOMContentLoaded', onReady, { once: true });
     }
 
-    // Single global resize handler for all tracked charts + maps.
-    var _resizeTimer;
-    window.addEventListener('resize', function () {
-        clearTimeout(_resizeTimer);
-        _resizeTimer = setTimeout(function () {
-            ns.pruneCharts();
-            ns._allCharts.forEach(function (c) { try { c.resize(); } catch (e) {} });
-            ns._allMaps.forEach(function (m) { try { m.map.resize(); } catch (e) {} });
-        }, 100);
-    });
+    // Without ResizeObserver (very old browsers) fall back to window resizes.
+    // Maps need neither: MapLibre's trackResize observes their containers.
+    if (typeof window.ResizeObserver !== 'function') {
+        var _resizeTimer;
+        window.addEventListener('resize', function () {
+            clearTimeout(_resizeTimer);
+            _resizeTimer = setTimeout(function () {
+                ns.pruneCharts();
+                ns._allCharts.forEach(function (c) { try { c.resize(); } catch (e) {} });
+            }, 100);
+        });
+    }
 
     // Re-fit charts/maps when a collapsible section (.rv-collapsible) is expanded:
     // a chart sized while its panel was hidden (the closed <details> uses

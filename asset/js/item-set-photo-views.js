@@ -277,6 +277,11 @@
     /*  Issue grouping (journal collections, e.g. ILAM)                    */
     /* ------------------------------------------------------------------ */
 
+    /** "Vol. N No. M" for an issue group, in the page's language. */
+    function issueCaption(g) {
+        return ns.fill(ns.t('issueCaption', 'Vol. {volume} No. {issue}'), { volume: g.volume, issue: g.issue });
+    }
+
     /**
      * Group photos by volume.issue into labelled issue groups (in first-seen
      * order). Shared by the masonry issue cards and the timeline so the two never
@@ -299,7 +304,7 @@
         });
         return order.map(function (key) {
             var g = groups[key];
-            g.label = 'Vol. ' + g.volume + ' No. ' + g.issue + (g.year ? ' (' + g.year + ')' : '');
+            g.label = issueCaption(g) + (g.year ? ' (' + g.year + ')' : '');
             return g;
         });
     }
@@ -329,7 +334,7 @@
         body.appendChild(title);
         var sub = document.createElement('p');
         sub.className = 'photo-card-subtitle';
-        sub.textContent = group.items.length + (group.items.length === 1 ? ' article' : ' articles');
+        sub.textContent = ns.plural(group.items.length, 'article', 'article', 'articles', true);
         body.appendChild(sub);
         card.appendChild(body);
 
@@ -345,15 +350,43 @@
         return isFinite(n) ? n : Number.POSITIVE_INFINITY;
     }
 
+    /**
+     * Keep Tab / Shift+Tab inside an open modal dialog. Call from a keydown
+     * handler; returns true when it moved focus.
+     */
+    function trapTab(dialog, e) {
+        if (e.key !== 'Tab' || dialog.hidden) return false;
+        var focusable = Array.prototype.filter.call(dialog.querySelectorAll(
+            'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        ), function (el) { return el.offsetParent !== null || el === document.activeElement; });
+        if (!focusable.length) return false;
+        var first = focusable[0], last = focusable[focusable.length - 1];
+        if (e.shiftKey && (document.activeElement === first || !dialog.contains(document.activeElement))) {
+            e.preventDefault();
+            last.focus();
+            return true;
+        }
+        if (!e.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+            e.preventDefault();
+            first.focus();
+            return true;
+        }
+        return false;
+    }
+
+    var dialogIds = 0;
+
     /* ------------------------------------------------------------------ */
     /*  Issue table-of-contents modal                                      */
     /* ------------------------------------------------------------------ */
 
     function makeTocModal(container) {
         var box = document.createElement('div');
+        var titleId = 'photo-toc-title-' + (++dialogIds);
         box.className = 'photo-toc';
         box.setAttribute('role', 'dialog');
         box.setAttribute('aria-modal', 'true');
+        box.setAttribute('aria-labelledby', titleId);
         box.hidden = true;
         box.innerHTML =
             '<div class="photo-toc-backdrop" data-close="1"></div>' +
@@ -362,8 +395,9 @@
                 '<aside class="photo-toc-cover"><img alt=""></aside>' +
                 '<section class="photo-toc-body">' +
                     '<header class="photo-toc-header">' +
-                        '<p class="photo-toc-eyebrow">' + svg(ICON.book, 'photo-toc-eyebrow-icon') + ' Table of contents</p>' +
-                        '<h3 class="photo-toc-title"></h3>' +
+                        '<p class="photo-toc-eyebrow">' + svg(ICON.book, 'photo-toc-eyebrow-icon') + ' '
+                            + escapeHtml(ns.t('tableOfContents', 'Table of contents')) + '</p>' +
+                        '<h3 class="photo-toc-title" id="' + titleId + '"></h3>' +
                         '<p class="photo-toc-count"></p>' +
                     '</header>' +
                     '<ol class="photo-toc-list"></ol>' +
@@ -375,15 +409,17 @@
         var titleEl = box.querySelector('.photo-toc-title');
         var countEl = box.querySelector('.photo-toc-count');
         var listEl = box.querySelector('.photo-toc-list');
+        var closeBtn = box.querySelector('.photo-toc-close');
+        var opener = null; // focus returns here on close
 
         function open(group) {
+            opener = document.activeElement;
             var rep = group.items[0] || {};
             coverImg.src = rep.thumb || '';
             coverImg.alt = group.label || '';
-            titleEl.textContent = group.label || 'Table of contents';
-            countEl.textContent = group.items.length === 1
-                ? '1 article in this issue.'
-                : group.items.length + ' articles in this issue.';
+            titleEl.textContent = group.label || ns.t('tableOfContents', 'Table of contents');
+            countEl.textContent = ns.plural(group.items.length, 'articleInIssue',
+                'article in this issue.', 'articles in this issue.', true);
 
             var items = group.items.slice().sort(function (a, b) {
                 var pa = startPage(a.pages), pb = startPage(b.pages);
@@ -404,7 +440,7 @@
                 main.className = 'photo-toc-item-main';
                 var t = document.createElement('p');
                 t.className = 'photo-toc-item-title';
-                t.textContent = it.title || 'Untitled';
+                t.textContent = it.title || ns.t('untitled', 'Untitled');
                 main.appendChild(t);
                 if (it.creator) {
                     var c = document.createElement('p');
@@ -419,7 +455,7 @@
                 if (it.pages) {
                     var pg = document.createElement('span');
                     pg.className = 'photo-toc-item-pages';
-                    pg.textContent = 'pp. ' + it.pages;
+                    pg.textContent = ns.t('pagesAbbr', 'pp.') + ' ' + it.pages;
                     metaWrap.appendChild(pg);
                 }
                 var arr = document.createElement('span');
@@ -434,18 +470,26 @@
 
             box.hidden = false;
             document.body.classList.add('photo-lightbox-open');
+            closeBtn.focus();
         }
 
         function close() {
+            if (box.hidden) return;
             box.hidden = true;
             document.body.classList.remove('photo-lightbox-open');
+            if (opener && typeof opener.focus === 'function') {
+                try { opener.focus(); } catch (e) { /* opener gone */ }
+            }
+            opener = null;
         }
 
         box.addEventListener('click', function (e) {
             if (e.target.closest('[data-close]')) close();
         });
         document.addEventListener('keydown', function (e) {
-            if (!box.hidden && e.key === 'Escape') close();
+            if (box.hidden) return;
+            if (e.key === 'Escape') close();
+            else trapTab(box, e);
         });
 
         return { open: open, close: close };
@@ -482,7 +526,7 @@
                 return {
                     year: g.year,
                     rep: g.items[0] || {},
-                    caption: 'Vol. ' + g.volume + ' No. ' + g.issue,
+                    caption: issueCaption(g),
                     title: g.label,
                     onOpen: function () { if (toc) toc.open(g); }
                 };
@@ -513,7 +557,7 @@
             units.some(function (u) { if (u.year != null) { soloYear = u.year; return true; } });
             var solo = document.createElement('div');
             solo.className = 'photo-timeline-solo';
-            solo.textContent = soloYear != null ? String(soloYear) : 'Undated';
+            solo.textContent = soloYear != null ? String(soloYear) : ns.t('undated', 'Undated');
             view.appendChild(solo);
         }
 
@@ -533,7 +577,7 @@
                     head.classList.add('is-year');
                     var y = document.createElement('span');
                     y.className = 'photo-timeline-y';
-                    y.textContent = u.year != null ? String(u.year) : 'Undated';
+                    y.textContent = u.year != null ? String(u.year) : ns.t('undated', 'Undated');
                     head.appendChild(y);
                 }
                 prevYear = u.year;
@@ -593,7 +637,8 @@
         loadMapLibre(mlCss, mlJs, mlWorker).then(function () {
             createMap();
         }).catch(function () {
-            mapEl.innerHTML = '<div class="rv-empty">The map could not be loaded. Please try again.</div>';
+            mapEl.innerHTML = '<div class="rv-empty">'
+                + escapeHtml(ns.t('mapLoadError', 'The map could not be loaded. Please try again.')) + '</div>';
         });
 
         function createMap() {
@@ -717,7 +762,7 @@
                 '<aside class="photo-lightbox-meta">' +
                     '<h4 class="photo-lightbox-title"></h4>' +
                     '<dl class="photo-lightbox-fields"></dl>' +
-                    '<a class="photo-lightbox-link" href="#">View item →</a>' +
+                    '<a class="photo-lightbox-link" href="#">' + escapeHtml(ns.t('viewItem', 'View item')) + ' →</a>' +
                 '</aside>' +
             '</div>';
         container.appendChild(box);
@@ -747,9 +792,9 @@
             img.alt = p.title || '';
             titleEl.textContent = p.title || '';
             fieldsEl.textContent = '';
-            field('Date', p.date || (p.year ? String(p.year) : ''));
-            field('Place', p.place || '');
-            field('Of', (idx + 1) + ' / ' + photos.length);
+            field(ns.t('date', 'Date'), p.date || (p.year ? String(p.year) : ''));
+            field(ns.t('place', 'Place'), p.place || '');
+            field(ns.t('photoPosition', 'Photo'), (idx + 1) + ' / ' + photos.length);
             linkEl.href = p.url || '#';
         }
 
@@ -802,6 +847,7 @@
             if (e.key === 'Escape') close();
             else if (e.key === 'ArrowLeft') step(-1);
             else if (e.key === 'ArrowRight') step(1);
+            else trapTab(box, e);
         });
         // Back button / gesture: close the open lightbox in place. The entry was
         // already popped by the browser, so pass fromPop so we don't pop twice.

@@ -30,7 +30,7 @@
             aria: { enabled: true },
             legend: multi ? {
                 bottom: 0,
-                data: data.series.map(function (s, i) { return s.name || ('Series ' + (i + 1)); }),
+                data: data.series.map(function (s, i) { return s.name || ns.fill(ns.t('radarSeries', 'Series {n}'), { n: i + 1 }); }),
                 textStyle: { color: THEME.text, fontSize: THEME.fontSize }
             } : undefined,
             radar: {
@@ -51,7 +51,7 @@
                     var color = COLORS[i % COLORS.length];
                     return {
                         value: s.value,
-                        name: s.name || 'Profile',
+                        name: s.name || ns.t('radarProfile', 'Profile'),
                         symbolSize: 4,
                         lineStyle: { color: color, width: 2 },
                         itemStyle: { color: color },

@@ -493,12 +493,13 @@
 
     ns.charts = ns.charts || {};
 
+    // Resolved at load with literal keys, so the string extractor sees them.
     var LANG_NAMES = {
-        all: ['langAll', 'All'],
-        en: ['langEnglish', 'English'],
-        fr: ['langFrench', 'French'],
-        de: ['langGerman', 'German'],
-        pt: ['langPortuguese', 'Portuguese']
+        all: ns.t('langAll', 'All'),
+        en: ns.t('langEnglish', 'English'),
+        fr: ns.t('langFrench', 'French'),
+        de: ns.t('langGerman', 'German'),
+        pt: ns.t('langPortuguese', 'Portuguese')
     };
 
     var _wordCloudOk = null;
@@ -549,7 +550,8 @@
                     confine: true,
                     formatter: function (p) { return echarts.format.encodeHTML(p.name) + ': ' + p.value; }
                 },
-                aria: { enabled: true },
+                // clear() drops initChart's description, so restate the panel's.
+                aria: { enabled: true, label: { description: el.getAttribute('aria-label') || undefined } },
                 series: [{
                     type: 'wordCloud',
                     shape: function (theta) {
@@ -580,6 +582,12 @@
         }
 
         render(defaultCount());
+        // A light/dark switch re-renders in place (the colour callback reads the
+        // live palette) instead of the dashboard's dispose-and-rebuild, which
+        // would duplicate the language and word-count controls below.
+        chart._rvRebuild = function () {
+            render(sliderInput ? parseInt(sliderInput.value, 10) : defaultCount());
+        };
         // entries is reassigned on a language switch, so hand over a getter: the
         // handler then reads the current language's list, never the first one.
         addClickHandler(chart, function () { return entries; }, siteBase);
@@ -602,8 +610,7 @@
                 b.type = 'button';
                 b.className = 'rv-word-lang' + (code === curLang ? ' is-active' : '');
                 b.setAttribute('aria-pressed', code === curLang ? 'true' : 'false');
-                var langName = LANG_NAMES[code];
-                b.textContent = langName ? ns.t(langName[0], langName[1]) : code.toUpperCase();
+                b.textContent = LANG_NAMES[code] || code.toUpperCase();
                 b.addEventListener('click', function () {
                     if (code === curLang) return;
                     curLang = code;
@@ -1118,17 +1125,18 @@
                 confine: true,
                 formatter: function (params) {
                     var d = params.data;
-                    return '<strong>' + echarts.format.encodeHTML(d._label) + '</strong>'
-                        + '<br/>Section: ' + echarts.format.encodeHTML(d._category)
-                        + '<br/>Start: ' + d.value[0]
-                        + '<br/>Items: ' + d._size;
+                    var enc = echarts.format.encodeHTML;
+                    return '<strong>' + enc(d._label) + '</strong>'
+                        + '<br/>' + enc(ns.t('beeswarmSection', 'Section:')) + ' ' + enc(d._category)
+                        + '<br/>' + enc(ns.t('beeswarmStart', 'Start:')) + ' ' + enc(d.value[0])
+                        + '<br/>' + enc(ns.t('beeswarmItems', 'Items:')) + ' ' + enc(d._size);
                 }
             },
             aria: { enabled: true },
             grid: { left: 160, right: 30, top: 20, bottom: 40 },
             xAxis: {
                 type: 'value',
-                name: 'Start year',
+                name: ns.t('beeswarmStartYear', 'Start year'),
                 nameLocation: 'center',
                 nameGap: 25,
                 min: minVal - 1,
@@ -1489,14 +1497,14 @@
                     showPopup(e.lngLat,
                         '<div class="rv-popup-content"><strong>' + esc(p.from || '')
                         + '</strong> \u2192 <strong>' + esc(p.to || '') + '</strong><br/>'
-                        + ns.formatNumber(p.value) + ' items</div>');
+                        + esc(ns.plural(p.value, 'item', 'item', 'items', true)) + '</div>');
                 });
 
                 map.on('click', 'current-dots', function (e) {
                     var p = e.features[0].properties;
                     showPopup(e.lngLat,
                         '<div class="rv-popup-content"><strong>' + esc(p.name || '')
-                        + '</strong><br/><em>Current location</em></div>');
+                        + '</strong><br/><em>' + esc(ns.t('currentLocation', 'Current location')) + '</em></div>');
                 });
 
                 ['flow-lines', 'current-dots'].forEach(function (layerId) {
@@ -1883,11 +1891,14 @@
                 formatter: function (p) {
                     if (p.dataType === 'node') {
                         return '<strong>' + echarts.format.encodeHTML(p.name) + '</strong><br/>'
-                            + p.data.value + (p.data.isSelf ? ' total items' : ' shared items');
+                            + echarts.format.encodeHTML(p.data.isSelf
+                                ? ns.plural(p.data.value, 'totalItem', 'item in total', 'items in total', true)
+                                : ns.plural(p.data.value, 'sharedItem', 'shared item', 'shared items', true));
                     }
                     if (p.dataType === 'edge') {
                         return echarts.format.encodeHTML(p.data.source) + ' \u2194 '
-                            + echarts.format.encodeHTML(p.data.target) + ': ' + p.data.value + ' shared items';
+                            + echarts.format.encodeHTML(p.data.target) + ': '
+                            + echarts.format.encodeHTML(ns.plural(p.data.value, 'sharedItem', 'shared item', 'shared items', true));
                     }
                     return '';
                 }
@@ -1995,13 +2006,13 @@
                 formatter: tooltipFormatter || function (p) {
                     if (p.dataType === 'node') {
                         return '<strong>' + echarts.format.encodeHTML(p.name) + '</strong>'
-                            + '<br/>' + p.data.value + ' items'
-                            + (p.data.category ? '<br/><em>' + p.data.category + '</em>' : '');
+                            + '<br/>' + echarts.format.encodeHTML(ns.plural(p.data.value, 'item', 'item', 'items', true))
+                            + (p.data.category ? '<br/><em>' + echarts.format.encodeHTML(p.data.category) + '</em>' : '');
                     }
                     if (p.dataType === 'edge') {
                         return echarts.format.encodeHTML(p.data.source) + ' \u2194 '
                             + echarts.format.encodeHTML(p.data.target)
-                            + ': ' + p.data.value + ' items';
+                            + ': ' + echarts.format.encodeHTML(ns.plural(p.data.value, 'item', 'item', 'items', true));
                     }
                     return '';
                 }
@@ -2068,15 +2079,15 @@
     ns.charts.buildContributorNetwork = function (el, data, siteBase) {
         return buildBipartiteNetwork(el, data, siteBase, function (p) {
             if (p.dataType === 'node') {
-                var role = p.data.category === 0 ? 'contributor' : 'project';
+                var role = p.data.category === 0 ? ns.t('roleContributor', 'contributor') : ns.t('roleProject', 'project');
                 return '<strong>' + echarts.format.encodeHTML(p.name) + '</strong>'
-                    + '<br/>' + p.data.value + ' items'
-                    + '<br/><em>' + role + '</em>';
+                    + '<br/>' + echarts.format.encodeHTML(ns.plural(p.data.value, 'item', 'item', 'items', true))
+                    + '<br/><em>' + echarts.format.encodeHTML(role) + '</em>';
             }
             if (p.dataType === 'edge') {
                 return echarts.format.encodeHTML(p.data.source) + ' \u2192 '
                     + echarts.format.encodeHTML(p.data.target)
-                    + ': ' + p.data.value + ' contributions';
+                    + ': ' + echarts.format.encodeHTML(ns.plural(p.data.value, 'contribution', 'contribution', 'contributions', true));
             }
             return '';
         });
@@ -2086,11 +2097,11 @@
     ns.charts.buildAffiliationNetwork = function (el, data, siteBase) {
         return buildBipartiteNetwork(el, data, siteBase, function (p) {
             if (p.dataType === 'node') {
-                var type = p.data.isSelf ? 'this institution' :
-                    (p.data.category === 0 ? 'person' : 'institution');
+                var type = p.data.isSelf ? ns.t('roleThisInstitution', 'this institution') :
+                    (p.data.category === 0 ? ns.t('rolePerson', 'person') : ns.t('roleInstitution', 'institution'));
                 return '<strong>' + echarts.format.encodeHTML(p.name) + '</strong>'
-                    + '<br/>' + p.data.value + ' affiliations'
-                    + '<br/><em>' + type + '</em>';
+                    + '<br/>' + echarts.format.encodeHTML(ns.plural(p.data.value, 'affiliation', 'affiliation', 'affiliations', true))
+                    + '<br/><em>' + echarts.format.encodeHTML(type) + '</em>';
             }
             if (p.dataType === 'edge') {
                 return echarts.format.encodeHTML(p.data.source) + ' \u2194 '
@@ -2212,7 +2223,11 @@
                     var path = p.treePathInfo.map(function (n) {
                         return echarts.format.encodeHTML(n.name || '');
                     }).filter(Boolean);
-                    return path.join(' \u203a ') + '<br/>' + Number(p.value || 0) + ' items';
+                    var count = Number(p.value || 0);
+                    // ns.plural comes from dashboard-core; the bare fallback only
+                    // serves a stand-alone harness (scripts/check-html-safety.mjs).
+                    var items = ns.plural ? ns.plural(count, 'item', 'item', 'items', true) : count + ' items';
+                    return path.join(' \u203a ') + '<br/>' + echarts.format.encodeHTML(items);
                 }
             },
             aria: { enabled: true },
@@ -2387,7 +2402,7 @@
             for (var i = 0; i < NAME_PROPS.length; i++) {
                 if (typeof props[NAME_PROPS[i]] === 'string') return props[NAME_PROPS[i]];
             }
-            return 'Unknown';
+            return ns.t('unknownCountry', 'Unknown');
         }
 
         // Wrapped so the theme engine can rebuild the map on a light/dark toggle.
@@ -2430,25 +2445,31 @@
 
                     // --- Hover popup (country, count, share) ---
                     var activePopup = null;
+                    var activeCountry = null; // the popup's HTML is rebuilt only when this changes
                     map.on('mousemove', 'country-fill', function (e) {
                         if (!e.features || !e.features.length) return;
                         var props = e.features[0].properties || {};
-                        var count = Number(props.count || 0);
-                        map.getCanvas().style.cursor = count > 0 ? 'pointer' : '';
-                        var share = total > 0 ? (count / total * 100) : 0;
-                        var html = '<div class="rv-popup-content"><strong>' + ns.escapeHtml(countryName(props)) + '</strong>'
-                            + (count > 0
-                                ? '<br/><span class="rv-popup-count">' + ns.formatNumber(count) + ' item' + (count === 1 ? '' : 's')
-                                  + ' · ' + share.toFixed(1) + '%</span>'
-                                : '<br/><em>No items</em>')
-                            + '</div>';
+                        var name = countryName(props);
                         if (!activePopup) {
                             activePopup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 8, className: 'rv-map-popup' });
                         }
-                        activePopup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+                        activePopup.setLngLat(e.lngLat);
+                        if (name === activeCountry && activePopup.isOpen()) return;
+                        activeCountry = name;
+                        var count = Number(props.count || 0);
+                        map.getCanvas().style.cursor = count > 0 ? 'pointer' : '';
+                        var share = total > 0 ? (count / total * 100) : 0;
+                        var html = '<div class="rv-popup-content"><strong>' + ns.escapeHtml(name) + '</strong>'
+                            + (count > 0
+                                ? '<br/><span class="rv-popup-count">' + ns.escapeHtml(ns.plural(count, 'item', 'item', 'items', true)
+                                  + ' · ' + new Intl.NumberFormat(ns.locale, { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(share) + '%') + '</span>'
+                                : '<br/><em>' + ns.escapeHtml(ns.t('noItems', 'No items')) + '</em>')
+                            + '</div>';
+                        activePopup.setHTML(html).addTo(map);
                     });
                     map.on('mouseleave', 'country-fill', function () {
                         map.getCanvas().style.cursor = '';
+                        activeCountry = null;
                         if (activePopup) { activePopup.remove(); activePopup = null; }
                     });
 
@@ -2469,7 +2490,7 @@
                     ns.mountMapLegend(el,
                         '<div class="rv-map-legend-row"><span>1</span>' + swatches
                             + '<span>' + maxCount + '</span></div>'
-                            + '<div class="rv-map-legend-caption">Items per country</div>',
+                            + '<div class="rv-map-legend-caption">' + ns.escapeHtml(ns.t('itemsPerCountry', 'Items per country')) + '</div>',
                         'rv-choropleth-legend');
                 }).catch(function (err) {
                     if (window.console) console.error('Choropleth load failed:', err);
@@ -2517,7 +2538,7 @@
             aria: { enabled: true },
             legend: multi ? {
                 bottom: 0,
-                data: data.series.map(function (s, i) { return s.name || ('Series ' + (i + 1)); }),
+                data: data.series.map(function (s, i) { return s.name || ns.fill(ns.t('radarSeries', 'Series {n}'), { n: i + 1 }); }),
                 textStyle: { color: THEME.text, fontSize: THEME.fontSize }
             } : undefined,
             radar: {
@@ -2538,7 +2559,7 @@
                     var color = COLORS[i % COLORS.length];
                     return {
                         value: s.value,
-                        name: s.name || 'Profile',
+                        name: s.name || ns.t('radarProfile', 'Profile'),
                         symbolSize: 4,
                         lineStyle: { color: color, width: 2 },
                         itemStyle: { color: color },
@@ -2632,7 +2653,7 @@
     ns.charts.buildCommunities = function (container, data, siteBase) {
         if (!data || !data.nodes || !data.nodes.length || !data.links) return;
         if (!ns.ForceGraph || !ns.graphChrome || typeof d3 === 'undefined' || !d3.forceSimulation) {
-            showMessage(container, 'rv-error', t('kgNoEngine', 'Graph library failed to load.'));
+            showMessage(container, 'rv-error', t('kgNoEngine', 'The graph could not be loaded. Please try again.'));
             return;
         }
 
@@ -2643,7 +2664,16 @@
         // speaker networks match everything, and a ring on every node says nothing.
         var mixedMatch = nodes.some(function (n) { return n.matched; })
             && nodes.some(function (n) { return !n.matched; });
-        var unit = hasRel ? t('publications', 'publications') : t('items', 'items');
+        // What a node's `value` and a link's weight count: co-authored publications
+        // when the links carry a relationship, otherwise shared items.
+        function countLabel(n) {
+            return hasRel ? ns.plural(n, 'publication', 'publication', 'publications', true)
+                : ns.plural(n, 'item', 'item', 'items', true);
+        }
+        function sharedLabel(n) {
+            return hasRel ? ns.plural(n, 'sharedPublication', 'shared publication', 'shared publications', true)
+                : ns.plural(n, 'sharedItem', 'shared item', 'shared items', true);
+        }
 
         /* -- categories: one per Louvain community ------------------------- */
 
@@ -2730,8 +2760,7 @@
             },
             tooltip: tooltipRows,
             announce: announce,
-            ariaLabel: t('communitiesCanvasLabel', 'Co-occurrence network. Use the arrow keys to '
-                + 'move between connected people and Enter to select one.'),
+            ariaLabel: t('communitiesCanvasLabel', 'Co-occurrence network. Use the arrow keys to move between connected people and Enter to select one.'),
             forces: {
                 // Heavier co-occurrence pulls a pair closer, so the strength of a
                 // tie reads as distance and not only as line width; hubs still get
@@ -2760,12 +2789,10 @@
             metaRows: function (node) {
                 var d = node.data || {};
                 return [
-                    d.value ? (d.value + ' ' + unit) : null,
-                    node.deg ? (node.deg + ' ' + (node.deg === 1
-                        ? t('kgConnection', 'connection shown')
-                        : t('kgConnections', 'connections shown'))) : null,
+                    d.value ? countLabel(d.value) : null,
+                    node.deg ? ns.plural(node.deg, 'kgConnection', 'connection shown', 'connections shown', true) : null,
                     roleLabel(d),
-                    node.pinned ? t('kgPinnedHint', 'Pinned — Alt-click to release') : null
+                    node.pinned ? t('kgPinnedHint', 'Held in place. Alt-click to let it go') : null
                 ];
             },
             url: function (node) { return node.url; },
@@ -2784,10 +2811,7 @@
         chrome.mountBelow(container, [
             legend.el,
             lineLegend,
-            chrome.buildHint(t('communitiesHint', 'Click a person to focus their collaborators; '
-                + 'the panel that opens links to their record. Toggle a cluster in the legend to '
-                + 'isolate it. Drag to rearrange — a dragged node stays where you put it '
-                + '(Alt-click to release). Double-click the background or Ctrl + scroll to zoom.'))
+            chrome.buildHint(t('communitiesHint', 'Click a person to focus their collaborators; the panel that opens links to their record. Toggle a cluster in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom.'))
         ]);
         graph.onTheme(legend.recolour);
 
@@ -2815,11 +2839,10 @@
                     cs.style.color = colorOf(node.category);
                     rows.push(cs);
                 }
-                if (d.value) rows.push(el('span', 'rv-kg-tip-meta', d.value + ' ' + unit));
+                if (d.value) rows.push(el('span', 'rv-kg-tip-meta', countLabel(d.value)));
                 if (node.deg) {
-                    rows.push(el('span', 'rv-kg-tip-meta', node.deg + ' ' + (node.deg === 1
-                        ? t('kgConnection', 'connection shown')
-                        : t('kgConnections', 'connections shown'))));
+                    rows.push(el('span', 'rv-kg-tip-meta',
+                        ns.plural(node.deg, 'kgConnection', 'connection shown', 'connections shown', true)));
                 }
                 var role = roleLabel(d);
                 if (role) rows.push(el('span', 'rv-kg-tip-meta', role));
@@ -2829,7 +2852,7 @@
             if (link) {
                 var e = link.data || {};
                 rows.push(el('strong', null, link.source.name + ' ↔ ' + link.target.name));
-                rows.push(el('span', 'rv-kg-tip-meta', (e.value || 1) + ' ' + t('shared', 'shared') + ' ' + unit));
+                rows.push(el('span', 'rv-kg-tip-meta', sharedLabel(e.value || 1)));
                 if (link.name) rows.push(el('span', 'rv-kg-tip-meta', link.name));
                 return rows;
             }
@@ -2839,7 +2862,7 @@
         function announce(node) {
             var cat = categories[node.category];
             return node.name + (cat ? ', ' + cat.name : '')
-                + ', ' + (node.deg || 0) + ' ' + t('kgConnections', 'connections shown')
+                + ', ' + ns.plural(node.deg || 0, 'kgConnection', 'connection shown', 'connections shown', true)
                 + '. ' + t('kgEnterToOpen', 'Press Enter to select.');
         }
 
@@ -2936,7 +2959,7 @@
                     axisLine: { lineStyle: { color: THEME.grid } }
                 },
                 yAxis: {
-                    type: 'value', name: 'Items per project', min: 0,
+                    type: 'value', name: ns.t('boxplotItemsPerProject', 'Items per project'), min: 0,
                     nameTextStyle: { color: THEME.textMuted, fontSize: THEME.fontSize },
                     axisLabel: { color: THEME.textMuted, fontSize: THEME.fontSize },
                     splitLine: { lineStyle: { color: THEME.gridLight } }
@@ -2950,9 +2973,13 @@
                     tooltip: {
                         formatter: function (p) {
                             var v = p.value;
-                            return '<strong>' + echarts.format.encodeHTML(p.name) + '</strong>'
-                                + '<br/>max ' + v[5] + '<br/>Q3 ' + v[4] + '<br/>median ' + v[3]
-                                + '<br/>Q1 ' + v[2] + '<br/>min ' + v[1];
+                            var enc = echarts.format.encodeHTML;
+                            return '<strong>' + enc(p.name) + '</strong>'
+                                + '<br/>' + enc(ns.t('boxplotMax', 'max')) + ' ' + v[5]
+                                + '<br/>' + enc(ns.t('boxplotQ3', 'Q3')) + ' ' + v[4]
+                                + '<br/>' + enc(ns.t('boxplotMedian', 'median')) + ' ' + v[3]
+                                + '<br/>' + enc(ns.t('boxplotQ1', 'Q1')) + ' ' + v[2]
+                                + '<br/>' + enc(ns.t('boxplotMin', 'min')) + ' ' + v[1];
                         }
                     }
                 }]
@@ -3188,16 +3215,37 @@
     var ns = window.RV;
     var c = ns.charts;
 
-    /** Resolve heavy libraries from the payload, after an empty/error response is ruled out. */
-    ns.chartLibraries = function (data) {
+    /** A chart's title / description in the page language (see client-strings). */
+    ns.chartLabel = function (key) {
+        return ns.t('chartLabel.' + key, (ns.CHART_LABELS && ns.CHART_LABELS[key]) || key);
+    };
+    ns.chartDescription = function (key) {
+        var english = (ns.CHART_DESCRIPTIONS && ns.CHART_DESCRIPTIONS[key]) || '';
+        return english ? ns.t('chartDescription.' + key, english) : '';
+    };
+
+    /**
+     * The heavy libraries a dashboard needs: only those of the charts it will
+     * actually draw — the layout's keys that carry data, the one pinned chart
+     * of a single-chart embed, and per-dashboard builder overrides — so a bar
+     * chart embed never downloads MapLibre or d3. `host` is the dashboard
+     * container, whose data-layout / data-chart-only select the plan; a caller
+     * that draws its own set of charts (Compare) passes those `keys` instead.
+     */
+    ns.chartLibraries = function (data, host, keys) {
+        data = data || {};
         var result = {};
         var maps = [c.buildMiniMap, c.buildMap, c.buildChoropleth, c.buildClusterMap, c.buildAffiliationMap];
         var force = [c.buildCommunities];
-        Object.keys(data || {}).forEach(function (key) {
-            if (!data[key] || !ns.CHART_MAP[key]) return;
-            var lib = maps.indexOf(ns.CHART_MAP[key]) >= 0 ? 'maplibre' : (force.indexOf(ns.CHART_MAP[key]) >= 0 ? 'd3' : 'echarts');
+        keys = Array.isArray(keys) ? keys.filter(function (key) { return data[key]; })
+            : (ns.planDashboard ? ns.planDashboard(data, host).keys
+                : Object.keys(data).filter(function (key) { return data[key]; }));
+        keys.forEach(function (key) {
+            var builder = ns.builderFor ? ns.builderFor(data, key) : ns.CHART_MAP[key];
+            if (!builder) return;
+            var lib = maps.indexOf(builder) >= 0 ? 'maplibre' : (force.indexOf(builder) >= 0 ? 'd3' : 'echarts');
             result[lib] = true;
-            if (ns.CHART_MAP[key] === c.buildWordCloud) result.wordcloud = true;
+            if (builder === c.buildWordCloud) result.wordcloud = true;
         });
         return result;
     };

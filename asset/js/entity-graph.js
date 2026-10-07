@@ -55,7 +55,6 @@
     var SRC_NODES = 'eg-nodes';
     var SRC_EDGES = 'eg-edges';
     var L_EDGES = 'eg-edge-lines';
-    var L_EDGES_HL = 'eg-edge-lines-hl';
     var L_NODES = 'eg-node-circles';
     var L_LABELS = 'eg-node-labels';
 
@@ -152,19 +151,15 @@
 
         /* -- header + description -- */
         var header = el('div', 'dashboard-header');
-        header.appendChild(el('h3', null, 'Entity network'));
+        header.appendChild(el('h3', null, t('degTitle', 'Entity network')));
         header.appendChild(el('span', 'dashboard-total',
-            data.nodes.length + ' entities · ' + data.edges.length + ' links'
-            + (data.communityCount ? (' · ' + data.communityCount + ' groups') : '')));
+            ns.plural(data.nodes.length, 'degEntity', 'entity', 'entities', true) + ' · '
+            + ns.plural(data.edges.length, 'link', 'link', 'links', true)
+            + (data.communityCount ? (' · ' + ns.plural(data.communityCount, 'degGroup', 'group', 'groups', true)) : '')));
         container.appendChild(header);
 
         container.appendChild(el('p', 'chart-description',
-            'People, organisations, places, subjects and tags are linked here when they '
-            + 'are recorded on the same research item. The more often two of them appear '
-            + 'together, the closer they sit, so the map falls into groups of entities '
-            + 'that share a research context. Drag to pan and scroll to zoom; hover over '
-            + 'an entity to pick out its links, or click it for a summary and a link to '
-            + 'its page.'));
+            t('degDescription', 'People, organisations, places, subjects and tags are linked here when they are recorded on the same research item. The more often two of them appear together, the closer they sit, so the map falls into groups of entities that share a research context. Drag to pan and scroll to zoom; hover over an entity to pick out its links, or click it for a summary and a link to its page.')));
 
         /* -- toolbar -- */
         var toolbar = el('div', 'deg-toolbar');
@@ -175,9 +170,7 @@
         var canvas = el('div', 'deg-canvas');
         canvas.setAttribute('role', 'application');
         canvas.tabIndex = 0;
-        canvas.setAttribute('aria-label', ns.t('degCanvasLabel', 'Network of entities that '
-            + 'appear on the same research items. Use the arrow keys to move between '
-            + 'connected entities and Enter to select one.'));
+        canvas.setAttribute('aria-label', ns.t('degCanvasLabel', 'Network of entities that appear on the same research items. Use the arrow keys to move between connected entities and Enter to select one.'));
         var sidebar = el('div', 'deg-sidebar');
         stage.appendChild(canvas);
         stage.appendChild(sidebar);
@@ -216,6 +209,10 @@
             adjacency[e[1]].push({ j: e[0], w: e[2] });
         });
         adjacency.forEach(function (list) { list.sort(function (a, b) { return b.w - a.w; }); });
+        // incident[i] = ids of the edge features touching node i. Both sources use
+        // generateId, so a feature id is its index: edge k is data.edges[k].
+        var incident = data.nodes.map(function () { return []; });
+        data.edges.forEach(function (e, k) { incident[e[0]].push(k); incident[e[1]].push(k); });
 
         var nodeFeatures = {
             type: 'FeatureCollection',
@@ -395,11 +392,6 @@
             if (!parts.length) return null;
             return parts.length === 1 ? parts[0] : ['all'].concat(parts);
         }
-        function highlightEdgeFilter() {
-            var incident = ['any', ['==', ['get', 's'], selectedIndex], ['==', ['get', 't'], selectedIndex]];
-            var base = edgeFilter();
-            return base ? ['all', base, incident] : incident;
-        }
         function labelFilter() {
             var base = nodeFilter();
             if (selectedIndex == null) return base;
@@ -413,18 +405,42 @@
             return base ? ['all', base, sel] : sel;
         }
 
+        /**
+         * A selection as feature-state, not as filters or data-driven paint: the
+         * selected neighbourhood carries `sel` and its incident edges `hl`, so a
+         * click touches only those features instead of re-evaluating ~15k edges
+         * and re-tiling the edge layer. Paint expressions switch only when a
+         * selection starts or ends (selectionMode).
+         */
+        var selectedNodes = [], selectedEdges = [], selectionMode = null;
+        function setStates(source, ids, state) {
+            ids.forEach(function (id) { map.setFeatureState({ source: source, id: id }, state); });
+        }
         function applySelectionPaint() {
             if (!map || !map.getLayer(L_NODES)) return;
-            if (selectedIndex == null) {
-                map.setPaintProperty(L_EDGES, 'line-opacity', edgeOpacityExpr(0.08, 0.5));
-                map.setPaintProperty(L_NODES, 'circle-opacity', hoverOpacityExpr(0.9, 1));
-                return;
+            setStates(SRC_NODES, selectedNodes, { sel: false });
+            setStates(SRC_EDGES, selectedEdges, { hl: false });
+            selectedNodes = [];
+            selectedEdges = [];
+            if (selectedIndex != null) {
+                selectedNodes = [selectedIndex].concat(adjacency[selectedIndex].map(function (nb) { return nb.j; }));
+                selectedEdges = incident[selectedIndex].slice();
+                setStates(SRC_NODES, selectedNodes, { sel: true });
+                setStates(SRC_EDGES, selectedEdges, { hl: true });
             }
-            var ids = [selectedIndex];
-            adjacency[selectedIndex].forEach(function (nb) { ids.push(nb.j); });
-            map.setPaintProperty(L_EDGES, 'line-opacity', edgeOpacityExpr(0.02, 0.1));
-            map.setPaintProperty(L_NODES, 'circle-opacity',
-                ['case', ['in', ['get', 'i'], ['literal', ids]], 1, 0.16]);
+            var mode = selectedIndex == null ? 'none' : 'selected';
+            if (mode === selectionMode) return;
+            selectionMode = mode;
+            var hl = ['boolean', ['feature-state', 'hl'], false];
+            map.setPaintProperty(L_EDGES, 'line-opacity', mode === 'none'
+                ? edgeOpacityExpr(0.08, 0.5)
+                : ['case', hl, 0.85, edgeOpacityExpr(0.02, 0.1)]);
+            map.setPaintProperty(L_NODES, 'circle-opacity', mode === 'none'
+                ? hoverOpacityExpr(0.9, 1)
+                : ['case', ['boolean', ['feature-state', 'sel'], false], 1, 0.16]);
+        }
+        function edgeColorExpr() {
+            return ['case', ['boolean', ['feature-state', 'hl'], false], theme().accent, theme().grid];
         }
 
         /**
@@ -449,9 +465,17 @@
 
         /** Move the keyboard cursor: ring it, centre it, and relabel it. */
         function setFocus(index) {
+            var previous = focusIndex;
             focusIndex = index;
             paintFocus(index);
-            if (map && map.getLayer(L_LABELS)) map.setFilter(L_LABELS, labelFilter());
+            // Without a selection every visible node may carry a label, so the
+            // filter only changes when the cursor enters or leaves a node outside
+            // the selected neighbourhood — re-laying out every label on every
+            // arrow key is what made keyboard walking stutter.
+            var outside = function (i) { return i != null && selectedIndex != null && selectedNodes.indexOf(i) === -1; };
+            if (map && map.getLayer(L_LABELS) && (outside(previous) || outside(index))) {
+                map.setFilter(L_LABELS, labelFilter());
+            }
             if (index == null) return;
             var node = data.nodes[index];
             hideHover();
@@ -469,9 +493,8 @@
             if (!map || !map.getLayer(L_EDGES)) return;
             map.setFilter(L_EDGES, edgeFilter());
             map.setFilter(L_NODES, nodeFilter());
+            applySelectionPaint(); // first: labelFilter() reads the neighbourhood
             if (map.getLayer(L_LABELS)) map.setFilter(L_LABELS, labelFilter());
-            map.setFilter(L_EDGES_HL, selectedIndex == null ? ['==', ['get', 's'], -1] : highlightEdgeFilter());
-            applySelectionPaint();
         }
 
         function selectIndex(index) {
@@ -488,25 +511,25 @@
             if (!m.getSource(SRC_EDGES)) m.addSource(SRC_EDGES, { type: 'geojson', data: edgeFeatures, generateId: true });
             if (!m.getSource(SRC_NODES)) m.addSource(SRC_NODES, { type: 'geojson', data: nodeFeatures, generateId: true });
 
-            if (!m.getLayer(L_EDGES)) m.addLayer({
-                id: L_EDGES, type: 'line', source: SRC_EDGES,
-                layout: { 'line-cap': 'round' },
-                paint: {
-                    'line-color': theme().grid,
-                    'line-width': ['+', 0.4, ['*', 2.1, ['get', 'wn']]],
-                    'line-opacity': edgeOpacityExpr(0.08, 0.5)
-                }
-            });
-            if (!m.getLayer(L_EDGES_HL)) m.addLayer({
-                id: L_EDGES_HL, type: 'line', source: SRC_EDGES,
-                filter: ['==', ['get', 's'], -1],
-                layout: { 'line-cap': 'round' },
-                paint: {
-                    'line-color': theme().accent,
-                    'line-width': ['+', 1, ['*', 2.5, ['get', 'wn']]],
-                    'line-opacity': 0.85
-                }
-            });
+            if (!m.getLayer(L_EDGES)) {
+                m.addLayer({
+                    id: L_EDGES, type: 'line', source: SRC_EDGES,
+                    layout: { 'line-cap': 'round' },
+                    paint: {
+                        // Edges of the selection (feature-state `hl`) are drawn
+                        // in the accent, wider; see applySelectionPaint().
+                        'line-color': edgeColorExpr(),
+                        'line-width': ['case', ['boolean', ['feature-state', 'hl'], false],
+                            ['+', 1, ['*', 2.5, ['get', 'wn']]],
+                            ['+', 0.4, ['*', 2.1, ['get', 'wn']]]],
+                        'line-opacity': edgeOpacityExpr(0.08, 0.5)
+                    }
+                });
+                // A new map (or style) starts with no feature-state.
+                selectedNodes = [];
+                selectedEdges = [];
+                selectionMode = null;
+            }
             if (!m.getLayer(L_NODES)) m.addLayer({
                 id: L_NODES, type: 'circle', source: SRC_NODES,
                 paint: {
@@ -552,9 +575,9 @@
 
         function hoverHtml(node) {
             var bits = [];
-            if (types[node.type]) bits.push(types[node.type]);
-            bits.push(node.count + ' item' + (node.count === 1 ? '' : 's'));
-            bits.push(node.degree + ' link' + (node.degree === 1 ? '' : 's'));
+            if (types[node.type]) bits.push(escapeHtml(types[node.type]));
+            bits.push(escapeHtml(ns.plural(node.count, 'item', 'item', 'items', true)));
+            bits.push(escapeHtml(ns.plural(node.degree, 'link', 'link', 'links', true)));
             return '<div class="rv-popup-content"><strong>' + escapeHtml(node.label) + '</strong>'
                 + '<span class="deg-popup-meta">' + bits.join(' · ') + '</span></div>';
         }
@@ -651,7 +674,7 @@
 
         function showOverview() {
             sidebar.innerHTML = '';
-            sidebar.appendChild(el('div', 'deg-side-title', 'Network'));
+            sidebar.appendChild(el('div', 'deg-side-title', t('degSideTitle', 'Network')));
             var counts = {};
             data.nodes.forEach(function (n) { counts[n.type] = (counts[n.type] || 0) + 1; });
             var list = el('div', 'deg-type-counts');
@@ -665,7 +688,7 @@
                 list.appendChild(row);
             });
             sidebar.appendChild(list);
-            sidebar.appendChild(el('p', 'deg-side-hint', 'Hover over an entity, or click it, to see what it is connected to.'));
+            sidebar.appendChild(el('p', 'deg-side-hint', t('degSideHint', 'Hover over an entity, or click it, to see what it is connected to.')));
         }
 
         function showDetail(index) {
@@ -673,7 +696,7 @@
             if (!info) return;
             sidebar.innerHTML = '';
 
-            var typeTag = el('div', 'deg-detail-type', types[info.type] || 'Entity');
+            var typeTag = el('div', 'deg-detail-type', types[info.type] || t('degLabel', 'Entity'));
             typeTag.style.color = typeColor(info.type);
             sidebar.appendChild(typeTag);
 
@@ -688,15 +711,15 @@
             sidebar.appendChild(titleWrap);
 
             sidebar.appendChild(el('div', 'deg-detail-stats',
-                info.count + ' item' + (info.count === 1 ? '' : 's') + ' · '
-                + info.degree + ' connection' + (info.degree === 1 ? '' : 's')));
+                ns.plural(info.count, 'item', 'item', 'items', true) + ' · '
+                + ns.plural(info.degree, 'degConnection', 'connection', 'connections', true)));
 
             if (sections.length) {
                 var secLabel = info.section >= 0 ? sections[info.section]
-                    : (info.section === -2 ? 'Multiple sections' : null);
+                    : (info.section === -2 ? t('degMultipleSections', 'Multiple sections') : null);
                 if (secLabel) {
                     var secRow = el('div', 'deg-detail-stats');
-                    secRow.appendChild(el('span', 'deg-detail-section-label', 'Section: '));
+                    secRow.appendChild(el('span', 'deg-detail-section-label', t('degSectionLabel', 'Section:') + ' '));
                     secRow.appendChild(el('span', null, secLabel));
                     sidebar.appendChild(secRow);
                 }
@@ -705,7 +728,8 @@
             var nbrs = adjacency[index] || [];
             if (nbrs.length) {
                 sidebar.appendChild(el('div', 'deg-detail-subhead',
-                    'Strongest connections (' + Math.min(nbrs.length, 15) + ' of ' + nbrs.length + ')'));
+                    ns.fill(t('degStrongest', 'Strongest connections ({shown} of {total})'),
+                        { shown: Math.min(nbrs.length, 15), total: nbrs.length })));
                 var ul = el('div', 'deg-neighbors');
                 nbrs.slice(0, 15).forEach(function (nb) {
                     var ni = data.nodes[nb.j];
@@ -722,7 +746,7 @@
             }
 
             if (siteBase && info.id) {
-                var open = el('a', 'deg-open', 'Open this entity’s page →');
+                var open = el('a', 'deg-open', t('degOpenPage', 'Open this entity’s page →'));
                 open.href = ns.itemUrl(siteBase, info.id);
                 sidebar.appendChild(open);
             }
@@ -747,7 +771,7 @@
         var searchWrap = el('div', 'deg-search');
         var search = el('input', 'deg-search-input');
         search.type = 'search';
-        search.placeholder = 'Search entities…';
+        search.placeholder = t('searchEntitiesPlaceholder', 'Search entities…');
         search.setAttribute('aria-label', ns.t('searchEntities', 'Search entities'));
         var results = el('div', 'deg-search-results'); results.hidden = true;
         searchWrap.appendChild(search); searchWrap.appendChild(results);
@@ -839,10 +863,11 @@
         });
         if (steps.length > 1) {
             var wWrap = el('label', 'deg-weight');
-            wWrap.appendChild(el('span', null, 'Shared items'));
+            wWrap.appendChild(el('span', null, t('degSharedItems', 'Shared items')));
             var sel = el('select', 'deg-weight-select');
             steps.forEach(function (v, idx) {
-                var o = el('option', null, idx === 0 ? 'Any' : (v + ' or more'));
+                var o = el('option', null, idx === 0 ? t('degAnyWeight', 'Any')
+                    : ns.fill(t('degOrMore', '{count} or more'), { count: v }));
                 o.value = String(v); sel.appendChild(o);
             });
             sel.addEventListener('change', function () {
@@ -888,8 +913,8 @@
         // cluster shown, search emptied and any selection dropped. Disabled while
         // nothing is active.
         var clearBtn = el('button', 'deg-btn deg-clear'); clearBtn.type = 'button';
-        clearBtn.textContent = 'Clear filters';
-        clearBtn.title = 'Show every entity again and drop the current selection';
+        clearBtn.textContent = t('degClearFilters', 'Clear filters');
+        clearBtn.title = t('degClearFiltersTitle', 'Show every entity again and drop the current selection');
         clearBtn.disabled = true;
         clearBtn.addEventListener('click', function () {
             types.forEach(function (_t, i) { enabledTypes[i] = true; });
@@ -912,14 +937,23 @@
         toolbar.appendChild(el('div', 'deg-spacer'));
 
         // Colour-by control (type / cluster / section) -------------------
-        var colorModes = [{ id: 'type', label: 'Type' }];
-        if (data.communityCount > 0) colorModes.push({ id: 'community', label: 'Group' });
-        if (sections.length) colorModes.push({ id: 'section', label: 'Section' });
+        var colorModes = [{
+            id: 'type', label: t('degType', 'Type'),
+            title: t('degColorByType', 'Colour the entities by type')
+        }];
+        if (data.communityCount > 0) colorModes.push({
+            id: 'community', label: t('degCluster', 'Group'),
+            title: t('degColorByGroup', 'Colour the entities by group')
+        });
+        if (sections.length) colorModes.push({
+            id: 'section', label: t('degSection', 'Section'),
+            title: t('degColorBySection', 'Colour the entities by section')
+        });
         if (colorModes.length > 1) {
             var modeWrap = el('div', 'deg-colormode');
             modeWrap.setAttribute('role', 'group');
-            modeWrap.setAttribute('aria-label', 'Colour entities by');
-            modeWrap.appendChild(el('span', 'deg-colormode-label', 'Colour by'));
+            modeWrap.setAttribute('aria-label', t('degColorByLabel', 'Colour entities by'));
+            modeWrap.appendChild(el('span', 'deg-colormode-label', t('degColorBy', 'Colour by')));
             var modeBtns = {};
             var setMode = function (id) {
                 if (colorMode === id) return;
@@ -936,7 +970,7 @@
             colorModes.forEach(function (m) {
                 var b = el('button', 'deg-btn deg-mode-btn'); b.type = 'button';
                 b.textContent = m.label;
-                b.title = 'Colour the entities by ' + m.label.toLowerCase();
+                b.title = m.title;
                 b.classList.toggle('is-on', colorMode === m.id);
                 b.setAttribute('aria-pressed', String(colorMode === m.id));
                 b.addEventListener('click', function () { setMode(m.id); });
@@ -988,8 +1022,8 @@
          */
         function entityRows() {
             var head = [
-                t('degLabel', 'Entity'), t('category', 'Type'),
-                t('items', 'Items'), t('degLinks', 'Links'), t('community', 'Group')
+                t('degLabel', 'Entity'), t('degType', 'Type'),
+                t('degItemsColumn', 'Items'), t('degLinksColumn', 'Links'), t('community', 'Group')
             ];
             if (sections.length) head.push(t('degSection', 'Section'));
             head.push(t('degUrl', 'URL'));
@@ -1018,8 +1052,7 @@
             legend.innerHTML = '';
             if (colorMode === 'community') {
                 legend.appendChild(el('span', 'deg-legend-note',
-                    'Each colour is a group of entities that keep appearing together. '
-                    + 'Grey entities belong to no group.'));
+                    t('degGroupLegend', 'Each colour is a group of entities that keep appearing together. Grey entities belong to no group.')));
                 return;
             }
             if (colorMode === 'section') {
@@ -1038,8 +1071,8 @@
                     var gsw = el('span', 'deg-swatch'); gsw.style.background = dimColor();
                     grow.appendChild(gsw);
                     grow.appendChild(el('span', null,
-                        hasBridge && hasNone ? 'Multiple / no section'
-                            : (hasBridge ? 'Multiple sections' : 'No section')));
+                        hasBridge && hasNone ? t('degMultipleOrNoSection', 'Multiple / no section')
+                            : (hasBridge ? t('degMultipleSections', 'Multiple sections') : t('degNoSection', 'No section'))));
                     legend.appendChild(grow);
                 }
                 return;
@@ -1066,8 +1099,7 @@
                 // The expression, not a flat colour: it also carries the accent the
                 // keyboard focus ring is drawn in, which a flat value would erase.
                 map.setPaintProperty(L_NODES, 'circle-stroke-color', strokeColorExpr());
-                map.setPaintProperty(L_EDGES, 'line-color', theme().grid);
-                map.setPaintProperty(L_EDGES_HL, 'line-color', theme().accent);
+                map.setPaintProperty(L_EDGES, 'line-color', edgeColorExpr());
                 if (map.getLayer(L_LABELS)) {
                     map.setPaintProperty(L_LABELS, 'text-color', theme().text);
                     map.setPaintProperty(L_LABELS, 'text-halo-color', theme().surface);
@@ -1114,9 +1146,8 @@
                                 return {
                                     label: n.label,
                                     url: (siteBase && n.id) ? (ns.itemUrl(siteBase, n.id)) : null,
-                                    meta: n.count + ' ' + (n.count === 1 ? t('item', 'item') : t('items', 'items'))
-                                        + ' · ' + n.degree + ' '
-                                        + (n.degree === 1 ? t('degLink', 'link') : t('degLinks', 'links'))
+                                    meta: ns.plural(n.count, 'item', 'item', 'items', true)
+                                        + ' · ' + ns.plural(n.degree, 'link', 'link', 'links', true)
                                 };
                             })
                     };
@@ -1146,8 +1177,8 @@
                 describe: function (i) {
                     var n = data.nodes[i];
                     return n.label + ', ' + (types[n.type] || '')
-                        + ', ' + n.count + ' ' + t('items', 'items')
-                        + ', ' + n.degree + ' ' + t('degLinks', 'links')
+                        + ', ' + ns.plural(n.count, 'item', 'item', 'items', true)
+                        + ', ' + ns.plural(n.degree, 'link', 'link', 'links', true)
                         + '. ' + t('degEnterToSelect', 'Press Enter to select.');
                 },
                 onFocus: setFocus,
@@ -1193,17 +1224,17 @@
         ]).then(function (res) {
             var data = decode(res[0]);
             if (!data.nodes.length) {
-                container.innerHTML = '<div class="rv-no-data">There is no entity network to show yet.</div>';
+                container.innerHTML = '<div class="rv-no-data">' + escapeHtml(t('degNone', 'There is no entity network to show yet.')) + '</div>';
                 return;
             }
             if (typeof window.maplibregl === 'undefined') {
-                container.innerHTML = '<div class="rv-error">The entity network could not be loaded. Please try again.</div>';
+                container.innerHTML = '<div class="rv-error">' + escapeHtml(t('degLoadError', 'The entity network could not be loaded. Please try again.')) + '</div>';
                 return;
             }
             build(container, data, { basePath: basePath, siteBase: siteBase });
         }).catch(function (err) {
             console.error('DreVisualizations entity-graph:', err);
-            container.innerHTML = '<div class="rv-error">The entity network could not be loaded. Please try again.</div>';
+            container.innerHTML = '<div class="rv-error">' + escapeHtml(t('degLoadError', 'The entity network could not be loaded. Please try again.')) + '</div>';
         });
     }
 

@@ -71,8 +71,7 @@
             forces: kgData.buildForces(maxStrength),
             tooltip: kgUI.tooltipRows(categories, colorOf),
             announce: kgUI.announcer(categories),
-            ariaLabel: t('kgCanvasLabel', 'A graph of everything this record is connected to. Use the '
-                + 'arrow keys to move between connected entities and Enter to select one.')
+            ariaLabel: t('kgCanvasLabel', 'A graph of everything this record is connected to. Use the arrow keys to move between connected entities and Enter to select one.')
             // No onActivate: a click selects rather than navigates. The link to the
             // record lives in the detail card, so leaving the page is always a
             // second, deliberate act — and works identically on a finger.

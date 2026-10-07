@@ -309,14 +309,14 @@
                     showPopup(e.lngLat,
                         '<div class="rv-popup-content"><strong>' + esc(p.from || '')
                         + '</strong> \u2192 <strong>' + esc(p.to || '') + '</strong><br/>'
-                        + ns.formatNumber(p.value) + ' items</div>');
+                        + esc(ns.plural(p.value, 'item', 'item', 'items', true)) + '</div>');
                 });
 
                 map.on('click', 'current-dots', function (e) {
                     var p = e.features[0].properties;
                     showPopup(e.lngLat,
                         '<div class="rv-popup-content"><strong>' + esc(p.name || '')
-                        + '</strong><br/><em>Current location</em></div>');
+                        + '</strong><br/><em>' + esc(ns.t('currentLocation', 'Current location')) + '</em></div>');
                 });
 
                 ['flow-lines', 'current-dots'].forEach(function (layerId) {

@@ -57,7 +57,7 @@
                     axisLine: { lineStyle: { color: THEME.grid } }
                 },
                 yAxis: {
-                    type: 'value', name: 'Items per project', min: 0,
+                    type: 'value', name: ns.t('boxplotItemsPerProject', 'Items per project'), min: 0,
                     nameTextStyle: { color: THEME.textMuted, fontSize: THEME.fontSize },
                     axisLabel: { color: THEME.textMuted, fontSize: THEME.fontSize },
                     splitLine: { lineStyle: { color: THEME.gridLight } }
@@ -71,9 +71,13 @@
                     tooltip: {
                         formatter: function (p) {
                             var v = p.value;
-                            return '<strong>' + echarts.format.encodeHTML(p.name) + '</strong>'
-                                + '<br/>max ' + v[5] + '<br/>Q3 ' + v[4] + '<br/>median ' + v[3]
-                                + '<br/>Q1 ' + v[2] + '<br/>min ' + v[1];
+                            var enc = echarts.format.encodeHTML;
+                            return '<strong>' + enc(p.name) + '</strong>'
+                                + '<br/>' + enc(ns.t('boxplotMax', 'max')) + ' ' + v[5]
+                                + '<br/>' + enc(ns.t('boxplotQ3', 'Q3')) + ' ' + v[4]
+                                + '<br/>' + enc(ns.t('boxplotMedian', 'median')) + ' ' + v[3]
+                                + '<br/>' + enc(ns.t('boxplotQ1', 'Q1')) + ' ' + v[2]
+                                + '<br/>' + enc(ns.t('boxplotMin', 'min')) + ' ' + v[1];
                         }
                     }
                 }]

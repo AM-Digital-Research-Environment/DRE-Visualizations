@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
+import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { resolve, extname } from 'node:path';
 import { chromium } from 'playwright';
 
@@ -42,8 +42,9 @@ const server = createServer(async (req, res) => {
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const browser = await chromium.launch({ headless: true, args: ['--enable-unsafe-swiftshader'] });
+let page = null;
 try {
-    let page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+    page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(`http://127.0.0.1:${server.address().port}`);
@@ -104,6 +105,17 @@ try {
     await page.waitForFunction(() => document.querySelector('.dashboard-async-container').dataset.state === 'ready');
     assert.deepEqual([...new Set(requests.filter(p => p.startsWith('/asset/vendor/')))], ['/asset/vendor/echarts.min.js']);
     console.log('Browser: empty dashboards load no heavy libraries; a pie chart loads only ECharts.');
+} catch (error) {
+    // CI uploads this directory when the job fails (ci.yml, PLAYWRIGHT_ARTIFACT_DIR).
+    const dir = process.env.PLAYWRIGHT_ARTIFACT_DIR;
+    if (dir && page) {
+        await mkdir(dir, { recursive: true });
+        await page.screenshot({ path: resolve(dir, 'failure.png'), fullPage: true }).catch(() => {});
+        await writeFile(resolve(dir, 'failure.json'), JSON.stringify({
+            url: page.url(), error: String(error && error.stack || error), requests,
+        }, null, 2)).catch(() => {});
+    }
+    throw error;
 } finally {
     await browser.close();
     await new Promise(resolve => server.close(resolve));

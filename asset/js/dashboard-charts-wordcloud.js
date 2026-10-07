@@ -21,12 +21,13 @@
 
     ns.charts = ns.charts || {};
 
+    // Resolved at load with literal keys, so the string extractor sees them.
     var LANG_NAMES = {
-        all: ['langAll', 'All'],
-        en: ['langEnglish', 'English'],
-        fr: ['langFrench', 'French'],
-        de: ['langGerman', 'German'],
-        pt: ['langPortuguese', 'Portuguese']
+        all: ns.t('langAll', 'All'),
+        en: ns.t('langEnglish', 'English'),
+        fr: ns.t('langFrench', 'French'),
+        de: ns.t('langGerman', 'German'),
+        pt: ns.t('langPortuguese', 'Portuguese')
     };
 
     var _wordCloudOk = null;
@@ -77,7 +78,8 @@
                     confine: true,
                     formatter: function (p) { return echarts.format.encodeHTML(p.name) + ': ' + p.value; }
                 },
-                aria: { enabled: true },
+                // clear() drops initChart's description, so restate the panel's.
+                aria: { enabled: true, label: { description: el.getAttribute('aria-label') || undefined } },
                 series: [{
                     type: 'wordCloud',
                     shape: function (theta) {
@@ -108,6 +110,12 @@
         }
 
         render(defaultCount());
+        // A light/dark switch re-renders in place (the colour callback reads the
+        // live palette) instead of the dashboard's dispose-and-rebuild, which
+        // would duplicate the language and word-count controls below.
+        chart._rvRebuild = function () {
+            render(sliderInput ? parseInt(sliderInput.value, 10) : defaultCount());
+        };
         // entries is reassigned on a language switch, so hand over a getter: the
         // handler then reads the current language's list, never the first one.
         addClickHandler(chart, function () { return entries; }, siteBase);
@@ -130,8 +138,7 @@
                 b.type = 'button';
                 b.className = 'rv-word-lang' + (code === curLang ? ' is-active' : '');
                 b.setAttribute('aria-pressed', code === curLang ? 'true' : 'false');
-                var langName = LANG_NAMES[code];
-                b.textContent = langName ? ns.t(langName[0], langName[1]) : code.toUpperCase();
+                b.textContent = LANG_NAMES[code] || code.toUpperCase();
                 b.addEventListener('click', function () {
                     if (code === curLang) return;
                     curLang = code;

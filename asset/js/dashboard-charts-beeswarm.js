@@ -87,17 +87,18 @@
                 confine: true,
                 formatter: function (params) {
                     var d = params.data;
-                    return '<strong>' + echarts.format.encodeHTML(d._label) + '</strong>'
-                        + '<br/>Section: ' + echarts.format.encodeHTML(d._category)
-                        + '<br/>Start: ' + d.value[0]
-                        + '<br/>Items: ' + d._size;
+                    var enc = echarts.format.encodeHTML;
+                    return '<strong>' + enc(d._label) + '</strong>'
+                        + '<br/>' + enc(ns.t('beeswarmSection', 'Section:')) + ' ' + enc(d._category)
+                        + '<br/>' + enc(ns.t('beeswarmStart', 'Start:')) + ' ' + enc(d.value[0])
+                        + '<br/>' + enc(ns.t('beeswarmItems', 'Items:')) + ' ' + enc(d._size);
                 }
             },
             aria: { enabled: true },
             grid: { left: 160, right: 30, top: 20, bottom: 40 },
             xAxis: {
                 type: 'value',
-                name: 'Start year',
+                name: ns.t('beeswarmStartYear', 'Start year'),
                 nameLocation: 'center',
                 nameGap: 25,
                 min: minVal - 1,

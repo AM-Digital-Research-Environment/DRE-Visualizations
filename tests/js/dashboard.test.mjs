@@ -40,6 +40,8 @@ async function dashboard({ data, libraryError, builderError } = {}) {
             totalItems: 2, resourceType: 'generic', stats: [1], curated: [1], second: [2], generic: [3],
         }),
         renderStatCards: () => 'DUPLICATE_STATS',
+        buildChart: build => build(),
+        attachToolbar() {},
         CHART_MAP: Object.fromEntries(['curated', 'second'].map(key => [key, () => {
             built.push(key);
             if (builderError && key === 'curated') throw builderError;
@@ -105,7 +107,7 @@ function dataLoader(respond) {
     } });
     return { ns, calls };
 }
-const response = (status, body) => ({ ok: status === 200, status, json: async () => body });
+const response = (status, body) => ({ ok: status === 200, status, json: async () => body, text: async () => JSON.stringify(body) });
 const oldId = '20260901T000000Z-aaaaaaaaaaaa';
 const newId = '20260907T000000Z-bbbbbbbbbbbb';
 
@@ -138,4 +140,24 @@ test('a withdrawn manifest fails closed without any legacy request', async () =>
     const { ns, calls } = dataLoader(() => response(404));
     await assert.rejects(ns.fetchDataJson('item-dashboards/test.json'), /Snapshot unavailable/);
     assert.deepEqual(calls, ['/s/test/dre-data/current.json']);
+});
+
+test('concurrent requests for one artifact share a single download', async () => {
+    const { ns, calls } = dataLoader(url => url.endsWith('current.json')
+        ? response(200, { generationId: oldId }) : response(200, { totalItems: 7 }));
+    const [a, b] = await Promise.all([ns.fetchDataJson('item-dashboards/x.json'), ns.fetchDataJson('item-dashboards/x.json')]);
+    assert.equal(calls.filter(url => url.endsWith('x.json')).length, 1);
+    assert.notEqual(a, b, 'each caller gets its own parsed objects');
+    assert.equal(b.totalItems, 7);
+});
+
+test('one caller aborting does not cancel the shared download for another', async () => {
+    const { ns } = dataLoader(url => url.endsWith('current.json')
+        ? response(200, { generationId: oldId }) : response(200, { totalItems: 9 }));
+    const controller = new AbortController();
+    const aborted = ns.fetchDataJson('item-dashboards/y.json', { signal: controller.signal });
+    const other = ns.fetchDataJson('item-dashboards/y.json');
+    controller.abort();
+    await assert.rejects(aborted, { name: 'AbortError' });
+    assert.equal((await other).totalItems, 9);
 });

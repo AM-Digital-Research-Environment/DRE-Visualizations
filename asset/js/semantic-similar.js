@@ -32,8 +32,8 @@
             link.href = ns.itemUrl((container.getAttribute('data-site-base') || ''), id);
 
             var copy = node('span', 'semantic-similar-copy');
-            copy.appendChild(node('span', 'semantic-similar-type', record.typeLabel || record.type || 'Item'));
-            copy.appendChild(node('span', 'semantic-similar-title', record.title || ('Item ' + id)));
+            copy.appendChild(node('span', 'semantic-similar-type', record.typeLabel || record.type || ns.t('itemFallback', 'Item')));
+            copy.appendChild(node('span', 'semantic-similar-title', record.title || ns.fill(ns.t('itemNumber', 'Item {id}'), { id: id })));
 
             var score = Math.max(0, Math.min(100, Math.round(Number(neighbour.score || 0) * 100)));
             var measure = node('span', 'semantic-similar-score', score + '%');

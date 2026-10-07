@@ -43,7 +43,7 @@
         btn.type = 'button';
         btn.className = 'explorer-abstract-toggle';
         btn.setAttribute('aria-expanded', 'false');
-        btn.textContent = 'Show abstract';
+        btn.textContent = ns.t('showAbstract', 'Show abstract');
         var body = document.createElement('div');
         body.className = 'explorer-abstract-body';
         body.hidden = true;
@@ -52,7 +52,7 @@
             var show = body.hidden;
             body.hidden = !show;
             btn.setAttribute('aria-expanded', String(show));
-            btn.textContent = show ? 'Hide abstract' : 'Show abstract';
+            btn.textContent = show ? ns.t('hideAbstract', 'Hide abstract') : ns.t('showAbstract', 'Show abstract');
         });
         host.appendChild(btn);
         host.appendChild(body);
@@ -64,14 +64,14 @@
 
         var label = document.createElement('label');
         label.className = 'explorer-selector-label';
-        label.textContent = 'Project';
+        label.textContent = ns.t('explorerProject', 'Project');
 
         var select = document.createElement('select');
         select.className = 'compare-select explorer-select';
 
         var placeholder = document.createElement('option');
         placeholder.value = '';
-        placeholder.textContent = 'Choose a project…';
+        placeholder.textContent = ns.t('explorerChooseProject', 'Choose a project…');
         placeholder.disabled = true;
         if (!selectedId) placeholder.selected = true;
         select.appendChild(placeholder);
@@ -79,7 +79,7 @@
         // Group by research section (falls back to "Other").
         var sections = {};
         projects.forEach(function (p) {
-            var sec = (p.sections && p.sections[0]) || 'Other';
+            var sec = (p.sections && p.sections[0]) || ns.t('otherSection', 'Other');
             (sections[sec] = sections[sec] || []).push(p);
         });
         Object.keys(sections).sort().forEach(function (sec) {
@@ -88,7 +88,7 @@
             sections[sec].forEach(function (p) {
                 var opt = document.createElement('option');
                 opt.value = p.id;
-                opt.textContent = truncate(p.name, 70) + ' (' + p.items + ' items)';
+                opt.textContent = truncate(p.name, 70) + ' (' + ns.plural(p.items, 'item', 'item', 'items', true) + ')';
                 opt.title = p.name;
                 if (String(p.id) === String(selectedId)) opt.selected = true;
                 group.appendChild(opt);
@@ -125,7 +125,7 @@
 
             var header = document.createElement('div');
             header.className = 'dashboard-header';
-            header.innerHTML = '<h2>Project explorer</h2>';
+            header.innerHTML = '<h2>' + ns.escapeHtml(ns.t('explorerTitle', 'Project explorer')) + '</h2>';
             container.appendChild(header);
 
             var controls = document.createElement('div');
@@ -213,10 +213,11 @@
                 load(selectedId);
             } else {
                 content.innerHTML = '<div class="rv-no-data">'
-                    + 'Choose a project above to see its visualisations.</div>';
+                    + ns.escapeHtml(ns.t('explorerPrompt', 'Choose a project above to see its visualisations.')) + '</div>';
             }
         }).catch(function () {
-            container.innerHTML = '<div class="rv-error">The list of projects could not be loaded. Please try again.</div>';
+            container.innerHTML = '<div class="rv-error">'
+                + ns.escapeHtml(ns.t('explorerListError', 'The list of projects could not be loaded. Please try again.')) + '</div>';
         });
     }
 

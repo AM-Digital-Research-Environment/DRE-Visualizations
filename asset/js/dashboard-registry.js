@@ -9,16 +9,37 @@
     var ns = window.RV;
     var c = ns.charts;
 
-    /** Resolve heavy libraries from the payload, after an empty/error response is ruled out. */
-    ns.chartLibraries = function (data) {
+    /** A chart's title / description in the page language (see client-strings). */
+    ns.chartLabel = function (key) {
+        return ns.t('chartLabel.' + key, (ns.CHART_LABELS && ns.CHART_LABELS[key]) || key);
+    };
+    ns.chartDescription = function (key) {
+        var english = (ns.CHART_DESCRIPTIONS && ns.CHART_DESCRIPTIONS[key]) || '';
+        return english ? ns.t('chartDescription.' + key, english) : '';
+    };
+
+    /**
+     * The heavy libraries a dashboard needs: only those of the charts it will
+     * actually draw — the layout's keys that carry data, the one pinned chart
+     * of a single-chart embed, and per-dashboard builder overrides — so a bar
+     * chart embed never downloads MapLibre or d3. `host` is the dashboard
+     * container, whose data-layout / data-chart-only select the plan; a caller
+     * that draws its own set of charts (Compare) passes those `keys` instead.
+     */
+    ns.chartLibraries = function (data, host, keys) {
+        data = data || {};
         var result = {};
         var maps = [c.buildMiniMap, c.buildMap, c.buildChoropleth, c.buildClusterMap, c.buildAffiliationMap];
         var force = [c.buildCommunities];
-        Object.keys(data || {}).forEach(function (key) {
-            if (!data[key] || !ns.CHART_MAP[key]) return;
-            var lib = maps.indexOf(ns.CHART_MAP[key]) >= 0 ? 'maplibre' : (force.indexOf(ns.CHART_MAP[key]) >= 0 ? 'd3' : 'echarts');
+        keys = Array.isArray(keys) ? keys.filter(function (key) { return data[key]; })
+            : (ns.planDashboard ? ns.planDashboard(data, host).keys
+                : Object.keys(data).filter(function (key) { return data[key]; }));
+        keys.forEach(function (key) {
+            var builder = ns.builderFor ? ns.builderFor(data, key) : ns.CHART_MAP[key];
+            if (!builder) return;
+            var lib = maps.indexOf(builder) >= 0 ? 'maplibre' : (force.indexOf(builder) >= 0 ? 'd3' : 'echarts');
             result[lib] = true;
-            if (ns.CHART_MAP[key] === c.buildWordCloud) result.wordcloud = true;
+            if (builder === c.buildWordCloud) result.wordcloud = true;
         });
         return result;
     };

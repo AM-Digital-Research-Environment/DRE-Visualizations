@@ -56,8 +56,9 @@
             }
 
             map.on('load', function () {
-                addMarkers(origins, ns.THEME.accent, 'Origin');
-                addMarkers(current, ns.COLORS[1], 'Current location');
+                addMarkers(origins, ns.THEME.accent, ns.t('comesFromHere', 'Comes from here'));
+                // COLORS[2], like the dashboard map and Spatial Exploration: one hue per role.
+                addMarkers(current, ns.COLORS[2], ns.t('heldHereToday', 'Held here today'));
 
                 // Fit bounds to all markers.
                 if (all.length > 1) {
@@ -94,8 +95,8 @@
             legend.appendChild(dot);
             legend.appendChild(ns.el('span', null, ' ' + label + ' '));
         }
-        if (origins.length) addKey(ns.THEME.accent, ns.t('origin', 'Comes from here'));
-        if (current.length) addKey(ns.COLORS[1], ns.t('currentLocation', 'Held here today'));
+        if (origins.length) addKey(ns.THEME.accent, ns.t('comesFromHere', 'Comes from here'));
+        if (current.length) addKey(ns.COLORS[2], ns.t('heldHereToday', 'Held here today'));
         wrapper.appendChild(legend);
 
         var mapEl = ns.el('div', 'rv-item-map-container');

@@ -257,7 +257,7 @@
                         var sharedCount = n.data && n.data.sharedCount;
                         if (sharedCount) {
                             li.appendChild(el('span', 'rv-kg-list-meta',
-                                ' — ' + sharedCount + ' ' + t('kgSharedLinks', 'shared links')));
+                                ' — ' + ns.plural(sharedCount, 'kgShared', 'thing in common', 'things in common', true)));
                         }
                         ul.appendChild(li);
                     });
@@ -325,15 +325,13 @@
                 if (text) meta.appendChild(el('li', null, text));
             }
             addMeta(node.deg
-                ? node.deg + ' ' + (node.deg === 1 ? t('kgConnection', 'connection shown')
-                    : t('kgConnections', 'connections shown'))
+                ? ns.plural(node.deg, 'kgConnection', 'connection shown', 'connections shown', true)
                 : null);
             if (d.freqPct !== undefined && d.freqPct !== null) {
                 addMeta(t('kgSharedBy', 'Also on') + ' ' + d.freqPct + '% ' + t('kgOfItems', 'of all records'));
             }
             if (d.strength !== undefined) {
-                addMeta(d.sharedCount + ' '
-                    + (d.sharedCount > 1 ? t('kgSharedLinks', 'things in common') : t('kgSharedLink', 'thing in common')));
+                addMeta(ns.plural(d.sharedCount, 'kgShared', 'thing in common', 'things in common', true));
             }
             if (node.pinned) addMeta(t('kgPinnedHint', 'Held in place. Alt-click to let it go'));
 
@@ -385,17 +383,16 @@
                     rows.push(cs);
                 }
                 if (node.deg) {
-                    rows.push(el('span', 'rv-kg-tip-meta', node.deg + ' ' + (node.deg === 1
-                        ? t('kgConnection', 'connection shown')
-                        : t('kgConnections', 'connections shown'))));
+                    rows.push(el('span', 'rv-kg-tip-meta',
+                        ns.plural(node.deg, 'kgConnection', 'connection shown', 'connections shown', true)));
                 }
                 if (d.freqPct !== undefined && d.freqPct !== null) {
                     rows.push(el('span', 'rv-kg-tip-meta',
                         t('kgSharedBy', 'Also on') + ' ' + d.freqPct + '% ' + t('kgOfItems', 'of all records')));
                 }
                 if (d.strength !== undefined) {
-                    rows.push(el('span', 'rv-kg-tip-meta', d.sharedCount + ' '
-                        + (d.sharedCount > 1 ? t('kgSharedLinks', 'things in common') : t('kgSharedLink', 'thing in common'))));
+                    rows.push(el('span', 'rv-kg-tip-meta',
+                        ns.plural(d.sharedCount, 'kgShared', 'thing in common', 'things in common', true)));
                 }
                 if (node.pinned) {
                     rows.push(el('span', 'rv-kg-tip-meta', t('kgPinnedHint', 'Held in place. Alt-click to let it go')));
@@ -423,8 +420,8 @@
         return function (node) {
             var cat = categories[node.category];
             return node.name + (cat ? ', ' + cat.name : '')
-                + ', ' + (node.deg || 0) + ' ' + t('kgConnections', 'connections shown')
-                + '. ' + t('kgEnterToOpen', 'Press Enter to open.');
+                + ', ' + ns.plural(node.deg || 0, 'kgConnection', 'connection shown', 'connections shown', true)
+                + '. ' + t('kgEnterToOpen', 'Press Enter to select.');
         };
     }
 
@@ -525,7 +522,7 @@
         add(resetBtn);
 
         /* -- save as PNG -- */
-        var saveBtn = ns.iconButton(ICON.save, t('saveImage', 'Save this graph as an image'), t('saveImage', 'Save this graph as an image'));
+        var saveBtn = ns.iconButton(ICON.save, t('saveGraphImage', 'Save this graph as an image'), t('saveGraphImage', 'Save this graph as an image'));
         saveBtn.addEventListener('click', function () {
             var a = document.createElement('a');
             a.href = graph.toDataURL();
@@ -553,10 +550,7 @@
 
     /** The gesture hint that sits under the graph. */
     function buildHint() {
-        return el('p', 'rv-kg-hint', t('kgHint',
-            'Click an entity to see what it is connected to; the panel that opens links to its '
-            + 'record. Drag an entity to move it, and it stays where you put it (Alt-click to let '
-            + 'it go). Double-click the background, or hold Ctrl and scroll, to zoom.'));
+        return el('p', 'rv-kg-hint', t('kgHint', 'Click an entity to see what it is connected to; the panel that opens links to its record. Drag an entity to move it, and it stays where you put it (Alt-click to let it go). Double-click the background, or hold Ctrl and scroll, to zoom.'));
     }
 
     ns.kgUI = {

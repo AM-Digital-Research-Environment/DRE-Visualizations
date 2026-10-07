@@ -25,7 +25,11 @@
                     var path = p.treePathInfo.map(function (n) {
                         return echarts.format.encodeHTML(n.name || '');
                     }).filter(Boolean);
-                    return path.join(' \u203a ') + '<br/>' + Number(p.value || 0) + ' items';
+                    var count = Number(p.value || 0);
+                    // ns.plural comes from dashboard-core; the bare fallback only
+                    // serves a stand-alone harness (scripts/check-html-safety.mjs).
+                    var items = ns.plural ? ns.plural(count, 'item', 'item', 'items', true) : count + ' items';
+                    return path.join(' \u203a ') + '<br/>' + echarts.format.encodeHTML(items);
                 }
             },
             aria: { enabled: true },

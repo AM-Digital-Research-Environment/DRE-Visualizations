@@ -107,9 +107,9 @@
         group.setAttribute('aria-label', ns.t('semanticColorBy', 'Colour by'));
         var mode = chart._semanticMode || 'type';
 
-        [['type', 'semanticType', 'Resource type'], ['cluster', 'semanticCluster', 'Group of similar records']]
+        [['type', ns.t('semanticType', 'Resource type')], ['cluster', ns.t('semanticCluster', 'Group of similar records')]]
             .forEach(function (config) {
-                var button = node('button', 'semantic-map-mode__button', ns.t(config[1], config[2]));
+                var button = node('button', 'semantic-map-mode__button', config[1]);
                 button.type = 'button';
                 button.setAttribute('aria-pressed', config[0] === mode ? 'true' : 'false');
                 if (config[0] === mode) button.classList.add('is-active');
@@ -160,7 +160,7 @@
             } else {
                 matches.forEach(function (item) {
                     var li = node('li', 'semantic-map-search__result');
-                    var link = node('a', '', item.title || ('Item ' + item.id));
+                    var link = node('a', '', item.title || ns.fill(ns.t('itemNumber', 'Item {id}'), { id: item.id }));
                     link.href = ns.itemUrl(siteBase, item.id);
                     var type = node('span', 'semantic-map-search__type', item.typeLabel || item.type);
                     li.appendChild(link);
@@ -189,7 +189,7 @@
         chartEl.setAttribute('aria-label', chartLabel);
         var status = node('p', 'semantic-map-status');
         var lowSignal = items.filter(function (item) { return item.lowSignal; }).length;
-        status.textContent = ns.formatNumber(items.length) + ' ' + ns.t('semanticRecords', 'records')
+        status.textContent = ns.plural(items.length, 'semanticRecord', 'record', 'records', true)
             + ' · ' + ns.formatNumber(lowSignal) + ' ' + ns.t('semanticLowSignalCount', 'only lightly described');
         var note = node('p', 'semantic-map-note', ns.t('semanticLowSignal', 'The faint points are records with too little description for the map to place them reliably.'));
 

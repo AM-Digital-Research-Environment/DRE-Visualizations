@@ -5,15 +5,9 @@
  * the window.RV namespace (populated by the modular JS files)
  * and wires up async + inline dashboard rendering.
  *
- * Load order:
- *   1. dashboard-core.js          (THEME, COLORS, helpers)
- *   2. dashboard-layouts.js       (per-resource-type layouts)
- *   3. dashboard-charts-basic.js  (timeline, pie, bar, word cloud)
- *   4. dashboard-charts-advanced.js (gantt, heatmap, chord, sankey, sunburst, stacked)
- *   5. dashboard-charts-map.js    (geographic map, mini map)
- *   6. dashboard-collab-network.js (collaboration network)
- *   7. dashboard-registry.js      (CHART_MAP, labels, descriptions)
- *   8. dashboard.js               (this file — orchestrator)
+ * Load order (see DashboardAssets): dashboard-core.js, then the generated
+ * dashboard-charts.bundle.js (layouts, every chart builder and the registry,
+ * concatenated from DashboardAssets::CHART_SCRIPTS), then this orchestrator.
  */
 (function () {
     'use strict';
@@ -30,78 +24,111 @@
     /*  Render dashboard                                                   */
     /* ------------------------------------------------------------------ */
 
-    function renderDashboard(container, data, siteBase, collapsible, host) {
-        if (ns.disposeWithin) ns.disposeWithin(container);
-        // The host owns configuration; the inner content owns replaceable markup.
-        host = host || container;
+    /**
+     * What a dashboard will draw: its layout, the chart keys that carry data (in
+     * render order), and whether it is a single-chart embed. Shared by the
+     * renderer and by library selection (ns.chartLibraries), so a library is
+     * only fetched for a chart that is actually drawn.
+     */
+    function planDashboard(data, host) {
         // A block template may pin a specific layout via `data-layout` (e.g. the
         // curated "Collection Overview" sets data-layout="collectionOverview" so
         // it renders a trimmed subset of the same JSON the full "Collection
         // Dashboard" shows). Otherwise fall back to the data's own resourceType.
-        var layoutKey = (host && host.dataset && host.dataset.layout) || data.resourceType;
+        var dataset = (host && host.dataset) || {};
+        var layoutKey = dataset.layout || data.resourceType;
         var layout = (ns.LAYOUTS && ns.LAYOUTS[layoutKey]) || ns.DEFAULT_LAYOUT;
-        var chartKeys = layout.order;
-
         // Single-visualization embed: the bare /dre-embed/<block>/<viz> route pins
         // one chart via data-chart-only. Render just that chart — full-bleed, and
-        // with no stat cards, dashboard header, or collapsible accordion. The key
-        // need not be in this layout's order; the builder loop below still resolves
-        // it from the registry and renders it if the JSON carries its data.
-        var chartOnly = (host && host.dataset && host.dataset.chartOnly) || '';
-        if (chartOnly) {
-            chartKeys = [chartOnly];
-            collapsible = false;
-        }
-
-        // Optional per-dashboard overrides over the shared registry: retitle a
-        // chart (`labels`), reword its subheader (`descriptions`), or swap its
-        // builder (`builders`, e.g. the Publications page renders Languages as a
-        // pie instead of the registry's bar). Absent on every other dashboard, so
-        // they all keep the registry defaults unchanged.
-        var labelOverrides = data.labels || {};
-        var descOverrides = data.descriptions || {};
-        var builderOverrides = data.builders || {};
-
-        // Summary stat cards. The home "Collection Overview" layout OMITS them: the
-        // DRE theme's home banner renders the same stat set (read from this very
-        // precompute), so drawing them here too would duplicate the cards on the
-        // home page. Every other dashboard that carries a `stats` array — the full
-        // Collection Dashboard, Publications, YouTube — keeps its cards.
-        var statsHtml = (!chartOnly && ns.renderStatCards && data.stats && layoutKey !== 'collectionOverview')
-            ? ns.renderStatCards(data.stats) : '';
-
-        // Header title. Defaults to "Visualisations" (Publications, YouTube,
-        // Collection Dashboard, item-page dashboards) unless the block template
-        // pins its own via `data-title` — the curated "Collection Overview"
-        // names itself "Collection overview" so its heading matches the block.
-        var headTitle = (host && host.dataset && host.dataset.title) || 'Visualisations';
-        var headInner = '<h2>' + escapeHtml(headTitle) + '</h2>';
-
-        var chartsHtml = '<div class="dashboard-charts' + (chartOnly ? ' dashboard-charts--single' : '') + '">';
-        chartKeys.forEach(function (key) {
+        // with no stat cards, dashboard header, or collapsible accordion.
+        var chartOnly = dataset.chartOnly || '';
+        var keys = (chartOnly ? [chartOnly] : layout.order).filter(function (key) {
             var d = data[key];
-            var hasData = Array.isArray(d) ? d.length > 0 : (d && Object.keys(d).length > 0);
+            var hasData = Array.isArray(d) ? d.length > 0 : !!(d && Object.keys(d).length > 0);
             // The geographic map ('locations') also renders a current-location
             // overlay, so keep its panel when only current locations are present
             // (an item held somewhere with no recorded origin).
             if (key === 'locations' && !hasData && data.currentLocations && data.currentLocations.length) {
                 hasData = true;
             }
-            if (!hasData) return;
             // Skip basic timeline when stacked timeline is available (redundant) —
             // unless a single-chart embed explicitly asked for the basic timeline.
-            if (!chartOnly && key === 'timeline' && data.stackedTimeline && data.stackedTimeline.years && data.stackedTimeline.years.length > 0) return;
+            if (hasData && !chartOnly && key === 'timeline' && data.stackedTimeline
+                && data.stackedTimeline.years && data.stackedTimeline.years.length > 0) return false;
+            return hasData;
+        });
+        return { layoutKey: layoutKey, layout: layout, chartOnly: chartOnly, keys: keys };
+    }
+
+    /**
+     * The builder for one chart: a per-dashboard override (`builders`, e.g. the
+     * Publications page renders Languages as a pie instead of the registry's
+     * bar), else the registry default.
+     */
+    function builderFor(data, key) {
+        var name = (data.builders || {})[key];
+        return (name && ns.charts && ns.charts[name]) || (ns.CHART_MAP && ns.CHART_MAP[key]) || null;
+    }
+
+    ns.planDashboard = planDashboard;
+    ns.builderFor = builderFor;
+
+    // Panels past the first few are built as they approach the viewport: a
+    // section dashboard holds ~20 ECharts instances and several WebGL maps, and
+    // building them all in one task blocks the page for hundreds of milliseconds.
+    var EAGER_PANELS = 4;
+
+    function renderDashboard(container, data, siteBase, collapsible, host) {
+        if (ns.disposeWithin) ns.disposeWithin(container);
+        if (container._rvPanelObserver) {
+            container._rvPanelObserver.disconnect();
+            container._rvPanelObserver = null;
+        }
+        // The host owns configuration; the inner content owns replaceable markup.
+        host = host || container;
+        var plan = planDashboard(data, host);
+        var layout = plan.layout;
+        var chartOnly = plan.chartOnly;
+        if (chartOnly) collapsible = false;
+
+        // Optional per-dashboard overrides over the shared registry: retitle a
+        // chart (`labels`) or reword its subheader (`descriptions`). Absent on
+        // every other dashboard, so they all keep the registry defaults.
+        var labelOverrides = data.labels || {};
+        var descOverrides = data.descriptions || {};
+
+        // Summary stat cards. The home "Collection Overview" layout OMITS them: the
+        // DRE theme's home banner renders the same stat set (read from this very
+        // precompute), so drawing them here too would duplicate the cards on the
+        // home page. Every other dashboard that carries a `stats` array — the full
+        // Collection Dashboard, Publications, YouTube — keeps its cards.
+        var statsHtml = (!chartOnly && ns.renderStatCards && data.stats && plan.layoutKey !== 'collectionOverview')
+            ? ns.renderStatCards(data.stats) : '';
+
+        // Header title. Defaults to "Visualisations" (Publications, YouTube,
+        // Collection Dashboard, item-page dashboards) unless the block template
+        // pins its own via `data-title` — the curated "Collection Overview"
+        // names itself "Collection overview" so its heading matches the block.
+        var headTitle = (host && host.dataset && host.dataset.title) || ns.t('visualisations', 'Visualisations');
+        var headInner = '<h2>' + escapeHtml(headTitle) + '</h2>';
+
+        var chartsHtml = '<div class="dashboard-charts' + (chartOnly ? ' dashboard-charts--single' : '') + '">';
+        plan.keys.forEach(function (key) {
             // A single-chart embed fills the frame: always full-width and tall.
             var wide = (chartOnly || layout.wide.indexOf(key) >= 0) ? ' chart-panel-wide' : '';
             var tall = (chartOnly || layout.tall.indexOf(key) >= 0) ? ' chart-container-tall' : '';
-            var label = labelOverrides[key] || (ns.CHART_LABELS && ns.CHART_LABELS[key]) || key;
+            // The registry's translated title/description; the raw tables only
+            // when dashboard-registry.js has not loaded.
+            var label = labelOverrides[key] || (ns.chartLabel ? ns.chartLabel(key)
+                : ((ns.CHART_LABELS && ns.CHART_LABELS[key]) || key));
             var desc = Object.prototype.hasOwnProperty.call(descOverrides, key)
                 ? descOverrides[key]
-                : ((ns.CHART_DESCRIPTIONS && ns.CHART_DESCRIPTIONS[key]) || '');
+                : (ns.chartDescription ? ns.chartDescription(key)
+                    : ((ns.CHART_DESCRIPTIONS && ns.CHART_DESCRIPTIONS[key]) || ''));
             chartsHtml += '<div class="chart-panel' + wide + '">'
                 + '<div class="rv-chart-heading"><h3>' + escapeHtml(label) + '</h3></div>'
                 + (desc ? '<p class="chart-description">' + escapeHtml(desc) + '</p>' : '')
-                + '<div class="chart-container' + tall + '" data-chart="' + key + '"></div>'
+                + '<div class="chart-container' + tall + '" data-chart="' + escapeHtml(key) + '"></div>'
                 + '</div>';
         });
         chartsHtml += '</div>';
@@ -129,39 +156,62 @@
         }
 
         var failures = 0;
-        chartKeys.forEach(function (key) {
-            var el = container.querySelector('[data-chart="' + key + '"]');
-            if (!el || !data[key]) return;
-            // Honour a per-dashboard builder override, else the registry default.
-            var builderName = builderOverrides[key];
-            var builder = (builderName && ns.charts && ns.charts[builderName])
-                || (ns.CHART_MAP && ns.CHART_MAP[key]);
+        var settled = false; // once true, a failure is reported to the host directly
+        function fail(el, key, error) {
+            failures++;
+            el.textContent = ns.t('visualizationsUnavailable', 'Visualisations are unavailable.');
+            el.classList.add('rv-chart-error');
+            console.warn('[DreVisualizations] Chart failed: ' + key, error);
+            if (settled && host.dataset) {
+                host.dataset.state = 'partial';
+                var status = host.querySelector && host.querySelector('.rv-dashboard-status');
+                if (status) status.textContent = ns.t('visualizationsPartial', 'Some visualisations could not be loaded.');
+            }
+        }
+
+        function build(key, el) {
+            var builder = builderFor(data, key);
             try {
                 if (!builder) throw new Error('No builder registered for ' + key);
-                var chart = builder(el, data[key], siteBase, data);
+                // Rebuilt from its data on a light/dark switch (ns.buildChart);
+                // the toolbar resolves the live instance at click time.
+                var chart = ns.buildChart(function () { return builder(el, data[key], siteBase, data); });
                 if (chart) ns.attachToolbar(el.closest('.chart-panel'), chart);
             } catch (error) {
-                failures++;
-                el.textContent = ns.t('visualizationsUnavailable', 'Visualisations are unavailable.');
-                el.classList.add('rv-chart-error');
-                console.warn('[DreVisualizations] Chart failed: ' + key, error);
+                fail(el, key, error);
             }
+        }
+
+        var lazy = !chartOnly && plan.keys.length > EAGER_PANELS && typeof window.IntersectionObserver === 'function';
+        var observer = lazy ? new window.IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                observer.unobserve(entry.target);
+                build(entry.target.getAttribute('data-chart'), entry.target);
+            });
+        }, { rootMargin: '400px 0px' }) : null;
+        if (observer) container._rvPanelObserver = observer;
+
+        plan.keys.forEach(function (key, index) {
+            var el = container.querySelector('[data-chart="' + key + '"]');
+            if (!el) return;
+            if (observer && index >= EAGER_PANELS) observer.observe(el);
+            else build(key, el);
         });
+        settled = true;
 
         // Single-chart embed for a key with no data in this JSON (or an unknown
         // key): leave a quiet note instead of a blank frame.
         if (chartOnly && !container.querySelector('[data-chart]')) {
             container.innerHTML = '<p class="rv-embed-empty">'
-                + ns.escapeHtml(ns.t('noVisualizationData', 'There is no data for this chart.')) + '</p>';
+                + escapeHtml(ns.t('noVisualizationData', 'There is no data for this chart.')) + '</p>';
         }
 
         // Live-site only: add a copy-embed-code button to each chart on an
         // embeddable dashboard (no-op elsewhere). Shared impl in dashboard-core.js.
         if (ns.addEmbedButtons) ns.addEmbedButtons(container);
-        // Window resizing + light/dark theme changes are handled globally in
-        // dashboard-core.js (ns.refresh / the global resize handler). Re-fitting
-        // charts after a collapsed panel re-opens is handled by the `toggle`
-        // listener there too.
+        // Resizing and light/dark theme changes are handled globally in
+        // dashboard-core.js (ns.refresh and the shared ResizeObserver).
         return failures;
     }
 
@@ -220,7 +270,7 @@
                 finish(emptyMessage);
                 return;
             }
-            return Promise.resolve(ns.ensureLibs ? ns.ensureLibs(ns.chartLibraries ? ns.chartLibraries(data) : { echarts: true }) : undefined).then(function () {
+            return Promise.resolve(ns.ensureLibs ? ns.ensureLibs(ns.chartLibraries ? ns.chartLibraries(data, container) : { echarts: true }) : undefined).then(function () {
             content.innerHTML = '';
             var failures = renderDashboard(content, data, siteBase, true, container);
             container.dataset.state = failures ? 'partial' : 'ready';
@@ -241,7 +291,7 @@
         var data;
         try { data = JSON.parse(raw); } catch (e) { return; }
         var siteBase = container.dataset.siteBase || '';
-        return Promise.resolve(ns.ensureLibs ? ns.ensureLibs(ns.chartLibraries ? ns.chartLibraries(data) : { echarts: true }) : undefined).then(function () {
+        return Promise.resolve(ns.ensureLibs ? ns.ensureLibs(ns.chartLibraries ? ns.chartLibraries(data, container) : { echarts: true }) : undefined).then(function () {
             renderDashboard(container.parentElement || container, data, siteBase);
         });
     }

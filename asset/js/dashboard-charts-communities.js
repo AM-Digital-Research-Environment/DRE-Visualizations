@@ -76,7 +76,7 @@
     ns.charts.buildCommunities = function (container, data, siteBase) {
         if (!data || !data.nodes || !data.nodes.length || !data.links) return;
         if (!ns.ForceGraph || !ns.graphChrome || typeof d3 === 'undefined' || !d3.forceSimulation) {
-            showMessage(container, 'rv-error', t('kgNoEngine', 'Graph library failed to load.'));
+            showMessage(container, 'rv-error', t('kgNoEngine', 'The graph could not be loaded. Please try again.'));
             return;
         }
 
@@ -87,7 +87,16 @@
         // speaker networks match everything, and a ring on every node says nothing.
         var mixedMatch = nodes.some(function (n) { return n.matched; })
             && nodes.some(function (n) { return !n.matched; });
-        var unit = hasRel ? t('publications', 'publications') : t('items', 'items');
+        // What a node's `value` and a link's weight count: co-authored publications
+        // when the links carry a relationship, otherwise shared items.
+        function countLabel(n) {
+            return hasRel ? ns.plural(n, 'publication', 'publication', 'publications', true)
+                : ns.plural(n, 'item', 'item', 'items', true);
+        }
+        function sharedLabel(n) {
+            return hasRel ? ns.plural(n, 'sharedPublication', 'shared publication', 'shared publications', true)
+                : ns.plural(n, 'sharedItem', 'shared item', 'shared items', true);
+        }
 
         /* -- categories: one per Louvain community ------------------------- */
 
@@ -174,8 +183,7 @@
             },
             tooltip: tooltipRows,
             announce: announce,
-            ariaLabel: t('communitiesCanvasLabel', 'Co-occurrence network. Use the arrow keys to '
-                + 'move between connected people and Enter to select one.'),
+            ariaLabel: t('communitiesCanvasLabel', 'Co-occurrence network. Use the arrow keys to move between connected people and Enter to select one.'),
             forces: {
                 // Heavier co-occurrence pulls a pair closer, so the strength of a
                 // tie reads as distance and not only as line width; hubs still get
@@ -204,12 +212,10 @@
             metaRows: function (node) {
                 var d = node.data || {};
                 return [
-                    d.value ? (d.value + ' ' + unit) : null,
-                    node.deg ? (node.deg + ' ' + (node.deg === 1
-                        ? t('kgConnection', 'connection shown')
-                        : t('kgConnections', 'connections shown'))) : null,
+                    d.value ? countLabel(d.value) : null,
+                    node.deg ? ns.plural(node.deg, 'kgConnection', 'connection shown', 'connections shown', true) : null,
                     roleLabel(d),
-                    node.pinned ? t('kgPinnedHint', 'Pinned — Alt-click to release') : null
+                    node.pinned ? t('kgPinnedHint', 'Held in place. Alt-click to let it go') : null
                 ];
             },
             url: function (node) { return node.url; },
@@ -228,10 +234,7 @@
         chrome.mountBelow(container, [
             legend.el,
             lineLegend,
-            chrome.buildHint(t('communitiesHint', 'Click a person to focus their collaborators; '
-                + 'the panel that opens links to their record. Toggle a cluster in the legend to '
-                + 'isolate it. Drag to rearrange — a dragged node stays where you put it '
-                + '(Alt-click to release). Double-click the background or Ctrl + scroll to zoom.'))
+            chrome.buildHint(t('communitiesHint', 'Click a person to focus their collaborators; the panel that opens links to their record. Toggle a cluster in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom.'))
         ]);
         graph.onTheme(legend.recolour);
 
@@ -259,11 +262,10 @@
                     cs.style.color = colorOf(node.category);
                     rows.push(cs);
                 }
-                if (d.value) rows.push(el('span', 'rv-kg-tip-meta', d.value + ' ' + unit));
+                if (d.value) rows.push(el('span', 'rv-kg-tip-meta', countLabel(d.value)));
                 if (node.deg) {
-                    rows.push(el('span', 'rv-kg-tip-meta', node.deg + ' ' + (node.deg === 1
-                        ? t('kgConnection', 'connection shown')
-                        : t('kgConnections', 'connections shown'))));
+                    rows.push(el('span', 'rv-kg-tip-meta',
+                        ns.plural(node.deg, 'kgConnection', 'connection shown', 'connections shown', true)));
                 }
                 var role = roleLabel(d);
                 if (role) rows.push(el('span', 'rv-kg-tip-meta', role));
@@ -273,7 +275,7 @@
             if (link) {
                 var e = link.data || {};
                 rows.push(el('strong', null, link.source.name + ' ↔ ' + link.target.name));
-                rows.push(el('span', 'rv-kg-tip-meta', (e.value || 1) + ' ' + t('shared', 'shared') + ' ' + unit));
+                rows.push(el('span', 'rv-kg-tip-meta', sharedLabel(e.value || 1)));
                 if (link.name) rows.push(el('span', 'rv-kg-tip-meta', link.name));
                 return rows;
             }
@@ -283,7 +285,7 @@
         function announce(node) {
             var cat = categories[node.category];
             return node.name + (cat ? ', ' + cat.name : '')
-                + ', ' + (node.deg || 0) + ' ' + t('kgConnections', 'connections shown')
+                + ', ' + ns.plural(node.deg || 0, 'kgConnection', 'connection shown', 'connections shown', true)
                 + '. ' + t('kgEnterToOpen', 'Press Enter to select.');
         }
 

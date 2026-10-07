@@ -22,73 +22,102 @@
     /*  Per-entity-type configuration                                      */
     /* ------------------------------------------------------------------ */
 
+    // Interface copy is resolved once, at load, with literal keys so the string
+    // extractor (scripts/lib/client-strings.mjs) sees every one of them. Each type
+    // carries its noun in the forms the sentences below need, rather than
+    // lower-casing a translated label (which would break, e.g., German nouns).
+    var t = function (key, fallback) { return ns.t(key, fallback); };
+    var CHART = {
+        itemsByYearType: t('compareChartItemsByYearType', 'Items by year and type'),
+        itemsByYear: t('compareChartItemsByYear', 'Items by year'),
+        types: t('compareChartTypes', 'Resource types'),
+        languages: t('compareChartLanguages', 'Languages'),
+        subjects: t('compareChartSubjects', 'Subjects'),
+        coSubjects: t('compareChartCoSubjects', 'Subjects alongside'),
+        contributors: t('compareChartContributors', 'People linked most often')
+    };
+    var SUBJECT_OVERLAP = t('compareSubjectOverlap', 'subject overlap');
+
     var TYPES = {
         projects: {
-            index: 'projects-index.json', label: 'Projects', singular: 'Project',
+            index: 'projects-index.json', label: t('compareTypeProjects', 'Projects'),
+            singular: t('compareTypeProject', 'Project'),
+            nounPlural: t('compareNounProjects', 'projects'), nounSingular: t('compareNounProject', 'project'),
             charts: [
-                { key: 'stackedTimeline', label: 'Items by year and type', tall: false },
-                { key: 'types',           label: 'Resource types',         tall: false },
-                { key: 'languages',       label: 'Languages',              tall: false },
-                { key: 'subjects',        label: 'Subjects',               tall: true  }
+                { key: 'stackedTimeline', label: CHART.itemsByYearType, tall: false },
+                { key: 'types',           label: CHART.types,           tall: false },
+                { key: 'languages',       label: CHART.languages,       tall: false },
+                { key: 'subjects',        label: CHART.subjects,        tall: true  }
             ],
             unifyKeys: ['types', 'languages', 'subjects'],
-            overlapKey: 'subjects', overlapLabel: 'Subject', radar: true, grouped: true
+            overlapKey: 'subjects', overlapLabel: SUBJECT_OVERLAP, radar: true, grouped: true
         },
         people: {
-            index: 'people-index.json', label: 'People', singular: 'Person',
+            index: 'people-index.json', label: t('compareTypePeople', 'People'),
+            singular: t('compareTypePerson', 'Person'),
+            nounPlural: t('compareNounPeople', 'people'), nounSingular: t('compareNounPerson', 'person'),
             charts: [
-                { key: 'timeline',  label: 'Items by year',  tall: false },
-                { key: 'types',     label: 'Resource types', tall: false },
-                { key: 'languages', label: 'Languages',      tall: false },
-                { key: 'subjects',  label: 'Subjects',       tall: true  }
+                { key: 'timeline',  label: CHART.itemsByYear, tall: false },
+                { key: 'types',     label: CHART.types,       tall: false },
+                { key: 'languages', label: CHART.languages,   tall: false },
+                { key: 'subjects',  label: CHART.subjects,    tall: true  }
             ],
             unifyKeys: ['types', 'languages', 'subjects'],
-            overlapKey: 'subjects', overlapLabel: 'Subject', radar: true, grouped: false
+            overlapKey: 'subjects', overlapLabel: SUBJECT_OVERLAP, radar: true, grouped: false
         },
         institutions: {
-            index: 'institutions-index.json', label: 'Institutions', singular: 'Institution',
+            index: 'institutions-index.json', label: t('compareTypeInstitutions', 'Institutions'),
+            singular: t('compareTypeInstitution', 'Institution'),
+            nounPlural: t('compareNounInstitutions', 'institutions'), nounSingular: t('compareNounInstitution', 'institution'),
             charts: [
-                { key: 'timeline',  label: 'Items by year',  tall: false },
-                { key: 'types',     label: 'Resource types', tall: false },
-                { key: 'languages', label: 'Languages',      tall: false },
-                { key: 'subjects',  label: 'Subjects',       tall: true  }
+                { key: 'timeline',  label: CHART.itemsByYear, tall: false },
+                { key: 'types',     label: CHART.types,       tall: false },
+                { key: 'languages', label: CHART.languages,   tall: false },
+                { key: 'subjects',  label: CHART.subjects,    tall: true  }
             ],
             unifyKeys: ['types', 'languages', 'subjects'],
-            overlapKey: 'subjects', overlapLabel: 'Subject', radar: true, grouped: false
+            overlapKey: 'subjects', overlapLabel: SUBJECT_OVERLAP, radar: true, grouped: false
         },
         subjects: {
-            index: 'subjects-index.json', label: 'Subjects', singular: 'Subject',
+            index: 'subjects-index.json', label: t('compareTypeSubjects', 'Subjects'),
+            singular: t('compareTypeSubject', 'Subject'),
+            nounPlural: t('compareNounSubjects', 'subjects'), nounSingular: t('compareNounSubject', 'subject'),
             charts: [
-                { key: 'timeline',   label: 'Items by year',        tall: false },
-                { key: 'types',      label: 'Resource types',       tall: false },
-                { key: 'languages',  label: 'Languages',             tall: false },
-                { key: 'coSubjects', label: 'Subjects alongside',   tall: true  }
+                { key: 'timeline',   label: CHART.itemsByYear, tall: false },
+                { key: 'types',      label: CHART.types,       tall: false },
+                { key: 'languages',  label: CHART.languages,   tall: false },
+                { key: 'coSubjects', label: CHART.coSubjects,  tall: true  }
             ],
             unifyKeys: ['types', 'languages', 'coSubjects'],
-            overlapKey: 'coSubjects', overlapLabel: 'Shared subject', radar: false, grouped: false
+            overlapKey: 'coSubjects', overlapLabel: t('compareSharedSubjectOverlap', 'shared subject overlap'),
+            radar: false, grouped: false
         },
         languages: {
-            index: 'languages-index.json', label: 'Languages', singular: 'Language',
+            index: 'languages-index.json', label: t('compareTypeLanguages', 'Languages'),
+            singular: t('compareTypeLanguage', 'Language'),
+            nounPlural: t('compareNounLanguages', 'languages'), nounSingular: t('compareNounLanguage', 'language'),
             charts: [
-                { key: 'timeline',     label: 'Items by year',         tall: false },
-                { key: 'types',        label: 'Resource types',         tall: false },
-                { key: 'subjects',     label: 'Subjects',               tall: true  },
-                { key: 'contributors', label: 'People linked most often', tall: false }
+                { key: 'timeline',     label: CHART.itemsByYear,  tall: false },
+                { key: 'types',        label: CHART.types,        tall: false },
+                { key: 'subjects',     label: CHART.subjects,     tall: true  },
+                { key: 'contributors', label: CHART.contributors, tall: false }
             ],
             unifyKeys: ['types', 'subjects', 'contributors'],
-            overlapKey: 'subjects', overlapLabel: 'Subject', radar: false, grouped: false
+            overlapKey: 'subjects', overlapLabel: SUBJECT_OVERLAP, radar: false, grouped: false
         },
         genres: {
-            index: 'genres-index.json', label: 'Genres', singular: 'Genre',
+            index: 'genres-index.json', label: t('compareTypeGenres', 'Genres'),
+            singular: t('compareTypeGenre', 'Genre'),
+            nounPlural: t('compareNounGenres', 'genres'), nounSingular: t('compareNounGenre', 'genre'),
             charts: [
-                { key: 'timeline',     label: 'Items by year',         tall: false },
-                { key: 'types',        label: 'Resource types',         tall: false },
-                { key: 'languages',    label: 'Languages',              tall: false },
-                { key: 'subjects',     label: 'Subjects',               tall: true  },
-                { key: 'contributors', label: 'People linked most often', tall: false }
+                { key: 'timeline',     label: CHART.itemsByYear,  tall: false },
+                { key: 'types',        label: CHART.types,        tall: false },
+                { key: 'languages',    label: CHART.languages,    tall: false },
+                { key: 'subjects',     label: CHART.subjects,     tall: true  },
+                { key: 'contributors', label: CHART.contributors, tall: false }
             ],
             unifyKeys: ['types', 'languages', 'subjects', 'contributors'],
-            overlapKey: 'subjects', overlapLabel: 'Subject', radar: false, grouped: false
+            overlapKey: 'subjects', overlapLabel: SUBJECT_OVERLAP, radar: false, grouped: false
         }
     };
     var TYPE_ORDER = ['projects', 'people', 'institutions', 'subjects', 'languages', 'genres'];
@@ -126,9 +155,9 @@
         var wrap = document.createElement('div');
         wrap.className = 'compare-type-switcher';
         wrap.setAttribute('role', 'group');
-        wrap.setAttribute('aria-label', 'What to compare');
-        TYPE_ORDER.forEach(function (t) {
-            var isActive = (t === activeType);
+        wrap.setAttribute('aria-label', t('compareWhat', 'What to compare'));
+        TYPE_ORDER.forEach(function (type) {
+            var isActive = (type === activeType);
             var btn = document.createElement('button');
             btn.type = 'button';
             // A proper icon + label pill — NOT the fixed 2rem icon-button (.rv-btn),
@@ -138,7 +167,7 @@
             // Lucide icon — reuses the dashboard stat-card icon set (ns.statIconFor),
             // whose alias map already covers institutions → organisations and
             // subjects → subjectsTags. Omitted gracefully if the helper is absent.
-            var icon = ns.statIconFor ? ns.statIconFor(t) : '';
+            var icon = ns.statIconFor ? ns.statIconFor(type) : '';
             if (icon) {
                 btn.innerHTML = '<svg class="compare-type-icon" xmlns="http://www.w3.org/2000/svg"'
                     + ' viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"'
@@ -146,9 +175,9 @@
                     + icon + '</svg>';
             }
             var span = document.createElement('span');
-            span.textContent = TYPES[t].label;
+            span.textContent = TYPES[type].label;
             btn.appendChild(span);
-            btn.addEventListener('click', function () { if (t !== activeType) onSwitch(t); });
+            btn.addEventListener('click', function () { if (type !== activeType) onSwitch(type); });
             wrap.appendChild(btn);
         });
         return wrap;
@@ -176,7 +205,8 @@
 
         var label = document.createElement('label');
         label.id = uid + '-label';
-        label.textContent = cfg.singular + (side === 'left' ? ' A' : ' B');
+        label.textContent = ns.fill(side === 'left' ? t('compareSideA', '{type} A') : t('compareSideB', '{type} B'),
+            { type: cfg.singular });
         label.className = 'compare-selector-label';
         label.setAttribute('for', uid + '-input');
 
@@ -193,7 +223,7 @@
         input.setAttribute('aria-expanded', 'false');
         input.setAttribute('aria-controls', listId);
         input.setAttribute('aria-labelledby', uid + '-label');
-        input.placeholder = 'Search for a ' + cfg.singular.toLowerCase() + '…';
+        input.placeholder = ns.fill(t('compareSearchFor', 'Search for a {type}…'), { type: cfg.nounSingular });
 
         var list = document.createElement('ul');
         list.className = 'rv-combobox-list';
@@ -216,7 +246,7 @@
         }
 
         function optionText(p) {
-            return truncate(p.name, 70) + ' (' + p.items + ' item' + (p.items === 1 ? '' : 's') + ')';
+            return truncate(p.name, 70) + ' (' + ns.plural(p.items, 'item', 'item', 'items', true) + ')';
         }
 
         function makeOptionEl(p) {
@@ -247,7 +277,7 @@
                 var none = document.createElement('li');
                 none.className = 'rv-combobox-empty';
                 none.setAttribute('role', 'presentation');
-                none.textContent = 'Nothing matches that search';
+                none.textContent = t('noSearchMatch', 'Nothing matches that search');
                 list.appendChild(none);
                 setActive(-1);
                 return;
@@ -257,7 +287,7 @@
             if (cfg.grouped) {
                 var groups = {};
                 shown.forEach(function (p) {
-                    var sec = (p.sections && p.sections[0]) || 'Other';
+                    var sec = (p.sections && p.sections[0]) || t('otherSection', 'Other');
                     (groups[sec] = groups[sec] || []).push(p);
                 });
                 Object.keys(groups).sort().forEach(function (sec) {
@@ -276,7 +306,8 @@
                 var more = document.createElement('li');
                 more.className = 'rv-combobox-more';
                 more.setAttribute('role', 'presentation');
-                more.textContent = '+' + (matched.length - shown.length) + ' more — keep typing to narrow';
+                more.textContent = ns.fill(t('compareMoreMatches', '+{count} more — keep typing to narrow'),
+                    { count: ns.formatNumber(matched.length - shown.length) });
                 list.appendChild(more);
             }
             setActive(activeOptions.length ? 0 : -1);
@@ -373,7 +404,7 @@
         if (overlap) {
             html += '<div class="compare-stat-card compare-stat-accent">'
                 + '<span class="compare-stat-value">' + escapeHtml(ns.formatNumber(Number(overlap.percentage))) + '%</span>'
-                + '<span class="compare-stat-label">' + escapeHtml(cfg.overlapLabel.toLowerCase() + ' ' + ns.t('compareOverlap', 'overlap'))
+                + '<span class="compare-stat-label">' + escapeHtml(cfg.overlapLabel)
                 + '<br><small>' + escapeHtml(ns.formatNumber(Number(overlap.sharedCount)) + ' ' + ns.t('compareInCommonOf', 'in common out of')
                     + ' ' + ns.formatNumber(Number(overlap.totalCount))) + '</small>'
                 + '</span></div>';
@@ -415,7 +446,7 @@
         var panel = document.createElement('div');
         panel.className = 'chart-panel chart-panel-wide compare-radar-panel';
         var title = document.createElement('h3');
-        title.textContent = 'Profile';
+        title.textContent = t('compareProfile', 'Profile');
         panel.appendChild(title);
         var el = document.createElement('div');
         el.className = 'chart-container chart-container-tall';
@@ -477,7 +508,7 @@
         requestAnimationFrame(function () {
             charts.forEach(function (p) {
                 if (p.el.isConnected && ns.CHART_MAP && ns.CHART_MAP[p.key]) {
-                    var chart = ns.CHART_MAP[p.key](p.el, p.data, p.siteBase);
+                    var chart = ns.buildChart(function () { return ns.CHART_MAP[p.key](p.el, p.data, p.siteBase); });
                     if (chart) ns.attachToolbar(p.panel, chart);
                 }
             });
@@ -531,8 +562,9 @@
             }).catch(function (error) {
                 if (error && error.name === 'AbortError') return;
                 if (requestId !== typeRequestId) return;
-                container.innerHTML = '<div class="rv-error">The list of '
-                    + cfg.label.toLowerCase() + ' could not be loaded. Please try again.</div>';
+                container.innerHTML = '<div class="rv-error">' + escapeHtml(ns.fill(
+                    t('compareListError', 'The list of {types} could not be loaded. Please try again.'),
+                    { types: cfg.nounPlural })) + '</div>';
             });
         }
 
@@ -554,11 +586,11 @@
 
             var header = document.createElement('div');
             header.className = 'dashboard-header';
-            header.innerHTML = '<h2>Compare ' + cfg.label.toLowerCase() + '</h2>';
+            header.innerHTML = '<h2>' + escapeHtml(ns.fill(t('compareTitle', 'Compare {types}'), { types: cfg.nounPlural })) + '</h2>';
             container.appendChild(header);
 
             if (hasSwitcher) {
-                container.appendChild(buildSwitcher(activeType, function (t) { loadType(t); }));
+                container.appendChild(buildSwitcher(activeType, function (type) { loadType(type); }));
             }
 
             var selectors = document.createElement('div');
@@ -571,7 +603,7 @@
             }));
             var vsSpan = document.createElement('span');
             vsSpan.className = 'compare-vs';
-            vsSpan.textContent = 'vs';
+            vsSpan.textContent = t('compareVs', 'vs');
             selectors.appendChild(vsSpan);
             selectors.appendChild(buildSelector(entries, 'right', cfg, function (id, entry) {
                 errors.right = false;
@@ -593,13 +625,15 @@
                 content.innerHTML = '';
                 content.setAttribute('aria-busy', 'false');
                 if (!leftId && !rightId) {
-                    content.innerHTML = '<div class="rv-no-data">Choose two '
-                        + cfg.label.toLowerCase() + ' above to compare them side by side.</div>';
+                    content.innerHTML = '<div class="rv-no-data">' + escapeHtml(ns.fill(
+                        t('compareChooseTwo', 'Choose two {types} above to compare them side by side.'),
+                        { types: cfg.nounPlural })) + '</div>';
                     return;
                 }
                 if (!leftId || !rightId) {
-                    content.innerHTML = '<div class="rv-no-data">Now choose a second '
-                        + cfg.singular.toLowerCase() + ' to compare with.</div>';
+                    content.innerHTML = '<div class="rv-no-data">' + escapeHtml(ns.fill(
+                        t('compareChooseSecond', 'Now choose a second {type} to compare with.'),
+                        { type: cfg.nounSingular })) + '</div>';
                     return;
                 }
                 if (errors.left || errors.right) {
@@ -677,7 +711,8 @@
                 var requestId = ++dashboardRequests[side];
                 ns.fetchDataJson('item-dashboards/' + encodeURIComponent(id) + '.json',
                     controller ? { signal: controller.signal } : {}).then(function (data) {
-                    return ns.ensureLibs(ns.chartLibraries(data)).then(function () { return data; });
+                    var keys = cfg.charts.map(function (c) { return c.key; }).concat(['radar']);
+                    return ns.ensureLibs(ns.chartLibraries(data, null, keys)).then(function () { return data; });
                 }).then(function (data) {
                     if (requestId === dashboardRequests[side]) callback(data);
                 }).catch(function (error) {

@@ -625,6 +625,25 @@
             window.addEventListener('resize', resize);
         }
 
+        // A pixel-ratio change (window dragged to another screen, browser zoom)
+        // leaves the box size alone, so the observer never fires; listen for the
+        // current ratio to stop matching instead, then re-arm for the new one.
+        var ratioQuery = null;
+        function onRatioChange() {
+            if (ratioQuery) ratioQuery.removeEventListener('change', onRatioChange);
+            ratioQuery = null;
+            if (destroyed) return;
+            resize();
+            watchRatio();
+        }
+        function watchRatio() {
+            if (!window.matchMedia) return;
+            ratioQuery = window.matchMedia('(resolution: ' + (window.devicePixelRatio || 1) + 'dppx)');
+            if (ratioQuery.addEventListener) ratioQuery.addEventListener('change', onRatioChange);
+            else ratioQuery = null;
+        }
+        watchRatio();
+
         /**
          * Tear the graph down. Needed wherever a container is REPLACED rather than
          * navigated away from — the Network Explorer swaps one network for another
@@ -638,6 +657,7 @@
             if (sim) sim.stop();
             if (observer) observer.disconnect();
             else window.removeEventListener('resize', resize);
+            if (ratioQuery) ratioQuery.removeEventListener('change', onRatioChange);
             hideTooltip();
         }
 

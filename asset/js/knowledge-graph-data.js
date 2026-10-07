@@ -58,7 +58,7 @@
     function buildFromApi(item) {
         var itemId = item['o:id'];
         var rc = item['o:resource_class'];
-        var centerCat = (rc && rc['o:label']) || 'Item';
+        var centerCat = (rc && rc['o:label']) || ns.t('itemFallback', 'Item');
 
         var nodes = [], edges = [], categories = [{ name: centerCat }];
         var catMap = {}; catMap[centerCat] = 0;
@@ -74,7 +74,7 @@
         }
 
         nodes.push({
-            id: 'item_' + itemId, name: item['o:title'] || 'Item',
+            id: 'item_' + itemId, name: item['o:title'] || ns.t('itemFallback', 'Item'),
             category: 0, symbolSize: 45, isCenter: true, itemId: itemId
         });
 
