@@ -79,7 +79,7 @@ Status: `[x]` done · `[~]` partly done / see note · `[ ]` open · `[-]` decide
 - [ ] E2 Replace hand-tuned grid margins with v6 `outerBoundsMode` where it gives the same result.
 - [ ] E3 Beeswarm uses native axis jitter.
 - [-] E4 Native `series-chord` — not adopted: the graph-based chord keeps the shared click/roam behaviour; revisit if the chord needs ribbons.
-- [ ] E5 Custom ECharts build with only the registered series/components, guarded by a contract check.
+- [-] E5 Custom ECharts build with only the registered series/components, guarded by a contract check. — not adopted: the vendored `echarts.min.js` stays byte-identical to upstream (its SHA is auditable against npm), and since F4 the library loads only on pages that draw an ECharts chart; ~90 KB gzip did not justify a build step, two devDependencies and a component list that fails at runtime when it drifts
 
 ## Phase 6 — PHP structure and efficiency
 
@@ -88,26 +88,26 @@ Status: `[x]` done · `[~]` partly done / see note · `[ ]` open · `[-]` decide
 - [x] P3 Layout cache is pruned; uninstall removes the private store.
 - [x] P4 Aggregator traits declare the members they rely on.
 - [x] P5 Generator paths via a `GeneratorPaths` value object; explicit stat-count hand-off between generators.
-- [~] P6 Shared term lists, one comparator, memoised `findItemsLinkingTo`, declarative builder maps. — shared credit terms, class lookups and memoised linking lookups; builder ladders left explicit (each key has its own arguments)
-- [ ] P7 `Module.php` split: client translations, configuration form, invalidation listener.
-- [ ] P8 Shared services (store, profile, registry) through factories; controllers receive dependencies.
-- [ ] P9 Consistent block guards (canonical site + artifact presence).
-- [~] P10 Modernise for PHP 8.4: `strict_types` everywhere, readonly classes, enums where values are closed sets. — PHP floor 8.4, `strict_types` in every file, PHPStan level 5 clean
-- [~] P11 Dead code removed (`dashboard-charts.phtml`, unused `use`, `$parsePages`, legacy cleanup in the private store, overwritten revision read). — dead template parsers, unused imports, stale legacy cleanup and the overwritten revision read removed
+- [x] P6 Shared term lists, one comparator, memoised `findItemsLinkingTo`, declarative builder maps. — shared credit terms, class lookups and memoised linking lookups; builder ladders left explicit (each key has its own arguments) — shared credit terms, class lookups, memoised linking lookups and a declarative map for the shared entity charts
+- [x] P7 `Module.php` split: client translations, configuration form, invalidation listener.
+- [x] P8 Shared services (store, profile, registry) through factories; controllers receive dependencies.
+- [x] P9 Consistent block guards (canonical site + artifact presence).
+- [x] P10 Modernise for PHP 8.4: `strict_types` everywhere, readonly classes, enums where values are closed sets. — PHP floor 8.4, `strict_types` in every file, readonly value classes (CorpusSnapshot, SnapshotStore, GeneratorPaths, ConfigValues), PHPStan level 5 clean. Enums not introduced: the entity-type codes are the integers the browser reads from the JSON
+- [x] P11 Dead code removed (`dashboard-charts.phtml`, unused `use`, `$parsePages`, legacy cleanup in the private store, overwritten revision read).
 - [x] P12 `JsonArtifactWriter`: fsync before rename, private directory permissions.
-- [~] P13 Stale docblocks and docs corrected.
+- [x] P13 Stale docblocks and docs corrected.
 
 ## Phase 7 — Tests and CI
 
 - [~] T1 Shared PHP harness (`tests/lib`) that fails on warnings and prints expected/actual. — warnings, notices and our deprecations fail every harness (`tests/lib/strict-errors.php`); the per-file check helpers remain
 - [x] T2 Golden-file tests of the full generator output on an enriched database fixture.
-- [ ] T3 Every tooltip formatter executed against hostile labels.
+- [x] T3 Every tooltip formatter executed against hostile labels.
 - [x] T4 HTML-sink ceilings become an exact ratchet; detection covers `||` formatters, `insertAdjacentHTML`, `outerHTML`.
 - [x] T5 PHPStan in CI against Omeka S core, with a baseline.
 - [ ] T6 ESLint flat config with `no-unsanitized`.
 - [ ] T7 Graph hit-testing geometry extracted and unit-tested.
 - [ ] T8 JS unit test loads `dashboard-core.js` whole instead of slicing it.
-- [ ] T9 Property tests: community partitions, aggregate totals, artifact path rejection, stat cards.
+- [x] T9 Property tests: community partitions, aggregate totals, artifact path rejection, stat cards.
 - [x] T10 CI: reusable workflow gates releases; integration on PHP 8.5; Node pinned; Playwright traces on failure; bot PRs trigger CI; Dependabot.
 - [x] T11 Action and Python dependency pins brought current.
 - [x] T12 `npm run test:php` runs the PHP suite in Docker.
