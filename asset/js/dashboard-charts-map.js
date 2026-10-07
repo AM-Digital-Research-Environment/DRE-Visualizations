@@ -23,12 +23,12 @@
 
         var h = '<div class="rv-popup-content">';
         h += '<strong>' + ns.escapeHtml(props.name || '') + '</strong>';
-        h += ' <span class="rv-popup-count">' + ns.formatNumber(props.value) + ' items</span>';
+        h += ' <span class="rv-popup-count">' + esc(ns.plural(props.value, 'item', 'item', 'items', true)) + '</span>';
 
         if (pageItems.length) {
             h += '<ul class="rv-popup-items">';
             pageItems.forEach(function (it) {
-                var url = siteBase ? siteBase + '/item/' + it.id : '#';
+                var url = siteBase ? ns.itemUrl(siteBase, it.id) : '#';
                 var title = truncateLabel(it.title, 55);
                 h += '<li><a href="' + esc(url) + '">' + esc(title) + '</a></li>';
             });
@@ -44,8 +44,8 @@
         }
 
         if (props.itemId && siteBase) {
-            h += '<a class="rv-popup-location-link" href="' + esc(siteBase) + '/item/'
-                + encodeURIComponent(props.itemId) + '">Open this place\u2019s page \u2192</a>';
+            h += '<a class="rv-popup-location-link" href="' + esc(ns.itemUrl(siteBase, props.itemId)) + '">'
+                + esc(ns.t('openPlacePage', 'Open this place\u2019s page')) + ' \u2192</a>';
         }
 
         h += '</div>';
@@ -67,6 +67,7 @@
         function create() {
         // Attribution hidden — source info in map tiles. Users can inspect via browser.
         var map = ns.initMap(el, { center: [0, 15], zoom: 1.5 });
+        if (!map) return;
 
         map.on('load', function () {
 
@@ -99,7 +100,7 @@
             map.addLayer({
                 id: 'cluster-count', type: 'symbol', source: 'locations',
                 filter: ['has', 'point_count'],
-                layout: { 'text-field': '{point_count_abbreviated}', 'text-size': 12 },
+                layout: { 'text-font': ns.MAP_LABEL_FONT, 'text-field': '{point_count_abbreviated}', 'text-size': 12 },
                 // White count with a soft dark halo so it reads on every cluster
                 // brand colour (Uni-Grün through Gold) in both themes.
                 paint: { 'text-color': '#ffffff', 'text-halo-color': 'rgba(0,0,0,0.45)', 'text-halo-width': 1 }
@@ -118,7 +119,7 @@
             map.addLayer({
                 id: 'point-labels', type: 'symbol', source: 'locations',
                 filter: ['!', ['has', 'point_count']],
-                layout: { 'text-field': '{name}', 'text-size': 11, 'text-offset': [0, 1.8], 'text-anchor': 'top' },
+                layout: { 'text-font': ns.MAP_LABEL_FONT, 'text-field': '{name}', 'text-size': 11, 'text-offset': [0, 1.8], 'text-anchor': 'top' },
                 paint: { 'text-color': THEME.text, 'text-halo-color': THEME.border, 'text-halo-width': 1.5 }
             });
 
@@ -165,7 +166,7 @@
                 map.addLayer({
                     id: 'cur-cluster-count', type: 'symbol', source: 'currentLocations',
                     filter: ['has', 'point_count'],
-                    layout: { 'text-field': '{point_count_abbreviated}', 'text-size': 12 },
+                    layout: { 'text-font': ns.MAP_LABEL_FONT, 'text-field': '{point_count_abbreviated}', 'text-size': 12 },
                     paint: { 'text-color': '#ffffff', 'text-halo-color': 'rgba(0,0,0,0.45)', 'text-halo-width': 1 }
                 });
 
@@ -182,7 +183,7 @@
                 map.addLayer({
                     id: 'cur-point-labels', type: 'symbol', source: 'currentLocations',
                     filter: ['!', ['has', 'point_count']],
-                    layout: { 'text-field': '{name}', 'text-size': 11, 'text-offset': [0, 1.8], 'text-anchor': 'top' },
+                    layout: { 'text-font': ns.MAP_LABEL_FONT, 'text-field': '{name}', 'text-size': 11, 'text-offset': [0, 1.8], 'text-anchor': 'top' },
                     paint: { 'text-color': THEME.text, 'text-halo-color': THEME.border, 'text-halo-width': 1.5 }
                 });
             }
@@ -263,7 +264,7 @@
                     id: 'current-labels',
                     type: 'symbol',
                     source: 'currents',
-                    layout: { 'text-field': '{name}', 'text-size': 11, 'text-offset': [0, 1.8], 'text-anchor': 'top' },
+                    layout: { 'text-font': ns.MAP_LABEL_FONT, 'text-field': '{name}', 'text-size': 11, 'text-offset': [0, 1.8], 'text-anchor': 'top' },
                     paint: { 'text-color': THEME.text, 'text-halo-color': THEME.border, 'text-halo-width': 1.5 }
                 });
                 }
@@ -326,10 +327,10 @@
 
             map.on('click', 'clusters', function (e) {
                 var clusterId = e.features[0].properties.cluster_id;
-                map.getSource('locations').getClusterExpansionZoom(clusterId, function (err, zoom) {
-                    if (err) return;
+                // MapLibre 4+ returns a Promise; the old callback form is ignored.
+                map.getSource('locations').getClusterExpansionZoom(clusterId).then(function (zoom) {
                     map.easeTo({ center: e.lngLat, zoom: zoom });
-                });
+                }).catch(function () { /* cluster gone after a data change */ });
             });
 
             map.on('mouseenter', 'points', function () { map.getCanvas().style.cursor = 'pointer'; });
@@ -359,10 +360,9 @@
 
                 map.on('click', 'cur-clusters', function (e) {
                     var clusterId = e.features[0].properties.cluster_id;
-                    map.getSource('currentLocations').getClusterExpansionZoom(clusterId, function (err, zoom) {
-                        if (err) return;
+                    map.getSource('currentLocations').getClusterExpansionZoom(clusterId).then(function (zoom) {
                         map.easeTo({ center: e.lngLat, zoom: zoom });
-                    });
+                    }).catch(function () { /* cluster gone after a data change */ });
                 });
 
                 ['cur-points', 'cur-clusters'].forEach(function (layerId) {
@@ -396,10 +396,10 @@
             // --- Legend (rendered below the map; see ns.mountMapLegend) ---
             if (hasCurrent || hasFlows) {
                 var legendHtml =
-                    '<div class="rv-map-legend-row"><span class="rv-map-legend-dot" style="background:' + THEME.accent + '"></span> Place of Origin</div>' +
-                    '<div class="rv-map-legend-row"><span class="rv-map-legend-dot" style="background:' + currentColor + '"></span> Current Location</div>';
+                    '<div class="rv-map-legend-row"><span class="rv-map-legend-dot" style="background:' + esc(THEME.accent) + '"></span> ' + esc(ns.t('origin', 'Place of origin')) + '</div>' +
+                    '<div class="rv-map-legend-row"><span class="rv-map-legend-dot" style="background:' + esc(currentColor) + '"></span> ' + esc(ns.t('currentLocation', 'Current location')) + '</div>';
                 if (hasFlows) {
-                    legendHtml += '<div class="rv-map-legend-row"><span class="rv-map-legend-line" style="background:' + THEME.accent + '"></span> Flow</div>';
+                    legendHtml += '<div class="rv-map-legend-row"><span class="rv-map-legend-line" style="background:' + esc(THEME.accent) + '"></span> ' + esc(ns.t('flow', 'Flow')) + '</div>';
                 }
                 ns.mountMapLegend(el, legendHtml);
             }
@@ -419,7 +419,7 @@
         el.style.borderRadius = '6px';
 
         function create() {
-        var map = new maplibregl.Map({
+        var map = ns.createMap({
             container: el,
             style: getBasemapStyle(),
             center: [data.lon, data.lat],
@@ -427,6 +427,7 @@
             attributionControl: ns.getMapAttributionOptions(),
             scrollZoom: false,
         });
+        if (!map) return;
         map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
         map.addControl(new maplibregl.FullscreenControl(), 'top-right');
         new maplibregl.Marker({ color: THEME.accent })

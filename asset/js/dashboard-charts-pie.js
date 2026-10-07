@@ -38,7 +38,7 @@
                 label: { show: false },
                 emphasis: { label: { show: true, fontSize: THEME.fontSizeEmphasis, fontWeight: 'bold' } },
                 data: entries.map(function (e, i) {
-                    return { name: e.name, value: e.value, itemStyle: { color: COLORS[i % COLORS.length] } };
+                    return { name: e.name, value: e.value, itemId: e.itemId, itemStyle: { color: COLORS[i % COLORS.length] } };
                 })
             }]
         });

@@ -192,6 +192,10 @@ abstract class DashboardGenerator
 
     protected function loadValueRows(array $ids, array $terms): array
     {
+        $unloaded = array_diff($terms, DataLoader::LITERAL_TERMS);
+        if ($unloaded) {
+            throw new \LogicException('DataLoader does not load ' . implode(', ', $unloaded) . '; add it to DataLoader::LITERAL_TERMS.');
+        }
         $rows = [];
         foreach ($ids as $id) foreach ($terms as $term) {
             foreach ($this->literals[$id][$term] ?? [] as $value) $rows[] = [$id, $term, $value];

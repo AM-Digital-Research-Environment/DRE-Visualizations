@@ -357,19 +357,25 @@
         var overlap = computeOverlap(leftData, rightData, cfg.overlapKey);
         var html = '<div class="compare-stats">';
 
+        // Every value below is either escaped or formatted from Number(): the
+        // payload is generated, but nothing here trusts its types.
+        var count = function (data) {
+            return data && isFinite(Number(data.totalItems)) ? ns.formatNumber(Number(data.totalItems)) : '—';
+        };
         html += '<div class="compare-stat-card">'
-            + '<span class="compare-stat-value">' + (leftData ? leftData.totalItems : '—') + '</span>'
-            + '<span class="compare-stat-label">Items (A)</span></div>';
+            + '<span class="compare-stat-value">' + escapeHtml(count(leftData)) + '</span>'
+            + '<span class="compare-stat-label">' + escapeHtml(ns.t('compareItemsA', 'Items (A)')) + '</span></div>';
 
         html += '<div class="compare-stat-card">'
-            + '<span class="compare-stat-value">' + (rightData ? rightData.totalItems : '—') + '</span>'
-            + '<span class="compare-stat-label">Items (B)</span></div>';
+            + '<span class="compare-stat-value">' + escapeHtml(count(rightData)) + '</span>'
+            + '<span class="compare-stat-label">' + escapeHtml(ns.t('compareItemsB', 'Items (B)')) + '</span></div>';
 
         if (overlap) {
             html += '<div class="compare-stat-card compare-stat-accent">'
-                + '<span class="compare-stat-value">' + overlap.percentage + '%</span>'
-                + '<span class="compare-stat-label">' + cfg.overlapLabel.toLowerCase() + ' overlap'
-                + '<br><small>' + overlap.sharedCount + ' in common out of ' + overlap.totalCount + '</small>'
+                + '<span class="compare-stat-value">' + escapeHtml(ns.formatNumber(Number(overlap.percentage))) + '%</span>'
+                + '<span class="compare-stat-label">' + escapeHtml(cfg.overlapLabel.toLowerCase() + ' ' + ns.t('compareOverlap', 'overlap'))
+                + '<br><small>' + escapeHtml(ns.formatNumber(Number(overlap.sharedCount)) + ' ' + ns.t('compareInCommonOf', 'in common out of')
+                    + ' ' + ns.formatNumber(Number(overlap.totalCount))) + '</small>'
                 + '</span></div>';
         }
 
@@ -377,13 +383,13 @@
 
         if (overlap && overlap.shared.length > 0) {
             html += '<div class="compare-shared">'
-                + '<span class="compare-shared-label">In common:</span>';
+                + '<span class="compare-shared-label">' + escapeHtml(ns.t('compareInCommon', 'In common:')) + '</span>';
             overlap.shared.forEach(function (s) {
                 html += '<span class="compare-badge">' + escapeHtml(s) + '</span>';
             });
             if (overlap.sharedCount > overlap.shared.length) {
                 html += '<span class="compare-badge compare-badge-muted">'
-                    + '+' + (overlap.sharedCount - overlap.shared.length) + ' more</span>';
+                    + escapeHtml('+' + ns.formatNumber(Number(overlap.sharedCount) - overlap.shared.length) + ' ' + ns.t('more', 'more')) + '</span>';
             }
             html += '</div>';
         }

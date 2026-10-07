@@ -9,7 +9,7 @@ $omeka = rtrim($argv[1] ?? (string) getenv('OMEKA_ROOT'), '/\\');
 $hook = $argv[2] ?? null;
 if ($hook === null) {
     $failed = false;
-    foreach (['upgrade', 'uninstall'] as $name) {
+    foreach (['upgrade', 'upgrade-compatible', 'uninstall'] as $name) {
         passthru(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(__FILE__) . ' '
             . escapeshellarg($omeka) . ' ' . $name, $status);
         $failed = $failed || $status !== 0;
@@ -53,9 +53,32 @@ try {
         $module->upgrade('2.28.5', '2.29.1', $services);
         $check(array_values(array_diff(scandir($moduleDir . '/asset/data'), ['.', '..'])) === ['geo'],
             'Upgrade purges old public outputs and keeps static geography');
+    } elseif ($hook === 'upgrade-compatible') {
+        // A release that keeps the artifact schema keeps serving the snapshot.
+        // The 'upgrade' run proves the unloaded case; here the fixture itself
+        // needs the publisher, so load the copied sources first.
+        spl_autoload_register(static function (string $class) use ($moduleDir): void {
+            $path = $moduleDir . '/src/' . str_replace('\\', '/', substr($class, strlen('DreVisualizations\\'))) . '.php';
+            if (str_starts_with($class, 'DreVisualizations\\') && is_file($path)) require_once $path;
+        });
+        $published = (new DreVisualizations\Precompute\SnapshotPublisher($tmp . '/store', 1, '2.29.1'))->publish(static function ($dir): array {
+            $writer = new DreVisualizations\Precompute\JsonArtifactWriter();
+            $writer->write($dir . '/item-dashboards/projects-index.json', []);
+            $writer->write($dir . '/item-dashboards/collection-overview.json', ['totalItems' => 1]);
+            $writer->write($dir . '/network-explorer.json', []);
+            return ['sourceCounts' => ['items' => 1]];
+        });
+        $module->upgrade('2.29.1', '2.30.0', $services);
+        $store = new DreVisualizations\Precompute\SnapshotStore($tmp . '/store');
+        $check(($store->reading(fn () => $store->manifest())['generationId'] ?? null) === $published['generationId'],
+            'A schema-compatible upgrade keeps serving the published snapshot');
+        return;
     } else {
+        $put($tmp . '/store/generations/20260101T000000Z-aaaaaaaaaaaa/network-explorer.json');
+        $put($tmp . '/store/layout-cache/abc.json');
         $module->uninstall($services);
         $check(in_array(DreVisualizations\Module::SETTING_SITE_ID, $settings->deleted, true), 'Uninstall removes module settings');
+        $check(!is_dir($tmp . '/store/generations') && !is_dir($tmp . '/store/layout-cache'), 'Uninstall removes generated data from the private store');
     }
     $state = json_decode((string) file_get_contents($tmp . '/store/current.json'), true);
     $check(($state['withdrawn'] ?? false) === true, ucfirst($hook) . ' withdraws publication');

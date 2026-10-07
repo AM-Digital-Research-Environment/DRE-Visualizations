@@ -13,7 +13,7 @@ const scripts = ['vendor/echarts.min.js', 'js/dashboard-core.js', 'js/graph-canv
     'js/dashboard-charts.bundle.js', 'js/dashboard-compare-unify.js', 'js/dashboard-compare.js'];
 const fixture = `<!doctype html><html><head><link rel="stylesheet" href="/asset/css/dre-visualizations.css">
 <script>window.RV_DATA_BASE='/s/test/dre-data/';window.RV_LIBS={
-echarts:'/asset/vendor/echarts.min.js',maplibre:'/asset/vendor/maplibre-gl.js',maplibreWorker:'/asset/vendor/maplibre-gl-worker-6.1.0.js',
+echarts:'/asset/vendor/echarts.min.js',maplibre:'/asset/vendor/maplibre-gl.js',maplibreWorker:'/asset/vendor/maplibre-gl-worker.js',
 maplibreCss:'/asset/vendor/maplibre-gl.css',d3:['dispatch','quadtree','timer','force'].map(n=>'/asset/vendor/d3-'+n+'.min.js')};</script>
 ${scripts.map(p => `<script defer src="/asset/${p}"></script>`).join('')}
 </head><body><div class="compare-container" data-site-base="/s/test"></div><div id="ownership"></div></body></html>`;

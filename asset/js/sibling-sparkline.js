@@ -1,9 +1,10 @@
 /**
  * Sibling-items sparkline: on a research item that belongs to a project, render
  * the project's items-per-year as a compact line with the current item's year
- * marked. Resolves the parent project + the item's year from the REST API, then
- * reuses the project's precomputed dashboard `timeline`. Stays hidden when not
- * applicable (no parent project with a multi-year dashboard).
+ * marked. Reads the item's year and parent projects from its precomputed
+ * `item-contexts` artifact, then reuses the project's dashboard `timeline`.
+ * Stays hidden when not applicable (no parent project with a multi-year
+ * dashboard).
  *
  * Depends on: dashboard-core.js (window.RV: THEME, COLORS, initChart).
  */
@@ -14,50 +15,25 @@
     if (!ns) return;
     var THEME = ns.THEME, initChart = ns.initChart;
 
-    function escapeHtml(str) {
-        var div = document.createElement('div');
-        div.appendChild(document.createTextNode(str == null ? '' : String(str)));
-        return div.innerHTML;
-    }
-
-    function yearOf(item) {
-        var props = ['dcterms:issued', 'dcterms:created', 'dcterms:date', 'fabio:hasDateCollected'];
-        for (var i = 0; i < props.length; i++) {
-            var vals = item[props[i]];
-            if (vals && vals.length) {
-                var m = String(vals[0]['@value'] || '').match(/(\d{4})/);
-                if (m) return m[1];
-            }
-        }
-        return null;
-    }
-
-    function parentProjects(item) {
-        var out = [];
-        (item['dcterms:isPartOf'] || []).forEach(function (v) {
-            if (v.value_resource_id) {
-                out.push({ id: v.value_resource_id, name: v.display_title || v['o:label'] || null });
-            }
-        });
-        return out;
-    }
-
     function render(container, block, timeline, itemYear, projectName, siteBase, projectId) {
         var years = Object.keys(timeline).sort();
         block.hidden = false;
-        container.innerHTML = '<div class="sibling-sparkline-head"><h2>'
-            + escapeHtml(projectName || 'This project') + ': items per year</h2></div>'
-            + '<div class="sibling-sparkline-chart"></div>';
-
-        var head = container.querySelector('.sibling-sparkline-head h2');
+        var text = (projectName || ns.t('thisProject', 'This project')) + ': '
+            + ns.t('itemsPerYear', 'items per year');
+        var heading = ns.el('h2');
+        // A real link, so the project is reachable from the keyboard too.
         if (siteBase && projectId) {
-            head.classList.add('sibling-sparkline-link');
-            head.addEventListener('click', function () {
-                window.location.href = siteBase + '/item/' + projectId;
-            });
+            var link = ns.el('a', 'sibling-sparkline-link', text);
+            link.href = ns.itemUrl(siteBase, projectId);
+            heading.appendChild(link);
+        } else {
+            heading.textContent = text;
         }
+        var head = ns.el('div', 'sibling-sparkline-head');
+        head.appendChild(heading);
+        var el = ns.el('div', 'sibling-sparkline-chart');
+        ns.setChildren(container, [head, el]);
 
-        var el = container.querySelector('.sibling-sparkline-chart');
         var chart = initChart(el);
         var data = years.map(function (y) { return timeline[y]; });
         var markData = (itemYear && timeline[itemYear] !== undefined)
@@ -86,8 +62,9 @@
                     itemStyle: { color: ns.COLORS[1] },
                     data: markData,
                     // Dark label: the pin is always a light amber (COLORS[1]) in
-                    // both themes, so near-black reads far better than white.
-                    label: { formatter: 'this', color: '#1a1a1a', fontSize: THEME.fontSize - 2 }
+                    // both themes, so the theme's ink-on-pastel reads far better
+                    // than white.
+                    label: { formatter: ns.t('thisItem', 'this'), color: ns.cssColor('--ink-on-pastel', '#332619'), fontSize: THEME.fontSize - 2 }
                 } : undefined
             }]
         });
@@ -98,10 +75,9 @@
         var block = container.closest('.sibling-sparkline-block');
         if (!block) return;
         var itemId = container.dataset.itemId;
-        var apiBase = container.dataset.apiBase;
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
-        if (!itemId || !apiBase) return;
+        if (!itemId) return;
         ns.basePath = basePath;
 
         ns.fetchDataJson('item-contexts/' + encodeURIComponent(itemId) + '.json').then(function (item) {

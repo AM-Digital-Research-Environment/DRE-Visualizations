@@ -426,10 +426,10 @@
                 // MapLibre 6 is ESM and defines no global; publish the namespace
                 // under the name every builder already reaches for.
                 window.maplibregl = mod;
-                // The worker is a separate chunk. MapLibre resolves it from
+                // The worker is a separate file. MapLibre resolves it from
                 // import.meta.url by default, but only under its upstream `.mjs`
-                // name — scripts/vendor-maplibre.mjs renames it and stamps the
-                // library version in, so it has to be named explicitly. This must
+                // name — scripts/vendor-maplibre.mjs renames it, so it has to be
+                // named explicitly (which also gives it Omeka's ?v=). This must
                 // happen before the first Map is constructed, which it does: no
                 // caller sees the promise resolve until this returns.
                 if (cfg.maplibreWorker && typeof mod.setWorkerUrl === 'function') {
@@ -804,7 +804,8 @@
     /**
      * A MapLibre map as a PNG data URL, or null when it cannot be read.
      *
-     * The map MUST have been created with `preserveDrawingBuffer: true`; without it
+     * The map MUST have been created with
+     * `canvasContextAttributes: { preserveDrawingBuffer: true }`; without it
      * WebGL is free to discard the buffer after each frame and the canvas reads back
      * blank. Labels come along for free — MapLibre draws them into the same canvas —
      * but DOM overlays (popups, controls, a legend) do not, which matches how the
@@ -831,9 +832,14 @@
     /**
      * Glyph endpoint for MapLibre text layers. Falls back to the Noto Sans
      * ranges this module ships, so labels render with no third-party request.
+     * Every symbol layer must name ns.MAP_LABEL_FONT: a layer without `text-font`
+     * asks for MapLibre's default "Open Sans Regular,Arial Unicode MS Regular"
+     * stack, which this endpoint does not serve, so its labels silently vanish.
      * The fontstack name is the one the common hosts also serve, so a
      * configured endpoint resolves the same `text-font`.
      */
+    ns.MAP_LABEL_FONT = ['Noto Sans Regular'];
+
     ns.mapGlyphs = function () {
         return String((window.RV_MAP_CONFIG || {}).glyphs || '')
             || ns.moduleAsset('fonts/{fontstack}/{range}.pbf');
@@ -883,7 +889,7 @@
                     id: 'dre-country-label', type: 'symbol', source: 'dre-countries',
                     layout: {
                         'text-field': ['coalesce', ['get', 'NAME_EN'], ['get', 'NAME'], ['get', 'ADMIN']],
-                        'text-font': ['Noto Sans Regular'],
+                        'text-font': ns.MAP_LABEL_FONT,
                         'text-size': ['interpolate', ['linear'], ['zoom'], 1, 9, 4, 12, 7, 15],
                         'text-max-width': 8,
                         'text-padding': 6
@@ -965,11 +971,34 @@
      *                   default; e.g. { showCompass: false }) or false to skip;
      *   globe         — false to skip the GlobeControl (default on when the
      *                   vendored MapLibre provides it).
-     * Callers still wire theme rebuilds themselves via ns.trackMap(map, rebuild).
+     * Callers still wire theme rebuilds themselves via ns.trackMap(map, rebuild),
+     * and must return when it gives null (no WebGL; see ns.createMap).
      */
+    /**
+     * Construct a MapLibre map, or return null after showing a notice in its
+     * container. Since MapLibre 6.7 the constructor THROWS (GPUInitializationError)
+     * when WebGL2 is unavailable — blocked GPU, old device, some VMs — instead of
+     * firing an `error` event, so every surface creates its maps through here
+     * and simply returns on null.
+     */
+    ns.createMap = function (options) {
+        try {
+            return new maplibregl.Map(options);
+        } catch (error) {
+            console.warn('DreVisualizations: map unavailable', error);
+            var container = typeof options.container === 'string'
+                ? document.getElementById(options.container) : options.container;
+            if (container) {
+                ns.setChildren(container, [ns.el('div', 'rv-no-data rv-map-unavailable', ns.t('mapUnavailable',
+                    'This map needs WebGL, which this browser or device cannot provide.'))]);
+            }
+            return null;
+        }
+    };
+
     ns.initMap = function (el, opts) {
         opts = opts || {};
-        var map = new maplibregl.Map({
+        var map = ns.createMap({
             container: el,
             style: ns.getBasemapStyle(),
             center: opts.center || [0, 15],
@@ -977,6 +1006,7 @@
             attributionControl: ns.getMapAttributionOptions(),
             cooperativeGestures: true
         });
+        if (!map) return null;
         if (opts.nav !== false) {
             map.addControl(new maplibregl.NavigationControl(opts.nav || { visualizePitch: true }), 'top-right');
         }
@@ -1107,6 +1137,27 @@
         return Object.keys(data).map(function (k) { return { name: k, value: data[k] }; });
     };
 
+    /**
+     * A public item page URL. The id is URI-encoded, so the result is safe in
+     * an href; inside HTML markup it still goes through ns.escapeHtml.
+     */
+    ns.itemUrl = function (siteBase, id) {
+        return (siteBase || '') + '/item/' + encodeURIComponent(String(id));
+    };
+
+    /**
+     * A count with its noun, translated and pluralised for the page locale:
+     * ns.plural(3, 'member', 'Member', 'Members') → "3 Members". `key` names a
+     * pair of RV_I18N entries, `<key>One` and `<key>Other`; omit the count by
+     * passing `withCount` false (for a label such as "Members: …").
+     */
+    ns.plural = function (count, key, one, other, withCount) {
+        var rule;
+        try { rule = new Intl.PluralRules(ns.locale).select(Number(count)); } catch (e) { rule = count === 1 ? 'one' : 'other'; }
+        var word = rule === 'one' ? ns.t(key + 'One', one) : ns.t(key + 'Other', other);
+        return withCount ? ns.formatNumber(count) + ' ' + word : word;
+    };
+
     /** Escape plain text before inserting it through innerHTML. */
     ns.escapeHtml = function (value) {
         return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
@@ -1140,13 +1191,23 @@
         return node;
     };
 
-    /** Add click-to-navigate and pointer cursor on chart elements. */
+    /**
+     * Add click-to-navigate and pointer cursor on chart elements. Builders put
+     * `itemId` on each series data item, which identifies the clicked datum even
+     * when two share a name; `entries` (an array, or a function returning the
+     * current one) is only the fallback lookup by name.
+     */
     ns.addClickHandler = function (chart, entries, siteBase) {
         if (!siteBase) return;
         chart.on('click', function (params) {
-            var entry = entries.find(function (e) { return e.name === params.name; });
-            if (entry && entry.itemId) {
-                window.location.href = siteBase + '/item/' + entry.itemId;
+            var id = params.data && typeof params.data === 'object' ? params.data.itemId : null;
+            if (id == null) {
+                var list = typeof entries === 'function' ? entries() : entries;
+                var entry = (list || []).find(function (e) { return e.name === params.name; });
+                id = entry && entry.itemId;
+            }
+            if (id != null && id !== '') {
+                window.location.href = ns.itemUrl(siteBase, id);
             }
         });
         chart.getZr().on('mousemove', function (e) {
@@ -1359,8 +1420,9 @@
 
     /** Build the copy-paste embed snippet (iframe + the resize listener). */
     ns.embedSnippet = function (src, title, height) {
-        return '<iframe src="' + src + '" title="' + (title || '') + '"'
-            + ' loading="lazy" scrolling="no" style="width:100%;border:0;height:' + (height || 600) + 'px"></iframe>\n'
+        var px = Math.max(1, Math.round(Number(height) || 600));
+        return '<iframe src="' + ns.escapeHtml(src) + '" title="' + ns.escapeHtml(title || '') + '"'
+            + ' loading="lazy" scrolling="no" style="width:100%;border:0;height:' + px + 'px"></iframe>\n'
             + ns.embedListener;
     };
 

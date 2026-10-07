@@ -227,7 +227,7 @@
             return {
                 id: nd.id, name: nd.name, category: nd.category,
                 size: nd.symbolSize || 22, isCenter: !!nd.isCenter, community: nd.community,
-                url: (nd.itemId && siteBase) ? (siteBase + '/item/' + nd.itemId) : null,
+                url: (nd.itemId && siteBase) ? (ns.itemUrl(siteBase, nd.itemId)) : null,
                 data: nd
             };
         });

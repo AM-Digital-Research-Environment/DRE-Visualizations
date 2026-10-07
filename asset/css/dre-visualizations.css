@@ -1673,6 +1673,17 @@ button.rv-toolbar-btn:focus-visible,
     font-variant-numeric: tabular-nums;
 }
 
+/* Secondary popup lines (members, record links) and the role caption. */
+.rv-popup-meta {
+    font-size: var(--rv-text-xs);
+    color: var(--rv-text-color);
+    opacity: 0.85;
+}
+
+.rv-popup-role {
+    font-weight: 600;
+}
+
 .rv-popup-sub {
     margin-top: 2px;
     color: var(--rv-text-color);
@@ -2166,11 +2177,14 @@ button.rv-toolbar-btn:focus-visible,
 }
 
 .sibling-sparkline-link {
-    cursor: pointer;
+    color: inherit;
+    text-decoration: none;
 }
 
-.sibling-sparkline-link:hover {
+.sibling-sparkline-link:hover,
+.sibling-sparkline-link:focus-visible {
     color: var(--rv-accent);
+    text-decoration: underline;
 }
 
 .sibling-sparkline-chart {

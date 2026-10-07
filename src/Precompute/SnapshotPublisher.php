@@ -18,6 +18,13 @@ use RuntimeException;
  */
 final class SnapshotPublisher
 {
+    /**
+     * The artifact contract version. Bump it whenever a generator changes the
+     * shape of an artifact the browser reads (a renamed or re-typed key, a new
+     * required key, a changed id scheme): SnapshotStore::manifest() then stops
+     * serving older generations, and an upgrade needs a regeneration. Releases
+     * that keep it keep serving the published snapshot across the upgrade.
+     */
     public const SCHEMA_VERSION = 1;
     private const RETAINED_GENERATIONS = 2;
 
@@ -101,10 +108,6 @@ final class SnapshotPublisher
                 'createdAt' => gmdate('Y-m-d\TH:i:s\Z'),
                 'warnings' => array_values(is_array($stats['warnings'] ?? null) ? $stats['warnings'] : []),
             ];
-            // Direct legacy paths bypass the manifest and may contain records
-            // that are now private or out of scope. Remove only known generated
-            // roots; static geo/ and wordclouds/ inputs are deliberately kept.
-            $this->removeLegacyOutputs();
             $store->quiescent(function () use ($store, $revision, $manifest, $beforeCommit): void {
                 if ($beforeCommit) $beforeCommit();
                 if ($store->revision() !== $revision) {
@@ -116,9 +119,9 @@ final class SnapshotPublisher
             return $manifest;
         } catch (\Throwable $e) {
             if (is_dir($stagingDir)) {
-                $this->removeTree($stagingDir, $generationsDir, '.staging-');
+                SafeFilesystem::removeTree($stagingDir, $generationsDir, '.staging-');
             }
-            if (is_dir($publishedDir)) $this->removeTree($publishedDir, $generationsDir);
+            if (is_dir($publishedDir)) SafeFilesystem::removeTree($publishedDir, $generationsDir);
             throw $e;
         } finally {
             flock($lock, LOCK_UN);
@@ -278,67 +281,7 @@ final class SnapshotPublisher
             return ($b['mtime'] <=> $a['mtime']) ?: strcmp($b['id'], $a['id']);
         });
         foreach (array_slice($generations, self::RETAINED_GENERATIONS) as $generation) {
-            $this->removeTree($generationsDir . '/' . $generation['id'], $generationsDir);
-        }
-    }
-
-    public function purgePublicOutputs(): void
-    {
-        $this->removeLegacyOutputs();
-        foreach (['generations', 'wordclouds', 'embeddings'] as $dir) {
-            $path = $this->dataDir . '/' . $dir;
-            if (is_dir($path)) $this->removeTree($path, $this->dataDir);
-        }
-        if (is_file($this->dataDir . '/current.json') && !unlink($this->dataDir . '/current.json')) {
-            throw new RuntimeException('Cannot remove the old public manifest.');
-        }
-    }
-
-    public function removeLegacyOutputs(): void
-    {
-        foreach ([
-            'item-dashboards',
-            'communities',
-            'knowledge-graphs',
-            'photo-galleries',
-            'featured-collections',
-            'item-set-dashboards',
-        ] as $directory) {
-            $path = $this->dataDir . '/' . $directory;
-            if (is_dir($path)) $this->removeTree($path, $this->dataDir);
-        }
-        $rootArtifact = $this->dataDir . '/network-explorer.json';
-        if (is_file($rootArtifact)) {
-            $resolvedDataDir = realpath($this->dataDir);
-            $resolvedArtifact = realpath($rootArtifact);
-            if ($resolvedDataDir === false || $resolvedArtifact === false
-                || dirname($resolvedArtifact) !== $resolvedDataDir || !unlink($resolvedArtifact)) {
-                throw new RuntimeException('Unable to remove the legacy network explorer artifact.');
-            }
-        }
-    }
-
-    private function removeTree(string $path, string $parent, ?string $requiredPrefix = null): void
-    {
-        $resolvedParent = realpath($parent);
-        $resolvedPath = realpath($path);
-        if (is_link($path) || $resolvedParent === false || $resolvedPath === false
-            || !str_starts_with($resolvedPath . DIRECTORY_SEPARATOR, $resolvedParent . DIRECTORY_SEPARATOR)
-            || ($requiredPrefix !== null && !str_starts_with(basename($resolvedPath), $requiredPrefix))) {
-            throw new RuntimeException('Refusing to remove an unsafe snapshot path.');
-        }
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($resolvedPath, FilesystemIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::CHILD_FIRST
-        );
-        foreach ($iterator as $entry) {
-            $ok = $entry->isDir() && !$entry->isLink() ? rmdir($entry->getPathname()) : unlink($entry->getPathname());
-            if (!$ok) {
-                throw new RuntimeException('Unable to prune snapshot path: ' . $entry->getPathname());
-            }
-        }
-        if (!rmdir($resolvedPath)) {
-            throw new RuntimeException('Unable to prune snapshot generation: ' . $resolvedPath);
+            SafeFilesystem::removeTree($generationsDir . '/' . $generation['id'], $generationsDir);
         }
     }
 

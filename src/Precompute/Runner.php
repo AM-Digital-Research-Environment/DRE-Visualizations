@@ -56,7 +56,8 @@ final class Runner
             }
             $this->artifacts->write(dirname($this->outputDir) . '/item-contexts/' . $id . '.json', [
                 'itemId' => $id, 'year' => $data->itemYear[$id] ?? null, 'parents' => $parents,
-                'abstract' => $data->literals[$id]['dcterms:abstract'][0] ?? '',
+                // Publications keep their abstract in bibo:abstract; everything else in dcterms:abstract.
+                'abstract' => $data->literals[$id]['dcterms:abstract'][0] ?? $data->literals[$id]['bibo:abstract'][0] ?? '',
             ]);
         }
         $count = 0;

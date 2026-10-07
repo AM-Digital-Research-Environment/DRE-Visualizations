@@ -26,20 +26,23 @@
         function create() {
             // globe: false — a handful of affiliation pins reads better flat.
             var map = ns.initMap(el, { center: [data[0].lon, data[0].lat], zoom: 3, globe: false });
+            if (!map) return;
 
             map.on('load', function () {
                 data.forEach(function (org) {
                     var html = '<strong>' + esc(org.name || '') + '</strong><br/>'
-                        + '<span style="color:' + THEME.accent + '">Affiliation</span>';
+                        + '<span class="rv-popup-role" style="color:' + esc(THEME.accent) + '">'
+                        + esc(ns.t('affiliation', 'Affiliation')) + '</span>';
                     // Project affiliation maps carry the affiliated members; the
                     // per-person map omits this field, so the block is skipped there.
                     if (org.members && org.members.length) {
-                        html += '<br/><span style="font-size:12px;color:var(--muted, #716a66)">'
-                            + (org.members.length === 1 ? 'Member: ' : 'Members: ')
+                        html += '<br/><span class="rv-popup-meta">'
+                            + esc(ns.plural(org.members.length, 'member', 'Member', 'Members')) + ': '
                             + esc(org.members.join(', ')) + '</span>';
                     }
                     if (siteBase && org.itemId) {
-                        html += '<br/><a href="' + siteBase + '/item/' + org.itemId + '" style="font-size:12px">View organisation →</a>';
+                        html += '<br/><a class="rv-popup-meta" href="' + esc(ns.itemUrl(siteBase, org.itemId)) + '">'
+                            + esc(ns.t('viewOrganisation', 'View organisation')) + ' →</a>';
                     }
                     new maplibregl.Marker({ color: THEME.accent })
                         .setLngLat([org.lon, org.lat])

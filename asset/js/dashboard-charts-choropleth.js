@@ -129,6 +129,7 @@
         // Wrapped so the theme engine can rebuild the map on a light/dark toggle.
         function create() {
             var map = ns.initMap(el, { center: [10, 18], zoom: 1.3, nav: { showCompass: false } });
+            if (!map) return;
 
             map.on('load', function () {
                 loadCountries().then(function (geo) {

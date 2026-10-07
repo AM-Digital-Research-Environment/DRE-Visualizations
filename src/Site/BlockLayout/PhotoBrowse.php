@@ -169,9 +169,8 @@ class PhotoBrowse extends AbstractBlockLayout
      */
     private function loadGallery(string $itemSetId): ?array
     {
-        // src/Site/BlockLayout/PhotoBrowse.php → module root is three levels up.
-        $dataDir = \DreVisualizations\Precompute\SnapshotStore::defaultDirectory();
-        $data = PublishedSnapshot::readJson($dataDir, 'photo-galleries/' . $itemSetId . '.json');
+        $dataDir = \DreVisualizations\Precompute\SnapshotStore::tryDefault()?->directory;
+        $data = $dataDir === null ? null : PublishedSnapshot::readJson($dataDir, 'photo-galleries/' . $itemSetId . '.json');
         return (is_array($data) && isset($data['photos']) && is_array($data['photos'])) ? $data : null;
     }
 

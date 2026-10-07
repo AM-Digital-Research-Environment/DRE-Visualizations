@@ -49,7 +49,7 @@
     var L_ORIGIN = 'rv-spatial-origin';
     var L_CURRENT = 'rv-spatial-current';
     var L_LABELS = 'rv-spatial-labels';
-    var LABEL_FONT = ['Noto Sans Regular']; // served by the basemap style's glyphs
+    var LABEL_FONT = ns.MAP_LABEL_FONT || ['Noto Sans Regular'];
     var LIST_CAP = 60;
     var TOP_PLACES = 10;
 
@@ -286,7 +286,8 @@
             var h = '<div class="rv-popup-content"><strong>' + escapeHtml(p.name) + '</strong>'
                 + '<span class="rv-popup-count">' + meta.join(' · ') + '</span>';
             if (siteBase) {
-                h += '<a class="rv-popup-location-link" href="' + siteBase + '/item/' + p.id + '">Open this place’s page →</a>';
+                h += '<a class="rv-popup-location-link" href="' + escapeHtml(ns.itemUrl(siteBase, p.id)) + '">'
+                    + escapeHtml(ns.t('openPlacePage', 'Open this place’s page')) + ' →</a>';
             }
             return h + '</div>';
         }
@@ -413,7 +414,7 @@
         function create() {
             // Stale popups belong to the previous (removed) map on a theme rebuild.
             hoverPopup = null; pinnedPopup = null; hoverId = null;
-            map = new window.maplibregl.Map({
+            map = ns.createMap({
                 container: canvas,
                 style: ns.getBasemapStyle(),
                 center: [10, 5],
@@ -423,6 +424,7 @@
                 dragRotate: false,
                 pitchWithRotate: false
             });
+            if (!map) return;
             map.addControl(new window.maplibregl.NavigationControl({ showCompass: false }), 'top-right');
             if (window.maplibregl.GlobeControl) {
                 map.addControl(new window.maplibregl.GlobeControl(), 'top-right');
@@ -433,9 +435,9 @@
                 map.on('mousemove', layer, onHover);
                 map.on('mouseleave', layer, hideHover);
             });
-            if (window.ResizeObserver) {
-                new ResizeObserver(function () { try { map.resize(); } catch (err) {} }).observe(canvas);
-            }
+            // No ResizeObserver here: MapLibre's trackResize already observes the
+            // container, and create() reruns on every theme toggle, so one added
+            // here would pile up an observer per toggle.
             // Register for the theme engine's light/dark rebuild (dashboard-core
             // ns.refresh removes the map and calls create() again).
             ns.trackMap(map, create);
@@ -579,7 +581,7 @@
                 fmtNum(n) + ' mapped place' + (n === 1 ? '' : 's')));
             if (siteBase) {
                 var a = el('a', 'rv-spatial-link', 'Open this ' + selection.type.toLowerCase() + '’s page →');
-                a.href = siteBase + '/item/' + selection.id;
+                a.href = ns.itemUrl(siteBase, selection.id);
                 selBox.appendChild(a);
             }
         }

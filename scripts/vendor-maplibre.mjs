@@ -2,30 +2,29 @@
 /**
  * Vendor MapLibre GL JS into asset/vendor/.
  *
- * MapLibre 6 ships ES modules only, split across three files: the entry point,
- * a shared chunk it imports statically, and the worker (which imports the same
- * chunk). Two things stop us from copying them in untouched:
+ * MapLibre 6 ships ES modules only. Since 6.13 the entry point and the worker
+ * are each self-contained (`dist/maplibre-gl-shared.mjs` is an empty
+ * placeholder); 6.0–6.12 split shared code into a chunk both imported. The
+ * files are copied byte for byte, with one change of NAME only:
  *
- *   1. Upstream names them `.mjs`, and nginx's bundled mime.types — stock on
- *      the DRE host, and still without an `mjs` entry upstream — would serve
- *      them as the default type. Browsers refuse to execute a module script,
- *      or start a module worker, that is not JavaScript-typed. Omeka modules
- *      install onto servers we do not configure, so the extension has to be
- *      one every server already knows: `.js`.
- *   2. Module assets are served immutable for a year and busted by Omeka's
- *      `?v=` query. The relative import inside the entry point resolves
- *      against `import.meta.url`, which DROPS that query — so the shared chunk
- *      and worker would never be re-fetched after a MapLibre upgrade. Their
- *      version therefore goes in the file name, which changes when the library
- *      does. (The worker is additionally handed over through `setWorkerUrl()`,
- *      so it gets the `?v=` as well; the chunk cannot be, its specifier is
- *      baked into the bundle.)
+ *   Upstream names them `.mjs`, and nginx's bundled mime.types — stock on the
+ *   DRE host, and still without an `mjs` entry upstream — would serve them as
+ *   the default type. Browsers refuse to execute a module script, or start a
+ *   module worker, that is not JavaScript-typed. Omeka modules install onto
+ *   servers we do not configure, so the extension has to be one every server
+ *   already knows: `.js`.
  *
- * Both are satisfied by ONE rewrite: the `./maplibre-gl-shared.mjs` specifier
- * becomes `./maplibre-gl-shared-<version>.js`. Nothing else is altered. The
- * npm tarball is verified against the integrity hash the registry publishes
- * before a byte of it is read, and every file written is reported with its
- * SHA-256 so the vendored diff can be audited.
+ * Module assets are served immutable for a year and busted by Omeka's `?v=`
+ * query. Both files reach the browser with it — the entry through
+ * `import(RV_LIBS.maplibre)`, the worker through `setWorkerUrl()` — so their
+ * names need no version. A relative import inside either file would resolve
+ * against `import.meta.url` and DROP that query, so the script refuses a
+ * release that still has one (as 6.0–6.12 did) rather than vendor a chunk
+ * that would never be re-fetched after an upgrade.
+ *
+ * The npm tarball is verified against the integrity hash the registry
+ * publishes before a byte of it is read, and every file written is reported
+ * with its SHA-256 so the vendored diff can be audited.
  *
  * Usage: node scripts/vendor-maplibre.mjs [version]
  */
@@ -36,10 +35,11 @@ import { join } from 'node:path';
 
 const ROOT = join(import.meta.dirname, '..');
 const VENDOR = join(ROOT, 'asset', 'vendor');
-// The pinned release. Bump here, re-run, then update DashboardAssets::MAPLIBRE_*
-// and THIRD_PARTY_NOTICES to match.
-const PINNED = '6.1.0';
-const SPECIFIER = './maplibre-gl-shared.mjs';
+// The pinned release. Bump here, re-run, then update THIRD_PARTY_NOTICES and
+// the version comment in DashboardAssets to match.
+const PINNED = '6.13.0';
+/** Any relative static or dynamic import, which would drop Omeka's `?v=`. */
+const RELATIVE_IMPORT = /(?:\bfrom\s*|\bimport\s*\(\s*)["'`]\.\.?\//;
 
 const version = process.argv[2] || PINNED;
 
@@ -88,26 +88,25 @@ async function main() {
     return data;
   };
 
-  const sharedName = `maplibre-gl-shared-${version}.js`;
-  const workerName = `maplibre-gl-worker-${version}.js`;
-  const rewrite = (source, from) => {
-    const text = source.toString('utf8');
-    const hits = text.split(SPECIFIER).length - 1;
-    if (hits !== 1) throw new Error(`${from} references ${SPECIFIER} ${hits} times, expected exactly 1`);
-    return text.replace(SPECIFIER, `./${sharedName}`);
+  const selfContained = (name) => {
+    const text = take(name).toString('utf8');
+    if (RELATIVE_IMPORT.test(text)) {
+      throw new Error(`dist/${name} imports a relative chunk; its URL would lose Omeka's ?v= cache-buster.`
+        + ' This script vendors self-contained builds only (MapLibre >= 6.13).');
+    }
+    return text;
   };
 
   const written = [
-    ['maplibre-gl.js', rewrite(take('maplibre-gl.mjs'), 'maplibre-gl.mjs')],
-    [sharedName, take('maplibre-gl-shared.mjs').toString('utf8')],
-    [workerName, rewrite(take('maplibre-gl-worker.mjs'), 'maplibre-gl-worker.mjs')],
+    ['maplibre-gl.js', selfContained('maplibre-gl.mjs')],
+    ['maplibre-gl-worker.js', selfContained('maplibre-gl-worker.mjs')],
     ['maplibre-gl.css', take('maplibre-gl.css').toString('utf8')],
   ];
 
-  // Drop the previous release's version-stamped chunks; leaving them behind
-  // would ship two copies of a 480 KiB bundle in every release archive.
+  // Drop files from older layouts (version-stamped shared chunk and worker);
+  // leaving them behind would ship dead megabytes in every release archive.
   for (const stale of readdirSync(VENDOR)) {
-    if (/^maplibre-gl-(shared|worker)-/.test(stale) && !written.some(([name]) => name === stale)) {
+    if (/^maplibre-gl-(shared|worker)-/.test(stale)) {
       rmSync(join(VENDOR, stale));
       console.log(`  removed stale ${stale}`);
     }
@@ -117,7 +116,7 @@ async function main() {
     writeFileSync(join(VENDOR, name), contents, 'utf8');
     console.log(`  asset/vendor/${name}  ${Buffer.byteLength(contents)} bytes  sha256:${sha256(contents)}`);
   }
-  console.log(`Vendored maplibre-gl ${version} (one rewrite: ${SPECIFIER} -> ./${sharedName}).`);
+  console.log(`Vendored maplibre-gl ${version} (renamed .mjs -> .js; contents unchanged).`);
 }
 
 main().catch((error) => {

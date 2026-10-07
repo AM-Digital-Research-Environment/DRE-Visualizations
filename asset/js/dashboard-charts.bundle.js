@@ -350,7 +350,7 @@
                 label: { show: false },
                 emphasis: { label: { show: true, fontSize: THEME.fontSizeEmphasis, fontWeight: 'bold' } },
                 data: entries.map(function (e, i) {
-                    return { name: e.name, value: e.value, itemStyle: { color: COLORS[i % COLORS.length] } };
+                    return { name: e.name, value: e.value, itemId: e.itemId, itemStyle: { color: COLORS[i % COLORS.length] } };
                 })
             }]
         });
@@ -406,7 +406,7 @@
             series: [{
                 type: 'bar',
                 data: values.map(function (v, i) {
-                    return { value: v, itemStyle: { color: COLORS[i % COLORS.length], borderRadius: [0, 3, 3, 0] } };
+                    return { value: v, itemId: entries[i].itemId, itemStyle: { color: COLORS[i % COLORS.length], borderRadius: [0, 3, 3, 0] } };
                 }),
                 barMaxWidth: THEME.barMaxWidth
             }]
@@ -563,11 +563,11 @@
                     layoutAnimation: count <= 100 && !ns.prefersReducedMotion(),
                     left: 'center', top: 'center', width: '100%', height: '100%',
                     textStyle: {
-                        fontFamily: 'sans-serif',
+                        fontFamily: ns.THEME.fontFamily,
                         color: function () { return COLORS[Math.floor(Math.random() * COLORS.length)]; }
                     },
                     emphasis: { textStyle: { fontWeight: 'bold', shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.3)' } },
-                    data: slice.map(function (e) { return { name: e.name, value: e.value }; })
+                    data: slice.map(function (e) { return { name: e.name, value: e.value, itemId: e.itemId }; })
                 }]
             };
         }
@@ -580,9 +580,9 @@
         }
 
         render(defaultCount());
-        // entries is reassigned on a language switch; addClickHandler's closure
-        // reads the current value, so it stays correct without re-binding.
-        addClickHandler(chart, entries, siteBase);
+        // entries is reassigned on a language switch, so hand over a getter: the
+        // handler then reads the current language's list, never the first one.
+        addClickHandler(chart, function () { return entries; }, siteBase);
 
         var panel = el.closest('.chart-panel');
         if (!panel) return chart;
@@ -731,7 +731,7 @@
         });
 
         chart.on('click', function (p) {
-            if (p.value && p.value[3] && siteBase) window.location.href = siteBase + '/item/' + p.value[3];
+            if (p.value && p.value[3] && siteBase) window.location.href = ns.itemUrl(siteBase, p.value[3]);
         });
         return chart;
     };
@@ -888,7 +888,7 @@
         });
 
         chart.on('click', function (p) {
-            if (p.dataType === 'node' && p.data.itemId && siteBase) window.location.href = siteBase + '/item/' + p.data.itemId;
+            if (p.dataType === 'node' && p.data.itemId && siteBase) window.location.href = ns.itemUrl(siteBase, p.data.itemId);
         });
         return chart;
     };
@@ -1165,7 +1165,7 @@
         // Click to navigate to project page
         chart.on('click', function (params) {
             if (params.data && params.data._itemId && siteBase) {
-                window.location.href = siteBase + '/item/' + params.data._itemId;
+                window.location.href = ns.itemUrl(siteBase, params.data._itemId);
             }
         });
         chart.getZr().on('mousemove', function (e) {
@@ -1203,12 +1203,12 @@
 
         var h = '<div class="rv-popup-content">';
         h += '<strong>' + ns.escapeHtml(props.name || '') + '</strong>';
-        h += ' <span class="rv-popup-count">' + ns.formatNumber(props.value) + ' items</span>';
+        h += ' <span class="rv-popup-count">' + esc(ns.plural(props.value, 'item', 'item', 'items', true)) + '</span>';
 
         if (pageItems.length) {
             h += '<ul class="rv-popup-items">';
             pageItems.forEach(function (it) {
-                var url = siteBase ? siteBase + '/item/' + it.id : '#';
+                var url = siteBase ? ns.itemUrl(siteBase, it.id) : '#';
                 var title = truncateLabel(it.title, 55);
                 h += '<li><a href="' + esc(url) + '">' + esc(title) + '</a></li>';
             });
@@ -1224,8 +1224,8 @@
         }
 
         if (props.itemId && siteBase) {
-            h += '<a class="rv-popup-location-link" href="' + esc(siteBase) + '/item/'
-                + encodeURIComponent(props.itemId) + '">Open this place\u2019s page \u2192</a>';
+            h += '<a class="rv-popup-location-link" href="' + esc(ns.itemUrl(siteBase, props.itemId)) + '">'
+                + esc(ns.t('openPlacePage', 'Open this place\u2019s page')) + ' \u2192</a>';
         }
 
         h += '</div>';
@@ -1247,6 +1247,7 @@
         function create() {
         // Attribution hidden — source info in map tiles. Users can inspect via browser.
         var map = ns.initMap(el, { center: [0, 15], zoom: 1.5 });
+        if (!map) return;
 
         map.on('load', function () {
 
@@ -1279,7 +1280,7 @@
             map.addLayer({
                 id: 'cluster-count', type: 'symbol', source: 'locations',
                 filter: ['has', 'point_count'],
-                layout: { 'text-field': '{point_count_abbreviated}', 'text-size': 12 },
+                layout: { 'text-font': ns.MAP_LABEL_FONT, 'text-field': '{point_count_abbreviated}', 'text-size': 12 },
                 // White count with a soft dark halo so it reads on every cluster
                 // brand colour (Uni-Grün through Gold) in both themes.
                 paint: { 'text-color': '#ffffff', 'text-halo-color': 'rgba(0,0,0,0.45)', 'text-halo-width': 1 }
@@ -1298,7 +1299,7 @@
             map.addLayer({
                 id: 'point-labels', type: 'symbol', source: 'locations',
                 filter: ['!', ['has', 'point_count']],
-                layout: { 'text-field': '{name}', 'text-size': 11, 'text-offset': [0, 1.8], 'text-anchor': 'top' },
+                layout: { 'text-font': ns.MAP_LABEL_FONT, 'text-field': '{name}', 'text-size': 11, 'text-offset': [0, 1.8], 'text-anchor': 'top' },
                 paint: { 'text-color': THEME.text, 'text-halo-color': THEME.border, 'text-halo-width': 1.5 }
             });
 
@@ -1345,7 +1346,7 @@
                 map.addLayer({
                     id: 'cur-cluster-count', type: 'symbol', source: 'currentLocations',
                     filter: ['has', 'point_count'],
-                    layout: { 'text-field': '{point_count_abbreviated}', 'text-size': 12 },
+                    layout: { 'text-font': ns.MAP_LABEL_FONT, 'text-field': '{point_count_abbreviated}', 'text-size': 12 },
                     paint: { 'text-color': '#ffffff', 'text-halo-color': 'rgba(0,0,0,0.45)', 'text-halo-width': 1 }
                 });
 
@@ -1362,7 +1363,7 @@
                 map.addLayer({
                     id: 'cur-point-labels', type: 'symbol', source: 'currentLocations',
                     filter: ['!', ['has', 'point_count']],
-                    layout: { 'text-field': '{name}', 'text-size': 11, 'text-offset': [0, 1.8], 'text-anchor': 'top' },
+                    layout: { 'text-font': ns.MAP_LABEL_FONT, 'text-field': '{name}', 'text-size': 11, 'text-offset': [0, 1.8], 'text-anchor': 'top' },
                     paint: { 'text-color': THEME.text, 'text-halo-color': THEME.border, 'text-halo-width': 1.5 }
                 });
             }
@@ -1443,7 +1444,7 @@
                     id: 'current-labels',
                     type: 'symbol',
                     source: 'currents',
-                    layout: { 'text-field': '{name}', 'text-size': 11, 'text-offset': [0, 1.8], 'text-anchor': 'top' },
+                    layout: { 'text-font': ns.MAP_LABEL_FONT, 'text-field': '{name}', 'text-size': 11, 'text-offset': [0, 1.8], 'text-anchor': 'top' },
                     paint: { 'text-color': THEME.text, 'text-halo-color': THEME.border, 'text-halo-width': 1.5 }
                 });
                 }
@@ -1506,10 +1507,10 @@
 
             map.on('click', 'clusters', function (e) {
                 var clusterId = e.features[0].properties.cluster_id;
-                map.getSource('locations').getClusterExpansionZoom(clusterId, function (err, zoom) {
-                    if (err) return;
+                // MapLibre 4+ returns a Promise; the old callback form is ignored.
+                map.getSource('locations').getClusterExpansionZoom(clusterId).then(function (zoom) {
                     map.easeTo({ center: e.lngLat, zoom: zoom });
-                });
+                }).catch(function () { /* cluster gone after a data change */ });
             });
 
             map.on('mouseenter', 'points', function () { map.getCanvas().style.cursor = 'pointer'; });
@@ -1539,10 +1540,9 @@
 
                 map.on('click', 'cur-clusters', function (e) {
                     var clusterId = e.features[0].properties.cluster_id;
-                    map.getSource('currentLocations').getClusterExpansionZoom(clusterId, function (err, zoom) {
-                        if (err) return;
+                    map.getSource('currentLocations').getClusterExpansionZoom(clusterId).then(function (zoom) {
                         map.easeTo({ center: e.lngLat, zoom: zoom });
-                    });
+                    }).catch(function () { /* cluster gone after a data change */ });
                 });
 
                 ['cur-points', 'cur-clusters'].forEach(function (layerId) {
@@ -1576,10 +1576,10 @@
             // --- Legend (rendered below the map; see ns.mountMapLegend) ---
             if (hasCurrent || hasFlows) {
                 var legendHtml =
-                    '<div class="rv-map-legend-row"><span class="rv-map-legend-dot" style="background:' + THEME.accent + '"></span> Place of Origin</div>' +
-                    '<div class="rv-map-legend-row"><span class="rv-map-legend-dot" style="background:' + currentColor + '"></span> Current Location</div>';
+                    '<div class="rv-map-legend-row"><span class="rv-map-legend-dot" style="background:' + esc(THEME.accent) + '"></span> ' + esc(ns.t('origin', 'Place of origin')) + '</div>' +
+                    '<div class="rv-map-legend-row"><span class="rv-map-legend-dot" style="background:' + esc(currentColor) + '"></span> ' + esc(ns.t('currentLocation', 'Current location')) + '</div>';
                 if (hasFlows) {
-                    legendHtml += '<div class="rv-map-legend-row"><span class="rv-map-legend-line" style="background:' + THEME.accent + '"></span> Flow</div>';
+                    legendHtml += '<div class="rv-map-legend-row"><span class="rv-map-legend-line" style="background:' + esc(THEME.accent) + '"></span> ' + esc(ns.t('flow', 'Flow')) + '</div>';
                 }
                 ns.mountMapLegend(el, legendHtml);
             }
@@ -1599,7 +1599,7 @@
         el.style.borderRadius = '6px';
 
         function create() {
-        var map = new maplibregl.Map({
+        var map = ns.createMap({
             container: el,
             style: getBasemapStyle(),
             center: [data.lon, data.lat],
@@ -1607,6 +1607,7 @@
             attributionControl: ns.getMapAttributionOptions(),
             scrollZoom: false,
         });
+        if (!map) return;
         map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
         map.addControl(new maplibregl.FullscreenControl(), 'top-right');
         new maplibregl.Marker({ color: THEME.accent })
@@ -1696,6 +1697,7 @@
             if (staleLegend) staleLegend.remove();
 
             var map = ns.initMap(el, { center: [12, 8], zoom: 1.3 });
+            if (!map) return;
 
             var markers = [];
 
@@ -1721,7 +1723,7 @@
                     var marker = new maplibregl.Marker({ element: dot })
                         .setLngLat([p.longitude, p.latitude]);
                     var title = (siteBase && p.itemId)
-                        ? '<a href="' + esc(siteBase) + '/item/' + encodeURIComponent(p.itemId) + '">' + esc(p.label) + '</a>'
+                        ? '<a href="' + esc(ns.itemUrl(siteBase, p.itemId)) + '">' + esc(p.label) + '</a>'
                         : esc(p.label);
                     var html = '<div class="rv-popup-content"><strong>' + title + '</strong>'
                         + (p.sublabel ? '<div class="rv-popup-sub">' + esc(p.sublabel) + '</div>' : '')
@@ -1809,20 +1811,23 @@
         function create() {
             // globe: false — a handful of affiliation pins reads better flat.
             var map = ns.initMap(el, { center: [data[0].lon, data[0].lat], zoom: 3, globe: false });
+            if (!map) return;
 
             map.on('load', function () {
                 data.forEach(function (org) {
                     var html = '<strong>' + esc(org.name || '') + '</strong><br/>'
-                        + '<span style="color:' + THEME.accent + '">Affiliation</span>';
+                        + '<span class="rv-popup-role" style="color:' + esc(THEME.accent) + '">'
+                        + esc(ns.t('affiliation', 'Affiliation')) + '</span>';
                     // Project affiliation maps carry the affiliated members; the
                     // per-person map omits this field, so the block is skipped there.
                     if (org.members && org.members.length) {
-                        html += '<br/><span style="font-size:12px;color:var(--muted, #716a66)">'
-                            + (org.members.length === 1 ? 'Member: ' : 'Members: ')
+                        html += '<br/><span class="rv-popup-meta">'
+                            + esc(ns.plural(org.members.length, 'member', 'Member', 'Members')) + ': '
                             + esc(org.members.join(', ')) + '</span>';
                     }
                     if (siteBase && org.itemId) {
-                        html += '<br/><a href="' + siteBase + '/item/' + org.itemId + '" style="font-size:12px">View organisation →</a>';
+                        html += '<br/><a class="rv-popup-meta" href="' + esc(ns.itemUrl(siteBase, org.itemId)) + '">'
+                            + esc(ns.t('viewOrganisation', 'View organisation')) + ' →</a>';
                     }
                     new maplibregl.Marker({ color: THEME.accent })
                         .setLngLat([org.lon, org.lat])
@@ -1929,7 +1934,7 @@
         });
 
         chart.on('click', function (p) {
-            if (p.dataType === 'node' && p.data.itemId && siteBase) window.location.href = siteBase + '/item/' + p.data.itemId;
+            if (p.dataType === 'node' && p.data.itemId && siteBase) window.location.href = ns.itemUrl(siteBase, p.data.itemId);
         });
         return chart;
     };
@@ -2053,7 +2058,7 @@
 
         chart.on('click', function (p) {
             if (p.dataType === 'node' && p.data.itemId && siteBase) {
-                window.location.href = siteBase + '/item/' + p.data.itemId;
+                window.location.href = ns.itemUrl(siteBase, p.data.itemId);
             }
         });
         return chart;
@@ -2388,6 +2393,7 @@
         // Wrapped so the theme engine can rebuild the map on a light/dark toggle.
         function create() {
             var map = ns.initMap(el, { center: [10, 18], zoom: 1.3, nav: { showCompass: false } });
+            if (!map) return;
 
             map.on('load', function () {
                 loadCountries().then(function (geo) {
@@ -2680,7 +2686,7 @@
                 // nodes a little further on top, so hubs read as hubs at any zoom.
                 size: 9 + Math.sqrt((n.rank || 0) / maxRank) * 26,
                 community: n.community,
-                url: (n.itemId && siteBase) ? (siteBase + '/item/' + n.itemId) : null,
+                url: (n.itemId && siteBase) ? (ns.itemUrl(siteBase, n.itemId)) : null,
                 data: n
             };
         });
@@ -3047,7 +3053,7 @@
 
         chart.on('click', function (p) {
             if (p.dataType === 'node' && p.data.itemId && siteBase) {
-                window.location.href = siteBase + '/item/' + p.data.itemId;
+                window.location.href = ns.itemUrl(siteBase, p.data.itemId);
             }
         });
         return chart;

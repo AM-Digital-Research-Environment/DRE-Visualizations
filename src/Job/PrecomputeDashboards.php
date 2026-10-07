@@ -67,9 +67,10 @@ class PrecomputeDashboards extends AbstractJob
             $corpusStats = $services->has($countsService)
                 ? $services->get($countsService)->forSite($siteId)
                 : null;
-            $store = new SnapshotStore($dataDir);
+            $started = time();
+            // The revision is filled in by the publisher once it holds the generation lock.
             $sourceScope = ['siteId' => $siteId, 'profile' => hash('sha256', str_replace("\r\n", "\n", (string) file_get_contents($moduleRoot . '/config/amira-profile.json'))),
-                'revision' => $store->locked(fn () => $store->revision())];
+                'revision' => ''];
             $publisher = new SnapshotPublisher($dataDir, $siteId, $moduleVersion);
             $manifest = $publisher->publish(static function (string $generationDir, string $revision) use (
                 $connection,
@@ -102,6 +103,7 @@ class PrecomputeDashboards extends AbstractJob
                 );
                 return $runner->run();
             }, static fn () => $checkpoint(true));
+            self::pruneLayoutCache($dataDir . '/layout-cache', $started);
             $stats = [
                 'generation_id' => $manifest['generationId'],
                 'artifacts' => $manifest['artifactCounts']['total'],
@@ -117,5 +119,20 @@ class PrecomputeDashboards extends AbstractJob
         }
 
         $logger->info('DreVisualizations: precompute complete', $stats);
+    }
+
+    /**
+     * Drop layout-cache entries this run neither wrote nor read (a hit touches
+     * its file). Without it every changed graph leaves an orphan behind forever.
+     */
+    public static function pruneLayoutCache(string $dir, int $since): void
+    {
+        if (!is_dir($dir)) return;
+        foreach (new \FilesystemIterator($dir, \FilesystemIterator::SKIP_DOTS) as $entry) {
+            if ($entry->isFile() && !$entry->isLink() && str_ends_with($entry->getFilename(), '.json')
+                && $entry->getMTime() < $since) {
+                @unlink($entry->getPathname());
+            }
+        }
     }
 }

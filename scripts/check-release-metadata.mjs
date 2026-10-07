@@ -132,12 +132,14 @@ try {
       failures.push(`asset/vendor/${entry} is missing`);
       continue;
     }
-    const chunk = /from"\.\/(maplibre-gl-shared[^"]*)"/.exec(read(`asset/vendor/${entry}`));
-    if (!chunk) {
-      failures.push(`asset/vendor/${entry} imports no MapLibre shared chunk — was it vendored unpatched (.mjs)?`);
-    } else if (!vendored.has(chunk[1])) {
-      failures.push(`asset/vendor/${entry} imports ${chunk[1]}, which is not vendored`);
+    // A relative import resolves against import.meta.url and drops Omeka's
+    // ?v= cache-buster, so the vendored builds must be self-contained.
+    if (/(?:\bfrom\s*|\bimport\s*\(\s*)["'`]\.\.?\//.test(read(`asset/vendor/${entry}`))) {
+      failures.push(`asset/vendor/${entry} imports a relative chunk — re-vendor with npm run vendor:maplibre`);
     }
+  }
+  for (const stale of vendored) {
+    if (/^maplibre-gl-(shared|worker)-/.test(stale)) failures.push(`asset/vendor/${stale} is a stale MapLibre chunk`);
   }
 } catch (error) {
   failures.push(`vendored MapLibre check failed: ${error.message}`);

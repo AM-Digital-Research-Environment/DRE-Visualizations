@@ -72,7 +72,7 @@
             (active.items || []).forEach(function (it) {
                 var card = document.createElement('a');
                 card.className = 'whats-new-card';
-                card.href = siteBase + '/item/' + it.id;
+                card.href = ns.itemUrl(siteBase, it.id);
                 card.innerHTML = '<span class="whats-new-card-title">' + escapeHtml(it.title) + '</span>'
                     + '<span class="whats-new-card-date">' + escapeHtml(it.created) + '</span>';
                 grid.appendChild(card);

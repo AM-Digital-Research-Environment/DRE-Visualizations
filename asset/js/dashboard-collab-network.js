@@ -78,7 +78,7 @@
         });
 
         chart.on('click', function (p) {
-            if (p.dataType === 'node' && p.data.itemId && siteBase) window.location.href = siteBase + '/item/' + p.data.itemId;
+            if (p.dataType === 'node' && p.data.itemId && siteBase) window.location.href = ns.itemUrl(siteBase, p.data.itemId);
         });
         return chart;
     };

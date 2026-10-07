@@ -14,8 +14,12 @@ use DreVisualizations\View\Helper\DashboardAssets;
 
 class Module extends AbstractModule
 {
-    /** API request id => shared source-write lock, released after the corresponding write. */
-    private array $sourceWriteLocks = [];
+    /**
+     * API request => shared source-write lock, released after the corresponding
+     * write. Weak keys: when a write throws, `.post` never fires, but the request
+     * object is freed with its caller, which frees the handle and so the lock.
+     */
+    private ?\WeakMap $sourceWriteLocks = null;
     public const SETTING_SITE_ID = 'dre_visualizations_site_id';
     public const SETTING_BASEMAP_LIGHT = 'dre_visualizations_basemap_light';
     public const SETTING_BASEMAP_DARK = 'dre_visualizations_basemap_dark';
@@ -40,16 +44,33 @@ class Module extends AbstractModule
     public function upgrade($oldVersion, $newVersion, ServiceLocatorInterface $serviceLocator)
     {
         self::registerAutoloader();
-        $this->withdrawSnapshots();
-        // Old module versions exposed these paths directly. Purge them on upgrade.
-        $publisher = new Precompute\SnapshotPublisher(__DIR__ . '/asset/data', 1, (string) $newVersion);
-        $publisher->purgePublicOutputs();
+        // A published snapshot keeps being served across upgrades unless this
+        // version reads a different artifact schema; SnapshotStore::manifest()
+        // rejects those by itself (see SnapshotPublisher::SCHEMA_VERSION).
+        if (version_compare((string) $oldVersion, '2.29.0', '<')) {
+            // Before 2.29.0 generated JSON lived under the public asset/data
+            // directory and bypassed the manifest; nothing may serve it now.
+            Precompute\LegacyPublicOutputs::purge(__DIR__ . '/asset/data');
+            $this->withdrawSnapshots();
+        }
     }
 
     public function uninstall(ServiceLocatorInterface $serviceLocator)
     {
         self::registerAutoloader();
         $this->withdrawSnapshots();
+        // Reclaim the generated data. The store directory itself stays: it may
+        // be a mounted volume, and the tombstone keeps it fail-closed.
+        $store = Precompute\SnapshotStore::tryDefault();
+        if ($store !== null) {
+            $store->locked(static function () use ($store): void {
+                foreach (['generations', 'layout-cache'] as $dir) {
+                    if (is_dir($store->directory . '/' . $dir)) {
+                        Precompute\SafeFilesystem::removeTree($store->directory . '/' . $dir, $store->directory);
+                    }
+                }
+            });
+        }
         $settings = $serviceLocator->get('Omeka\Settings');
         foreach ([
             self::SETTING_SITE_ID,
@@ -420,19 +441,41 @@ class Module extends AbstractModule
 
     public function withdrawSnapshots(): void
     {
-        (new Precompute\SnapshotStore(Precompute\SnapshotStore::defaultDirectory()))->withdraw();
+        $store = $this->storeForWithdrawal();
+        $store?->withdraw();
+    }
+
+    /**
+     * The store a write must withdraw, or null when nothing was ever published
+     * there. A missing or unwritable store with no publication cannot serve
+     * stale data, so Omeka writes go through; a publication that cannot be
+     * withdrawn still blocks them (the exception propagates).
+     */
+    private function storeForWithdrawal(): ?Precompute\SnapshotStore
+    {
+        try {
+            return new Precompute\SnapshotStore(Precompute\SnapshotStore::defaultDirectory());
+        } catch (\RuntimeException $e) {
+            if (Precompute\SnapshotStore::hasPublicationAtDefaultPath()) throw $e;
+            return null;
+        }
     }
 
     public function invalidateForApiWrite($event): void
     {
+        $store = $this->storeForWithdrawal();
+        if ($store === null) return;
         $request = $event->getParam('request');
-        $key = is_object($request) ? spl_object_id($request) : 0;
-        $store = new Precompute\SnapshotStore(Precompute\SnapshotStore::defaultDirectory());
+        if (!is_object($request)) {
+            $store->withdraw();
+            return;
+        }
+        $this->sourceWriteLocks ??= new \WeakMap();
         if (str_ends_with($event->getName(), '.pre')) {
-            $this->sourceWriteLocks[$key] = $store->beginWrite();
-        } elseif (isset($this->sourceWriteLocks[$key])) {
-            $lock = $this->sourceWriteLocks[$key];
-            unset($this->sourceWriteLocks[$key]);
+            $this->sourceWriteLocks[$request] = $store->beginWrite();
+        } elseif (isset($this->sourceWriteLocks[$request])) {
+            $lock = $this->sourceWriteLocks[$request];
+            unset($this->sourceWriteLocks[$request]);
             $store->endWrite($lock);
         } else {
             $store->withdraw();

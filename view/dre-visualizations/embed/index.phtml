@@ -219,12 +219,12 @@ $basePath = $this->basePath();
 <script>
 (function () {
     var RV = window.RV || {};
-    var basePath = <?= json_encode($basePath, JSON_UNESCAPED_SLASHES) ?>;
-    var embedBase = <?= json_encode($embedBase, JSON_UNESCAPED_SLASHES) ?>;
-    var copyLabel = <?= json_encode($this->translate('Copy')) ?>;
-    var doneLabel = <?= json_encode($this->translate('Copied')) ?>;
-    var previewLabel = <?= json_encode($this->translate('Preview')) ?>;
-    var chartsHeading = <?= json_encode($this->translate('Or embed a single chart')) ?>;
+    var basePath = <?= \DreVisualizations\View\Helper\DashboardAssets::scriptJson($basePath) ?>;
+    var embedBase = <?= \DreVisualizations\View\Helper\DashboardAssets::scriptJson($embedBase) ?>;
+    var copyLabel = <?= \DreVisualizations\View\Helper\DashboardAssets::scriptJson($this->translate('Copy')) ?>;
+    var doneLabel = <?= \DreVisualizations\View\Helper\DashboardAssets::scriptJson($this->translate('Copied')) ?>;
+    var previewLabel = <?= \DreVisualizations\View\Helper\DashboardAssets::scriptJson($this->translate('Preview')) ?>;
+    var chartsHeading = <?= \DreVisualizations\View\Helper\DashboardAssets::scriptJson($this->translate('Or embed a single chart')) ?>;
     function hasData(d) {
         return Array.isArray(d) ? d.length > 0 : (!!d && typeof d === 'object' && Object.keys(d).length > 0);
     }

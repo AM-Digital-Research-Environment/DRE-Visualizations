@@ -83,10 +83,6 @@ $root = sys_get_temp_dir() . '/dre-snapshot-' . bin2hex(random_bytes(6));
 $publisher = new SnapshotPublisher($root, 7, '2.21.0');
 
 try {
-    $fixtureWriter = new JsonArtifactWriter();
-    $fixtureWriter->write($root . '/item-dashboards/private-legacy.json', ['title' => 'must disappear']);
-    $fixtureWriter->write($root . '/network-explorer.json', ['legacy' => true]);
-    $fixtureWriter->write($root . '/wordclouds/input.json', ['static' => true]);
     $first = $publisher->publish(static fn (string $dir): array => snapshotFixture($dir, 1));
     snapshotCheck(($first['scope']['siteId'] ?? null) === 7, 'manifest declares the site scope');
     snapshotCheck(($first['scope']['itemCount'] ?? null) === 1, 'manifest declares the scoped item count');
@@ -98,9 +94,26 @@ try {
         'validated generation is published under an immutable path');
     snapshotCheck(is_file($root . '/' . $first['basePath'] . '/item-dashboards/beeswarm-all-sections.json'),
         'the list-shaped beeswarm artifact passes validation');
-    snapshotCheck(!is_dir($root . '/item-dashboards') && !is_file($root . '/network-explorer.json'),
-        'direct legacy generated paths are removed after validation');
-    snapshotCheck(is_file($root . '/wordclouds/input.json'), 'static data inputs are preserved');
+    snapshotCheck(($first['schemaVersion'] ?? null) === SnapshotPublisher::SCHEMA_VERSION, 'manifest records the artifact schema');
+    $store = new DreVisualizations\Precompute\SnapshotStore($root);
+    snapshotCheck(($store->reading(fn () => $store->manifest())['generationId'] ?? null) === $first['generationId'],
+        'the store serves a manifest of the current schema');
+    $manifest = json_decode((string) file_get_contents($root . '/current.json'), true);
+    file_put_contents($root . '/current.json', json_encode(['schemaVersion' => SnapshotPublisher::SCHEMA_VERSION + 1] + $manifest));
+    snapshotCheck($store->reading(fn () => $store->manifest()) === null, 'a manifest of another schema is not served');
+    file_put_contents($root . '/current.json', json_encode($manifest));
+
+    // Generated JSON that pre-2.29 versions wrote under the public asset/data.
+    $public = $root . '-public';
+    $fixtureWriter = new JsonArtifactWriter();
+    $fixtureWriter->write($public . '/item-dashboards/private-legacy.json', ['title' => 'must disappear']);
+    $fixtureWriter->write($public . '/network-explorer.json', ['legacy' => true]);
+    $fixtureWriter->write($public . '/geo/countries.geojson', ['static' => true]);
+    DreVisualizations\Precompute\LegacyPublicOutputs::purge($public);
+    snapshotCheck(!is_dir($public . '/item-dashboards') && !is_file($public . '/network-explorer.json'),
+        'legacy public generated paths are purged');
+    snapshotCheck(is_file($public . '/geo/countries.geojson'), 'static public inputs are preserved');
+    removeFixtureTree($public);
 
     $currentBeforeFailure = (string) file_get_contents($root . '/current.json');
     try {

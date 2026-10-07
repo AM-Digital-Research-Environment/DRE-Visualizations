@@ -72,6 +72,7 @@
             if (staleLegend) staleLegend.remove();
 
             var map = ns.initMap(el, { center: [12, 8], zoom: 1.3 });
+            if (!map) return;
 
             var markers = [];
 
@@ -97,7 +98,7 @@
                     var marker = new maplibregl.Marker({ element: dot })
                         .setLngLat([p.longitude, p.latitude]);
                     var title = (siteBase && p.itemId)
-                        ? '<a href="' + esc(siteBase) + '/item/' + encodeURIComponent(p.itemId) + '">' + esc(p.label) + '</a>'
+                        ? '<a href="' + esc(ns.itemUrl(siteBase, p.itemId)) + '">' + esc(p.label) + '</a>'
                         : esc(p.label);
                     var html = '<div class="rv-popup-content"><strong>' + title + '</strong>'
                         + (p.sublabel ? '<div class="rv-popup-sub">' + esc(p.sublabel) + '</div>' : '')

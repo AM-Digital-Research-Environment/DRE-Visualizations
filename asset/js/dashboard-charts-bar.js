@@ -43,7 +43,7 @@
             series: [{
                 type: 'bar',
                 data: values.map(function (v, i) {
-                    return { value: v, itemStyle: { color: COLORS[i % COLORS.length], borderRadius: [0, 3, 3, 0] } };
+                    return { value: v, itemId: entries[i].itemId, itemStyle: { color: COLORS[i % COLORS.length], borderRadius: [0, 3, 3, 0] } };
                 }),
                 barMaxWidth: THEME.barMaxWidth
             }]

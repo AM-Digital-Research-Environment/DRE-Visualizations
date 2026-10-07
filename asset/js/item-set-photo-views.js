@@ -66,8 +66,8 @@
         }
         _maplibrePromise = import(jsUrl).then(function (mod) {
             window.maplibregl = mod;
-            // Version-stamped worker chunk, named explicitly because the vendored
-            // file names differ from the ones MapLibre derives from import.meta.url.
+            // Named explicitly because the vendored file name (.js) differs from
+            // the .mjs one MapLibre derives from import.meta.url.
             if (workerUrl && typeof mod.setWorkerUrl === 'function') mod.setWorkerUrl(workerUrl);
         });
         return _maplibrePromise;
@@ -611,11 +611,12 @@
             var pointFill   = ns.cssColor('--accent', '#ca7210');
             var moat        = ns.cssColor('--surface', '#fdfcf9');
 
-            var map = new maplibregl.Map({
+            var map = ns.createMap({
                 container: mapEl,
                 style: ns.getBasemapStyle(),
                 attributionControl: ns.getMapAttributionOptions()
             });
+            if (!map) return;
             map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
 
             map.on('load', function () {
@@ -645,7 +646,7 @@
                     layout: {
                         'text-field': '{point_count_abbreviated}',
                         'text-size': 12,
-                        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold', 'Noto Sans Bold']
+                        'text-font': ns.MAP_LABEL_FONT
                     },
                     paint: {
                         'text-color': clusterText,

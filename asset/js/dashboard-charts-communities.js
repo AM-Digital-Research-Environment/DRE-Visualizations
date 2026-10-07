@@ -130,7 +130,7 @@
                 // nodes a little further on top, so hubs read as hubs at any zoom.
                 size: 9 + Math.sqrt((n.rank || 0) / maxRank) * 26,
                 community: n.community,
-                url: (n.itemId && siteBase) ? (siteBase + '/item/' + n.itemId) : null,
+                url: (n.itemId && siteBase) ? (ns.itemUrl(siteBase, n.itemId)) : null,
                 data: n
             };
         });

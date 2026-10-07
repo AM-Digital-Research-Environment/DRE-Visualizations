@@ -9,12 +9,19 @@ final class SnapshotStore
 {
     public function __construct(public readonly string $directory) {}
 
+    /** The configured store path, without creating or validating it. */
+    public static function defaultPath(): string
+    {
+        $root = defined('OMEKA_PATH') ? OMEKA_PATH : dirname(__DIR__, 2);
+        return getenv('DRE_VISUALIZATIONS_DATA_DIR') ?: sys_get_temp_dir()
+            . '/omeka-dre-visualizations-' . substr(hash('sha256', $root), 0, 20);
+    }
+
     public static function defaultDirectory(): string
     {
         $root = defined('OMEKA_PATH') ? OMEKA_PATH : dirname(__DIR__, 2);
-        $path = getenv('DRE_VISUALIZATIONS_DATA_DIR') ?: sys_get_temp_dir()
-            . '/omeka-dre-visualizations-' . substr(hash('sha256', $root), 0, 20);
-        if (!is_dir($path) && !mkdir($path, 0700, true) && !is_dir($path)) {
+        $path = self::defaultPath();
+        if (!is_dir($path) && !@mkdir($path, 0700, true) && !is_dir($path)) {
             throw new RuntimeException('Cannot create private visualization storage.');
         }
         $resolved = realpath($path);
@@ -27,15 +34,48 @@ final class SnapshotStore
         return $resolved;
     }
 
-    public function locked(callable $operation): mixed
+    /**
+     * The default store, or null when it is missing, unwritable or misplaced.
+     * Render paths use this: a storage fault must hide the visualizations, not
+     * turn every item page into a 500.
+     */
+    public static function tryDefault(): ?self
+    {
+        try {
+            return new self(self::defaultDirectory());
+        } catch (RuntimeException) {
+            return null;
+        }
+    }
+
+    /** Whether any (possibly withdrawn) publication exists at the default path. */
+    public static function hasPublicationAtDefaultPath(): bool
+    {
+        return is_file(self::defaultPath() . '/current.json');
+    }
+
+    /**
+     * Run under the policy lock. Writers take it exclusively; readers pass
+     * $exclusive = false and share it, so concurrent page renders and data
+     * requests never queue behind one another — only behind a withdrawal or a
+     * commit. A shared holder must not write any state (see readRevision()).
+     */
+    public function locked(callable $operation, bool $exclusive = true): mixed
     {
         (new JsonArtifactWriter())->ensureDirectory($this->directory);
         $lock = fopen($this->directory . '/.policy.lock', 'c');
-        if (!$lock || !flock($lock, LOCK_EX)) {
+        if (!$lock || !flock($lock, $exclusive ? LOCK_EX : LOCK_SH)) {
+            if ($lock) fclose($lock);
             throw new RuntimeException('Cannot lock visualization publication state.');
         }
         try { return $operation(); }
         finally { flock($lock, LOCK_UN); fclose($lock); }
+    }
+
+    /** Run a read-only operation under the shared policy lock. */
+    public function reading(callable $operation): mixed
+    {
+        return $this->locked($operation, false);
     }
 
     /** Acquire before an API write; PHP also releases this handle if the request fails. */
@@ -43,7 +83,10 @@ final class SnapshotStore
     {
         (new JsonArtifactWriter())->ensureDirectory($this->directory);
         $lock = fopen($this->directory . '/.source-write.lock', 'c');
-        if (!$lock || !flock($lock, LOCK_SH)) throw new RuntimeException('Cannot protect a source write.');
+        if (!$lock || !flock($lock, LOCK_SH)) {
+            if ($lock) fclose($lock);
+            throw new RuntimeException('Cannot protect a source write.');
+        }
         try { $this->withdraw(); }
         catch (\Throwable $e) { fclose($lock); throw $e; }
         return $lock;
@@ -69,16 +112,21 @@ final class SnapshotStore
         finally { flock($lock, LOCK_UN); fclose($lock); }
     }
 
-    /** Caller holds the policy lock. */
+    /** Caller holds the policy lock exclusively: a missing revision is created. */
     public function revision(): string
     {
-        $path = $this->directory . '/revision.json';
-        if (!is_file($path)) {
-            (new JsonArtifactWriter())->write($path, ['revision' => bin2hex(random_bytes(16))]);
+        if (!is_file($this->directory . '/revision.json')) {
+            (new JsonArtifactWriter())->write($this->directory . '/revision.json', ['revision' => bin2hex(random_bytes(16))]);
         }
-        $state = json_decode((string) file_get_contents($path), true);
-        if (!is_string($state['revision'] ?? null)) throw new RuntimeException('Invalid publication revision.');
-        return $state['revision'];
+        return $this->readRevision() ?? throw new RuntimeException('Invalid publication revision.');
+    }
+
+    /** Caller holds the policy lock in either mode. Never writes; null when absent or invalid. */
+    public function readRevision(): ?string
+    {
+        $path = $this->directory . '/revision.json';
+        $state = is_file($path) ? json_decode((string) file_get_contents($path), true) : null;
+        return is_string($state['revision'] ?? null) ? $state['revision'] : null;
     }
 
     public function withdraw(): void
@@ -91,12 +139,21 @@ final class SnapshotStore
         });
     }
 
-    /** Caller holds the policy lock. */
+    /**
+     * The current manifest, or null when withdrawn, stale, or written for an
+     * artifact schema this module version does not read. The schema check is
+     * what lets an upgrade keep serving a compatible snapshot: a release that
+     * changes the artifact contract bumps SnapshotPublisher::SCHEMA_VERSION, and
+     * the old generation stops being served until it is regenerated.
+     * Caller holds the policy lock in either mode.
+     */
     public function manifest(): ?array
     {
         $path = $this->directory . '/current.json';
         $data = is_file($path) ? json_decode((string) file_get_contents($path), true) : null;
-        return is_array($data) && ($data['revision'] ?? null) === $this->revision()
+        $revision = $this->readRevision();
+        return is_array($data) && $revision !== null && ($data['revision'] ?? null) === $revision
+            && ($data['schemaVersion'] ?? null) === SnapshotPublisher::SCHEMA_VERSION
             && preg_match('/^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{12}$/', (string) ($data['generationId'] ?? ''))
             ? $data : null;
     }

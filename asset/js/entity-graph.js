@@ -50,7 +50,7 @@
 
     function t(key, fallback) { return typeof ns.t === 'function' ? ns.t(key, fallback) : fallback; }
 
-    var LABEL_FONT = ['Noto Sans Regular'];
+    var LABEL_FONT = ns.MAP_LABEL_FONT || ['Noto Sans Regular'];
 
     var SRC_NODES = 'eg-nodes';
     var SRC_EDGES = 'eg-edges';
@@ -602,7 +602,7 @@
         }
 
         function createMap() {
-            map = new window.maplibregl.Map({
+            map = ns.createMap({
                 container: canvas,
                 style: graphStyle(),
                 center: [0, 0],
@@ -615,14 +615,17 @@
                 maxBounds: [[-179, -85], [179, 85]],
                 // WebGL may discard the drawing buffer after each frame, which makes
                 // the canvas read back blank; this keeps it so the PNG export can
-                // read it. Costs a little memory, and is the only way to export.
-                preserveDrawingBuffer: true,
+                // read it. Since MapLibre 5 the flag is only read from
+                // canvasContextAttributes (merged over the library defaults); a
+                // top-level `preserveDrawingBuffer` is silently ignored.
+                canvasContextAttributes: { preserveDrawingBuffer: true },
                 // MapLibre binds the arrow keys to panning. On a graph they are worth
                 // more as a way to walk between entities (see the keyboard walker
                 // below, which matches the knowledge graph's model), and +/-/0 still
                 // zoom, so nothing is lost by taking them.
                 keyboard: false
             });
+            if (!map) return;
             map.addControl(new window.maplibregl.NavigationControl({ showCompass: false }), 'top-right');
             map.on('load', function () { addAll(map); });
 
@@ -639,10 +642,7 @@
             // tab order behind it.
             var inner = canvas.querySelector('.maplibregl-canvas');
             if (inner) inner.setAttribute('tabindex', '-1');
-
-            if (window.ResizeObserver) {
-                new ResizeObserver(function () { try { map.resize(); } catch (err) {} }).observe(canvas);
-            }
+            // MapLibre's trackResize observes the container; no observer needed here.
         }
 
         /* ------------------------------------------------------------------ */
@@ -680,7 +680,7 @@
             var titleWrap = el('div', 'deg-detail-title');
             if (siteBase && info.id) {
                 var a = el('a', null, info.label);
-                a.href = siteBase + '/item/' + info.id;
+                a.href = ns.itemUrl(siteBase, info.id);
                 titleWrap.appendChild(a);
             } else {
                 titleWrap.textContent = info.label;
@@ -723,7 +723,7 @@
 
             if (siteBase && info.id) {
                 var open = el('a', 'deg-open', 'Open this entity’s page →');
-                open.href = siteBase + '/item/' + info.id;
+                open.href = ns.itemUrl(siteBase, info.id);
                 sidebar.appendChild(open);
             }
         }
@@ -1004,7 +1004,7 @@
                     row.push(n.section >= 0 ? sections[n.section]
                         : (n.section === -2 ? t('degMultipleSections', 'Multiple sections') : ''));
                 }
-                row.push((siteBase && n.id) ? (siteBase + '/item/' + n.id) : '');
+                row.push((siteBase && n.id) ? (ns.itemUrl(siteBase, n.id)) : '');
                 rows.push(row);
             });
             return rows;
@@ -1113,7 +1113,7 @@
                             .map(function (n) {
                                 return {
                                     label: n.label,
-                                    url: (siteBase && n.id) ? (siteBase + '/item/' + n.id) : null,
+                                    url: (siteBase && n.id) ? (ns.itemUrl(siteBase, n.id)) : null,
                                     meta: n.count + ' ' + (n.count === 1 ? t('item', 'item') : t('items', 'items'))
                                         + ' · ' + n.degree + ' '
                                         + (n.degree === 1 ? t('degLink', 'link') : t('degLinks', 'links'))

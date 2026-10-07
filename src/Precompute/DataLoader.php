@@ -7,6 +7,20 @@ use Doctrine\DBAL\Connection;
 /** Loads one public site with streamed queries; all generators share this boundary. */
 final class DataLoader
 {
+    /**
+     * Literal properties kept per item. Generators may only read these terms:
+     * DashboardGenerator::loadValueRows() rejects any other, so a consumer that
+     * asks for a term nobody loads fails loudly instead of rendering empty
+     * (publications keep their abstracts in bibo:abstract, everything else in
+     * dcterms:abstract — 2.29.0 read the wrong one without noticing).
+     */
+    public const LITERAL_TERMS = ['bibo:authorList', 'bibo:editorList', 'dcterms:isPartOf', 'dcterms:publisher',
+        'dcterms:spatial', 'dcterms:extent', 'bibo:content', 'dcterms:abstract', 'bibo:abstract',
+        'dcterms:identifier', 'dcterms:description', 'bibo:doi'];
+    public const DATE_TERMS = ['dcterms:issued', 'dcterms:created', 'dcterms:date', 'fabio:hasDateCollected'];
+    /** Literal properties read for structure rather than kept as text. */
+    private const STRUCTURAL_TERMS = ['dcterms:title', 'geo:lat', 'geo:long', 'dcterms:temporal'];
+
     private $checkpoint;
     public function __construct(private readonly Connection $connection, private readonly int $siteId, ?callable $checkpoint = null)
     {
@@ -56,13 +70,22 @@ final class DataLoader
         }
         if (!$items) throw new \RuntimeException('The canonical site is private or empty; no snapshot can be published.');
         $links = $literals = $dates = $coordinates = $temporal = $titled = [];
-        $literalTerms = array_fill_keys(['bibo:authorList', 'bibo:editorList', 'dcterms:isPartOf', 'dcterms:publisher',
-            'dcterms:spatial', 'dcterms:extent', 'bibo:content', 'dcterms:abstract', 'dcterms:identifier',
-            'dcterms:description', 'bibo:doi'], true);
-        $dateTerms = array_fill_keys(['dcterms:issued', 'dcterms:created', 'dcterms:date', 'fabio:hasDateCollected'], true);
+        $literalTerms = array_fill_keys(self::LITERAL_TERMS, true);
+        $dateTerms = array_fill_keys(self::DATE_TERMS, true);
+        // Only fetch the literal properties something reads (plus every link):
+        // the value table also holds long text — transcripts aside, notes and
+        // descriptions nobody aggregates — and pdo_mysql buffers the whole result.
+        $wanted = array_fill_keys([...self::LITERAL_TERMS, ...self::DATE_TERMS, ...self::STRUCTURAL_TERMS], true);
+        $propertyIds = array_fill_keys(array_filter($titleProperties), true);
+        foreach ($properties as $propertyId => [$term]) {
+            if (isset($wanted[$term])) $propertyIds[$propertyId] = true;
+        }
+        $propertyFilter = implode(',', array_map('intval', array_keys($propertyIds))) ?: '0';
         $log('Loading public values and relationship indexes');
         foreach ($this->query('SELECT v.resource_id, v.property_id, v.value_resource_id, v.value, v.uri, v.id'
-            . ' FROM value v' . $this->scope('v.resource_id') . ' WHERE v.is_public = 1 ORDER BY v.resource_id, v.id') as $r) {
+            . ' FROM value v' . $this->scope('v.resource_id') . ' WHERE v.is_public = 1'
+            . ' AND (v.value_resource_id IS NOT NULL OR v.property_id IN (' . $propertyFilter . '))'
+            . ' ORDER BY v.resource_id, v.id') as $r) {
             $id = (int) $r[0];
             if (!isset($items[$id], $properties[(int) $r[1]])) continue;
             [$term, $label] = $properties[(int) $r[1]];

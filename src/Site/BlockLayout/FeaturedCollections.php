@@ -84,7 +84,7 @@ class FeaturedCollections extends AbstractBlockLayout
                 foreach (($row['covers'] ?? []) as $storage) {
                     $storage = (string) $storage;
                     if ($storage !== '') {
-                        $covers[] = $view->basePath() . '/files/large/' . $storage . '.jpg';
+                        $covers[] = $view->dreFileUrl('large', $storage);
                     }
                 }
                 $out[$slug] = [
@@ -102,9 +102,8 @@ class FeaturedCollections extends AbstractBlockLayout
 
     private function loadIndex(): array
     {
-        // src/Site/BlockLayout/FeaturedCollections.php → module root is three up.
-        $dataDir = \DreVisualizations\Precompute\SnapshotStore::defaultDirectory();
-        $data = PublishedSnapshot::readJson($dataDir, 'featured-collections/index.json');
+        $dataDir = \DreVisualizations\Precompute\SnapshotStore::tryDefault()?->directory;
+        $data = $dataDir === null ? null : PublishedSnapshot::readJson($dataDir, 'featured-collections/index.json');
         return is_array($data) ? $data : [];
     }
 }

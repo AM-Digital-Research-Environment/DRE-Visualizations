@@ -7,7 +7,9 @@ use DreVisualizations\Precompute\Aggregators;
 use DreVisualizations\Precompute\SnapshotPublisher;
 use DreVisualizations\Precompute\JsonArtifactWriter;
 $conn = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
-$conn->getWrappedConnection()->sqliteCreateFunction('CONCAT', static fn (...$s) => implode('', $s));
+// Doctrine wraps a plain PDO, not Pdo\Sqlite, so the PHP 8.5-deprecated
+// sqliteCreateFunction() is the only way in; the deprecation is not ours.
+@$conn->getWrappedConnection()->sqliteCreateFunction('CONCAT', static fn (...$s) => implode('', $s));
 foreach ([
 'CREATE TABLE resource (id INTEGER PRIMARY KEY, title TEXT, resource_template_id INTEGER, resource_class_id INTEGER, created TEXT, is_public INTEGER, resource_type TEXT)',
 'CREATE TABLE site (id INTEGER, is_public INTEGER)',

@@ -16,20 +16,38 @@ final class PublishedSnapshot
     public static function path(string $dataDir, string $relativePath): ?string
     {
         $store = new SnapshotStore($dataDir);
-        return $store->locked(function () use ($store, $relativePath): ?string {
+        return $store->reading(function () use ($store, $relativePath): ?string {
             $manifest = $store->manifest();
             return $manifest ? self::artifactPath($store->directory, $manifest, $relativePath) : null;
         });
     }
 
-    public static function readJson(string $dataDir, string $relativePath): ?array
+    /**
+     * Open the current artifact under the shared lock and return the handle.
+     * The handle outlives a later prune (POSIX keeps an unlinked file readable
+     * while it is open), so callers read and decode without holding the lock.
+     *
+     * @return resource|null
+     */
+    public static function open(string $dataDir, string $relativePath)
     {
         $store = new SnapshotStore($dataDir);
-        return $store->locked(function () use ($store, $relativePath): ?array {
+        return $store->reading(function () use ($store, $relativePath) {
             $manifest = $store->manifest();
             $path = $manifest ? self::artifactPath($store->directory, $manifest, $relativePath) : null;
-            $data = $path ? json_decode((string) file_get_contents($path), true) : null;
-            return is_array($data) ? $data : null;
+            return $path !== null ? (fopen($path, 'rb') ?: null) : null;
         });
+    }
+
+    public static function readJson(string $dataDir, string $relativePath): ?array
+    {
+        $handle = self::open($dataDir, $relativePath);
+        if ($handle === null) return null;
+        try {
+            $data = json_decode((string) stream_get_contents($handle), true);
+        } finally {
+            fclose($handle);
+        }
+        return is_array($data) ? $data : null;
     }
 }

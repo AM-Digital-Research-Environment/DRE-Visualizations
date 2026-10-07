@@ -69,6 +69,9 @@ return [
         'invokables' => [
             'dashboardAssets' => View\Helper\DashboardAssets::class,
         ],
+        'factories' => [
+            'dreFileUrl' => View\Helper\FileUrlFactory::class,
+        ],
     ],
     'controllers' => [
         'invokables' => [

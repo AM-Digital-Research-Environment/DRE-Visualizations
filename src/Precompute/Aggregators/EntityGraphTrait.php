@@ -307,7 +307,10 @@ trait EntityGraphTrait
         $cacheKey = hash('sha256', json_encode(['barnes-hut-v1', count($nodes), $edges, $massByIndex], JSON_THROW_ON_ERROR));
         $cacheFile = $this->layoutCacheDir ? $this->layoutCacheDir . '/' . $cacheKey . '.json' : null;
         $xy = $cacheFile && is_file($cacheFile) ? json_decode((string) file_get_contents($cacheFile), true) : null;
-        if (!is_array($xy) || count($xy) !== count($nodes)) {
+        if (is_array($xy) && count($xy) === count($nodes)) {
+            // Mark the entry as used by this run; PrecomputeDashboards prunes the rest.
+            @touch($cacheFile);
+        } else {
             $xy = ForceLayout::layout(count($nodes), $edges, $massByIndex, $options);
             if ($cacheFile) (new \DreVisualizations\Precompute\JsonArtifactWriter())->write($cacheFile, $xy);
         }

@@ -91,11 +91,11 @@
                     layoutAnimation: count <= 100 && !ns.prefersReducedMotion(),
                     left: 'center', top: 'center', width: '100%', height: '100%',
                     textStyle: {
-                        fontFamily: 'sans-serif',
+                        fontFamily: ns.THEME.fontFamily,
                         color: function () { return COLORS[Math.floor(Math.random() * COLORS.length)]; }
                     },
                     emphasis: { textStyle: { fontWeight: 'bold', shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.3)' } },
-                    data: slice.map(function (e) { return { name: e.name, value: e.value }; })
+                    data: slice.map(function (e) { return { name: e.name, value: e.value, itemId: e.itemId }; })
                 }]
             };
         }
@@ -108,9 +108,9 @@
         }
 
         render(defaultCount());
-        // entries is reassigned on a language switch; addClickHandler's closure
-        // reads the current value, so it stays correct without re-binding.
-        addClickHandler(chart, entries, siteBase);
+        // entries is reassigned on a language switch, so hand over a getter: the
+        // handler then reads the current language's list, never the first one.
+        addClickHandler(chart, function () { return entries; }, siteBase);
 
         var panel = el.closest('.chart-panel');
         if (!panel) return chart;

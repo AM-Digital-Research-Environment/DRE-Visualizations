@@ -76,7 +76,7 @@
         });
 
         chart.on('click', function (p) {
-            if (p.value && p.value[3] && siteBase) window.location.href = siteBase + '/item/' + p.value[3];
+            if (p.value && p.value[3] && siteBase) window.location.href = ns.itemUrl(siteBase, p.value[3]);
         });
         return chart;
     };

@@ -41,19 +41,24 @@ for (const file of sources) {
     fail(`${relative(ROOT, file.path).split(sep).join('/')} contains a hard-coded third-party basemap endpoint`);
   }
 }
+const count = (regex) => sources.reduce((sum, file) => sum + occurrences(file.source, regex), 0);
 const inventory = {
-  setHTML: sources.reduce((sum, file) => sum + occurrences(file.source, /\.setHTML\s*\(/g), 0),
-  innerHTML: sources.reduce((sum, file) => sum + occurrences(file.source, /\.innerHTML\s*=/g), 0),
-  tooltipFormatters: sources.reduce((sum, file) => sum
-    + occurrences(file.source, /tooltip\s*:\s*\{[\s\S]{0,600}?formatter\s*:\s*function/g), 0),
+  setHTML: count(/\.setHTML\s*\(/g),
+  innerHTML: count(/\.(?:inner|outer)HTML\s*\+?=/g),
+  insertAdjacentHTML: count(/\.insertAdjacentHTML\s*\(/g),
+  // Any HTML-returning formatter: `formatter: function`, `formatter: fn || function`,
+  // and a named formatter reference. String templates ('{b}: {c}') are encoded
+  // by ECharts itself and are not counted.
+  tooltipFormatters: count(/tooltip\s*:\s*\{[\s\S]{0,600}?formatter\s*:\s*(?:[\w.]+\s*\|\|\s*)?(?:function|[\w.]+\s*[,}\n])/g),
 };
 
-// A reduction is always welcome; an increase requires deliberate review and a
-// baseline update. These ceilings make HTML-producing code visible in PR CI.
-const reviewedMaximums = { setHTML: 12, innerHTML: 80, tooltipFormatters: 15 };
-for (const [kind, count] of Object.entries(inventory)) {
-  if (count > reviewedMaximums[kind]) {
-    fail(`${kind} sink count increased from reviewed maximum ${reviewedMaximums[kind]} to ${count}`);
+// An exact ratchet: a new sink fails until it is reviewed and the baseline is
+// raised, and a removed one fails until the baseline is lowered — so the
+// numbers never drift into headroom that would hide the next sink.
+const reviewedCounts = { setHTML: 11, innerHTML: 70, insertAdjacentHTML: 0, tooltipFormatters: 14 };
+for (const [kind, value] of Object.entries(inventory)) {
+  if (value !== reviewedCounts[kind]) {
+    fail(`${kind} sink count is ${value}, reviewed baseline is ${reviewedCounts[kind]} — review the change and update reviewedCounts`);
   }
 }
 
@@ -66,7 +71,8 @@ const requiredFixes = [
   // The item location map moved out of knowledge-graph.js into its own module
   // when the graph switched to the d3-force canvas renderer; the guard follows it.
   ['asset/js/item-location-map.js', "ns.escapeHtml(loc.name || '')"],
-  ['asset/js/item-location-map.js', 'ns.escapeHtml(siteBase)'],
+  ['asset/js/item-location-map.js', 'ns.escapeHtml(ns.itemUrl(siteBase, loc.itemId))'],
+  ['asset/js/dashboard-core.js', "ns.escapeHtml(src) + '\" title=\"' + ns.escapeHtml(title || '')"],
   ['asset/js/dashboard-charts-treemap.js', 'echarts.format.encodeHTML(n.name'],
 ];
 for (const [file, fragment] of requiredFixes) {

@@ -30,31 +30,41 @@
         var groups = groupItems(items, mode);
         return Object.keys(groups).sort(function (a, b) {
             return mode === 'cluster' ? Number(a) - Number(b) : a.localeCompare(b);
-        }).map(function (key, index) {
+        }).reduce(function (series, key, index) {
             var rows = groups[key];
-            return {
-                name: mode === 'cluster'
-                    ? ns.t('semanticClusterName', 'Group') + ' ' + (Number(key) + 1)
-                    : (rows[0].typeLabel || key),
-                type: 'scatter',
-                large: true,
-                largeThreshold: 800,
-                progressive: 1000,
-                symbolSize: 8,
-                itemStyle: { color: ns.COLORS[index % ns.COLORS.length] },
-                emphasis: { focus: 'series', scale: 1.6 },
-                data: rows.map(function (item) {
-                    return {
-                        value: [item.x, item.y],
-                        id: item.id,
-                        title: item.title,
-                        typeLabel: item.typeLabel || item.type,
-                        lowSignal: !!item.lowSignal,
-                        itemStyle: { opacity: item.lowSignal ? 0.18 : 0.72 }
-                    };
-                })
-            };
-        });
+            var name = mode === 'cluster'
+                ? ns.t('semanticClusterName', 'Group') + ' ' + (Number(key) + 1)
+                : (rows[0].typeLabel || key);
+            var color = ns.COLORS[index % ns.COLORS.length];
+            // Faint low-signal points get a series of their own: past
+            // largeThreshold ECharts draws a series in one batch and ignores
+            // per-item styles, so a per-point opacity would silently be lost.
+            // Both series share the group's name, so the legend toggles them as one.
+            [false, true].forEach(function (faint) {
+                var subset = rows.filter(function (item) { return !!item.lowSignal === faint; });
+                if (!subset.length) return;
+                series.push({
+                    name: name,
+                    type: 'scatter',
+                    large: true,
+                    largeThreshold: 800,
+                    progressive: 1000,
+                    symbolSize: 8,
+                    itemStyle: { color: color, opacity: faint ? 0.18 : 0.72 },
+                    emphasis: { focus: 'series', scale: 1.6 },
+                    data: subset.map(function (item) {
+                        return {
+                            value: [item.x, item.y],
+                            id: item.id,
+                            title: item.title,
+                            typeLabel: item.typeLabel || item.type,
+                            lowSignal: faint
+                        };
+                    })
+                });
+            });
+            return series;
+        }, []);
     }
 
     function option(items, mode) {
@@ -80,7 +90,7 @@
                 left: 'center',
                 textStyle: { color: ns.THEME.text, fontFamily: ns.THEME.fontFamily }
             },
-            grid: { left: 18, right: 18, top: 18, bottom: 72, containLabel: false },
+            grid: { left: 18, right: 18, top: 18, bottom: 72 },
             xAxis: { type: 'value', show: false, scale: true },
             yAxis: { type: 'value', show: false, scale: true },
             dataZoom: [
@@ -151,7 +161,7 @@
                 matches.forEach(function (item) {
                     var li = node('li', 'semantic-map-search__result');
                     var link = node('a', '', item.title || ('Item ' + item.id));
-                    link.href = siteBase + '/item/' + item.id;
+                    link.href = ns.itemUrl(siteBase, item.id);
                     var type = node('span', 'semantic-map-search__type', item.typeLabel || item.type);
                     li.appendChild(link);
                     li.appendChild(type);
@@ -201,7 +211,7 @@
         chart.on('click', function (params) {
             var id = Number(params.data && params.data.id);
             if (Number.isInteger(id) && id > 0) {
-                window.location.href = (container.getAttribute('data-site-base') || '') + '/item/' + id;
+                window.location.href = ns.itemUrl((container.getAttribute('data-site-base') || ''), id);
             }
         });
         chart._rvRebuild = function () {

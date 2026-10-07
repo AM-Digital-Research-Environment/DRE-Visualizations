@@ -51,7 +51,9 @@ namespace {
         $check($block->render($view, $item) === '', 'Missing data must not create a loader.');
         $check($view->calls === 0, 'Ineligible items must not render the asset-loading partial.');
 
-        file_put_contents($root . '/current.json', json_encode(['generationId' => $generation, 'revision' => (new \DreVisualizations\Precompute\SnapshotStore($root))->revision()]));
+        $manifest = ['schemaVersion' => \DreVisualizations\Precompute\SnapshotPublisher::SCHEMA_VERSION,
+            'generationId' => $generation, 'revision' => (new \DreVisualizations\Precompute\SnapshotStore($root))->revision()];
+        file_put_contents($root . '/current.json', json_encode($manifest));
         file_put_contents($published . '/knowledge-graphs/32328.json', '{"nodes":[]}');
         $check($block->render($view, $item) === '', 'A knowledge graph does not imply a dashboard.');
 
@@ -61,6 +63,10 @@ namespace {
         file_put_contents($published . '/item-dashboards/32328.json', '{}');
         $check($block->render($view, $item) === 'dashboard:32328', 'A published dashboard must render.');
         $check($view->calls === 1, 'Eligible dashboard must render exactly once.');
+
+        file_put_contents($root . '/current.json', json_encode(['schemaVersion' => 0] + $manifest));
+        $check($block->render($view, $item) === '', 'A snapshot of another artifact schema must not render.');
+        file_put_contents($root . '/current.json', json_encode($manifest));
 
         unlink($published . '/item-dashboards/32328.json');
         $check($block->render($view, $item) === '', 'Removal from the current snapshot must take effect immediately.');

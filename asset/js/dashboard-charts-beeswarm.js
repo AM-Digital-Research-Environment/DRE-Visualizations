@@ -134,7 +134,7 @@
         // Click to navigate to project page
         chart.on('click', function (params) {
             if (params.data && params.data._itemId && siteBase) {
-                window.location.href = siteBase + '/item/' + params.data._itemId;
+                window.location.href = ns.itemUrl(siteBase, params.data._itemId);
             }
         });
         chart.getZr().on('mousemove', function (e) {

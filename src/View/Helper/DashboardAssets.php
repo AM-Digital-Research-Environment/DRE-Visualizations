@@ -29,7 +29,7 @@ class DashboardAssets extends AbstractHelper
     // caching, and no third-party dependency (consistent with the privacy-first
     // posture). Paths are relative to the module asset root: resolve with
     // assetUrl()/the $asset() helper before use. Pinned: echarts 6.1.0,
-    // echarts-wordcloud 2.1.0, maplibre-gl 6.1.0, d3-force 3.0.0.
+    // echarts-wordcloud 2.1.0, maplibre-gl 6.13.0, d3-force 3.0.0.
     const ECHARTS_JS   = 'vendor/echarts.min.js';
     const WORDCLOUD_JS = 'vendor/echarts-wordcloud.min.js';
     const MAPLIBRE_CSS = 'vendor/maplibre-gl.css';
@@ -42,16 +42,15 @@ class DashboardAssets extends AbstractHelper
      * builder already expects — either through ns.ensureLibs (dashboard-core.js)
      * or through the inline module shim on the eager surfaces below.
      *
-     * The worker is a separate chunk. MapLibre would find it on its own from
-     * `import.meta.url`, but only under its upstream `.mjs` name, which no
-     * stock nginx knows how to type; scripts/vendor-maplibre.mjs renames it and
-     * stamps the library version into the file name, so it has to be handed
-     * over explicitly with setWorkerUrl(). Doing that also means the worker
-     * carries Omeka's `?v=` cache-buster, which the relative resolution
-     * upstream would have dropped along with the query string.
+     * The worker is a separate, self-contained file. MapLibre would find it on
+     * its own from `import.meta.url`, but only under its upstream `.mjs` name,
+     * which no stock nginx knows how to type; scripts/vendor-maplibre.mjs
+     * renames it to `.js`, so it has to be handed over explicitly with
+     * setWorkerUrl(). Doing that also means the worker carries Omeka's `?v=`
+     * cache-buster, which the relative resolution upstream would drop.
      */
     const MAPLIBRE_JS        = 'vendor/maplibre-gl.js';
-    const MAPLIBRE_WORKER_JS = 'vendor/maplibre-gl-worker-6.1.0.js';
+    const MAPLIBRE_WORKER_JS = 'vendor/maplibre-gl-worker.js';
 
     /**
      * The d3-force layout stack the knowledge graph simulates with, in LOAD
@@ -204,19 +203,18 @@ class DashboardAssets extends AbstractHelper
                 $view->url('site/dre-data', ['site-slug' => $site->slug(), 'path' => 'current.json'])
             ) . '.replace(/current\\.json$/, "");');
             $headScript->appendScript('window.RV_I18N=Object.assign('
-                . json_encode(Module::clientTranslations($view),
-                    JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)
+                . self::scriptJson(Module::clientTranslations($view))
                 . ',window.RV_I18N||{});');
             $this->i18nInjected = true;
         }
         if (!$this->mapConfigInjected) {
             $headScript->appendScript('window.RV_MAP_CONFIG=Object.assign('
-                . json_encode([
+                . self::scriptJson([
                     'lightStyle' => (string) $view->setting(Module::SETTING_BASEMAP_LIGHT, ''),
                     'darkStyle' => (string) $view->setting(Module::SETTING_BASEMAP_DARK, ''),
                     'glyphs' => (string) $view->setting(Module::SETTING_MAP_GLYPHS, ''),
                     'attribution' => (string) $view->setting(Module::SETTING_BASEMAP_ATTRIBUTION, ''),
-                ], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)
+                ])
                 . ',window.RV_MAP_CONFIG||{});');
             $this->mapConfigInjected = true;
         }
@@ -240,11 +238,11 @@ class DashboardAssets extends AbstractHelper
         // block's entry shadows the other's, regardless of block order on the page.
         if (!empty($options['graph'])) {
             $headLink->appendStylesheet($asset('css/dre-visualizations.css'));
-            $headScript->appendScript('window.RV_LIBS=Object.assign(' . json_encode([
+            $headScript->appendScript('window.RV_LIBS=Object.assign(' . self::scriptJson([
                 'maplibre'       => $asset(self::MAPLIBRE_JS),
                 'maplibreWorker' => $asset(self::MAPLIBRE_WORKER_JS),
                 'maplibreCss'    => $asset(self::MAPLIBRE_CSS),
-            ], JSON_UNESCAPED_SLASHES) . ', window.RV_LIBS||{});');
+            ]) . ', window.RV_LIBS||{});');
             $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
             // Chrome before controller: deferred scripts run in append order, so
             // entity-graph.js finds ns.egUI registered when its init() fires.
@@ -270,9 +268,9 @@ class DashboardAssets extends AbstractHelper
         // path, and headLink cannot see that, so appending it would add a second,
         // render-blocking copy.
         if (!empty($options['knowledgeGraph'])) {
-            $headScript->appendScript('window.RV_LIBS=Object.assign(' . json_encode([
+            $headScript->appendScript('window.RV_LIBS=Object.assign(' . self::scriptJson([
                 'd3' => array_map($asset, self::D3_SCRIPTS),
-            ], JSON_UNESCAPED_SLASHES) . ', window.RV_LIBS||{});');
+            ]) . ', window.RV_LIBS||{});');
             $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
             $graphScripts = array_merge(self::GRAPH_RENDERER_SCRIPTS, self::KNOWLEDGE_GRAPH_SCRIPTS);
             foreach ($graphScripts as $script) {
@@ -288,11 +286,11 @@ class DashboardAssets extends AbstractHelper
         // this block AND a dashboard or graph loads MapLibre exactly once.
         if (!empty($options['spatial'])) {
             $headLink->appendStylesheet($asset('css/dre-visualizations.css'));
-            $headScript->appendScript('window.RV_LIBS=Object.assign(' . json_encode([
+            $headScript->appendScript('window.RV_LIBS=Object.assign(' . self::scriptJson([
                 'maplibre'       => $asset(self::MAPLIBRE_JS),
                 'maplibreWorker' => $asset(self::MAPLIBRE_WORKER_JS),
                 'maplibreCss'    => $asset(self::MAPLIBRE_CSS),
-            ], JSON_UNESCAPED_SLASHES) . ', window.RV_LIBS||{});');
+            ]) . ', window.RV_LIBS||{});');
             $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
             $headScript->appendFile($asset('js/spatial-exploration.js'), 'text/javascript', $defer);
             return $this;
@@ -303,9 +301,9 @@ class DashboardAssets extends AbstractHelper
         // this page; the controller lazy-loads ECharts when the block nears view.
         if (!empty($options['semanticMap'])) {
             $headLink->appendStylesheet($asset('css/dre-visualizations.css'));
-            $headScript->appendScript('window.RV_LIBS=Object.assign(' . json_encode([
+            $headScript->appendScript('window.RV_LIBS=Object.assign(' . self::scriptJson([
                 'echarts' => $asset(self::ECHARTS_JS),
-            ], JSON_UNESCAPED_SLASHES) . ', window.RV_LIBS||{});');
+            ]) . ', window.RV_LIBS||{});');
             $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
             foreach (self::CONTROLLERS['semanticMap'] as $script) {
                 $headScript->appendFile($asset($script), 'text/javascript', $defer);
@@ -326,7 +324,7 @@ class DashboardAssets extends AbstractHelper
                 // ready, but it pulls in no heavy library on its own.
                 // Object.assign-merge (not ||) so an Entity Network graph block's
                 // partial RV_LIBS on the same page can't shadow these (and vice-versa).
-                $headScript->appendScript('window.RV_LIBS=Object.assign(' . json_encode([
+                $headScript->appendScript('window.RV_LIBS=Object.assign(' . self::scriptJson([
                     'echarts'        => $asset(self::ECHARTS_JS),
                     'wordcloud'      => $asset(self::WORDCLOUD_JS),
                     'maplibre'       => $asset(self::MAPLIBRE_JS),
@@ -337,7 +335,7 @@ class DashboardAssets extends AbstractHelper
                     // loader executes it sequentially because d3-force resolves its
                     // dependencies off the shared `d3` global.
                     'd3'             => array_map($asset, self::D3_SCRIPTS),
-                ], JSON_UNESCAPED_SLASHES) . ', window.RV_LIBS||{});');
+                ]) . ', window.RV_LIBS||{});');
                 $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
             } else {
                 // Dedicated dashboard pages (compare / explorer / network /
@@ -392,16 +390,24 @@ class DashboardAssets extends AbstractHelper
     }
 
     /**
-     * A URL as a quoted JavaScript string literal, safe to inline in a <script>.
-     * Same escaping the RV_LIBS / RV_I18N payloads above get from json_encode:
-     * slashes readable, but `<`, `&`, `'` and `"` hex-escaped so no value can
-     * close the element or break out of the literal.
+     * Flags for every JSON value inlined into a page (<script> bodies and
+     * script-carried payloads): slashes and Unicode stay readable, but `<`, `&`,
+     * `'` and `"` are hex-escaped so no value can close the element or break out
+     * of a string literal. U+2028/2029 stay escaped (no
+     * JSON_UNESCAPED_LINE_TERMINATORS), which old JavaScript parsers needed.
      */
+    public const SCRIPT_JSON_FLAGS = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+        | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR;
+
+    /** A value as JSON that is safe to inline in a <script> element. */
+    public static function scriptJson(mixed $value): string
+    {
+        return json_encode($value, self::SCRIPT_JSON_FLAGS);
+    }
+
+    /** A URL as a quoted JavaScript string literal, safe to inline in a <script>. */
     private static function jsString(string $value): string
     {
-        return json_encode(
-            $value,
-            JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
-        );
+        return self::scriptJson($value);
     }
 }

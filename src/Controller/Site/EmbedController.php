@@ -134,6 +134,23 @@ class EmbedController extends AbstractActionController
     ];
 
     /**
+     * Chart keys a dashboard layout renders, from the build-generated
+     * config/dashboard-layouts.json (source: asset/js/dashboard-layouts.js).
+     *
+     * @return string[]
+     */
+    public static function layoutCharts(string $layout): array
+    {
+        static $layouts = null;
+        if ($layouts === null) {
+            $data = json_decode((string) @file_get_contents(dirname(__DIR__, 3) . '/config/dashboard-layouts.json'), true);
+            $layouts = is_array($data['layouts'] ?? null) ? $data['layouts'] : [];
+        }
+        $charts = $layouts[$layout] ?? [];
+        return is_array($charts) ? array_values(array_filter($charts, 'is_string')) : [];
+    }
+
+    /**
      * Snippet gallery: lists every embeddable block with a live preview and a
      * copy-paste `<iframe>` + auto-resize snippet. Dashboard blocks also expose
      * their individual charts (enumerated client-side from RV.LAYOUTS so the menu
@@ -167,7 +184,8 @@ class EmbedController extends AbstractActionController
         // A :viz segment requests a single chart; only the dashboard blocks
         // (rendered by dashboard.js from a chart-key layout) support it.
         $viz = (string) $this->params()->fromRoute('viz', '');
-        if ($viz !== '' && ($info['kind'] ?? '') !== 'dashboard') {
+        if ($viz !== '' && (($info['kind'] ?? '') !== 'dashboard'
+            || !in_array($viz, self::layoutCharts((string) ($info['layout'] ?? '')), true))) {
             return $this->notFound();
         }
 

@@ -29,7 +29,7 @@
 
             var row = node('li', 'semantic-similar-item');
             var link = node('a', 'semantic-similar-link');
-            link.href = (container.getAttribute('data-site-base') || '') + '/item/' + id;
+            link.href = ns.itemUrl((container.getAttribute('data-site-base') || ''), id);
 
             var copy = node('span', 'semantic-similar-copy');
             copy.appendChild(node('span', 'semantic-similar-type', record.typeLabel || record.type || 'Item'));

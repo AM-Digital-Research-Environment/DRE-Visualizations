@@ -57,6 +57,7 @@ try {
     $check($request('generations/' . $old['generationId'] . '/network-explorer.json')->getStatusCode() === 404, 'Retained old URL is inaccessible');
     $response = $request('generations/' . $current['generationId'] . '/network-explorer.json');
     $check($response->getStatusCode() === 200 && str_contains($response->getHeaders()->get('Cache-Control')->getFieldValue(), 'no-store'), 'Current artifact is served with no-store');
+    $check($response instanceof Laminas\Http\Response\Stream && $response->getBody() === '[]', 'Artifacts stream from the open file');
     $site->public = false;
     $check($request('current.json')->getStatusCode() === 404, 'Private site denied even for a privileged viewer');
     $site->public = true; $site->siteId = 2;
@@ -67,7 +68,8 @@ try {
     foreach (['Item', 'Media', 'ItemSet', 'Site'] as $name) {
         $publish();
         $events = new Laminas\EventManager\EventManager($shared, ['Omeka\\Api\\Adapter\\' . $name . 'Adapter']);
-        $events->trigger('api.update.pre');
+        $apiRequest = new stdClass(); // stands in for the Omeka\Api\Request the adapter passes
+        $events->trigger('api.update.pre', null, ['request' => $apiRequest]);
         $check($request('current.json')->getStatusCode() === 404, $name . ' API event withdraws publication');
         try {
             $publish();
@@ -75,8 +77,29 @@ try {
         } catch (RuntimeException $e) {
             $check(str_contains($e->getMessage(), 'source write'), 'Active API write blocks publication');
         }
-        $events->trigger('api.update.post');
+        $events->trigger('api.update.post', null, ['request' => $apiRequest]);
+        $publish();
+        $check($request('current.json')->getStatusCode() === 200, $name . ' write releases its lock after .post');
     }
+    // A write that throws never fires .post; its lock must die with the request.
+    $events = new Laminas\EventManager\EventManager($shared, ['Omeka\\Api\\Adapter\\ItemAdapter']);
+    $failed = new stdClass();
+    $events->trigger('api.update.pre', null, ['request' => $failed]);
+    unset($failed);
+    gc_collect_cycles();
+    $publish();
+    $check($request('current.json')->getStatusCode() === 200, 'An abandoned write does not keep blocking publication');
+    $head = (function () use ($plugins): Laminas\Http\Response {
+        // dispatch(), unlike indexAction(), installs this request on the controller.
+        $headController = new DataController();
+        $headController->setPluginManager($plugins);
+        $event = new Laminas\Mvc\MvcEvent();
+        $event->setRouteMatch(new Laminas\Router\RouteMatch(['action' => 'index', 'path' => 'current.json']));
+        $headController->setEvent($event);
+        $headController->dispatch((new Laminas\Http\PhpEnvironment\Request())->setMethod('HEAD'), new Laminas\Http\PhpEnvironment\Response());
+        return $event->getResult();
+    })();
+    $check($head->getStatusCode() === 200 && $head->getContent() === '', 'HEAD answers without a body');
     $config = (new DreVisualizations\Module())->getConfig();
     $route = Laminas\Router\Http\Segment::factory($config['router']['routes']['site']['child_routes']['dre-data']['options']);
     $url = $route->assemble(['path' => 'generations/' . $current['generationId'] . '/network-explorer.json']);

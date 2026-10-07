@@ -30,7 +30,7 @@
         var all = origins.concat(current);
 
         function create() {
-            var map = new maplibregl.Map({
+            var map = ns.createMap({
                 container: mapEl,
                 style: ns.getBasemapStyle(),
                 center: [all[0].lon, all[0].lat],
@@ -38,15 +38,16 @@
                 attributionControl: ns.getMapAttributionOptions(),
                 scrollZoom: false,
             });
+            if (!map) return;
             map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
 
             /** One marker + popup. Location names are curator data — always escaped. */
             function addMarkers(locs, color, roleLabel) {
                 locs.forEach(function (loc) {
                     var popupHtml = '<strong>' + ns.escapeHtml(loc.name || '') + '</strong><br/>'
-                        + '<span style="color:' + color + '">' + roleLabel + '</span>';
-                    if (siteBase) popupHtml += '<br/><a href="' + ns.escapeHtml(siteBase) + '/item/'
-                        + encodeURIComponent(loc.itemId) + '" style="font-size:12px">View location</a>';
+                        + '<span class="rv-popup-role" style="color:' + ns.escapeHtml(color) + '">' + ns.escapeHtml(roleLabel) + '</span>';
+                    if (siteBase) popupHtml += '<br/><a class="rv-popup-meta" href="' + ns.escapeHtml(ns.itemUrl(siteBase, loc.itemId)) + '">'
+                        + ns.escapeHtml(ns.t('viewLocation', 'View location')) + '</a>';
                     new maplibregl.Marker({ color: color })
                         .setLngLat([loc.lon, loc.lat])
                         .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML(popupHtml))
