@@ -99,9 +99,11 @@
          * A dynamic import() is legal inside this classic script and the browser's
          * own module map de-duplicates by resolved URL, so the injected-<script>
          * bookkeeping loadScript needs has no equivalent here: `isReady` covers
-         * the case where an eager surface already imported it (DashboardAssets
-         * emits an inline module shim there), and ns._libPromises covers repeat
-         * callers within this page. `register` runs once, before any caller sees
+         * a host page that already published the namespace, and
+         * ns._libPromises covers repeat callers within this page. This runs
+         * after the document is parsed, so — unlike a <script type="module"> in
+         * the head — it cannot make Firefox discard an import map that follows
+         * (DashboardAssets::MAPLIBRE_JS). `register` runs once, before any caller sees
          * the promise settle, and is where the namespace becomes a global.
          */
         function loadModule(key, src, isReady, register) {

@@ -39,6 +39,10 @@ Brings the module onto the shared interaction contract in DRE-theme's
 - Printing hides every module control, map controls included. The active tab still prints as text.
 - The entity network and spatial exploration titles are `h2`, like every other block title.
 
+### Fixed
+
+- The Network Explorer and What's New blocks no longer import MapLibre from an inline `<script type="module">` in the head. Neither draws a map, so this cost about 1 MB per page for nothing. In Firefox it also disabled every import map after it, including Mirador's, so a viewer on the same page stayed blank. MapLibre's URLs are now published for `ns.ensureLibs`, which loads ES modules at run time. A unit test (`tests/js/import-maps.test.mjs`) keeps module scripts and `modulepreload` out of the head.
+
 ### Development
 
 - The browser suite runs on `@playwright/test` with axe in light and dark, forced-colours focus checks, a 320px overflow check and fullscreen and map-locale tests (`npm run test:browser`).

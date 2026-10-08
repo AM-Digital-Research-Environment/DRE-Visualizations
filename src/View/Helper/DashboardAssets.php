@@ -41,8 +41,11 @@ class DashboardAssets extends AbstractHelper
      * entry point: it CANNOT be loaded with a classic <script> and it defines
      * no global of its own. Everything here hands the URL to a module import
      * that publishes the namespace as `window.maplibregl` — the shape every
-     * builder already expects — either through ns.ensureLibs (dashboard-core.js)
-     * or through the inline module shim on the eager surfaces below.
+     * builder already expects — always through ns.ensureLibs (dashboard-core.js),
+     * at run time. Never from a <script type="module"> in the head: Firefox
+     * discards every import map that follows a module load, and Mirador mounts
+     * through one (`import … from "mirador"`), so a viewer on the same page
+     * would never start.
      *
      * The worker is a separate, self-contained file. MapLibre would find it on
      * its own from `import.meta.url`, but only under its upstream `.mjs` name,
@@ -351,27 +354,24 @@ class DashboardAssets extends AbstractHelper
                 $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
             } else {
                 // The Network Explorer and What's New blocks render as soon as
-                // their data arrives, so load the libraries eagerly (deferred) in
-                // parallel with the page. Their controllers still wait on
+                // their data arrives, so load their libraries eagerly (deferred)
+                // in parallel with the page. Their controllers still wait on
                 // ns.ensureLibs, which resolves at once for an eager library and
                 // shows an error instead of a spinner if one failed; d3 is here
                 // for the Network Explorer's co-authorship tab.
+                //
+                // Neither draws a map, so MapLibre is NOT eager here: it used to
+                // be imported by an inline <script type="module"> in the head,
+                // which cost ~1 MB these blocks never used and, in Firefox,
+                // disabled any import map after it — Mirador's among them (see
+                // MAPLIBRE_JS). Its URLs are published for ns.ensureLibs instead.
+                $headScript->appendScript('window.RV_LIBS=Object.assign(' . self::scriptJson([
+                    'maplibre'       => $asset(self::MAPLIBRE_JS),
+                    'maplibreWorker' => $asset(self::MAPLIBRE_WORKER_JS),
+                    'maplibreCss'    => $asset(self::MAPLIBRE_CSS),
+                ]) . ', window.RV_LIBS||{});');
                 $headScript->appendFile($asset(self::ECHARTS_JS), 'text/javascript', $defer);
                 $headScript->appendFile($asset(self::WORDCLOUD_JS), 'text/javascript', $defer);
-                $headLink->appendStylesheet($asset(self::MAPLIBRE_CSS));
-                // MapLibre 6 is ESM: a classic <script defer> cannot load it, and
-                // the bundle defines no global. Import it from an inline module
-                // instead and publish the namespace as window.maplibregl. Module
-                // scripts and deferred classic scripts share ONE execution list,
-                // ordered by document position, so dashboard-core.js and the
-                // builder bundle appended below still find maplibregl ready —
-                // the same ordering guarantee the classic <script defer> gave.
-                $headScript->appendScript(
-                    'import * as m from ' . self::jsString($asset(self::MAPLIBRE_JS)) . ';'
-                    . 'm.setWorkerUrl(' . self::jsString($asset(self::MAPLIBRE_WORKER_JS)) . ');'
-                    . 'window.maplibregl=m;',
-                    'module'
-                );
                 foreach (self::D3_SCRIPTS as $script) {
                     $headScript->appendFile($asset($script), 'text/javascript', $defer);
                 }
