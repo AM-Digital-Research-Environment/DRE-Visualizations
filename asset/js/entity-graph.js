@@ -868,7 +868,7 @@
         // cluster shown, search emptied and any selection dropped. Disabled while
         // nothing is active.
         var clearBtn = el('button', 'deg-btn deg-clear'); clearBtn.type = 'button';
-        clearBtn.textContent = t('degClearFilters', 'Clear filters');
+        clearBtn.textContent = t('clearFilters', 'Clear all filters');
         clearBtn.title = t('degClearFiltersTitle', 'Show every entity again and drop the current selection');
         clearBtn.disabled = true;
         clearBtn.addEventListener('click', function () {

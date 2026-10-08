@@ -150,16 +150,16 @@ if ($issueMode) {
     }
     $issueCount = count($issueKeys);
     $countLabel = sprintf(
-        $this->translate('%d issues · %d articles'),
-        $issueCount,
-        count($photos)
+        $this->translate('%1$s issues · %2$s articles'),
+        DashboardAssets::formatNumber($issueCount),
+        DashboardAssets::formatNumber(count($photos))
     );
 } elseif ($capped) {
-    $countLabel = sprintf($this->translate('Showing the first %d images'), count($photos));
+    $countLabel = sprintf($this->translate('Showing the first %s images'), DashboardAssets::formatNumber(count($photos)));
 } else {
     $countLabel = sprintf(
-        $this->translatePlural('%d image', '%d images', count($photos)),
-        count($photos)
+        $this->translatePlural('%s image', '%s images', count($photos)),
+        DashboardAssets::formatNumber(count($photos))
     );
 }
 
@@ -193,7 +193,7 @@ $this->headScript()->appendFile(
 
         <div class="photo-browse-toolbar">
             <?php if (count($views) > 1): ?>
-            <div class="photo-view-toggle" role="tablist" aria-label="<?= $this->escapeHtmlAttr($this->translate('How to browse the images')) ?>">
+            <div class="photo-view-toggle" role="tablist" aria-label="<?= $this->escapeHtmlAttr($this->translate('View as')) ?>">
                 <?php foreach ($views as $v): ?>
                 <button type="button" role="tab"
                         class="photo-view-btn<?= $v === $defaultView ? ' is-active' : '' ?>"

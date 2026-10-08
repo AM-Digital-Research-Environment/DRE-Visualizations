@@ -410,6 +410,23 @@ class DashboardAssets extends AbstractHelper
     public const SCRIPT_JSON_FLAGS = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
         | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR;
 
+    /**
+     * A count for the page, grouped the way the site's locale groups digits
+     * (1.234 on a German site, 1,234 on an English one) — the same
+     * NumberFormatter rule DRE-theme's banner uses, and the server half of
+     * the client's Intl formatting (core/base.js, ns.formatNumber).
+     * number_format() is locale-blind, so it is only the fallback when the
+     * intl extension is missing.
+     */
+    public static function formatNumber(int $value): string
+    {
+        if (class_exists(\NumberFormatter::class)) {
+            $formatted = (new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::DECIMAL))->format($value);
+            if ($formatted !== false) return $formatted;
+        }
+        return number_format($value);
+    }
+
     /** A value as JSON that is safe to inline in a <script> element. */
     public static function scriptJson(mixed $value): string
     {

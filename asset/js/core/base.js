@@ -18,10 +18,12 @@
     /*  Interface strings                                                  */
     /* ------------------------------------------------------------------ */
 
-    // Omeka emits the active site language on <html>. Keep all number and date
-    // formatting aligned with it, falling back to the visitor locale only when
-    // the document does not declare one.
-    ns.locale = document.documentElement.lang || navigator.language || 'en';
+    // Omeka emits the active site language on <html>, and the server formats
+    // its counts in that same locale (NumberFormatter). Keep every client-side
+    // Intl format aligned with it — never with navigator.language, which would
+    // group the digits of one page two different ways — falling back to 'en'
+    // when the document declares nothing (DESIGN-INTEGRATION.md "Numbers").
+    ns.locale = document.documentElement.lang || 'en';
     ns.strings = window.RV_I18N || {};
     ns.t = function (key, fallback) {
         return Object.prototype.hasOwnProperty.call(ns.strings, key) ? ns.strings[key] : fallback;

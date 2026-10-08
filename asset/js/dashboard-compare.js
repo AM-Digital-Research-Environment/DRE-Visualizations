@@ -278,7 +278,7 @@
                 var none = document.createElement('li');
                 none.className = 'rv-combobox-empty';
                 none.setAttribute('role', 'presentation');
-                none.textContent = t('noSearchMatch', 'Nothing matches that search');
+                none.textContent = t('noSearchMatch', 'No records match that search.');
                 list.appendChild(none);
                 setActive(-1);
                 return;

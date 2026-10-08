@@ -2620,7 +2620,7 @@
     ns.charts.buildCommunities = function (container, data, siteBase) {
         if (!data || !data.nodes || !data.nodes.length || !data.links) return;
         if (!ns.ForceGraph || !ns.graphChrome || typeof d3 === 'undefined' || !d3.forceSimulation) {
-            showMessage(container, 'rv-error', t('kgNoEngine', 'The graph could not be loaded. Please try again.'));
+            showMessage(container, 'rv-error', t('visualizationLoadError', 'The visualization could not be loaded.'));
             return;
         }
 

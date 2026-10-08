@@ -1449,7 +1449,9 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
 
 /* Persistent live region for asynchronous dashboard state. It stays in the
    DOM while the visible loading shell is replaced, so completion and failure
-   messages are announced without moving focus. */
+   messages are announced without moving focus. .rv-sr-only is the same
+   visually hidden treatment for anything else read only by assistive tech. */
+.rv-sr-only,
 .rv-dashboard-status {
     position: absolute;
     width: 1px;
@@ -1670,6 +1672,64 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     flex: 1 1 auto;
     height: auto;
     min-height: 20rem;
+}
+
+/* "Data table" — the collapsed textual alternative under every chart
+   (ns.attachDataTable, core/toolbar.js), built from the CSV rows. */
+.rv-data-table {
+    margin-top: var(--rv-space-3);
+    font-size: var(--rv-text-xs);
+}
+.rv-data-table-toggle {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--rv-control-sm);
+    color: var(--rv-primary-text);
+    font-weight: 600;
+    cursor: pointer;
+}
+.rv-data-table-toggle:focus-visible {
+    outline: 2px solid var(--rv-focus-color);
+    outline-offset: 2px;
+    border-radius: var(--rv-radius-sm);
+}
+.rv-data-table-scroll {
+    max-height: 20rem;
+    margin-top: var(--rv-space-2);
+    overflow: auto;
+    border: 1px solid var(--rv-border);
+    border-radius: var(--rv-radius-md);
+}
+.rv-data-table-scroll:focus-visible {
+    outline: 2px solid var(--rv-focus-color);
+    outline-offset: 2px;
+}
+.rv-data-table-grid {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    color: var(--rv-text-strong);
+}
+.rv-data-table-grid th,
+.rv-data-table-grid td {
+    padding: var(--rv-space-1) var(--rv-space-2);
+    border-bottom: 1px solid var(--rv-border-light);
+    text-align: start;
+    vertical-align: top;
+}
+.rv-data-table-grid th {
+    position: sticky;
+    top: 0;
+    background: var(--rv-bg-raised);
+    font-weight: 600;
+}
+.rv-data-table-grid .rv-num {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+}
+.rv-data-table-note {
+    margin: var(--rv-space-2) 0 0;
+    color: var(--rv-text-color);
 }
 
 /* Map legend — rendered BELOW the map (appended to the .chart-panel by
@@ -4034,17 +4094,44 @@ body.photo-lightbox-open {
         break-inside: avoid;
         page-break-inside: avoid;
     }
+    /* A surface prints its content and hides its own controls — explicitly,
+       never by leaning on the theme's global `button { display: none }`
+       (DESIGN-INTEGRATION.md "Print"). */
     .rv-chart-toolbar,
     .rv-toolbar-btn,
+    .rv-btn,
     .rv-embed-btn,
     .rv-embed-block-toolbar,
+    .rv-fullscreen-btn,
+    .rv-retry-btn,
     .knowledge-graph-toolbar,
+    .rv-kg-filters,
+    .deg-toolbar,
+    .rv-spatial-toolbar,
+    .rv-spatial-search,
+    .semantic-map-toolbar,
+    .rv-data-table-toggle,
+    .maplibregl-control-container,
     .photo-lightbox,
     .photo-toc,
-    .compare-type-switcher,
-    .whats-new-windows,
     .rv-combobox-list {
         display: none !important;
+    }
+    /* Tabs that name what printed keep that name, as text: the active one
+       stays, unstyled; the others go. */
+    .compare-type-btn:not(.is-active),
+    .whats-new-window-btn:not(.rv-btn-active),
+    .photo-view-btn:not(.is-active) {
+        display: none !important;
+    }
+    .compare-type-btn.is-active,
+    .whats-new-window-btn.rv-btn-active,
+    .photo-view-btn.is-active {
+        display: inline !important;
+        border: 0;
+        background: none;
+        color: inherit;
+        font-weight: 700;
     }
 }
 
@@ -4091,4 +4178,20 @@ body.photo-lightbox-open {
 .maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-inner a {
     text-decoration: underline;
     text-underline-offset: 0.15em;
+}
+
+/* The semantic map's record list (semantic-map.js recordList): type headings
+   over plain link lists, inside the shared data-table disclosure. */
+.semantic-map-list .rv-data-table-scroll {
+    padding: var(--rv-space-2) var(--rv-space-3);
+}
+.semantic-map-list__type {
+    margin: var(--rv-space-3) 0 var(--rv-space-1);
+    font-size: var(--rv-text-xs);
+    font-weight: 600;
+    color: var(--rv-heading-color);
+}
+.semantic-map-list__items {
+    margin: 0;
+    padding-inline-start: var(--rv-space-4);
 }

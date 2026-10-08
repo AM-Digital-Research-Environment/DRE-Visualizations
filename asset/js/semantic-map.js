@@ -173,6 +173,50 @@
         return wrap;
     }
 
+    /**
+     * The map's text alternative: every record it places, grouped by type, as
+     * a link to the record — what the points are, readable without the canvas
+     * and findable with Ctrl+F. A coordinate table would say nothing (the axes
+     * carry no units), so this list replaces the generic "Data table" here.
+     * Built on open: the collection can run to thousands of records.
+     */
+    function recordList(items, siteBase) {
+        var details = node('details', 'rv-data-table semantic-map-list');
+        var summary = node('summary', 'rv-data-table-toggle', ns.t('semanticRecordList', 'List of the records on the map'));
+        details.appendChild(summary);
+        details.addEventListener('toggle', function () {
+            if (!details.open || details.querySelector('.rv-data-table-scroll')) return;
+            var groups = {};
+            var order = [];
+            items.forEach(function (item) {
+                var key = item.typeLabel || item.type || '';
+                if (!groups[key]) { groups[key] = []; order.push(key); }
+                groups[key].push(item);
+            });
+            var wrap = node('div', 'rv-data-table-scroll');
+            wrap.tabIndex = 0;
+            wrap.setAttribute('role', 'region');
+            wrap.setAttribute('aria-label', summary.textContent);
+            order.forEach(function (key) {
+                wrap.appendChild(node('h4', 'semantic-map-list__type',
+                    key + ' (' + ns.formatNumber(groups[key].length) + ')'));
+                var list = node('ul', 'semantic-map-list__items');
+                groups[key].slice().sort(function (a, b) {
+                    return String(a.title || '').localeCompare(String(b.title || ''), ns.locale);
+                }).forEach(function (item) {
+                    var li = node('li', '');
+                    var link = node('a', '', item.title || ns.fill(ns.t('itemNumber', 'Item {id}'), { id: item.id }));
+                    link.href = ns.itemUrl(siteBase, item.id);
+                    li.appendChild(link);
+                    list.appendChild(li);
+                });
+                wrap.appendChild(list);
+            });
+            details.appendChild(wrap);
+        });
+        return details;
+    }
+
     function render(container, payload) {
         var items = payload && payload.items;
         if (!Array.isArray(items) || !items.length) throw new Error('Semantic map is empty');
@@ -202,6 +246,7 @@
         var chart = ns.initChart(chartEl);
         chart._semanticMode = 'type';
         chart._noDecal = true;
+        chart._noDataTable = true;   // the record list below is this map's alternative
         chart._semanticRestoreLabel = function () {
             chartEl.setAttribute('role', 'img');
             chartEl.setAttribute('aria-label', chartLabel);
@@ -221,6 +266,7 @@
         toolbar.appendChild(modeControl(chart, items));
         toolbar.appendChild(searchControl(items, container.getAttribute('data-site-base') || ''));
         ns.attachToolbar(chartPanel, chart);
+        chartPanel.appendChild(recordList(items, container.getAttribute('data-site-base') || ''));
         ns.setupBlockEmbedButtons();
     }
 

@@ -261,8 +261,8 @@
             a.click();
         });
 
-        var csv = ns.iconButton(ICON.csv, t('downloadGraphData', 'Download the data'),
-            t('degCsvTitle', 'Download the entities you can see as a spreadsheet (CSV)'));
+        var csv = ns.iconButton(ICON.csv, t('downloadCsv', 'Download data (CSV)'),
+            t('downloadCsv', 'Download data (CSV)'));
         csv.addEventListener('click', function () {
             // Reuses the module's one CSV writer (BOM + CRLF + quoting) through the
             // renderer-supplied-rows path in ns.chartCsvRows.

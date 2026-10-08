@@ -162,7 +162,7 @@
         resetBtn = document.createElement('button');
         resetBtn.type = 'button';
         resetBtn.className = 'rv-kg-filters-reset';
-        resetBtn.textContent = t('kgResetFilters', 'Reset filters');
+        resetBtn.textContent = t('clearFilters', 'Clear all filters');
         resetBtn.disabled = true;
         resetBtn.addEventListener('click', function () {
             state.maxCommonality = defaults.maxCommonality;

@@ -551,7 +551,7 @@
             }
             if (shown === 0) {
                 listEl.appendChild(el('div', 'rv-spatial-muted',
-                    q ? ns.t('noSearchMatch', 'Nothing matches that search')
+                    q ? ns.t('noSearchMatch', 'No records match that search.')
                         : ns.t('spatialNoneOfType', 'Nothing of this kind has a place on the map')));
             }
         }

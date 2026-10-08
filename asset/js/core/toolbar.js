@@ -81,6 +81,75 @@
         setTimeout(function () { URL.revokeObjectURL(url); }, 0);
     };
 
+    /* ------------------------------------------------------------------ */
+    /*  Data table — the non-canvas alternative                           */
+    /* ------------------------------------------------------------------ */
+
+    // A canvas chart is an image to a screen reader and opaque to Ctrl+F; an
+    // aria-label summarises it but cannot carry its numbers. Every chart with
+    // tabular data therefore gets a collapsed "Data table" disclosure under it,
+    // built from the very rows the CSV download writes (ns.chartCsvRows), so the
+    // table, the file and the picture can never disagree. Built on open, from
+    // the live instance, so it follows a filter or a light/dark rebuild.
+    var DATA_TABLE_ROWS = 500;
+
+    /** A scrollable, focusable table of `rows` (header row first). */
+    ns.buildDataTable = function (rows, caption) {
+        var wrap = ns.el('div', 'rv-data-table-scroll');
+        // A scrollable region must be reachable by keyboard and named.
+        wrap.tabIndex = 0;
+        wrap.setAttribute('role', 'region');
+        wrap.setAttribute('aria-label', caption || ns.t('dataTable', 'Data table'));
+        var table = ns.el('table', 'rv-data-table-grid');
+        if (caption) table.appendChild(ns.el('caption', 'rv-sr-only', caption));
+        var head = ns.el('thead');
+        var headRow = ns.el('tr');
+        (rows[0] || []).forEach(function (cell) {
+            var th = ns.el('th', null, String(cell == null ? '' : cell));
+            th.scope = 'col';
+            headRow.appendChild(th);
+        });
+        head.appendChild(headRow);
+        table.appendChild(head);
+        var body = ns.el('tbody');
+        rows.slice(1, DATA_TABLE_ROWS + 1).forEach(function (row) {
+            var tr = ns.el('tr');
+            row.forEach(function (cell) {
+                var td = ns.el('td', typeof cell === 'number' ? 'rv-num' : null,
+                    typeof cell === 'number' ? ns.formatNumber(cell) : String(cell == null ? '' : cell));
+                tr.appendChild(td);
+            });
+            body.appendChild(tr);
+        });
+        table.appendChild(body);
+        wrap.appendChild(table);
+        if (rows.length - 1 > DATA_TABLE_ROWS) {
+            var note = ns.el('p', 'rv-data-table-note', ns.fill(
+                ns.t('dataTableTruncated', 'Showing the first {count} rows. Download data (CSV) for all of them.'),
+                { count: ns.formatNumber(DATA_TABLE_ROWS) }));
+            return ns.setChildren(ns.el('div'), [wrap, note]);
+        }
+        return wrap;
+    };
+
+    /**
+     * Mount the collapsed "Data table" disclosure at the foot of `panel`.
+     * `rowsFn` returns the current rows (header first); with fewer than two
+     * there is nothing to tabulate and nothing is mounted.
+     */
+    ns.attachDataTable = function (panel, rowsFn, caption) {
+        if (!panel || panel.querySelector('.rv-data-table')) return;
+        if ((rowsFn() || []).length < 2) return;
+        var details = ns.el('details', 'rv-data-table');
+        var summary = ns.el('summary', 'rv-data-table-toggle', ns.t('dataTable', 'Data table'));
+        details.appendChild(summary);
+        details.addEventListener('toggle', function () {
+            if (!details.open) return;
+            ns.setChildren(details, [summary, ns.buildDataTable(rowsFn() || [], caption)]);
+        });
+        panel.appendChild(details);
+    };
+
     /**
      * The `.rv-chart-heading` row a toolbar mounts into. Dashboards render it;
      * other surfaces (Compare, What's New, Network Explorer, the semantic map)
@@ -119,7 +188,7 @@
             ? ns.t('hidePatterns', 'Hide the fill patterns')
             : ns.t('showPatterns', 'Tell the colours apart with fill patterns');
         var saveTitle = ns.t('saveImage', 'Save this chart as an image');
-        var csvTitle = ns.t('downloadCsv', 'Download this chart’s data as a spreadsheet (CSV)');
+        var csvTitle = ns.t('downloadCsv', 'Download data (CSV)');
         var hasCsv = ns.chartCsvRows(chart).length > 1;
         var title = panel.querySelector('h3');
         var panelTitle = title ? (title.textContent || '').trim() : '';
@@ -142,6 +211,9 @@
                 + icon(ns.ICONS.csv) + '</button>'
                 : '');
         chartHeading(panel).appendChild(bar);
+        if (hasCsv && !chart._noDataTable) {
+            ns.attachDataTable(panel, function () { return ns.chartCsvRows(live()); }, panelTitle);
+        }
         bar.addEventListener('click', function (e) {
             var btn = e.target.closest('[data-action]');
             if (!btn) return;
