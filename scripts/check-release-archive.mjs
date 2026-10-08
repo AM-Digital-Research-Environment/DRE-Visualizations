@@ -31,7 +31,9 @@ const helper = readFileSync(join(ROOT, 'src/View/Helper/DashboardAssets.php'), '
   .replace(/const CHART_SCRIPTS = \[[\s\S]*?\];/, '');
 const runtimeAssets = new Set([...helper.matchAll(/'((?:js|css|vendor)\/[^']+\.(?:js|css))'/g)].map((m) => 'asset/' + m[1]));
 for (const required of [...runtimeAssets, 'asset/js/dashboard-charts.bundle.js',
-  'config/dashboard-layouts.json', 'config/client-strings.json', 'config/module.ini', 'Module.php']) {
+  'config/dashboard-layouts.json', 'config/client-strings.json', 'config/module.ini', 'Module.php',
+  // The translation catalogue Omeka's translator is pointed at (module.config.php).
+  'language/template.pot']) {
   if (!entries.has(prefix + required)) failures.push(`missing runtime file: ${required}`);
 }
 

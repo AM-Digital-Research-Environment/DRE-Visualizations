@@ -1,0 +1,2206 @@
+# DRE Visualizations (Omeka S module)
+# Translation template. Regenerate with: npm run i18n:extract
+#
+# To add a language, copy this file to <locale>.po (e.g. de_DE.po), fill in
+# the msgstr values, compile it to <locale>.mo, and place both in language/.
+# Strings referenced from config/client-strings.json are shown in the browser;
+# Module.php translates them through this catalogue into window.RV_I18N.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: DRE Visualizations\n"
+"Report-Msgid-Bugs-To: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/issues\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/Site/BlockLayout/PhotoBrowse.php:55
+msgid "— None (plain item-set gallery) —"
+msgstr ""
+
+#: config/client-strings.json:degOrMore
+msgid "{count} or more"
+msgstr ""
+
+#: config/client-strings.json:compareSideA
+msgid "{type} A"
+msgstr ""
+
+#: config/client-strings.json:compareSideB
+msgid "{type} B"
+msgstr ""
+
+#: view/common/block-layout/photo-browse.phtml:153
+msgid "%1$s issues · %2$s articles"
+msgstr ""
+
+#: view/common/block-layout/photo-browse.phtml:161
+msgid "%s image"
+msgid_plural "%s images"
+msgstr[0] ""
+msgstr[1] ""
+
+#: config/client-strings.json:compareMoreMatches
+msgid "+{count} more — keep typing to narrow"
+msgstr ""
+
+#: src/Site/BlockLayout/CollectionOverview.php:21
+msgid "A curated overview for the home page: summary cards, the Africa Multiple Research Centres (AMRCs) & partners map, research sections, the section × university breakdown, an item timeline, resource types, languages, subjects and a map of items by country. For the full set of visualisations use the \"Collection Dashboard\" block instead. No configuration needed."
+msgstr ""
+
+#: config/client-strings.json:kgCanvasLabel
+msgid "A graph of everything this record is connected to. Use the arrow keys to move between connected entities and Enter to select one."
+msgstr ""
+
+#: config/client-strings.json:semanticMapAria
+msgid "A map of the public records in the collection. Records placed close together are similar in what they are about."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.radar
+msgid "A profile across six measures: items, languages, subjects, people, resource types and year span. Each is scaled against the largest of its kind."
+msgstr ""
+
+#: src/Site/BlockLayout/ProjectExplorer.php:21
+msgid "A project selector that retunes a full dashboard beneath it. No configuration needed."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.affiliationMap
+msgid "Affiliated institutions whose location is known."
+msgstr ""
+
+#: config/client-strings.json:affiliationOne
+msgid "affiliation"
+msgstr ""
+
+#: config/client-strings.json:affiliation
+msgid "Affiliation"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.affiliationNetwork
+msgid "Affiliation network"
+msgstr ""
+
+#: config/client-strings.json:affiliationOther
+msgid "affiliations"
+msgstr ""
+
+#: config/client-strings.json:networkStatAffiliations
+msgid "Affiliations"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.clusterPartners
+msgid "Africa Multiple Research Centres (AMRCs) and partners"
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:48
+msgid "After importing or substantially editing items, so the visualisations reflect the current data. Data edits withdraw the published snapshot. Regenerate after edits are complete."
+msgstr ""
+
+#: config/client-strings.json:langAll
+msgid "All"
+msgstr ""
+
+#: config/client-strings.json:degAllClusters
+msgid "All groups"
+msgstr ""
+
+#: config/client-strings.json:kgResourceSharedBy
+#: config/client-strings.json:kgSharedBy
+msgid "Also on"
+msgstr ""
+
+#: src/Site/BlockLayout/Podcasts.php:21
+msgid "Analytics for the cluster podcast episodes: a word cloud built from the episode transcripts, the most frequent speakers, episode length, the publication timeline, and the series breakdown. No configuration needed."
+msgstr ""
+
+#: src/Site/BlockLayout/YouTube.php:21
+msgid "Analytics for the cluster YouTube channel: videos by year, the language mix and how it shifts over time, the channel's playlists, and any credited speakers. No configuration needed."
+msgstr ""
+
+#: config/client-strings.json:degAnyWeight
+msgid "Any"
+msgstr ""
+
+#: view/dre-visualizations/embed/index.phtml:179
+msgid "Any visualisation on this site can be placed on another website. Copy the snippet under the one you want and paste it into your page. It loads live from here, so it stays up to date, matches the look of this site, and adjusts its height to fit. Where a page holds several charts, you can also embed a single one."
+msgstr ""
+
+#: config/client-strings.json:articleOne
+msgid "article"
+msgstr ""
+
+#: config/client-strings.json:articleInIssueOne
+msgid "article in this issue."
+msgstr ""
+
+#: config/client-strings.json:articleOther
+msgid "articles"
+msgstr ""
+
+#: config/client-strings.json:articleInIssueOther
+msgid "articles in this issue."
+msgstr ""
+
+#: config/client-strings.json:roleAuthor
+msgid "author"
+msgstr ""
+
+#: config/client-strings.json:roleBoth
+msgid "author & editor"
+msgstr ""
+
+#: config/client-strings.json:relMixed
+msgid "Author–editor"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.coAuthorNetwork
+msgid "Authors are linked when they appear on the same publication. Colour marks groups who publish together."
+msgstr ""
+
+#: src/Form/ConfigForm.php:53
+msgid "Basemap attribution"
+msgstr ""
+
+#: src/Form/ConfigValues.php:41
+msgid "Basemap attribution is required when a style URL is configured."
+msgstr ""
+
+#: src/Form/ConfigValues.php:32
+msgid "Basemap styles must use HTTPS or a same-origin absolute path beginning with “/”."
+msgstr ""
+
+#: src/Site/BlockLayout/Publications.php:21
+msgid "Bibliographic analytics across all publications (articles, books, chapters, …): by-template breakdown, top venues and authors, co-author network and keyword co-occurrence. No configuration needed."
+msgstr ""
+
+#: view/common/block-layout/featured-collections.phtml:115
+msgid "Browse"
+msgstr ""
+
+#: src/Form/ConfigForm.php:29
+msgid "Canonical public site"
+msgstr ""
+
+#: config/client-strings.json:category
+msgid "Category"
+msgstr ""
+
+#: config/client-strings.json:chartActions
+msgid "Chart actions"
+msgstr ""
+
+#: config/client-strings.json:networkChoose
+msgid "Choose a network"
+msgstr ""
+
+#: config/client-strings.json:explorerPrompt
+msgid "Choose a project above to see its visualisations."
+msgstr ""
+
+#: config/client-strings.json:explorerChooseProject
+msgid "Choose a project…"
+msgstr ""
+
+#: config/client-strings.json:compareChooseTwo
+msgid "Choose two {types} above to compare them side by side."
+msgstr ""
+
+#: config/client-strings.json:clearFilters
+msgid "Clear all filters"
+msgstr ""
+
+#: config/client-strings.json:spatialClearSelection
+msgid "Clear selection: {name}"
+msgstr ""
+
+#: config/client-strings.json:communitiesHint
+msgid "Click a person to focus their collaborators; the panel that opens links to their record. Toggle a cluster in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom."
+msgstr ""
+
+#: config/client-strings.json:kgHint
+msgid "Click an entity to see what it is connected to; the panel that opens links to its record. Drag an entity to move it, and it stays where you put it (Alt-click to let it go). Double-click the background, or hold Ctrl and scroll, to zoom."
+msgstr ""
+
+#: config/client-strings.json:kgClickToFocus
+msgid "Click for details"
+msgstr ""
+
+#: config/client-strings.json:close
+msgid "Close"
+msgstr ""
+
+#: config/client-strings.json:mapClosePopup
+msgid "Close popup"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.coAuthorNetwork
+msgid "Co-author network"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.coAuthors
+msgid "Co-authors"
+msgstr ""
+
+#: config/client-strings.json:networkTabCollaboration
+#: config/client-strings.json:relCoauthor
+msgid "Co-authorship"
+msgstr ""
+
+#: config/client-strings.json:relCoeditor
+msgid "Co-editorship"
+msgstr ""
+
+#: config/client-strings.json:communitiesCanvasLabel
+msgid "Co-occurrence network. Use the arrow keys to move between connected people and Enter to select one."
+msgstr ""
+
+#: config/client-strings.json:chartLabel.collabNetwork
+msgid "Collaboration network"
+msgstr ""
+
+#: src/Controller/Site/EmbedController.php:68
+msgid "Collection dashboard"
+msgstr ""
+
+#: src/Site/BlockLayout/CollectionDashboard.php:23
+msgid "Collection Dashboard"
+msgstr ""
+
+#: src/Controller/Site/EmbedController.php:61
+#: view/common/block-layout/collection-overview.phtml:23
+msgid "Collection overview"
+msgstr ""
+
+#: src/Site/BlockLayout/CollectionOverview.php:15
+msgid "Collection Overview"
+msgstr ""
+
+#: src/Site/BlockLayout/DiscursiveCommunities.php:21
+msgid "Collection-wide entity network: people, organisations, places, subjects and tags that co-occur across the research items, rendered as an explorable force-directed graph (MapLibre GL, positions precomputed) and coloured by entity type. No configuration needed."
+msgstr ""
+
+#: src/Site/BlockLayout/SpatialExploration.php:21
+msgid "Collection-wide map of every geocoded place the research items reference (origins and current locations), as bubbles sized by how many items mention each place. A sidebar lets visitors filter the map to a single project, research section, person, organisation or subject, and a country dropdown zooms in. Positions are precomputed (MapLibre GL). No configuration needed."
+msgstr ""
+
+#: src/Site/BlockLayout/NetworkExplorer.php:21
+msgid "Collection-wide network explorer for contributors, co-authorship, people-institution affiliations, and institution collaborations. No configuration needed."
+msgstr ""
+
+#: config/client-strings.json:degColorBy
+#: config/client-strings.json:semanticColorBy
+msgid "Colour by"
+msgstr ""
+
+#: config/client-strings.json:degColorByLabel
+msgid "Colour entities by"
+msgstr ""
+
+#: config/client-strings.json:degColorByGroup
+msgid "Colour the entities by group"
+msgstr ""
+
+#: config/client-strings.json:degColorBySection
+msgid "Colour the entities by section"
+msgstr ""
+
+#: config/client-strings.json:degColorByType
+msgid "Colour the entities by type"
+msgstr ""
+
+#: config/client-strings.json:kgHalosTitle
+msgid "Colour the rings to group entities that keep appearing together"
+msgstr ""
+
+#: config/client-strings.json:comesFromHere
+msgid "Comes from here"
+msgstr ""
+
+#: src/Site/BlockLayout/CompareEntity.php:15
+msgid "Compare (any entity)"
+msgstr ""
+
+#: config/client-strings.json:compareTitle
+msgid "Compare {types}"
+msgstr ""
+
+#: src/Site/BlockLayout/CompareGenres.php:15
+msgid "Compare Genres"
+msgstr ""
+
+#: src/Controller/Site/EmbedController.php:121
+msgid "Compare two genres"
+msgstr ""
+
+#: src/Controller/Site/EmbedController.php:116
+msgid "Compare two of anything"
+msgstr ""
+
+#: config/client-strings.json:comparisonReady
+msgid "Comparison ready."
+msgstr ""
+
+#: src/Controller/Admin/MaintenanceController.php:50
+msgid "Configure a canonical public site in the DRE Visualizations module settings before regenerating data."
+msgstr ""
+
+#: config/client-strings.json:kgVia
+msgid "Connected through"
+msgstr ""
+
+#: config/client-strings.json:degConnectionOne
+msgid "connection"
+msgstr ""
+
+#: config/client-strings.json:kgConnectionOne
+msgid "connection shown"
+msgstr ""
+
+#: config/client-strings.json:degConnectionOther
+msgid "connections"
+msgstr ""
+
+#: config/client-strings.json:kgConnectionOther
+msgid "connections shown"
+msgstr ""
+
+#: config/client-strings.json:contributionOne
+msgid "contribution"
+msgstr ""
+
+#: config/client-strings.json:contributionOther
+msgid "contributions"
+msgstr ""
+
+#: config/client-strings.json:networkStatContributions
+msgid "Contributions"
+msgstr ""
+
+#: config/client-strings.json:roleContributor
+msgid "contributor"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.contributorNetwork
+msgid "Contributor network"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.roles
+msgid "Contributor roles"
+msgstr ""
+
+#: config/client-strings.json:copied
+#: view/dre-visualizations/embed/index.phtml:225
+msgid "Copied"
+msgstr ""
+
+#: view/dre-visualizations/embed/index.phtml:201
+#: view/dre-visualizations/embed/index.phtml:224
+msgid "Copy"
+msgstr ""
+
+#: config/client-strings.json:copyEmbed
+msgid "Copy the code to put this on another website"
+msgstr ""
+
+#: config/client-strings.json:spatialCountryOther
+msgid "countries"
+msgstr ""
+
+#: config/client-strings.json:spatialCountryOne
+msgid "country"
+msgstr ""
+
+#: config/client-strings.json:currentLocation
+msgid "Current location"
+msgstr ""
+
+#: src/Form/ConfigForm.php:45
+msgid "Dark basemap style URL"
+msgstr ""
+
+#: src/Controller/Admin/MaintenanceController.php:59
+msgid "Dashboard regeneration queued — rebuilds every precomputed visualisation (entities, overviews, communities). Track progress: %1$sjob #%2$d%3$s"
+msgstr ""
+
+#: config/client-strings.json:dataTable
+msgid "Data table"
+msgstr ""
+
+#: config/client-strings.json:date
+msgid "Date"
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:93
+msgid "Default view"
+msgstr ""
+
+#: src/Site/BlockLayout/DiscursiveCommunities.php:15
+msgid "Discursive Communities"
+msgstr ""
+
+#: src/Controller/Site/EmbedController.php:96
+msgid "Discursive communities (entity network)"
+msgstr ""
+
+#: config/client-strings.json:downloadCsv
+msgid "Download data (CSV)"
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:21
+msgid "DRE Visualizations: maintenance"
+msgstr ""
+
+#: config/client-strings.json:degGroupLegend
+msgid "Each colour is a group of entities that keep appearing together. Grey entities belong to no group."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.beeswarm
+msgid "Each dot is a project. Its position marks the start year; its size shows the number of research items."
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:66
+msgid "Each site has a public embed gallery with copy-paste iframe snippets for every visualisation block — and, for dashboards, for each individual chart. Open it to preview a block and grab its code."
+msgstr ""
+
+#: config/client-strings.json:roleEditor
+msgid "editor"
+msgstr ""
+
+#: view/dre-visualizations/embed/index.phtml:178
+msgid "Embed a visualisation"
+msgstr ""
+
+#: config/client-strings.json:embedThis
+msgid "Embed this"
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:64
+msgid "Embed visualisations"
+msgstr ""
+
+#: view/dre-visualizations/embed/index.phtml:214
+msgid "Embeds use the light theme by default. Add <code>?theme=dark</code> to the address for the dark theme, or <code>?primary=2b6cb0</code> to set your own accent colour."
+msgstr ""
+
+#: config/client-strings.json:langEnglish
+msgid "English"
+msgstr ""
+
+#: config/client-strings.json:degEntityOther
+msgid "entities"
+msgstr ""
+
+#: config/client-strings.json:degEntityOne
+msgid "entity"
+msgstr ""
+
+#: config/client-strings.json:degLabel
+msgid "Entity"
+msgstr ""
+
+#: config/client-strings.json:degTitle
+msgid "Entity network"
+msgstr ""
+
+#: config/client-strings.json:degReady
+msgid "Entity network ready."
+msgstr ""
+
+#: config/client-strings.json:chartLabel.duration
+msgid "Episode length"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.duration
+msgid "Episode lengths, grouped into bands."
+msgstr ""
+
+#: config/client-strings.json:chartLabel.series
+msgid "Episodes by series"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.series
+msgid "Episodes counted by the series they belong to."
+msgstr ""
+
+#: config/client-strings.json:spatialDescription
+msgid "Every place the research items refer to, shown as a bubble sized by the number of items that mention it. Places are split between where items come from and where they are held today. Use the legend to show or hide either layer, pick a project or person on the left to see only its places, choose a country to zoom in, or click a bubble to open that place’s page."
+msgstr ""
+
+#: config/client-strings.json:semanticMapIntro
+msgid "Every public record in the collection is placed on this map by what it is about. Records whose subjects, places and descriptions are close in meaning sit close together, whatever their language or resource type. Distance is the only thing the map shows: there is no north or south, and the axes carry no units."
+msgstr ""
+
+#: config/client-strings.json:exitFullscreen
+msgid "Exit fullscreen"
+msgstr ""
+
+#: src/Site/BlockLayout/SemanticMap.php:21
+msgid "Explore podcasts, videos, publications, projects, research sections, and research items in one multilingual semantic space. No configuration needed."
+msgstr ""
+
+#: config/client-strings.json:externalName
+msgid "external name"
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:81
+msgid "Featured collection"
+msgstr ""
+
+#: src/Site/BlockLayout/FeaturedCollections.php:33
+msgid "Featured Collections"
+msgstr ""
+
+#: config/client-strings.json:spatialFilterBy
+msgid "Filter by"
+msgstr ""
+
+#: config/client-strings.json:kgFiltersTitle
+msgid "Filters"
+msgstr ""
+
+#: config/client-strings.json:semanticSearch
+msgid "Find a record on the map"
+msgstr ""
+
+#: config/client-strings.json:flow
+msgid "Flow"
+msgstr ""
+
+#: config/client-strings.json:kgFreezeLabel
+msgid "Freeze the layout"
+msgstr ""
+
+#: config/client-strings.json:langFrench
+msgid "French"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.sankey
+msgid "From contributor to project to resource type"
+msgstr ""
+
+#: config/client-strings.json:spatialFromHere
+msgid "from here"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.sunburst
+msgid "From resource type to language to subject"
+msgstr ""
+
+#: config/client-strings.json:fullscreen
+msgid "Fullscreen"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.funders
+msgid "Funders"
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:89
+msgid "Gallery title"
+msgstr ""
+
+#: config/client-strings.json:compareNounGenre
+msgid "genre"
+msgstr ""
+
+#: config/client-strings.json:compareTypeGenre
+msgid "Genre"
+msgstr ""
+
+#: config/client-strings.json:compareNounGenres
+msgid "genres"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.genres
+#: config/client-strings.json:compareTypeGenres
+msgid "Genres"
+msgstr ""
+
+#: config/client-strings.json:langGerman
+msgid "German"
+msgstr ""
+
+#: view/common/block-layout/photo-browse.phtml:138
+msgid "Grid"
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:75
+msgid "Grid (masonry)"
+msgstr ""
+
+#: config/client-strings.json:degGroupOne
+msgid "group"
+msgstr ""
+
+#: config/client-strings.json:community
+#: config/client-strings.json:degCluster
+#: config/client-strings.json:semanticClusterName
+msgid "Group"
+msgstr ""
+
+#: config/client-strings.json:semanticCluster
+msgid "Group of similar records"
+msgstr ""
+
+#: config/client-strings.json:degGroupOther
+msgid "groups"
+msgstr ""
+
+#: config/client-strings.json:networkStatGroups
+msgid "Groups"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.topGroups
+msgid "Groups ranked by the number of research items they are linked to."
+msgstr ""
+
+#: config/client-strings.json:chartLabel.topGroups
+msgid "Groups with the most items"
+msgstr ""
+
+#: src/Site/BlockLayout/FeaturedCollections.php:46
+msgid "Heading"
+msgstr ""
+
+#: config/client-strings.json:spatialHeldHere
+msgid "held here"
+msgstr ""
+
+#: config/client-strings.json:heldHereToday
+msgid "Held here today"
+msgstr ""
+
+#: config/client-strings.json:kgPinnedHint
+msgid "Held in place. Alt-click to let it go"
+msgstr ""
+
+#: config/client-strings.json:hideAbstract
+msgid "Hide abstract"
+msgstr ""
+
+#: config/client-strings.json:hidePatterns
+msgid "Hide the fill patterns"
+msgstr ""
+
+#: config/client-strings.json:kgMaxCommonality
+msgid "Hide the most common links"
+msgstr ""
+
+#: config/client-strings.json:degSideHint
+msgid "Hover over an entity, or click it, to see what it is connected to."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.gantt
+msgid "How long each project in this research section ran."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.subjectTrends
+msgid "How the most common subjects rise and fall over the years."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.boxplot
+msgid "How widely project sizes vary within each research section: the smallest and largest project, the middle value, and the quarter marks in between."
+msgstr ""
+
+#: config/client-strings.json:inCountry
+#: config/client-strings.json:spatialInCountry
+msgid "in {country}"
+msgstr ""
+
+#: config/client-strings.json:compareInCommonOf
+msgid "in common out of"
+msgstr ""
+
+#: config/client-strings.json:compareInCommon
+msgid "In common:"
+msgstr ""
+
+#: config/client-strings.json:compareNounInstitution
+#: config/client-strings.json:roleInstitution
+msgid "institution"
+msgstr ""
+
+#: config/client-strings.json:compareTypeInstitution
+msgid "Institution"
+msgstr ""
+
+#: config/client-strings.json:compareNounInstitutions
+msgid "institutions"
+msgstr ""
+
+#: config/client-strings.json:compareTypeInstitutions
+#: config/client-strings.json:networkStatInstitutions
+#: config/client-strings.json:networkTabInstitutions
+msgid "Institutions"
+msgstr ""
+
+#: config/client-strings.json:networkTabInstitutionsDescription
+msgid "Institutions are linked when they share research items, contributors or projects."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.collabNetwork
+msgid "Institutions are linked when they share research items."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.topInstitutions
+msgid "Institutions ranked by the number of research items they are linked to."
+msgstr ""
+
+#: config/client-strings.json:chartLabel.topInstitutions
+msgid "Institutions with the most items"
+msgstr ""
+
+#: src/Controller/Admin/MaintenanceController.php:89
+msgid "Invalid form submission. Please reload the page and try again."
+msgstr ""
+
+#: config/client-strings.json:itemOne
+msgid "item"
+msgstr ""
+
+#: config/client-strings.json:itemFallback
+msgid "Item"
+msgstr ""
+
+#: config/client-strings.json:itemNumber
+msgid "Item {id}"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.heatmap
+msgid "Item counts for every combination of resource type and language."
+msgstr ""
+
+#: config/client-strings.json:totalItemOne
+msgid "item in total"
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:85
+msgid "Item set"
+msgstr ""
+
+#: src/Site/ResourcePageBlockLayout/ItemSetDashboard.php:14
+msgid "Item Set Dashboard"
+msgstr ""
+
+#: config/client-strings.json:itemOther
+msgid "items"
+msgstr ""
+
+#: config/client-strings.json:degItemsColumn
+msgid "Items"
+msgstr ""
+
+#: config/client-strings.json:compareItemsA
+msgid "Items (A)"
+msgstr ""
+
+#: config/client-strings.json:compareItemsB
+msgid "Items (B)"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.choropleth
+msgid "Items by country"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.treemap
+msgid "Items by project and resource type"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.timeline
+#: config/client-strings.json:compareChartItemsByYear
+msgid "Items by year"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.stackedTimeline
+#: config/client-strings.json:compareChartItemsByYearType
+msgid "Items by year and type"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.stackedTimeline
+msgid "Items collected each year, split by resource type."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.choropleth
+msgid "Items counted by country of origin."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.sunburst
+msgid "Items grouped by resource type, then by language, then by their most common subjects."
+msgstr ""
+
+#: config/client-strings.json:totalItemOther
+msgid "items in total"
+msgstr ""
+
+#: config/client-strings.json:itemsPerCountry
+msgid "Items per country"
+msgstr ""
+
+#: config/client-strings.json:boxplotItemsPerProject
+#: config/client-strings.json:chartLabel.projects
+msgid "Items per project"
+msgstr ""
+
+#: config/client-strings.json:itemsPerYear
+msgid "items per year"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.sankey
+msgid "Items traced from the people who contributed them, through projects, to resource types."
+msgstr ""
+
+#: config/client-strings.json:beeswarmItems
+msgid "Items:"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.topVenues
+msgid "Journals and book series"
+msgstr ""
+
+#: config/client-strings.json:kgMinStrength
+msgid "Keep only the strongest links"
+msgstr ""
+
+#: view/common/resource-page-block-layout/knowledge-graph.phtml:21
+msgid "Knowledge graph"
+msgstr ""
+
+#: src/Site/ResourcePageBlockLayout/KnowledgeGraph.php:14
+msgid "Knowledge Graph"
+msgstr ""
+
+#: view/common/resource-page-block-layout/knowledge-graph.phtml:26
+msgid "Knowledge graph actions"
+msgstr ""
+
+#: config/client-strings.json:kgReady
+msgid "Knowledge graph ready."
+msgstr ""
+
+#: config/client-strings.json:compareNounLanguage
+msgid "language"
+msgstr ""
+
+#: config/client-strings.json:compareTypeLanguage
+#: config/client-strings.json:language
+msgid "Language"
+msgstr ""
+
+#: config/client-strings.json:compareNounLanguages
+msgid "languages"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.languages
+#: config/client-strings.json:chartLabel.topLanguages
+#: config/client-strings.json:compareChartLanguages
+#: config/client-strings.json:compareTypeLanguages
+msgid "Languages"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.languageTimeline
+msgid "Languages over time"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.topLanguages
+msgid "Languages ranked by the number of research items recorded in them."
+msgstr ""
+
+#: config/client-strings.json:whatsNewLast
+msgid "Last"
+msgstr ""
+
+#: config/client-strings.json:kgMaxCommonalityHelp
+msgid "Leave out subjects, places and the like that almost every record shares, since they say little about this one"
+msgstr ""
+
+#: config/client-strings.json:kgUnpinLabel
+msgid "Let go of everything"
+msgstr ""
+
+#: config/client-strings.json:kgUnpinTitle
+msgid "Let go of everything you have dragged into place"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.topSubjects
+msgid "Library of Congress subject headings ranked by the number of research items that carry them."
+msgstr ""
+
+#: src/Form/ConfigForm.php:41
+msgid "Light basemap style URL"
+msgstr ""
+
+#: config/client-strings.json:kgMaxNeighboursHelp
+msgid "Limit how much the graph draws at once"
+msgstr ""
+
+#: config/client-strings.json:linkOne
+msgid "link"
+msgstr ""
+
+#: config/client-strings.json:linkOther
+msgid "links"
+msgstr ""
+
+#: config/client-strings.json:degLinksColumn
+msgid "Links"
+msgstr ""
+
+#: config/client-strings.json:networkStatLinks
+msgid "Links between them"
+msgstr ""
+
+#: config/client-strings.json:semanticRecordList
+msgid "List of the records on the map"
+msgstr ""
+
+#: config/client-strings.json:loading
+#: view/common/block-layout/partials/async-surface.phtml:31
+msgid "Loading…"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.selfLocation
+msgid "Location"
+msgstr ""
+
+#: config/client-strings.json:locations
+msgid "Locations"
+msgstr ""
+
+#: config/client-strings.json:mapTitle
+#: src/Site/BlockLayout/PhotoBrowse.php:76
+#: view/common/block-layout/photo-browse.phtml:139
+msgid "Map"
+msgstr ""
+
+#: src/Form/ConfigForm.php:49
+msgid "Map glyph URL template"
+msgstr ""
+
+#: config/client-strings.json:mapMarker
+msgid "Map marker"
+msgstr ""
+
+#: config/client-strings.json:spatialMapLabel
+msgid "Map of the places the collection refers to"
+msgstr ""
+
+#: config/client-strings.json:mapReady
+msgid "Map ready."
+msgstr ""
+
+#: config/client-strings.json:spatialMappedPlaceOne
+msgid "mapped place"
+msgstr ""
+
+#: config/client-strings.json:spatialMappedPlaceOther
+msgid "mapped places"
+msgstr ""
+
+#: config/client-strings.json:semanticSimilarity
+msgid "match"
+msgstr ""
+
+#: config/client-strings.json:boxplotMax
+msgid "max"
+msgstr ""
+
+#: config/client-strings.json:boxplotMedian
+msgid "median"
+msgstr ""
+
+#: config/client-strings.json:memberOne
+msgid "Member"
+msgstr ""
+
+#: config/client-strings.json:memberOther
+msgid "Members"
+msgstr ""
+
+#: config/client-strings.json:boxplotMin
+msgid "min"
+msgstr ""
+
+#: config/client-strings.json:monthOne
+msgid "month"
+msgstr ""
+
+#: config/client-strings.json:monthOther
+msgid "months"
+msgstr ""
+
+#: config/client-strings.json:more
+msgid "more"
+msgstr ""
+
+#: config/client-strings.json:spatialTopPlaces
+msgid "Most mentioned places"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.topAuthors
+msgid "Most published authors"
+msgstr ""
+
+#: config/client-strings.json:degMultipleOrNoSection
+msgid "Multiple / no section"
+msgstr ""
+
+#: config/client-strings.json:degMultipleSections
+msgid "Multiple sections"
+msgstr ""
+
+#: config/client-strings.json:kgEdgeLabelsLabel
+msgid "Name every connection"
+msgstr ""
+
+#: config/client-strings.json:kgEdgeLabelsTitle
+msgid "Name every connection. Otherwise only the connections of the entity you select are named"
+msgstr ""
+
+#: config/client-strings.json:kgLabelsTitle
+msgid "Name everything on the graph. Otherwise names appear only where they fit"
+msgstr ""
+
+#: config/client-strings.json:degSideTitle
+msgid "Network"
+msgstr ""
+
+#: config/client-strings.json:networkExplorer
+#: src/Controller/Site/EmbedController.php:111
+msgid "Network explorer"
+msgstr ""
+
+#: src/Site/BlockLayout/NetworkExplorer.php:15
+msgid "Network Explorer"
+msgstr ""
+
+#: config/client-strings.json:graphCanvasLabel
+msgid "Network graph. Use the arrow keys to move between connected entities and Enter to open one."
+msgstr ""
+
+#: config/client-strings.json:degCanvasLabel
+msgid "Network of entities that appear on the same research items. Use the arrow keys to move between connected entities and Enter to select one."
+msgstr ""
+
+#: config/client-strings.json:newItemOne
+msgid "new item"
+msgstr ""
+
+#: config/client-strings.json:newItemOther
+msgid "new items"
+msgstr ""
+
+#: config/client-strings.json:next
+msgid "Next"
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:40
+msgid "No canonical public site is configured. Open this module’s configuration, select a public site, and save before regenerating data."
+msgstr ""
+
+#: config/client-strings.json:noItems
+msgid "No items"
+msgstr ""
+
+#: config/client-strings.json:noSearchMatch
+#: config/client-strings.json:semanticNoSearchResults
+msgid "No records match that search."
+msgstr ""
+
+#: config/client-strings.json:degNoSection
+msgid "No section"
+msgstr ""
+
+#: view/common/block-layout/partials/dashboard-async.phtml:45
+#: view/dre-visualizations/embed/block.phtml:38
+msgid "No visualisations are available."
+msgstr ""
+
+#: src/Controller/Site/EmbedController.php:243
+msgid "Not found"
+msgstr ""
+
+#: config/client-strings.json:whatsNewNone
+msgid "Nothing has been added recently."
+msgstr ""
+
+#: config/client-strings.json:spatialNoneOfType
+msgid "Nothing of this kind has a place on the map"
+msgstr ""
+
+#: config/client-strings.json:noData
+msgid "Nothing to show"
+msgstr ""
+
+#: config/client-strings.json:whatsNewEmptyPeriod
+msgid "Nothing was added in this period."
+msgstr ""
+
+#: config/client-strings.json:compareChooseSecond
+msgid "Now choose a second {type} to compare with."
+msgstr ""
+
+#: config/client-strings.json:kgMaxNeighbours
+msgid "Number of connections shown"
+msgstr ""
+
+#: config/client-strings.json:words
+msgid "Number of words"
+msgstr ""
+
+#: config/client-strings.json:kgOfItems
+msgid "of all records"
+msgstr ""
+
+#: config/client-strings.json:semanticLowSignalCount
+msgid "only lightly described"
+msgstr ""
+
+#: src/Form/ConfigForm.php:30
+msgid "Only public items assigned to this public site enter generated JSON. Regeneration fails closed until a site is selected."
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:36
+msgid "Only public items assigned to this public site, including relationship targets and media, enter generated JSON."
+msgstr ""
+
+#: config/client-strings.json:spatialOpenPage
+msgid "Open its page →"
+msgstr ""
+
+#: config/client-strings.json:degOpenPage
+msgid "Open this entity’s page →"
+msgstr ""
+
+#: config/client-strings.json:spatialOpenOrganisation
+msgid "Open this organisation’s page →"
+msgstr ""
+
+#: config/client-strings.json:spatialOpenPerson
+msgid "Open this person’s page →"
+msgstr ""
+
+#: config/client-strings.json:openPlacePage
+msgid "Open this place’s page"
+msgstr ""
+
+#: config/client-strings.json:spatialOpenProject
+msgid "Open this project’s page →"
+msgstr ""
+
+#: config/client-strings.json:kgOpenRecord
+msgid "Open this record"
+msgstr ""
+
+#: config/client-strings.json:spatialOpenSection
+msgid "Open this section’s page →"
+msgstr ""
+
+#: config/client-strings.json:spatialOpenSubject
+msgid "Open this subject’s page →"
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:70
+msgid "Optional gallery title"
+msgstr ""
+
+#: src/Site/BlockLayout/FeaturedCollections.php:48
+msgid "Optional heading shown above the collection grid. The collections themselves come from the module registry."
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:90
+msgid "Optional heading shown above the gallery."
+msgstr ""
+
+#: src/Form/ConfigForm.php:50
+msgid "Optional HTTPS or same-origin MapLibre glyph template containing “{fontstack}” and “{range}”. Required for Entity Network labels."
+msgstr ""
+
+#: src/Form/ConfigForm.php:42
+msgid "Optional HTTPS or same-origin MapLibre style JSON. Leave blank for the privacy-safe blank background."
+msgstr ""
+
+#: src/Form/ConfigForm.php:46
+msgid "Optional HTTPS or same-origin MapLibre style JSON. The light style is used as a fallback when blank."
+msgstr ""
+
+#: src/Site/BlockLayout/FeaturedCollections.php:42
+msgid "Optional section heading"
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:82
+msgid "Optional. Pick a curated collection to apply its item set, sub-collection filter, journal-issue grouping and views automatically. Leave as “None” to configure a plain gallery below."
+msgstr ""
+
+#: view/dre-visualizations/embed/index.phtml:227
+msgid "Or embed a single chart"
+msgstr ""
+
+#: config/client-strings.json:otherSection
+msgid "Other"
+msgstr ""
+
+#: config/client-strings.json:compareNounPeople
+msgid "people"
+msgstr ""
+
+#: config/client-strings.json:compareTypePeople
+#: config/client-strings.json:networkStatPeople
+msgid "People"
+msgstr ""
+
+#: config/client-strings.json:networkTabAffiliations
+msgid "People and institutions"
+msgstr ""
+
+#: config/client-strings.json:networkTabContributors
+msgid "People and projects"
+msgstr ""
+
+#: config/client-strings.json:networkTabAffiliationsDescription
+msgid "People are linked to the institutions recorded as their affiliations."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.affiliationNetwork
+msgid "People are linked to the institutions they are affiliated with."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.contributorNetwork
+msgid "People are linked to the projects they contributed to."
+msgstr ""
+
+#: config/client-strings.json:networkTabContributorsDescription
+msgid "People are linked to the research projects they contributed items to."
+msgstr ""
+
+#: config/client-strings.json:networkTabCollaborationDescription
+msgid "People are linked when they appear on the same research item. Colour marks groups who work together often."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.speakerNetwork
+msgid "People are linked when they feature on the same episode. Colour marks groups who appear together often."
+msgstr ""
+
+#: config/client-strings.json:chartLabel.contributors
+#: config/client-strings.json:compareChartContributors
+msgid "People linked most often"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.topPersons
+msgid "People ranked by the number of research items they are linked to."
+msgstr ""
+
+#: config/client-strings.json:chartLabel.topPersons
+msgid "People with the most items"
+msgstr ""
+
+#: config/client-strings.json:degDescription
+msgid "People, organisations, places, subjects and tags are linked here when they are recorded on the same research item. The more often two of them appear together, the closer they sit, so the map falls into groups of entities that share a research context. Drag to pan and scroll to zoom; hover over an entity to pick out its links, or click it for a summary and a link to its page."
+msgstr ""
+
+#: config/client-strings.json:compareNounPerson
+#: config/client-strings.json:rolePerson
+msgid "person"
+msgstr ""
+
+#: config/client-strings.json:compareTypePerson
+msgid "Person"
+msgstr ""
+
+#: config/client-strings.json:photoPosition
+msgid "Photo"
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:41
+msgid "Photo Browsing"
+msgstr ""
+
+#: config/client-strings.json:spatialPickHint
+msgid "Pick something from the list to see only its places, or leave it as it is to browse the whole collection."
+msgstr ""
+
+#: config/client-strings.json:spatialPlaceOne
+msgid "place"
+msgstr ""
+
+#: config/client-strings.json:place
+msgid "Place"
+msgstr ""
+
+#: config/client-strings.json:origin
+msgid "Place of origin"
+msgstr ""
+
+#: config/client-strings.json:spatialPlaceOther
+msgid "places"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.locations
+msgid "Places of origin and current locations"
+msgstr ""
+
+#: src/Controller/Site/EmbedController.php:89
+#: src/Site/BlockLayout/Podcasts.php:15
+msgid "Podcasts"
+msgstr ""
+
+#: config/client-strings.json:langPortuguese
+msgid "Portuguese"
+msgstr ""
+
+#: config/client-strings.json:pagesAbbr
+msgid "pp."
+msgstr ""
+
+#: config/client-strings.json:degEnterToSelect
+#: config/client-strings.json:kgEnterToOpen
+msgid "Press Enter to select."
+msgstr ""
+
+#: view/dre-visualizations/embed/index.phtml:226
+msgid "Preview"
+msgstr ""
+
+#: config/client-strings.json:previous
+msgid "Previous"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.radar
+#: config/client-strings.json:compareProfile
+#: config/client-strings.json:radarProfile
+msgid "Profile"
+msgstr ""
+
+#: config/client-strings.json:compareNounProject
+#: config/client-strings.json:roleProject
+msgid "project"
+msgstr ""
+
+#: config/client-strings.json:compareTypeProject
+#: config/client-strings.json:explorerProject
+msgid "Project"
+msgstr ""
+
+#: config/client-strings.json:explorerTitle
+#: src/Controller/Site/EmbedController.php:126
+msgid "Project explorer"
+msgstr ""
+
+#: src/Site/BlockLayout/ProjectExplorer.php:15
+msgid "Project Explorer"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.gantt
+msgid "Project timelines"
+msgstr ""
+
+#: config/client-strings.json:compareNounProjects
+msgid "projects"
+msgstr ""
+
+#: config/client-strings.json:compareTypeProjects
+#: config/client-strings.json:networkStatProjects
+msgid "Projects"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.beeswarm
+msgid "Projects by start year"
+msgstr ""
+
+#: config/client-strings.json:whatsNewTopProjects
+msgid "Projects that added the most"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.topProjects
+msgid "Projects with the most items"
+msgstr ""
+
+#: config/client-strings.json:publicationOne
+msgid "publication"
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:33
+msgid "Publication scope:"
+msgstr ""
+
+#: config/client-strings.json:publicationOther
+msgid "publications"
+msgstr ""
+
+#: src/Controller/Site/EmbedController.php:75
+#: src/Site/BlockLayout/Publications.php:15
+msgid "Publications"
+msgstr ""
+
+#: src/Controller/Admin/MaintenanceController.php:74
+msgid "Published visualizations withdrawn."
+msgstr ""
+
+#: config/client-strings.json:boxplotQ1
+msgid "Q1"
+msgstr ""
+
+#: config/client-strings.json:boxplotQ3
+msgid "Q3"
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:25
+msgid "Rebuild all precomputed visualisation data directly from the Omeka database — no shell access or external tools required. Runs as a background job; track progress in the Jobs admin page."
+msgstr ""
+
+#: src/Site/BlockLayout/WhatsNew.php:21
+msgid "Recent additions and the most-active projects, in 3 / 6 / 12-month windows. No configuration needed."
+msgstr ""
+
+#: config/client-strings.json:semanticRecordOne
+msgid "record"
+msgstr ""
+
+#: config/client-strings.json:semanticRecordOther
+msgid "records"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.templates
+msgid "Records by description template"
+msgstr ""
+
+#: config/client-strings.json:semanticMapTitle
+#: src/Controller/Site/EmbedController.php:106
+msgid "Records by similarity"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.templates
+msgid "Records counted by the description template they use: Article, Book, Research Item, and so on."
+msgstr ""
+
+#: view/common/resource-page-block-layout/similar-items.phtml:21
+msgid "Records on similar topics"
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:30
+msgid "Regenerate dashboard data"
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:53
+msgid "Regenerate now"
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:44
+msgid "Regenerates every precomputed artefact: per-entity dashboards (sections, projects, people, institutions, locations, subjects), category overviews, the collection overview, the Discursive Communities graph, and the per-country choropleth index."
+msgstr ""
+
+#: config/client-strings.json:relationship
+msgid "Relationship"
+msgstr ""
+
+#: src/Form/ConfigForm.php:54
+msgid "Required when a basemap URL is configured, but shown only when that style does not already credit its own sources. Most providers (CARTO included) do credit themselves, so this is normally an unused fallback rather than the text on the map."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.timeline
+msgid "Research items collected each year."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.projects
+msgid "Research items counted by project within this section."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.sectionUniversity
+msgid "Research items counted by research section and university."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.sectionsBar
+msgid "Research projects counted by thematic research section."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.topProjects
+msgid "Research projects ranked by the number of items they hold."
+msgstr ""
+
+#: config/client-strings.json:chartLabel.sectionUniversity
+msgid "Research section by university"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.sectionsBar
+msgid "Research sections"
+msgstr ""
+
+#: config/client-strings.json:mapResetBearing
+msgid "Reset the map to north"
+msgstr ""
+
+#: config/client-strings.json:resetView
+msgid "Reset view"
+msgstr ""
+
+#: config/client-strings.json:semanticType
+msgid "Resource type"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.heatmap
+msgid "Resource type by language"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.topResourceTypes
+#: config/client-strings.json:chartLabel.types
+#: config/client-strings.json:compareChartTypes
+msgid "Resource types"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.topResourceTypes
+msgid "Resource types ranked by the number of items they cover."
+msgstr ""
+
+#: config/client-strings.json:kgResumeLabel
+msgid "Resume the layout"
+msgstr ""
+
+#: config/client-strings.json:saveImage
+msgid "Save this chart as an image"
+msgstr ""
+
+#: config/client-strings.json:saveGraphImage
+msgid "Save this graph as an image"
+msgstr ""
+
+#: config/client-strings.json:spatialSearchLabel
+msgid "Search by name"
+msgstr ""
+
+#: config/client-strings.json:spatialSearchPlaceholder
+msgid "Search by name…"
+msgstr ""
+
+#: config/client-strings.json:semanticSearchPlaceholder
+msgid "Search by title…"
+msgstr ""
+
+#: config/client-strings.json:searchEntities
+msgid "Search entities"
+msgstr ""
+
+#: config/client-strings.json:searchEntitiesPlaceholder
+msgid "Search entities…"
+msgstr ""
+
+#: config/client-strings.json:compareSearchFor
+msgid "Search for a {type}…"
+msgstr ""
+
+#: config/client-strings.json:degSection
+msgid "Section"
+msgstr ""
+
+#: config/client-strings.json:beeswarmSection
+#: config/client-strings.json:degSectionLabel
+msgid "Section:"
+msgstr ""
+
+#: config/client-strings.json:kgListToggle
+msgid "See these connections as a list"
+msgstr ""
+
+#: config/client-strings.json:degListToggle
+msgid "See these entities as a list"
+msgstr ""
+
+#: Module.php:120
+msgid "Select a public canonical site."
+msgstr ""
+
+#: src/Form/ConfigForm.php:31
+msgid "Select a public site"
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:65
+msgid "Select an item set…"
+msgstr ""
+
+#: src/Site/BlockLayout/SemanticMap.php:15
+msgid "Semantic Map"
+msgstr ""
+
+#: config/client-strings.json:series
+msgid "Series"
+msgstr ""
+
+#: config/client-strings.json:radarSeries
+msgid "Series {n}"
+msgstr ""
+
+#: config/client-strings.json:sharedItemOne
+msgid "shared item"
+msgstr ""
+
+#: config/client-strings.json:sharedItemOther
+msgid "shared items"
+msgstr ""
+
+#: config/client-strings.json:degSharedItems
+msgid "Shared items"
+msgstr ""
+
+#: config/client-strings.json:sharedPublicationOne
+msgid "shared publication"
+msgstr ""
+
+#: config/client-strings.json:sharedPublicationOther
+msgid "shared publications"
+msgstr ""
+
+#: config/client-strings.json:compareSharedSubjectOverlap
+msgid "shared subject overlap"
+msgstr ""
+
+#: config/client-strings.json:showAbstract
+msgid "Show abstract"
+msgstr ""
+
+#: config/client-strings.json:mapGlobeDisable
+msgid "Show as a flat map"
+msgstr ""
+
+#: config/client-strings.json:mapGlobeEnable
+msgid "Show as a globe"
+msgstr ""
+
+#: config/client-strings.json:degClearFiltersTitle
+msgid "Show every entity again and drop the current selection"
+msgstr ""
+
+#: config/client-strings.json:kgLabelsLabel
+msgid "Show every label"
+msgstr ""
+
+#: config/client-strings.json:kgHalosLabel
+msgid "Show groups in colour"
+msgstr ""
+
+#: config/client-strings.json:kgMinStrengthHelp
+msgid "Show only the records that have a distinctive amount in common with this one"
+msgstr ""
+
+#: config/client-strings.json:dataTableTruncated
+msgid "Showing the first {count} rows. Download data (CSV) for all of them."
+msgstr ""
+
+#: view/common/block-layout/photo-browse.phtml:158
+msgid "Showing the first %s images"
+msgstr ""
+
+#: src/Site/ResourcePageBlockLayout/SiblingItemsSparkline.php:14
+msgid "Sibling Items Sparkline"
+msgstr ""
+
+#: src/Site/BlockLayout/CompareEntity.php:21
+msgid "Side-by-side comparison of any two entities of the same type (projects, people, institutions, subjects, languages, genres), with an in-page type switcher. No configuration needed."
+msgstr ""
+
+#: src/Site/BlockLayout/CompareGenres.php:21
+msgid "Side-by-side comparison of two genres. No configuration needed."
+msgstr ""
+
+#: src/Site/ResourcePageBlockLayout/SimilarItems.php:14
+msgid "Similar Items"
+msgstr ""
+
+#: config/client-strings.json:visualizationsPartial
+msgid "Some visualisations could not be loaded."
+msgstr ""
+
+#: config/client-strings.json:source
+#: view/dre-visualizations/layout/embed.phtml:90
+msgid "Source"
+msgstr ""
+
+#: config/client-strings.json:spatialTitle
+msgid "Spatial exploration"
+msgstr ""
+
+#: src/Site/BlockLayout/SpatialExploration.php:15
+msgid "Spatial Exploration"
+msgstr ""
+
+#: src/Controller/Site/EmbedController.php:101
+msgid "Spatial exploration (map of places)"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.boxplot
+msgid "Spread of items per project"
+msgstr ""
+
+#: config/client-strings.json:beeswarmStartYear
+msgid "Start year"
+msgstr ""
+
+#: config/client-strings.json:beeswarmStart
+msgid "Start:"
+msgstr ""
+
+#: config/client-strings.json:kgFreezeTitle
+msgid "Stop the graph moving and leave everything where it is"
+msgstr ""
+
+#: config/client-strings.json:degStrongest
+msgid "Strongest connections ({shown} of {total})"
+msgstr ""
+
+#: config/client-strings.json:compareNounSubject
+msgid "subject"
+msgstr ""
+
+#: config/client-strings.json:compareTypeSubject
+msgid "Subject"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.topSubjects
+msgid "Subject headings with the most items"
+msgstr ""
+
+#: config/client-strings.json:compareSubjectOverlap
+msgid "subject overlap"
+msgstr ""
+
+#: config/client-strings.json:compareNounSubjects
+msgid "subjects"
+msgstr ""
+
+#: config/client-strings.json:compareChartSubjects
+#: config/client-strings.json:compareTypeSubjects
+msgid "Subjects"
+msgstr ""
+
+#: config/client-strings.json:compareChartCoSubjects
+msgid "Subjects alongside"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.subjects
+msgid "Subjects and tags"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.timeChord
+msgid "Subjects assigned to the same item, year by year. Press play or drag the slider."
+msgstr ""
+
+#: config/client-strings.json:chartLabel.subjectTrends
+msgid "Subjects over time"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.coSubjects
+msgid "Subjects that appear alongside"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.chord
+msgid "Subjects that appear together"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.timeChord
+msgid "Subjects that appear together, year by year"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.chord
+msgid "Subjects that are often assigned to the same research item."
+msgstr ""
+
+#: config/client-strings.json:tableOfContents
+msgid "Table of contents"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.topTags
+msgid "Tags ranked by the number of research items that carry them."
+msgstr ""
+
+#: config/client-strings.json:chartLabel.topTags
+msgid "Tags with the most items"
+msgstr ""
+
+#: config/client-strings.json:target
+msgid "Target"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.topAudiences
+msgid "Target audiences"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.topAudiences
+msgid "Target audiences ranked by the number of items addressed to them."
+msgstr ""
+
+#: config/client-strings.json:showPatterns
+msgid "Tell the colours apart with fill patterns"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.topAuthors
+msgid "The authors credited on the most publications, whether they have a record here or appear as a name only."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.languageTimeline
+msgid "The changing mix of languages from year to year."
+msgstr ""
+
+#: config/client-strings.json:comparisonLoadError
+msgid "The comparison could not be loaded."
+msgstr ""
+
+#: config/client-strings.json:semanticLowSignal
+msgid "The faint points are records with too little description for the map to place them reliably."
+msgstr ""
+
+#: src/Site/BlockLayout/CollectionDashboard.php:29
+msgid "The full set of aggregate visualisations across the entire collection. For a curated, home-page-friendly subset use the \"Collection Overview\" block instead. No configuration needed."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.funders
+msgid "The funding bodies credited on these publications."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.genres
+msgid "The genres assigned most often across the research items."
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:86
+msgid "The image-heavy item set to display as a photo gallery. Ignored when a Featured collection is selected above."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.topVenues
+msgid "The journals and book series these publications appear in most often."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.languages
+msgid "The languages recorded across the research items."
+msgstr ""
+
+#: config/client-strings.json:compareListError
+msgid "The list of {types} could not be loaded."
+msgstr ""
+
+#: config/client-strings.json:explorerListError
+msgid "The list of projects could not be loaded."
+msgstr ""
+
+#: config/client-strings.json:mapLoadError
+msgid "The map could not be loaded."
+msgstr ""
+
+#: src/Form/ConfigValues.php:37
+msgid "The map glyph URL must contain “{fontstack}” and “{range}”."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.types
+msgid "The mix of resource types: audio, text, image, and so on."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.contributors
+msgid "The people linked to research items most often."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.coAuthors
+msgid "The people who appear alongside this person most often."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.clusterPartners
+msgid "The research centres and partner institutions behind the collection. Use the legend to show or hide a category."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.roles
+msgid "The roles people are credited in: author, collector, photographer, and so on."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.treemap
+msgid "The share of items held by each project, split by resource type."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.subjects
+msgid "The subjects and tags used most often. Controlled subject headings and free-text tags are counted together."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.coSubjects
+msgid "The subjects that appear alongside this one most often."
+msgstr ""
+
+#: config/client-strings.json:visualizationLoadError
+#: view/common/block-layout/partials/dashboard-async.phtml:46
+#: view/dre-visualizations/embed/block.phtml:39
+msgid "The visualization could not be loaded."
+msgstr ""
+
+#: config/client-strings.json:semanticSharedSpace
+msgid "The whole collection at a glance"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.transcriptWordcloud
+msgid "The words that come up most often across the episode transcripts."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.abstractWordcloud
+msgid "The words that come up most often across the publication abstracts."
+msgstr ""
+
+#: config/client-strings.json:spatialPickOne
+msgid "Then pick one"
+msgstr ""
+
+#: config/client-strings.json:photoNone
+msgid "There are no images to show."
+msgstr ""
+
+#: config/client-strings.json:spatialNoPlaces
+msgid "There are no mapped places yet."
+msgstr ""
+
+#: config/client-strings.json:networkNone
+msgid "There are no networks to show yet."
+msgstr ""
+
+#: config/client-strings.json:noVisualizationData
+msgid "There is no data for this chart."
+msgstr ""
+
+#: config/client-strings.json:degNone
+msgid "There is no entity network to show yet."
+msgstr ""
+
+#: config/client-strings.json:networkEmpty
+msgid "There is nothing to show in this network yet."
+msgstr ""
+
+#: view/common/resource-page-block-layout/similar-items.phtml:22
+msgid "These records share subjects and descriptions with this one, even where the language or the resource type is different. The percentage shows how close the match is."
+msgstr ""
+
+#: config/client-strings.json:kgSharedOne
+msgid "thing in common"
+msgstr ""
+
+#: config/client-strings.json:kgSharedOther
+msgid "things in common"
+msgstr ""
+
+#: config/client-strings.json:networkStatShared
+msgid "Things they share"
+msgstr ""
+
+#: config/client-strings.json:thisItem
+msgid "this"
+msgstr ""
+
+#: config/client-strings.json:roleThisInstitution
+msgid "this institution"
+msgstr ""
+
+#: config/client-strings.json:semanticLoadError
+msgid "This map is not available yet. It is rebuilt when the collection is next processed."
+msgstr ""
+
+#: config/client-strings.json:mapUnavailable
+msgid "This map needs WebGL, which this browser or device cannot provide."
+msgstr ""
+
+#: config/client-strings.json:thisProject
+msgid "This project"
+msgstr ""
+
+#: config/client-strings.json:projectLoadError
+msgid "This project could not be loaded."
+msgstr ""
+
+#: config/client-strings.json:noProjectData
+msgid "This project has nothing to visualise yet."
+msgstr ""
+
+#: config/client-strings.json:kgNoRelationships
+msgid "This record has no connections to show."
+msgstr ""
+
+#: view/dre-visualizations/embed/not-found.phtml:13
+msgid "This visualisation cannot be embedded."
+msgstr ""
+
+#: view/common/block-layout/partials/async-surface.phtml:46
+msgid "This visualization needs JavaScript."
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:77
+#: view/common/block-layout/photo-browse.phtml:140
+msgid "Timeline"
+msgstr ""
+
+#: config/client-strings.json:mapToggleAttribution
+msgid "Toggle attribution"
+msgstr ""
+
+#: config/client-strings.json:kgFilters
+msgid "Toggle graph filters"
+msgstr ""
+
+#: config/client-strings.json:retry
+msgid "Try again"
+msgstr ""
+
+#: config/client-strings.json:degType
+msgid "Type"
+msgstr ""
+
+#: config/client-strings.json:undated
+msgid "Undated"
+msgstr ""
+
+#: config/client-strings.json:unknownCountry
+msgid "Unknown"
+msgstr ""
+
+#: config/client-strings.json:untitled
+msgid "Untitled"
+msgstr ""
+
+#: config/client-strings.json:whatsNewUpTo
+msgid "up to {date}"
+msgstr ""
+
+#: config/client-strings.json:degUrl
+msgid "URL"
+msgstr ""
+
+#: config/client-strings.json:mapGestureMac
+msgid "Use ⌘ + scroll to zoom the map"
+msgstr ""
+
+#: config/client-strings.json:mapGestureWindows
+msgid "Use Ctrl + scroll to zoom the map"
+msgstr ""
+
+#: config/client-strings.json:mapGestureMobile
+msgid "Use two fingers to move the map"
+msgstr ""
+
+#: config/client-strings.json:value
+msgid "Value"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.playlists
+msgid "Videos by playlist"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.playlists
+msgid "Videos counted by the playlist they belong to."
+msgstr ""
+
+#: view/common/block-layout/photo-browse.phtml:196
+msgid "View as"
+msgstr ""
+
+#: config/client-strings.json:viewItem
+msgid "View item"
+msgstr ""
+
+#: config/client-strings.json:viewLocation
+msgid "View location"
+msgstr ""
+
+#: config/client-strings.json:viewOrganisation
+msgid "View organisation"
+msgstr ""
+
+#: config/client-strings.json:visualisations
+#: src/Site/ResourcePageBlockLayout/LinkedItemsDashboard.php:17
+msgid "Visualisations"
+msgstr ""
+
+#: config/client-strings.json:visualizationsReady
+#: view/common/block-layout/partials/dashboard-async.phtml:44
+#: view/dre-visualizations/embed/block.phtml:37
+msgid "Visualisations ready."
+msgstr ""
+
+#: config/client-strings.json:visualizationReady
+msgid "Visualization ready."
+msgstr ""
+
+#: config/client-strings.json:issueCaption
+msgid "Vol. {volume} No. {issue}"
+msgstr ""
+
+#: config/client-strings.json:compareVs
+msgid "vs"
+msgstr ""
+
+#: config/client-strings.json:compareWhat
+msgid "What to compare"
+msgstr ""
+
+#: config/client-strings.json:whatsNewTitle
+#: src/Controller/Site/EmbedController.php:131
+msgid "What's new"
+msgstr ""
+
+#: src/Site/BlockLayout/WhatsNew.php:15
+msgid "What's New"
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:47
+msgid "When to run:"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.affiliationMap
+msgid "Where affiliated institutions are"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.locations
+msgid "Where research items come from and where they are held today, with lines linking the two."
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:94
+msgid "Which browser opens first. Timeline needs dated items; Map needs coordinates (and is off for journal-issue collections). Each is hidden automatically when it does not apply."
+msgstr ""
+
+#: config/client-strings.json:networkTabAffiliationsTitle
+msgid "Which institutions each person belongs to"
+msgstr ""
+
+#: config/client-strings.json:networkTabInstitutionsTitle
+msgid "Which institutions work together"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.speakerNetwork
+msgid "Who appears together"
+msgstr ""
+
+#: config/client-strings.json:networkTabContributorsTitle
+msgid "Who contributes to which project"
+msgstr ""
+
+#: config/client-strings.json:networkTabCollaborationTitle
+msgid "Who works with whom"
+msgstr ""
+
+#: config/client-strings.json:spatialWholeCollection
+msgid "Whole collection"
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:55
+msgid "Withdraw published data"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.abstractWordcloud
+msgid "Words in the abstracts"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.transcriptWordcloud
+msgid "Words in the transcripts"
+msgstr ""
+
+#: src/Controller/Site/EmbedController.php:82
+#: src/Site/BlockLayout/YouTube.php:15
+msgid "YouTube"
+msgstr ""
+
+#: config/client-strings.json:mapZoomIn
+msgid "Zoom in"
+msgstr ""
+
+#: config/client-strings.json:mapZoomOut
+msgid "Zoom out"
+msgstr ""
+
+#: config/client-strings.json:spatialZoomToCountry
+msgid "Zoom to country"
+msgstr ""
