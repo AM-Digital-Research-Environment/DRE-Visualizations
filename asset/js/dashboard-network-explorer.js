@@ -219,7 +219,7 @@
             var builder = tab.builder();
             if (!el) return;
             if (!builder) {
-                ns.setChildren(el, [ns.errorNotice(ns.t('visualizationLoadError', 'The visualization could not be loaded.'))]);
+                ns.setChildren(el, [ns.errorNotice(ns.t('visualizationLoadError', 'The visualisation could not be loaded.'))]);
                 return;
             }
             var chart = ns.buildChart(function () { return builder(el, graph, siteBase); });
@@ -252,7 +252,7 @@
                 state.ready();
             }).catch(function (err) {
                 console.error('DreVisualizations network-explorer:', err);
-                state.error(ns.t('visualizationLoadError', 'The visualization could not be loaded.'), run);
+                state.error(ns.t('visualizationLoadError', 'The visualisation could not be loaded.'), run);
             });
         }
         run();

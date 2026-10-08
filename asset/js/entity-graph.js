@@ -1185,7 +1185,7 @@
                 state.ready(t('degReady', 'Entity network ready.'));
             }).catch(function (err) {
                 console.error('DreVisualizations entity-graph:', err);
-                state.error(t('visualizationLoadError', 'The visualization could not be loaded.'), run);
+                state.error(t('visualizationLoadError', 'The visualisation could not be loaded.'), run);
             });
         }
         run();

@@ -78,7 +78,7 @@ for (const fragment of [
   'class="rv-dashboard-content"',
   'class="rv-loading rv-async-loading" aria-hidden="true"',
   '<noscript>',
-  "translate('This visualization needs JavaScript.')",
+  "translate('This visualisation needs JavaScript.')",
   "translate('Loading…')",
 ]) {
   requireFragment(template, fragment, `async surface partial is missing ${fragment}`);

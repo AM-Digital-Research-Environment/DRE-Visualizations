@@ -1661,6 +1661,7 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
    forced-colours mode drops: give every map control the module's outline
    (inset, since the control group clips its overflow). */
 .maplibregl-ctrl button:focus-visible,
+.maplibregl-ctrl summary:focus-visible,
 .maplibregl-ctrl-group button.rv-map-fullscreen:focus-visible {
     outline: 2px solid var(--rv-focus-color);
     outline-offset: -2px;

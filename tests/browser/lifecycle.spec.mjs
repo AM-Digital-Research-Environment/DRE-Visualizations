@@ -152,7 +152,7 @@ test.describe('lifecycle', () => {
     await stubData(page, (path) => (path.endsWith('/test.json') ? (fail ? 503 : DASHBOARD) : undefined));
     const container = await openSurface(page, 'dashboard');
     await expect(container).toHaveAttribute('data-state', 'error');
-    await expect(page.locator('.rv-async-status')).toHaveText('The visualization could not be loaded.');
+    await expect(page.locator('.rv-async-status')).toHaveText('The visualisation could not be loaded.');
     fail = false;
     await page.getByRole('button', { name: 'Try again' }).click();
     await expect(container).toHaveAttribute('data-state', 'ready');

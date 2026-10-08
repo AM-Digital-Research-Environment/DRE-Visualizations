@@ -88,7 +88,7 @@ for (const kind of ['data', 'library']) {
         assert.equal(result.host.dataset.state, 'error');
         assert.equal(result.host.attributes['aria-busy'], 'false');
         const notice = result.content.children[0];
-        assert.equal(notice.children[0].textContent, 'The visualization could not be loaded.');
+        assert.equal(notice.children[0].textContent, 'The visualisation could not be loaded.');
         assert.equal(notice.children[1].textContent, 'Try again');
         assert.equal(result.errors.length, 1);
         // "Try again" reruns the request in place instead of reloading the page.

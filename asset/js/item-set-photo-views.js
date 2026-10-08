@@ -76,7 +76,7 @@
             photos = JSON.parse(dataEl.textContent || '[]');
         } catch (e) {
             console.error('DreVisualizations photo-browse:', e);
-            state.error(ns.t('visualizationLoadError', 'The visualization could not be loaded.'));
+            state.error(ns.t('visualizationLoadError', 'The visualisation could not be loaded.'));
             return;
         }
         if (!photos.length) {

@@ -157,7 +157,7 @@
         var settled = false; // once true, a failure is reported to the host directly
         function fail(el, key, error) {
             failures++;
-            el.textContent = ns.t('visualizationLoadError', 'The visualization could not be loaded.');
+            el.textContent = ns.t('visualizationLoadError', 'The visualisation could not be loaded.');
             el.classList.add('rv-chart-error');
             console.warn('[DreVisualizations] Chart failed: ' + key, error);
             if (settled && host.dataset) {
@@ -312,7 +312,7 @@
             Promise.resolve().then(render).catch(function (error) {
                 console.warn('[DreVisualizations] Dashboard failed', error);
                 showMessage(container, container.dataset.errorStatus
-                    || ns.t('visualizationLoadError', 'The visualization could not be loaded.'), 'error', retry);
+                    || ns.t('visualizationLoadError', 'The visualisation could not be loaded.'), 'error', retry);
             });
         }
         function retry() {

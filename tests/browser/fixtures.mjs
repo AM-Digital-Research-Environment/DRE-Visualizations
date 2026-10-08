@@ -35,7 +35,7 @@ const PAGES = {
       'item-id': 'test',
       'ready-status': 'Visualisations ready.',
       'empty-status': 'No visualisations are available.',
-      'error-status': 'The visualization could not be loaded.',
+      'error-status': 'The visualisation could not be loaded.',
     }, { statusInside: true })}</div>`,
   },
   semantic: {

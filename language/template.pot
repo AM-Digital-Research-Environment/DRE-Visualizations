@@ -1920,7 +1920,7 @@ msgstr ""
 #: config/client-strings.json:visualizationLoadError
 #: view/common/block-layout/partials/dashboard-async.phtml:46
 #: view/dre-visualizations/embed/block.phtml:39
-msgid "The visualization could not be loaded."
+msgid "The visualisation could not be loaded."
 msgstr ""
 
 #: config/client-strings.json:semanticSharedSpace
@@ -2016,7 +2016,7 @@ msgid "This visualisation cannot be embedded."
 msgstr ""
 
 #: view/common/block-layout/partials/async-surface.phtml:46
-msgid "This visualization needs JavaScript."
+msgid "This visualisation needs JavaScript."
 msgstr ""
 
 #: src/Site/BlockLayout/PhotoBrowse.php:77

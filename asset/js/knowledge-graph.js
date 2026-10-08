@@ -141,7 +141,7 @@
             state.ready(t('kgReady', 'Knowledge graph ready.'));
         }).catch(function (err) {
             console.error('DreVisualizations:', err);
-            state.error(t('visualizationLoadError', 'The visualization could not be loaded.'), retry);
+            state.error(t('visualizationLoadError', 'The visualisation could not be loaded.'), retry);
         });
     }
 
@@ -159,7 +159,7 @@
                 .then(function () { return initKnowledgeGraph(container, state, run); })
                 .catch(function (err) {
                     console.error('DreVisualizations:', err);
-                    state.error(t('visualizationLoadError', 'The visualization could not be loaded.'), run);
+                    state.error(t('visualizationLoadError', 'The visualisation could not be loaded.'), run);
                 });
         }
         ns.mountWhenVisible(container, run);

@@ -103,7 +103,7 @@
             },
             /** Show the message and a "Try again" button that calls `retry`. */
             error: function (message, retry, target) {
-                message = message || ns.t('visualizationLoadError', 'The visualization could not be loaded.');
+                message = message || ns.t('visualizationLoadError', 'The visualisation could not be loaded.');
                 ns.setChildren(target || container, [ns.errorNotice(message, retry)]);
                 settle('error', message);
             },
