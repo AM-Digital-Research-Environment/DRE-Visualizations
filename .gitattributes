@@ -1,7 +1,9 @@
 # Store every text file with LF regardless of the contributor's platform, so
 # the release archive is byte-stable and a Windows checkout cannot commit CRLF
-# into PHP/JS that ships to a Linux container. Working copies keep native EOLs.
-* text=auto
+# into PHP/JS that ships to a Linux container. Working copies are LF too, as
+# in DRE-theme and DRE-Search: byte comparisons such as the theme's
+# `vendor:lint --check` then hold on Windows checkouts.
+* text=auto eol=lf
 
 # Images are binary: no EOL conversion, no attempt to diff them.
 *.png -text -diff

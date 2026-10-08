@@ -259,7 +259,7 @@ export function runRules(config) {
             continue;
           }
           const got = norm(fallback);
-          if (got === norm(want) || got === norm(darkFallbacks[name] ?? ' ')) continue;
+          if (got === norm(want) || got === norm(darkFallbacks[name] ?? '\0')) continue;
           push('fallback', rel, line,
             `var(${name}, ${fallback.replace(/\s+/g, ' ').slice(0, 48)}) — fallback should be ${want}`);
         }
