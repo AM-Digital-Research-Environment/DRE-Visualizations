@@ -180,16 +180,16 @@
             layers: [
                 {
                     id: 'background', type: 'background',
-                    paint: { 'background-color': ns.cssColor('--surface-sunken', dark ? '#070d0a' : '#f3f0eb') }
+                    paint: { 'background-color': (dark ? ns.cssColor('--surface-sunken', '#070d0a') : ns.cssColor('--surface-sunken', '#f3f0eb')) }
                 },
                 {
                     id: 'dre-country-fill', type: 'fill', source: 'dre-countries',
-                    paint: { 'fill-color': ns.cssColor('--surface', dark ? '#0e1612' : '#fdfcf9') }
+                    paint: { 'fill-color': (dark ? ns.cssColor('--surface', '#0e1612') : ns.cssColor('--surface', '#fdfcf9')) }
                 },
                 {
                     id: 'dre-country-line', type: 'line', source: 'dre-countries',
                     paint: {
-                        'line-color': ns.cssColor('--border-strong', dark ? '#49534e' : '#bfbab3'),
+                        'line-color': (dark ? ns.cssColor('--border-strong', '#49534e') : ns.cssColor('--border-strong', '#bfbab3')),
                         'line-width': 0.6
                     }
                 },
@@ -206,8 +206,8 @@
                         'text-padding': 6
                     },
                     paint: {
-                        'text-color': ns.cssColor('--ink-light', dark ? '#b0aea7' : '#5f5650'),
-                        'text-halo-color': ns.cssColor('--surface', dark ? '#0e1612' : '#fdfcf9'),
+                        'text-color': (dark ? ns.cssColor('--ink-light', '#b0aea7') : ns.cssColor('--ink-light', '#5f5650')),
+                        'text-halo-color': (dark ? ns.cssColor('--surface', '#0e1612') : ns.cssColor('--surface', '#fdfcf9')),
                         'text-halo-width': 1.2
                     }
                 }

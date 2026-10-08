@@ -206,15 +206,17 @@
  *   https://github.com/AM-Digital-Research-Environment/DRE-theme
  *
  * `readTheme()` resolves the theme tokens (--primary, --ink, --surface, …) into
- * the shared THEME object and builds an ECharts theme from them. Because the
- * theme re-defines those tokens for dark mode (on `body[data-theme="dark"]`
- * and `@media (prefers-color-scheme: dark)`), the module follows the active
- * light / dark theme — including the live theme toggle, watched in startup.js
- * via a MutationObserver — by re-reading the tokens and calling `chart.setTheme()`
- * (ECharts 6) on every live chart and rebuilding every map (ns.refresh, charts.js).
+ * the shared THEME object and builds an ECharts theme from them. The theme
+ * resolves the mode before first paint and writes it as `data-theme` on <html>
+ * and <body>; the module follows that resolved mode — including the live
+ * toggle, subscribed once in startup.js through ns.onThemeChange (which
+ * delegates to window.DRETokens) — by re-reading the tokens and calling
+ * `chart.setTheme()` (ECharts 6) on every live chart, rebuilding every map and
+ * repainting every tracked canvas renderer (ns.refresh, charts.js).
  *
- * ►► Resolve colours through `ns.cssColor('--token', fallback)` — never add a
- *    raw hex value that won't react to the theme. ◄◄
+ * ►► Resolve colours through `ns.cssColor('--token', 'literal')` — never add a
+ *    raw hex value that won't react to the theme, and take the literal from
+ *    scripts/lib/dre-tokens-fallback.json. ◄◄
  *
  * Source file of the generated asset/js/dashboard-core.js (see base.js).
  */
@@ -400,6 +402,7 @@
         grid: '#dbd7d1',          // ← --border (axis lines)
         gridLight: '#eae8e3',     // ← --border-light (split lines)
         surface: '#fdfcf9',       // ← --surface (export background)
+        muted: '#716a66',         // ← --muted (dimmed graph marks)
         // ← --font-body (in-chart UI text) / --font-display (in-canvas titles)
         fontFamily: '"Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif',
         fontDisplay: '"Spectral", Georgia, "Times New Roman", serif',
@@ -418,17 +421,29 @@
     /*  Theme-token resolution                                             */
     /* ------------------------------------------------------------------ */
 
-    // Hidden probe + 1px canvas, used to resolve CSS custom properties — which
-    // are oklch()/color-mix() in the DRE theme — into a plain sRGB string in the
-    // *currently active* theme. This matters: zrender (ECharts) and MapLibre both
-    // FAIL to parse oklch()/oklab(), so handing them the raw token makes text and
-    // shapes fall back to wrong colours. We must rasterise to rgb() ourselves.
+    // DRE-theme publishes the canonical token bridge as `window.DRETokens`
+    // (asset/js/dre-token-bridge.js; DESIGN-INTEGRATION.md "JavaScript token
+    // bridge"). Every call below prefers it, so the module resolves tokens and
+    // the theme mode exactly as the theme and DRE Search do. The local
+    // implementations are only the off-theme fallback, for a host that does not
+    // ship DRE-theme (an isolated preview, an embed on another stack).
+    //
+    // The technique is the same either way, and it matters: zrender (ECharts)
+    // and MapLibre both FAIL to parse oklch()/oklab(), so a hidden probe parented
+    // to <body> inherits the live [data-theme] cascade and a 1px canvas
+    // rasterises whatever the browser computed into a plain sRGB string.
+    function bridge() {
+        var tokens = window.DRETokens;
+        return tokens && typeof tokens.cssColor === 'function' ? tokens : null;
+    }
+
     var _probe = null;
     var _ctx = null;
 
     function getProbe() {
         if (!_probe) {
             _probe = document.createElement('span');
+            _probe.setAttribute('aria-hidden', 'true');
             _probe.style.cssText = 'position:absolute;left:-9999px;top:-9999px;width:0;height:0;pointer-events:none';
         }
         // Keep the probe parented to <body> so it inherits the active
@@ -444,11 +459,14 @@
      * can parse.
      */
     ns.toRGB = function (color) {
+        var tokens = bridge();
+        if (tokens && typeof tokens.toRGB === 'function') return tokens.toRGB(color);
         if (!_ctx) {
             var cv = document.createElement('canvas');
             cv.width = cv.height = 1;
             _ctx = cv.getContext('2d', { willReadFrequently: true });
         }
+        if (!_ctx) return color;
         _ctx.clearRect(0, 0, 1, 1);
         _ctx.fillStyle = '#000';
         _ctx.fillStyle = color;            // browser parses oklch/color-mix here
@@ -461,6 +479,13 @@
 
     /**
      * Resolve a CSS custom property to a plain rgb()/rgba() colour string.
+     *
+     * The fallback is only ever painted on a host without DRE-theme. Copy it from
+     * scripts/lib/dre-tokens-fallback.json (its light or dark column) and write
+     * it as a LITERAL at the call site — `ns.cssColor('--ink', '#3c342d')` — so
+     * the shared token lint can check it. A fallback computed at run time, or a
+     * call through a local alias of this function, is invisible to it.
+     *
      * @param {string} name  e.g. '--primary'
      * @param {string} fallback  used when the host theme lacks the token
      */
@@ -469,14 +494,19 @@
         var key = name + '|' + fallback;
         if (key in _colorCache) return _colorCache[key];
         var color;
-        try {
-            var probe = getProbe();
-            probe.style.color = '';
-            probe.style.color = 'var(' + name + ', ' + fallback + ')';
-            var resolved = getComputedStyle(probe).color;
-            color = ns.toRGB(resolved || fallback) || fallback;
-        } catch (e) {
-            return fallback; // not cached: the probe may simply not exist yet
+        var tokens = bridge();
+        if (tokens) {
+            color = tokens.cssColor(name, fallback);
+        } else {
+            try {
+                var probe = getProbe();
+                probe.style.color = '';
+                probe.style.color = 'var(' + name + ', ' + fallback + ')';
+                var resolved = getComputedStyle(probe).color;
+                color = ns.toRGB(resolved || fallback) || fallback;
+            } catch (e) {
+                return fallback; // not cached: the probe may simply not exist yet
+            }
         }
         _colorCache[key] = color;
         return color;
@@ -488,6 +518,8 @@
      * needs no rasterising — canvas font shorthand accepts a stack directly.
      */
     ns.cssFont = function (name, fallback) {
+        var tokens = bridge();
+        if (tokens && typeof tokens.cssFont === 'function') return tokens.cssFont(name, fallback);
         try {
             var probe = getProbe();
             probe.style.fontFamily = '';
@@ -496,6 +528,59 @@
         } catch (e) {
             return fallback;
         }
+    };
+
+    /**
+     * Whether the active theme is dark.
+     *
+     * The answer is the RESOLVED `data-theme` that DRE-theme writes to <html>
+     * and <body> before first paint (the stored choice, else the OS default) —
+     * never the OS preference on a themed page, which inverts for every visitor
+     * who chose the other mode. Only a host that writes no attribute at all
+     * falls through to the media query, exactly as window.DRETokens.isDark()
+     * does and as the `:root:not([data-theme="light"])` guard in the module's
+     * CSS fallback does, so canvas and HTML still agree off-theme.
+     */
+    ns.isDark = function () {
+        var tokens = bridge();
+        if (tokens && typeof tokens.isDark === 'function') return tokens.isDark();
+        var body = document.body && document.body.getAttribute('data-theme');
+        if (body === 'dark') return true;
+        if (body === 'light') return false;
+        var root = document.documentElement.getAttribute('data-theme');
+        if (root === 'dark') return true;
+        if (root === 'light') return false;
+        return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    };
+
+    /**
+     * Call `handler(isDark)` whenever the resolved theme mode changes; returns
+     * an unsubscribe function. Delegates to window.DRETokens.onThemeChange, so
+     * the page shares the theme's one observer; off-theme, one local observer
+     * watches `data-theme` on <html> and <body> for every subscriber.
+     */
+    var _themeListeners = [];
+    var _themeObserver = null;
+    ns.onThemeChange = function (handler) {
+        if (typeof handler !== 'function') return function () {};
+        var tokens = bridge();
+        if (tokens && typeof tokens.onThemeChange === 'function') return tokens.onThemeChange(handler);
+        _themeListeners.push(handler);
+        if (!_themeObserver && window.MutationObserver) {
+            _themeObserver = new window.MutationObserver(function () {
+                var dark = ns.isDark();
+                _themeListeners.slice().forEach(function (listener) {
+                    try { listener(dark); } catch (e) { /* one bad listener must not stop the others */ }
+                });
+            });
+            var options = { attributes: true, attributeFilter: ['data-theme'] };
+            _themeObserver.observe(document.documentElement, options);
+            if (document.body) _themeObserver.observe(document.body, options);
+        }
+        return function () {
+            var at = _themeListeners.indexOf(handler);
+            if (at !== -1) _themeListeners.splice(at, 1);
+        };
     };
 
     /** Parse an 'rgb(r,g,b)' / 'rgba(...)' string to a [r,g,b] array. */
@@ -512,6 +597,11 @@
             + Math.round(pa[2] + (pb[2] - pa[2]) * t) + ')';
     };
 
+    /** A browser-parseable colour (incl. a resolved token) at `alpha` opacity; → 'rgba()'. */
+    ns.withAlpha = function (color, alpha) {
+        return 'rgba(' + _parseRGB(ns.toRGB(color)).join(',') + ',' + alpha + ')';
+    };
+
     /**
      * Five-stop sequential ramp from a faint surface tint (low values) to the
      * brand accent / Uni-Grün (high values), resolved for the ACTIVE theme. Use
@@ -523,18 +613,10 @@
      *     passes its own slightly lighter set
      */
     ns.accentRamp = function (ratios) {
-        var base = ns.cssColor('--surface', ns._darkMode ? '#0e1612' : '#fdfcf9');
+        var base = ns._darkMode ? ns.cssColor('--surface', '#0e1612') : ns.cssColor('--surface', '#fdfcf9');
         return (ratios || [0.86, 0.65, 0.44, 0.22, 0]).map(function (r) {
             return ns.mix(ns.THEME.accent, base, r);
         });
-    };
-
-    /** Whether the active theme is dark: body[data-theme] wins, else system. */
-    ns.isDark = function () {
-        var attr = document.body && document.body.getAttribute('data-theme');
-        if (attr === 'dark') return true;
-        if (attr === 'light') return false;
-        return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     };
 
     /** Read DRE theme tokens into THEME (in place) and rebuild the ECharts theme. */
@@ -554,7 +636,7 @@
         Array.prototype.push.apply(ns.HALO, halo);
 
         var t = ns.THEME;
-        var c = ns.cssColor;
+        var dark = ns._darkMode;
 
         // Type follows the DRE theme: Hanken Grotesk for in-chart UI text,
         // Spectral for the rare in-canvas title — same stacks the page uses,
@@ -564,22 +646,29 @@
         t.fontDisplay = ns.cssFont('--font-display',
             '"Spectral", Georgia, "Times New Roman", serif');
 
-        t.accent      = c('--primary', '#22817b');
-        t.accentDark  = c('--primary-hover', '#1a655f');
-        t.accentLight = c('--primary-muted', '#b2dfdb');
-        t.gradientEnd = c('--primary-muted', '#b2dfdb');
-        t.text        = c('--ink', ns._darkMode ? '#e0e0e0' : '#333333');
-        t.textMuted   = c('--ink-light', ns._darkMode ? '#aaaaaa' : '#666666');
-        t.heading     = c('--ink-strong', ns._darkMode ? '#f0f0f0' : '#222222');
-        t.border      = c('--surface', ns._darkMode ? '#1e1e1e' : '#ffffff');
+        // Each fallback is the theme's generated value for that mode
+        // (scripts/lib/dre-tokens-fallback.json), written as one literal call
+        // per mode so the token lint checks every one of them. They paint only
+        // on a host without DRE-theme; under the theme each token resolves.
+        t.accent      = dark ? ns.cssColor('--primary', '#4da67b') : ns.cssColor('--primary', '#007a50');
+        t.accentDark  = dark ? ns.cssColor('--primary-hover', '#6ab38e') : ns.cssColor('--primary-hover', '#006743');
+        t.accentLight = dark ? ns.cssColor('--primary-muted', '#153023') : ns.cssColor('--primary-muted', '#e4f0e6');
+        t.gradientEnd = t.accentLight;
+        t.text        = dark ? ns.cssColor('--ink', '#e3e1db') : ns.cssColor('--ink', '#3c342d');
+        t.textMuted   = dark ? ns.cssColor('--ink-light', '#b0aea7') : ns.cssColor('--ink-light', '#5f5650');
+        t.heading     = dark ? ns.cssColor('--ink-strong', '#f6f5f1') : ns.cssColor('--ink-strong', '#261d15');
+        t.border      = dark ? ns.cssColor('--surface', '#0e1612') : ns.cssColor('--surface', '#fdfcf9');
         t.surface     = t.border;
-        t.grid        = c('--border', ns._darkMode ? '#3a3a3a' : '#e0e0e0');
-        t.gridLight   = c('--border-light', ns._darkMode ? '#333333' : '#f0f0f0');
+        t.grid        = dark ? ns.cssColor('--border', '#2c3531') : ns.cssColor('--border', '#dbd7d1');
+        t.gridLight   = dark ? ns.cssColor('--border-light', '#1e2622') : ns.cssColor('--border-light', '#eae8e3');
+        // The quiet, de-emphasised mark colour (dimmed graph nodes and edges):
+        // the theme's warm muted ink, so a faded mark stays in the stone family
+        // instead of turning the cold blue-grey it used to be.
+        t.muted       = dark ? ns.cssColor('--muted', '#9c9891') : ns.cssColor('--muted', '#716a66');
 
         ns._echartsTheme = ns.buildEchartsTheme();
         return t;
     };
-
     /** Build an ECharts theme object from the resolved THEME tokens. */
     ns.buildEchartsTheme = function () {
         var t = ns.THEME;
@@ -610,7 +699,7 @@
                 pageTextStyle: { color: t.textMuted }
             },
             tooltip: {
-                backgroundColor: ns.cssColor('--surface-raised', t.surface),
+                backgroundColor: ns._darkMode ? ns.cssColor('--surface-raised', '#151d19') : ns.cssColor('--surface-raised', '#faf8f4'),
                 borderColor: t.grid,
                 textStyle: { color: t.text, fontFamily: t.fontFamily }
             },
@@ -647,7 +736,7 @@
 
     /** Background colour to use when exporting a chart as a PNG. */
     ns.exportBg = function () {
-        return ns.cssColor('--surface', ns._darkMode ? '#0e1612' : '#fdfcf9');
+        return ns._darkMode ? ns.cssColor('--surface', '#0e1612') : ns.cssColor('--surface', '#fdfcf9');
     };
 })();
 ;
@@ -1401,16 +1490,16 @@
             layers: [
                 {
                     id: 'background', type: 'background',
-                    paint: { 'background-color': ns.cssColor('--surface-sunken', dark ? '#070d0a' : '#f3f0eb') }
+                    paint: { 'background-color': (dark ? ns.cssColor('--surface-sunken', '#070d0a') : ns.cssColor('--surface-sunken', '#f3f0eb')) }
                 },
                 {
                     id: 'dre-country-fill', type: 'fill', source: 'dre-countries',
-                    paint: { 'fill-color': ns.cssColor('--surface', dark ? '#0e1612' : '#fdfcf9') }
+                    paint: { 'fill-color': (dark ? ns.cssColor('--surface', '#0e1612') : ns.cssColor('--surface', '#fdfcf9')) }
                 },
                 {
                     id: 'dre-country-line', type: 'line', source: 'dre-countries',
                     paint: {
-                        'line-color': ns.cssColor('--border-strong', dark ? '#49534e' : '#bfbab3'),
+                        'line-color': (dark ? ns.cssColor('--border-strong', '#49534e') : ns.cssColor('--border-strong', '#bfbab3')),
                         'line-width': 0.6
                     }
                 },
@@ -1427,8 +1516,8 @@
                         'text-padding': 6
                     },
                     paint: {
-                        'text-color': ns.cssColor('--ink-light', dark ? '#b0aea7' : '#5f5650'),
-                        'text-halo-color': ns.cssColor('--surface', dark ? '#0e1612' : '#fdfcf9'),
+                        'text-color': (dark ? ns.cssColor('--ink-light', '#b0aea7') : ns.cssColor('--ink-light', '#5f5650')),
+                        'text-halo-color': (dark ? ns.cssColor('--surface', '#0e1612') : ns.cssColor('--surface', '#fdfcf9')),
                         'text-halo-width': 1.2
                     }
                 }
@@ -2037,7 +2126,7 @@
     }
 
     // Body-dependent setup. This script is injected in <head>, so <body> may not
-    // exist yet (the colour probe and the MutationObserver both need it). Defer
+    // exist yet (the colour probe and the theme observer both need it). Defer
     // until the DOM is ready; charts/maps also init on DOMContentLoaded, and
     // initChart() lazily resolves the theme as a safety net.
     function setupThemeWatchers() {
@@ -2045,23 +2134,14 @@
         // body[data-theme] cascade and the first chart renders in the right theme.
         ns.readTheme();
 
-        // The DRE theme toggle sets `data-theme` on <body> (and updates it on
-        // system changes when no manual choice is stored). Watching that single
-        // attribute covers both the manual toggle and the system-preference path.
-        if (window.MutationObserver) {
-            new MutationObserver(scheduleRefresh).observe(document.body, {
-                attributes: true, attributeFilter: ['data-theme']
-            });
-        }
-        // Fallback for host themes that rely solely on the media query.
-        if (window.matchMedia) {
-            var mq = window.matchMedia('(prefers-color-scheme: dark)');
-            var onMqChange = function () {
-                if (!(document.body && document.body.getAttribute('data-theme'))) scheduleRefresh();
-            };
-            if (mq.addEventListener) mq.addEventListener('change', onMqChange);
-            else if (mq.addListener) mq.addListener(onMqChange);
-        }
+        // ONE subscription for the whole module. DRE-theme writes the resolved
+        // mode to `data-theme` on <html> and <body> — for the manual toggle and
+        // for an OS change alike — and ns.onThemeChange (window.DRETokens when
+        // the theme is present) reports it. ns.refresh() then re-themes every
+        // chart and map and repaints every tracked renderer, including the
+        // knowledge graph and the entity network, so no surface keeps an
+        // observer of its own and no surface asks the OS which mode is active.
+        ns.onThemeChange(scheduleRefresh);
     }
 
     function onReady() {

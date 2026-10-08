@@ -24,7 +24,7 @@
     }
 
     // Body-dependent setup. This script is injected in <head>, so <body> may not
-    // exist yet (the colour probe and the MutationObserver both need it). Defer
+    // exist yet (the colour probe and the theme observer both need it). Defer
     // until the DOM is ready; charts/maps also init on DOMContentLoaded, and
     // initChart() lazily resolves the theme as a safety net.
     function setupThemeWatchers() {
@@ -32,23 +32,14 @@
         // body[data-theme] cascade and the first chart renders in the right theme.
         ns.readTheme();
 
-        // The DRE theme toggle sets `data-theme` on <body> (and updates it on
-        // system changes when no manual choice is stored). Watching that single
-        // attribute covers both the manual toggle and the system-preference path.
-        if (window.MutationObserver) {
-            new MutationObserver(scheduleRefresh).observe(document.body, {
-                attributes: true, attributeFilter: ['data-theme']
-            });
-        }
-        // Fallback for host themes that rely solely on the media query.
-        if (window.matchMedia) {
-            var mq = window.matchMedia('(prefers-color-scheme: dark)');
-            var onMqChange = function () {
-                if (!(document.body && document.body.getAttribute('data-theme'))) scheduleRefresh();
-            };
-            if (mq.addEventListener) mq.addEventListener('change', onMqChange);
-            else if (mq.addListener) mq.addListener(onMqChange);
-        }
+        // ONE subscription for the whole module. DRE-theme writes the resolved
+        // mode to `data-theme` on <html> and <body> — for the manual toggle and
+        // for an OS change alike — and ns.onThemeChange (window.DRETokens when
+        // the theme is present) reports it. ns.refresh() then re-themes every
+        // chart and map and repaints every tracked renderer, including the
+        // knowledge graph and the entity network, so no surface keeps an
+        // observer of its own and no surface asks the OS which mode is active.
+        ns.onThemeChange(scheduleRefresh);
     }
 
     function onReady() {

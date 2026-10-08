@@ -2297,7 +2297,7 @@
     function buildRamp() {
         return {
             stops: ns.accentRamp([0.82, 0.62, 0.42, 0.22, 0]), // toward the surface; 0 = full accent
-            empty: ns.cssColor('--border-light', ns.isDark() ? '#1e2622' : '#eae8e3')
+            empty: ns._darkMode ? ns.cssColor('--border-light', '#1e2622') : ns.cssColor('--border-light', '#eae8e3')
         };
     }
 
@@ -2880,7 +2880,7 @@
 
     var ns = window.RV;
     var THEME = ns.THEME;
-    var initChart = ns.initChart, truncateLabel = ns.truncateLabel, cssColor = ns.cssColor;
+    var initChart = ns.initChart, truncateLabel = ns.truncateLabel;
 
     ns.charts = ns.charts || {};
 
@@ -2934,8 +2934,8 @@
                 series: [{
                     type: 'boxplot', data: boxes,
                     itemStyle: {
-                        color: cssColor('--primary-muted', '#e4f0e6'),
-                        borderColor: cssColor('--primary', THEME.accent)
+                        color: THEME.accentLight,   // ← --primary-muted
+                        borderColor: THEME.accent   // ← --primary
                     },
                     tooltip: {
                         formatter: function (p) {

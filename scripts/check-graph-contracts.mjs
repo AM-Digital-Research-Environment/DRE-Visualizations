@@ -60,7 +60,7 @@ function sandbox() {
       addEventListener: noop, getComputedStyle: () => ({ getPropertyValue: () => '' }),
     },
     document: {
-      documentElement: { lang: 'en' }, body: stubEl(), head: stubEl(),
+      documentElement: { lang: 'en', getAttribute: () => null }, body: stubEl(), head: stubEl(),
       createElement: stubEl, readyState: 'complete', addEventListener: noop,
       querySelector: () => null, querySelectorAll: () => [],
       getElementsByTagName: () => [stubEl()],

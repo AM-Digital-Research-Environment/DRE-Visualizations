@@ -39,7 +39,7 @@
     function buildRamp() {
         return {
             stops: ns.accentRamp([0.82, 0.62, 0.42, 0.22, 0]), // toward the surface; 0 = full accent
-            empty: ns.cssColor('--border-light', ns.isDark() ? '#1e2622' : '#eae8e3')
+            empty: ns._darkMode ? ns.cssColor('--border-light', '#1e2622') : ns.cssColor('--border-light', '#eae8e3')
         };
     }
 

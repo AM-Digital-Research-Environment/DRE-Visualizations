@@ -68,7 +68,9 @@
     function typeColor(typeIdx) {
         return ns.entityColor(_types[typeIdx] || '');
     }
-    function dimColor() { return ns.isDark() ? 'rgba(120,130,140,0.30)' : 'rgba(150,160,170,0.30)'; }
+    // Unclustered and bridge nodes: the theme's warm muted ink, faded — not a
+    // cold blue-grey of its own. THEME.muted is re-read on every theme change.
+    function dimColor() { return ns.withAlpha(ns.THEME.muted, 0.3); }
 
     /* ------------------------------------------------------------------ */
     /*  Decode the compact payload                                         */
@@ -1066,13 +1068,12 @@
             if (selectedIndex != null) showDetail(selectedIndex); else showOverview();
         }
 
-        if (window.MutationObserver && document.body) {
-            var tTimer;
-            new MutationObserver(function () {
-                clearTimeout(tTimer);
-                tTimer = setTimeout(applyTheme, 80);
-            }).observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
-        }
+        // Re-themed through the module's ONE theme subscription (startup.js →
+        // ns.refresh), which repaints tracked renderers only AFTER readTheme()
+        // has re-read the tokens — this graph used to race that with a private
+        // MutationObserver of its own. The map is not ns.trackMap'd: a rebuild
+        // would lose the camera and the selection, and paint updates suffice.
+        ns.trackRenderer(container, applyTheme);
 
         /* ------------------------------------------------------------------ */
         /*  Text alternative                                                   */

@@ -11,7 +11,7 @@
 
     var ns = window.RV;
     var THEME = ns.THEME;
-    var initChart = ns.initChart, truncateLabel = ns.truncateLabel, cssColor = ns.cssColor;
+    var initChart = ns.initChart, truncateLabel = ns.truncateLabel;
 
     ns.charts = ns.charts || {};
 
@@ -65,8 +65,8 @@
                 series: [{
                     type: 'boxplot', data: boxes,
                     itemStyle: {
-                        color: cssColor('--primary-muted', '#e4f0e6'),
-                        borderColor: cssColor('--primary', THEME.accent)
+                        color: THEME.accentLight,   // ← --primary-muted
+                        borderColor: THEME.accent   // ← --primary
                     },
                     tooltip: {
                         formatter: function (p) {
