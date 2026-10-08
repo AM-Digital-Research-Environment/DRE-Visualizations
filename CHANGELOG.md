@@ -1,6 +1,19 @@
 # Changelog
 
-## 2.30.0 — 2026-10-07
+All notable changes to DRE Visualizations are recorded here. The format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the module uses
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html), as DRE-theme and
+DRE Search do.
+
+Add entries under **[Unreleased]** as you work. A release moves them into a
+dated `## [x.y.z] - YYYY-MM-DD` section; `scripts/check-release-metadata.mjs`
+requires that section for the version in `config/module.ini`, and the release
+workflow publishes it as the notes of the GitHub release
+(`scripts/changelog-section.mjs`).
+
+## [Unreleased]
+
+## [2.30.0] - 2026-10-07
 
 Implements the review of 2.29.1; [docs/ROADMAP.md](docs/ROADMAP.md) tracks every item.
 
@@ -39,7 +52,7 @@ Implements the review of 2.29.1; [docs/ROADMAP.md](docs/ROADMAP.md) tracks every
 
 **Upgrade:** install, then **Regenerate now** to pick up the abstract word cloud, the contributor-count and homonym fixes. The published snapshot keeps being served until then.
 
-## 2.29.1 — 2026-10-07
+## [2.29.1] - 2026-10-07
 
 ### Fixed
 
@@ -49,7 +62,7 @@ Implements the review of 2.29.1; [docs/ROADMAP.md](docs/ROADMAP.md) tracks every
 
 **Upgrade:** like 2.29.0, upgrading withdraws publication, so regenerate afterwards. Sites still on 2.28.x upgrade straight to 2.29.1; a 2.29.0 upgrade that was completed by hand needs nothing extra.
 
-## 2.29.0 — 2026-10-05
+## [2.29.0] - 2026-10-05
 
 - Serve only the current canonical-site snapshot through a no-store Omeka endpoint, backed by private storage outside the document root. Withdraw on data changes, reject stale publications, and honor job cancellation. Upgrade removes old public generated files.
 - Filter private values, media and item sets in streamed, site-scoped SQL; honor explicit primary media and visible titles. Share one immutable corpus across focused entity, overview, media, gallery and graph generators.
@@ -62,7 +75,7 @@ Implements the review of 2.29.1; [docs/ROADMAP.md](docs/ROADMAP.md) tracks every
 
 All notable changes are documented here. Versions follow Semantic Versioning.
 
-## 2.28.5 — 2026-09-07
+## [2.28.5] - 2026-09-07
 
 ### Fixed
 
@@ -71,7 +84,7 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 - Add executable block-rendering regressions for missing, generated, graph-only, legacy and stale-generation data. Collection dashboards and the deployment health gate still expose snapshot outages.
 - No regeneration is required. Preserve published data while replacing the module.
 
-## 2.28.4 — 2026-09-07
+## [2.28.4] - 2026-09-07
 
 ### Fixed
 
@@ -79,7 +92,7 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 - Underline MapLibre attribution links so they remain identifiable without colour perception.
 - No data schema change or regeneration is needed for this patch. Preserve asset/data when replacing the module; see the theme's release-deployment guide and snapshot health gate.
 
-## 2.28.3 — 2026-09-07
+## [2.28.3] - 2026-09-07
 
 ### Fixed
 
@@ -92,7 +105,7 @@ All notable changes are documented here. Versions follow Semantic Versioning.
 
 Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then run **Regenerate now**. Preserve the installation's asset/data directory when upgrading; generated snapshots are intentionally not bundled in release archives. Without the new Search service, existing fallback count definitions remain in use.
 
-## 2.28.2 — 2026-09-04
+## [2.28.2] - 2026-09-04
 
 ### Documentation
 
@@ -107,7 +120,7 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 > Run **Regenerate now** after upgrading — the upstream harvest grew from 277
 > to 562 publications, and every dashboard renders precomputed JSON.
 
-## 2.28.1 — 2026-08-28
+## [2.28.1] - 2026-08-28
 
 ### Fixed
 
@@ -127,7 +140,7 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
   live-status, and MapLibre touch-target contracts with a dependency-free
   accessibility check.
 
-## 2.28.0 — 2026-08-14
+## [2.28.0] - 2026-08-14
 
 ### Changed
 
@@ -195,7 +208,7 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
   per file — a backlog, not exemptions. 10 lines today, 8 of them the canvas
   palettes that DESIGN.md's data-colour contract governs instead.
 
-## 2.27.0 — 2026-08-11
+## [2.27.0] - 2026-08-11
 
 ### Changed
 
@@ -248,7 +261,7 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
   fall through to English as before. A downstream catalogue keyed to the old
   strings will need re-extracting.
 
-## 2.26.1 — 2026-08-05
+## [2.26.1] - 2026-08-05
 
 ### Added
 
@@ -273,7 +286,7 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
   which still named MapLibre GL 5 after 2.26.0 shipped 6.1.0 and omitted
   d3-force entirely.
 
-## 2.26.0 — 2026-08-05
+## [2.26.0] - 2026-08-05
 
 ### Changed
 
@@ -301,7 +314,7 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
   style-spec v25, which reports legacy expressions as errors. The self-hosted
   default basemap is unaffected.
 
-## 2.25.0 — 2026-08-04
+## [2.25.0] - 2026-08-04
 
 ### Changed
 
@@ -321,7 +334,7 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
   published generation is what readers see, so the card only disappears after a
   precompute run.
 
-## 2.24.0 — 2026-07-31
+## [2.24.0] - 2026-07-31
 
 ### Added
 
@@ -349,7 +362,7 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 - Project and installation metadata use the canonical **DRE-Visualizations**
   repository name throughout.
 
-## 2.23.0 — 2026-07-30
+## [2.23.0] - 2026-07-30
 
 ### Fixed
 
@@ -456,7 +469,7 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
   its natural tabular form (an edge list) instead of being walked as an ECharts
   option.
 
-## 2.22.1 — 2026-07-30
+## [2.22.1] - 2026-07-30
 
 ### Fixed
 
@@ -505,7 +518,7 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
   asserts the entity-colour registry's invariants and that the vendored d3 files
   only work in their declared order. Both are regressions that reached the site.
 
-## 2.22.0 — 2026-07-30
+## [2.22.0] - 2026-07-30
 
 ### Changed
 
@@ -572,7 +585,7 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 - `tests/KnowledgeGraphsTest.php` covers the IDF statistics, the cross-edge pass,
   community detection and the item location map.
 
-## 2.21.6 — 2026-07-26
+## [2.21.6] - 2026-07-26
 
 ### Fixed
 
@@ -583,14 +596,14 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
   external basemap such as CARTO is credited exactly once.
 - Stop crediting a basemap on the Entity Network, which renders no map data.
 
-## 2.21.5 — 2026-07-26
+## [2.21.5] - 2026-07-26
 
 ### Added
 
 - Country labels on the self-hosted basemap, sized by zoom and haloed against
   the land fill, and a stronger border colour so coastlines read at world zoom.
 
-## 2.21.4 — 2026-07-26
+## [2.21.4] - 2026-07-26
 
 ### Added
 
@@ -609,7 +622,7 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
   style; documented that an external style adds the provider's credit to
   whatever text is configured.
 
-## 2.21.3 — 2026-07-26
+## [2.21.3] - 2026-07-26
 
 ### Fixed
 
@@ -625,7 +638,7 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
   fixture, so an artifact shape the validator has no schema for fails in CI
   rather than at the end of a regeneration.
 
-## 2.21.2 — 2026-07-26
+## [2.21.2] - 2026-07-26
 
 ### Fixed
 
@@ -644,7 +657,7 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
   class against a real Omeka S core, so an incompatible override fails CI
   instead of a live admin page. `php -l` cannot detect this class of bug.
 
-## 2.21.1 — 2026-07-21
+## [2.21.1] - 2026-07-21
 
 ### Changed
 
@@ -656,7 +669,7 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 - Model a deleted item by its absence from the snapshot in the public-corpus
   regression fixture, which failed on every CI run.
 
-## 2.21.0 — 2026-07-17
+## [2.21.0] - 2026-07-17
 
 ### Security
 
@@ -687,7 +700,19 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 - Correct counts in What's New, group/institution filtering, duplicate section
   membership, equatorial map coordinates, and unused geo-flow asset loading.
 
-## 2.20.1
+## [2.20.1]
 
 - Previous repository state. Earlier history remains available in Git tags and
   commit history.
+
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.30.0...HEAD
+[2.30.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.29.1...v2.30.0
+[2.29.1]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.29.0...v2.29.1
+[2.29.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.28.5...v2.29.0
+[2.28.5]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.28.4...v2.28.5
+[2.28.4]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.28.3...v2.28.4
+[2.28.3]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.28.2...v2.28.3
+[2.28.2]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.28.1...v2.28.2
+[2.28.1]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.28.0...v2.28.1
+[2.28.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.26.1...v2.28.0
+[2.26.1]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/releases/tag/v2.26.1

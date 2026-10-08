@@ -5,14 +5,17 @@
  *   OMEKA_CORE=/path/to/omeka-s npm run phpstan
  *   OMEKA_CORE=… npm run phpstan -- --generate-baseline   # rewrite the baseline
  *
- * The phar is downloaded once into node_modules/.cache (pinned version below;
- * CI pins the same one).
+ * The phar is downloaded once into node_modules/.cache (pinned version and
+ * SHA-256 below; CI pins the same pair) and its digest is checked before every
+ * run, so a tampered or truncated download never executes.
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const VERSION = '2.3.0';
+const SHA256 = '64a1e7737c6ac24b798a3331a769241308d40af6504630fd7c9dc9b7f1bec83f';
 const ROOT = resolve(import.meta.dirname, '..');
 const core = process.env.OMEKA_CORE ? resolve(process.env.OMEKA_CORE) : '';
 if (!core || !existsSync(join(core, 'vendor', 'autoload.php'))) {
@@ -26,6 +29,12 @@ if (!existsSync(phar)) {
   const response = await fetch(`https://github.com/phpstan/phpstan/releases/download/${VERSION}/phpstan.phar`);
   if (!response.ok) throw new Error(`phpstan.phar download failed: ${response.status}`);
   writeFileSync(phar, Buffer.from(await response.arrayBuffer()));
+}
+const digest = createHash('sha256').update(readFileSync(phar)).digest('hex');
+if (digest !== SHA256) {
+  rmSync(phar);
+  console.error(`phpstan.phar ${VERSION} has SHA-256 ${digest}, expected ${SHA256}; removed it.`);
+  process.exit(2);
 }
 const extra = process.argv.slice(2);
 const args = ['run', '--rm', '-v', `${ROOT}:/app`, '-v', `${core}:/omeka-s:ro`, '-v', `${phar}:/phpstan.phar:ro`,

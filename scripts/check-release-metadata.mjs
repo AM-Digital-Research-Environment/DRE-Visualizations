@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { changelogDate, changelogSection } from './changelog-section.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const CANONICAL = 'https://github.com/AM-Digital-Research-Environment/DRE-Visualizations';
@@ -39,6 +40,21 @@ if (!moduleVersion) failures.push('config/module.ini has no version');
 if (moduleVersion !== packageVersion) {
   failures.push(`module.ini version ${moduleVersion || '(missing)'} != package.json ${packageVersion || '(missing)'}`);
 }
+// package-lock.json repeats the version twice (top level and the root
+// package); `npm version` updates both, a hand edit of package.json does not.
+try {
+  const lock = JSON.parse(read('package-lock.json'));
+  for (const [where, value] of [['version', lock.version], ['packages[""].version', lock.packages?.['']?.version]]) {
+    if (value !== moduleVersion) failures.push(`package-lock.json ${where} ${value || '(missing)'} != module.ini ${moduleVersion}`);
+  }
+} catch (error) {
+  failures.push(`package-lock.json check failed: ${error.message}`);
+}
+// Omeka S 4.2.1 is the only core CI and the golden suites run against.
+const constraint = /^omeka_version_constraint\s*=\s*"([^"]+)"/m.exec(moduleIni)?.[1];
+if (constraint !== '^4.2.1') {
+  failures.push(`module.ini omeka_version_constraint ${constraint || '(missing)'} != "^4.2.1" (the core CI tests)`);
+}
 if ((linkMatch && linkMatch[1]) !== CANONICAL) failures.push(`module_link must be ${CANONICAL}`);
 if (packageJson.repository?.url !== `git+${CANONICAL}.git`) {
   failures.push('package.json repository URL is not canonical');
@@ -60,12 +76,19 @@ try {
   if (!/^\s*(?:-\s*)?orcid:\s*"https:\/\/orcid\.org\/[\dX-]{19}"\s*$/m.test(citation)) {
     failures.push('CITATION.cff author ORCID is missing or malformed');
   }
-  const changelogDate = new RegExp(`^##\\s*${moduleVersion.replace(/\./g, '\\.')}\\s*[—-]\\s*(\\d{4}-\\d{2}-\\d{2})`, 'm')
-    .exec(read('CHANGELOG.md'));
-  if (!changelogDate) {
-    failures.push(`CHANGELOG.md has no dated entry for ${moduleVersion}`);
-  } else if (field('date-released') !== changelogDate[1]) {
-    failures.push(`CITATION.cff date-released ${field('date-released') || '(missing)'} != CHANGELOG ${changelogDate[1]}`);
+  // Keep a Changelog: `## [x.y.z] - YYYY-MM-DD`, with notes (release.yml
+  // publishes them as the release body) and an [Unreleased] section above.
+  const changelog = read('CHANGELOG.md');
+  const released = changelogDate(changelog, moduleVersion);
+  if (!released) {
+    failures.push(`CHANGELOG.md has no "## [${moduleVersion}] - YYYY-MM-DD" entry`);
+  } else if (field('date-released') !== released) {
+    failures.push(`CITATION.cff date-released ${field('date-released') || '(missing)'} != CHANGELOG ${released}`);
+  }
+  if (!changelogSection(changelog, moduleVersion)) failures.push(`CHANGELOG.md has no notes for ${moduleVersion}`);
+  if (changelogSection(changelog, 'Unreleased') === null) failures.push('CHANGELOG.md has no ## [Unreleased] section');
+  if (/^## (?!\[)/m.test(changelog.replace(/\r\n/g, '\n'))) {
+    failures.push('CHANGELOG.md has a version heading without brackets (Keep a Changelog: ## [x.y.z] - YYYY-MM-DD)');
   }
 } catch (error) {
   failures.push(`CITATION.cff check failed: ${error.message}`);

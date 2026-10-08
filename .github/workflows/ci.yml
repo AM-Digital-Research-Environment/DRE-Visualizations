@@ -19,11 +19,16 @@ concurrency:
 
 env:
   OMEKA_S_VERSION: 4.2.1
+  # The same digest DRE-theme's CI pins for this release.
+  OMEKA_S_SHA256: cc27d1c7aca0209523d19aa285f4a08e29e34950dcc446951a7c1311de348e82
   PHPSTAN_VERSION: 2.3.0
+  # Also pinned in scripts/phpstan.mjs, the local runner.
+  PHPSTAN_SHA256: 64a1e7737c6ac24b798a3331a769241308d40af6504630fd7c9dc9b7f1bec83f
 
 jobs:
   browser-contracts:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       # actions/checkout v7.0.1, verified upstream 2026-10-07.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -58,6 +63,7 @@ jobs:
 
   php:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
@@ -83,6 +89,7 @@ jobs:
         run: |
           curl -fsSL -o "$RUNNER_TEMP/omeka-s.zip" \
             "https://github.com/omeka/omeka-s/releases/download/v${OMEKA_S_VERSION}/omeka-s-${OMEKA_S_VERSION}.zip"
+          echo "$OMEKA_S_SHA256  $RUNNER_TEMP/omeka-s.zip" | sha256sum --check --strict
           unzip -q "$RUNNER_TEMP/omeka-s.zip" -d "$RUNNER_TEMP"
       - name: Module contract and integration suites
         run: |
@@ -96,11 +103,13 @@ jobs:
         run: |
           curl -fsSL -o "$RUNNER_TEMP/phpstan.phar" \
             "https://github.com/phpstan/phpstan/releases/download/${PHPSTAN_VERSION}/phpstan.phar"
+          echo "$PHPSTAN_SHA256  $RUNNER_TEMP/phpstan.phar" | sha256sum --check --strict
           php -d memory_limit=2G "$RUNNER_TEMP/phpstan.phar" analyse -c phpstan.neon.dist \
             --autoload-file "$RUNNER_TEMP/omeka-s/vendor/autoload.php" --no-progress
 
   embeddings:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       # actions/setup-python v7.0.0, verified upstream 2026-10-07.

@@ -42,6 +42,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 120  # a full re-embed (scope: all) is the long case
     steps:
       # actions/checkout v7.0.1, verified upstream 2026-07-31.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1

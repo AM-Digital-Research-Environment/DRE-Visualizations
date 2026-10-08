@@ -3,6 +3,9 @@
   "version": "2.30.0",
   "private": true,
   "description": "DRE Visualizations Omeka S module — ECharts/MapLibre dashboards and a d3-force knowledge graph, with a dependency-free release bundle.",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "build": "node scripts/build-frontend-bundles.mjs",
     "vendor:maplibre": "node scripts/vendor-maplibre.mjs",
@@ -17,7 +20,7 @@
     "i18n:extract": "node scripts/extract-translations.mjs",
     "i18n:check": "node scripts/extract-translations.mjs --check",
     "test": "node --test tests/js/*.test.mjs",
-    "check": "npm test && npm run check:bundles && npm run lint:tokens && npm run check:js && npm run check:registry && npm run check:html && npm run check:formatters && npm run check:a11y && npm run check:graph && npm run i18n:check && npm run check:release",
+    "check": "npm test && npm run lint && npm run check:bundles && npm run lint:tokens && npm run check:js && npm run check:registry && npm run check:html && npm run check:formatters && npm run check:a11y && npm run check:graph && npm run i18n:check && npm run check:release && npm audit --audit-level=high",
     "test:browser": "node tests/browser/lifecycle.mjs",
     "test:php": "node scripts/test-php-docker.mjs",
     "phpstan": "node scripts/phpstan.mjs",
