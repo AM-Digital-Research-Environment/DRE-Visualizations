@@ -13,6 +13,41 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.31.0] - 2026-10-08
+
+Brings the module onto the shared interaction contract in DRE-theme's
+`docs/DESIGN-INTEGRATION.md`, so DRE-theme, DRE Search and DRE Visualizations behave as one product.
+
+**Requires Omeka S 4.2.1 or later** (`^4.2.1`; was `^4.0.0`), the only core the CI and golden suites run against.
+
+### Added
+
+- A **Data table** disclosure under every chart, built from the same rows as the CSV download. The semantic map instead lists its records by type, each linking to the record.
+- One loading, empty, error and unavailable pattern for every block (`partials/async-surface.phtml`, `core/async.js`). Each block has a persistent live region, `aria-busy` only while work is under way, a no-JavaScript message ("This visualization needs JavaScript.") and a **Try again** button that reruns the failed request in place.
+- One fullscreen control for the knowledge graph, the entity network and every map. It sets `aria-pressed`, switches its label between "Fullscreen" and "Exit fullscreen", sits at `--z-stage` and closes with Escape. It replaces MapLibre's own control and the knowledge graph's ⛶ glyph.
+- The self-hosted basemap is served as a style URL (`/s/{site}/dre-basemap/{light|dark}`). `window.RV_MAP_CONFIG` names it when no basemap is configured, so a DRE Search map on the same page draws the same basemap. It never carries an empty style string.
+- A translation catalogue, `language/template.pot`, covering the PHP strings and the browser strings.
+
+### Changed
+
+- Colours, fonts and the light/dark mode come from DRE-theme's `window.DRETokens` when it is present. The module keeps one theme subscription. Every fallback colour is the theme's generated value for its mode, and the retired teal and cold greys are gone.
+- Focus rings stay visible in forced-colours (high-contrast) mode, MapLibre's controls included. Fields use `--field-border` and `--radius-md`. Toolbar controls share one height from the theme's control scale. Icon and text buttons use the theme's secondary-button style, and chips are pills with weight-600 labels.
+- The dark fallback follows an explicit `data-theme="dark"` even when the OS is light. Breakpoints, reading widths and letter-spacing use the theme's tokens.
+- Map controls (zoom, fullscreen, attribution, globe and the gesture hints) are translated, and every map uses the same zoom-only navigation control.
+- Wording follows the shared glossary: "Loading…", "Try again", "Clear all filters", "No records match that search.", "The map could not be loaded.", "The visualization could not be loaded.", "Download data (CSV)", "Copied" (for two seconds, announced) and "View as".
+- Numbers are formatted in the page's language in the browser (not the browser's own locale) and with `NumberFormatter` on the server. The featured-collection counts are translated.
+- Printing hides every module control, map controls included. The active tab still prints as text.
+- The entity network and spatial exploration titles are `h2`, like every other block title.
+
+### Development
+
+- The browser suite runs on `@playwright/test` with axe in light and dark, forced-colours focus checks, a 320px overflow check and fullscreen and map-locale tests (`npm run test:browser`).
+- `npm run check` also runs ESLint, `npm audit --audit-level=high` and the translation-catalogue check.
+- CI verifies the SHA-256 of the Omeka S and PHPStan downloads, and every job has a timeout.
+- `CHANGELOG.md` uses Keep a Changelog, and the release notes come from it. `.editorconfig` is added, Dependabot runs weekly with a cooldown, and `engines.node` is `>=24`.
+
+**Upgrade:** no regeneration is needed. The artifact schema is unchanged and the published snapshot keeps being served.
+
 ## [2.30.0] - 2026-10-07
 
 Implements the review of 2.29.1; [docs/ROADMAP.md](docs/ROADMAP.md) tracks every item.
@@ -705,7 +740,8 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 - Previous repository state. Earlier history remains available in Git tags and
   commit history.
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.30.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.31.0...HEAD
+[2.31.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.30.0...v2.31.0
 [2.30.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.29.1...v2.30.0
 [2.29.1]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.29.0...v2.29.1
 [2.29.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.28.5...v2.29.0
