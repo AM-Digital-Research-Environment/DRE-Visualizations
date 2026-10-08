@@ -37,6 +37,12 @@ const moduleVersion = versionMatch ? versionMatch[1] : '';
 const packageVersion = String(packageJson.version || '');
 
 if (!moduleVersion) failures.push('config/module.ini has no version');
+// release.yml finds the version in the packaged module.ini with a fixed string,
+// `version = "x.y.z"`, so a reformatted line parses here but fails the release
+// (2.31.1 shipped with `version     = …` and was never packaged).
+else if (!moduleIni.includes(`\nversion = "${moduleVersion}"`) && !moduleIni.startsWith(`version = "${moduleVersion}"`)) {
+  failures.push(`config/module.ini must spell the line exactly \`version = "${moduleVersion}"\` (release.yml greps for it)`);
+}
 if (moduleVersion !== packageVersion) {
   failures.push(`module.ini version ${moduleVersion || '(missing)'} != package.json ${packageVersion || '(missing)'}`);
 }

@@ -13,6 +13,14 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.31.2] - 2026-10-08
+
+The first packaged release of the 2.31 line. Neither 2.31.0 nor 2.31.1 was packaged: each release run stopped at a gate. So read 2.31.0 (the shared interaction contract with DRE-theme and DRE Search) and 2.31.1 below as part of this release.
+
+### Fixed
+
+- Ships 2.31.1, which was tagged but never packaged. Its `module.ini` spelled the version line `version     = "2.31.1"`, and the release step looks for exactly `version = "…"`. `npm run check:release` now enforces that spelling, so the mismatch fails locally. There is no runtime change from 2.31.1.
+
 ## [2.31.1] - 2026-10-08
 
 ### Fixed
