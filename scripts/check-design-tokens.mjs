@@ -23,12 +23,29 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
 import { runRules, report, parseAllowlist, formatAllowlist } from './lib/token-rules.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const ALLOWLIST = join(ROOT, 'scripts', 'design-token-allowlist.txt');
 const table = JSON.parse(readFileSync(join(ROOT, 'scripts', 'lib', 'dre-tokens-fallback.json'), 'utf8'));
 const updateAllowlist = process.argv.includes('--update-allowlist');
+
+// The vendored copies must match the manifest DRE-theme wrote beside them: a
+// rule is changed in DRE-theme and re-vendored, never edited here.
+const manifest = readFileSync(join(ROOT, 'scripts', 'lib', 'VENDORED.sha256'), 'utf8');
+for (const line of manifest.split('\n')) {
+  const [, hash, path] = /^([0-9a-f]{64}) {2}(.+)$/.exec(line.trim()) ?? [];
+  if (!hash) continue;
+  const text = readFileSync(join(ROOT, path), 'utf8').replace(/\r\n/g, '\n');
+  if (createHash('sha256').update(text, 'utf8').digest('hex') !== hash) {
+    console.error(
+      `${path} differs from the copy DRE-theme vendored. ` +
+        'Change the rule in DRE-theme and run `npm run vendor:lint` there.',
+    );
+    process.exit(1);
+  }
+}
 
 const SCAN = {
   root: ROOT,
