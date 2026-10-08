@@ -159,9 +159,31 @@ function* varCalls(src) {
  */
 function* bridgeCalls(src) {
   const code = blankComments(src);
+  const lineOf = (index) => code.slice(0, index).split('\n').length;
   const re = /css(?:Color|Font|Value)\s*\(\s*['"](--[\w-]+)['"]\s*,\s*['"]([^'"]*)['"]\s*\)/g;
   for (const m of code.matchAll(re)) {
-    yield { name: m[1], fallback: m[2], line: code.slice(0, m.index).split('\n').length };
+    yield { name: m[1], fallback: m[2], line: lineOf(m.index) };
+  }
+  // A mode-dependent fallback, `cssColor('--ink', dark ? '#…' : '#…')`: both
+  // branches are fallback position. DRE-Visualizations' chart chrome fell back
+  // to a retired palette this way for three releases without the rule seeing it.
+  const ternary = /css(?:Color|Font|Value)\s*\(\s*['"](--[\w-]+)['"]\s*,[^,()?]*\?\s*['"]([^'"]*)['"]\s*:\s*['"]([^'"]*)['"]\s*\)/g;
+  for (const m of code.matchAll(ternary)) {
+    yield { name: m[1], fallback: m[2], line: lineOf(m.index) };
+    yield { name: m[1], fallback: m[3], line: lineOf(m.index) };
+  }
+}
+
+/**
+ * Every place a bridge function is bound to another name
+ * (`var c = ns.cssColor`). Calls through the alias are invisible to
+ * bridgeCalls(), so their fallbacks would go unchecked.
+ */
+function* bridgeAliases(src) {
+  const code = blankComments(src);
+  const re = /=\s*(?:[\w$]+\.)*css(?:Color|Font|Value)\s*(?=[;,)\n]|$)/g;
+  for (const m of code.matchAll(re)) {
+    yield { line: code.slice(0, m.index).split('\n').length, text: m[0].replace(/^=\s*/, '') };
   }
 }
 
@@ -262,6 +284,13 @@ export function runRules(config) {
           if (got === norm(want) || got === norm(darkFallbacks[name] ?? '\0')) continue;
           push('fallback', rel, line,
             `var(${name}, ${fallback.replace(/\s+/g, ' ').slice(0, 48)}) — fallback should be ${want}`);
+        }
+      }
+
+      if (enabled('bridgeAlias') && !allowed('bridgeAlias', rel)) {
+        for (const { line, text } of bridgeAliases(src)) {
+          push('bridgeAlias', rel, line,
+            `${text} bound to another name — call it directly so the fallback rule can check its fallbacks`);
         }
       }
 
