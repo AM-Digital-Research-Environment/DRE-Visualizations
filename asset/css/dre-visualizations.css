@@ -507,6 +507,15 @@ body[data-theme="dark"] {
     margin: var(--rv-space-8) 0;
 }
 
+/* Every native field in a block sizes its width to include padding and
+   border. DRE-theme sets this globally; a block rendered without the theme
+   (an embed elsewhere, the browser fixtures) must not overflow a narrow
+   column because of it. */
+.resource-vis-block input,
+.resource-vis-block select {
+    box-sizing: border-box;
+}
+
 .resource-vis-block h2 {
     /* Block-level section titles. Inherit the host theme's global h2 size/weight
        (DRE theme: 1.875rem, fluid to 2.75rem from >=768px, weight 800) so the
@@ -1642,11 +1651,16 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--rv-text-strong);
+    /* MapLibre's control group stays white in both modes and draws its own
+       glyphs in a fixed #333, so this one matches them rather than following
+       the theme ink, which turns near-white in dark mode (a third-party-chrome
+       exception, DESIGN-INTEGRATION.md "Data-color contract"). */
+    color: #333;
 }
-.maplibregl-ctrl-group button.rv-map-fullscreen[aria-pressed="true"] {
-    color: var(--rv-accent);
-}
+/* MapLibre marks keyboard focus on its controls with a box-shadow only, which
+   forced-colours mode drops: give every map control the module's outline
+   (inset, since the control group clips its overflow). */
+.maplibregl-ctrl button:focus-visible,
 .maplibregl-ctrl-group button.rv-map-fullscreen:focus-visible {
     outline: 2px solid var(--rv-focus-color);
     outline-offset: -2px;
@@ -2409,9 +2423,10 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     margin-top: var(--rv-space-1);
 }
 
+/* The secondary line stays at --ink-light: an opacity fade took it to 4.27:1
+   on the light surface, under the 4.5:1 body-text minimum. */
 .compare-stat-label small {
     font-size: var(--rv-text-xs);
-    opacity: 0.8;
 }
 
 /* Shared subjects badges */
@@ -4194,4 +4209,10 @@ body.photo-lightbox-open {
 .semantic-map-list__items {
     margin: 0;
     padding-inline-start: var(--rv-space-4);
+}
+/* Stacked links need a 24px target each (WCAG 2.2 target size). */
+.semantic-map-list__items a {
+    display: inline-block;
+    padding-block: var(--rv-space-1);
+    color: var(--rv-primary-text);
 }

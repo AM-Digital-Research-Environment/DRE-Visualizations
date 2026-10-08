@@ -41,3 +41,7 @@ asset/data/embeddings/cache.json
 asset/data/embeddings/release/
 
 /.cache/
+
+# Playwright output (npm run test:browser).
+/test-results/
+/playwright-report/

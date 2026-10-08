@@ -14,6 +14,8 @@ export default [
       'node_modules/**',
       'tests/golden/**',
       '.cache/**',
+      'test-results/**',                     // Playwright output
+      'playwright-report/**',
     ],
   },
   js.configs.recommended,
@@ -44,7 +46,7 @@ export default [
     },
   },
   {
-    files: ['scripts/**/*.mjs', 'tests/**/*.mjs', 'eslint.config.mjs'],
+    files: ['scripts/**/*.mjs', 'tests/**/*.mjs', 'eslint.config.mjs', 'playwright.config.mjs'],
     languageOptions: {
       ecmaVersion: 2024,
       sourceType: 'module',

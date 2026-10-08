@@ -21,7 +21,7 @@
     "i18n:check": "node scripts/extract-translations.mjs --check",
     "test": "node --test tests/js/*.test.mjs",
     "check": "npm test && npm run lint && npm run check:bundles && npm run lint:tokens && npm run check:js && npm run check:registry && npm run check:html && npm run check:formatters && npm run check:a11y && npm run check:graph && npm run i18n:check && npm run check:release && npm audit --audit-level=high",
-    "test:browser": "node tests/browser/lifecycle.mjs",
+    "test:browser": "playwright test",
     "test:php": "node scripts/test-php-docker.mjs",
     "phpstan": "node scripts/phpstan.mjs",
     "check:formatters": "node scripts/check-formatters.mjs",
@@ -34,10 +34,11 @@
     "url": "git+https://github.com/AM-Digital-Research-Environment/DRE-Visualizations.git"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.0",
     "eslint": "10.12.0",
     "eslint-plugin-no-unsanitized": "4.1.5",
-    "globals": "17.13.0",
-    "playwright": "1.63.0"
+    "globals": "17.13.0"
   }
 }

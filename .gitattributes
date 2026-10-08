@@ -61,3 +61,4 @@ asset/fonts/**/*.pbf -text -diff linguist-vendored
 /asset/js/core/** export-ignore
 
 /package-lock.json export-ignore
+/playwright.config.mjs export-ignore
