@@ -13,6 +13,12 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.31.1] - 2026-10-08
+
+### Fixed
+
+- The semantic map's record list gives every link at least a 24px target (WCAG 2.2). Padding plus line height reached it with Windows font metrics but not with the fallback font on Linux, where CI's axe run failed `target-size`.
+
 ## [2.31.0] - 2026-10-08
 
 Brings the module onto the shared interaction contract in DRE-theme's

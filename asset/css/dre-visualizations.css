@@ -4211,9 +4211,14 @@ body.photo-lightbox-open {
     margin: 0;
     padding-inline-start: var(--rv-space-4);
 }
-/* Stacked links need a 24px target each (WCAG 2.2 target size). */
+/* Stacked links need a 24px target each (WCAG 2.2 target size). Padding plus
+   line height alone fell short with Linux's fallback font metrics, so the
+   minimum is stated, not derived. */
 .semantic-map-list__items a {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-block-size: var(--rv-space-6);
     padding-block: var(--rv-space-1);
     color: var(--rv-primary-text);
 }
