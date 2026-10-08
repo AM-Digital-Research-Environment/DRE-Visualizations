@@ -8,14 +8,10 @@
 # Rules exempt by design (the data-colour palettes, JS layout maths) live
 # in the script.
 
-# hex — 4 file(s)
+# hex — 3 file(s)
 hex  asset/css/dre-visualizations.css
-hex  asset/js/dashboard-charts-choropleth.js
 hex  asset/js/dashboard-charts-map.js
 hex  view/dre-visualizations/layout/embed.phtml
 
 # pxGeometry — 1 file(s)
 pxGeometry  asset/css/dre-visualizations.css
-
-# radius — 1 file(s)
-radius  view/dre-visualizations/admin/maintenance/index.phtml

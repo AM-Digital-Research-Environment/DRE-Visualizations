@@ -127,7 +127,7 @@ $basePath = $this->basePath();
         position: absolute; top: var(--space-sm, 0.5rem); right: var(--space-sm, 0.5rem);
     }
     .dre-embed-copy:hover { background: var(--surface-sunken, #f3f0eb); color: var(--ink-strong, #261d15); }
-    .dre-embed-copy:focus-visible { outline: none; box-shadow: var(--ring-focus, 0 0 0 3px rgba(0, 122, 80, 0.32)); }
+    .dre-embed-copy:focus-visible { outline: 2px solid transparent; box-shadow: var(--ring-focus, 0 0 0 3px rgba(0, 122, 80, 0.32)); }
     /* Confirmation is the one sanctioned use of the brand accent here: state, not chrome. */
     .dre-embed-copy.copied {
         background: color-mix(in oklab, var(--primary, #007a50) 38%, var(--surface, #fdfcf9));
