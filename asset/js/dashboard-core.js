@@ -193,6 +193,53 @@
 })();
 ;
 
+/* ---- js/core/icons.js ---- */
+/**
+ * Dashboard core: the module's one icon set — 24×24 stroke path bodies for
+ * ns.iconSvg / ns.iconButton (base.js).
+ *
+ * Every glyph that more than one surface draws lives here, so "save as image"
+ * is the same arrow on a chart, the knowledge graph and the entity network, and
+ * the fullscreen, copy and close glyphs cannot drift apart. A glyph only one
+ * surface ever draws (the stat-card badges, the knowledge graph's label and
+ * freeze toggles) may stay beside its code, but anything shared comes from here.
+ * The bodies are module-authored constants, never curator data.
+ *
+ * Source file of the generated asset/js/dashboard-core.js (see base.js).
+ */
+(function () {
+    'use strict';
+
+    var ns = window.RV = window.RV || {};
+
+    ns.ICONS = {
+        // Fullscreen: four corners out / in.
+        expand: '<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>'
+            + '<line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>',
+        collapse: '<polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/>'
+            + '<line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/>',
+        // Save as image (a download tray) and download data (a sheet).
+        save: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'
+            + '<polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+        csv: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>'
+            + '<path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/>',
+        // Fill patterns (decals) toggle.
+        patterns: '<line x1="4" y1="20" x2="20" y2="4"/><line x1="4" y1="14" x2="14" y2="4"/>'
+            + '<line x1="4" y1="8" x2="8" y2="4"/><line x1="10" y1="20" x2="20" y2="10"/>'
+            + '<line x1="16" y1="20" x2="20" y2="16"/>',
+        // Copy embed code, and the confirmation that replaces it.
+        embed: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+        check: '<polyline points="20 6 9 17 4 12"/>',
+        close: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+        reset: '<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>',
+        pin: '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/>'
+            + '<circle cx="12" cy="10" r="3"/>',
+        book: '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5'
+            + 'a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>'
+    };
+})();
+;
+
 /* ---- js/core/theme.js ---- */
 /**
  * Dashboard core: shared design tokens — the categorical, halo and entity-type
@@ -932,10 +979,27 @@
                     delete s.dataset.rvLoading;
                     resolve();
                 };
-                s.onerror = reject;
+                s.onerror = function (error) {
+                    // Drop the dead tag, so "Try again" injects a fresh one.
+                    if (s.parentNode) s.parentNode.removeChild(s);
+                    reject(error);
+                };
                 head.appendChild(s);
             });
+            forgetOnFailure(key);
             return ns._libPromises[key];
+        }
+
+        /**
+         * A failed load must not be cached: every surface's "Try again" reruns
+         * its request through here, and a remembered rejection would fail it
+         * again at once without touching the network.
+         */
+        function forgetOnFailure(key) {
+            var promise = ns._libPromises[key];
+            promise.catch(function () {
+                if (ns._libPromises[key] === promise) delete ns._libPromises[key];
+            });
         }
 
         /**
@@ -959,6 +1023,7 @@
                 : import(src).then(function (mod) {
                     if (register) register(mod);
                 });
+            forgetOnFailure(key);
             return ns._libPromises[key];
         }
 
@@ -1022,6 +1087,155 @@
         }
 
         return Promise.all(work);
+    };
+})();
+;
+
+/* ---- js/core/async.js ---- */
+/**
+ * Dashboard core: the one asynchronous-state pattern every block shares —
+ * loading, ready, empty, error with "Try again", and unavailable — so a
+ * visitor (and a screen reader) meets the same markup and wording on every
+ * surface (DESIGN-INTEGRATION.md "Asynchronous states").
+ *
+ * The server half is view/common/block-layout/partials/async-surface.phtml:
+ * a persistent `role="status"` node rendered BEFORE the block's container (so
+ * the block's own controller can replace the container's children without
+ * destroying the live region), the aria-hidden spinner, and the <noscript>
+ * message. This file is the client half.
+ *
+ * Source file of the generated asset/js/dashboard-core.js (see base.js).
+ */
+(function () {
+    'use strict';
+
+    var ns = window.RV = window.RV || {};
+
+    /**
+     * The persistent status node for `container`: the partial's sibling node,
+     * else one inside the container (the dashboard partial's form), else a new
+     * visually hidden one inserted before the container.
+     */
+    ns.asyncStatusNode = function (container) {
+        var prev = container.previousElementSibling;
+        if (prev && prev.classList && prev.classList.contains('rv-async-status')) return prev;
+        var inner = container.querySelector && container.querySelector('.rv-dashboard-status');
+        if (inner) return inner;
+        var status = document.createElement('p');
+        status.className = 'rv-dashboard-status rv-async-status';
+        status.setAttribute('role', 'status');
+        status.setAttribute('aria-live', 'polite');
+        status.setAttribute('aria-atomic', 'true');
+        if (container.parentNode) container.parentNode.insertBefore(status, container);
+        return status;
+    };
+
+    /** The spinner the partial renders, for a surface that loads again. */
+    ns.loadingIndicator = function (message) {
+        var box = ns.el('div', 'rv-loading rv-async-loading');
+        box.setAttribute('aria-hidden', 'true');
+        box.appendChild(ns.el('div', 'rv-spinner'));
+        box.appendChild(ns.el('span', null, message || ns.t('loading', 'Loading…')));
+        return box;
+    };
+
+    /**
+     * An error notice: the surface-specific message and, when `retry` is
+     * given, a "Try again" button that reruns the request. Technical detail
+     * belongs in the console, never in `message`.
+     */
+    ns.errorNotice = function (message, retry) {
+        var notice = ns.el('div', 'rv-error rv-async-error');
+        notice.appendChild(ns.el('p', 'rv-async-message', message));
+        if (typeof retry === 'function') {
+            var button = ns.el('button', 'rv-retry-btn', ns.t('retry', 'Try again'));
+            button.type = 'button';
+            button.addEventListener('click', function () {
+                button.disabled = true;
+                retry();
+            });
+            notice.appendChild(button);
+        }
+        return notice;
+    };
+
+    /**
+     * The state machine for one asynchronous surface. `container` is the
+     * block's STABLE element: its children may be replaced, the element is not.
+     * aria-busy is true only while work is active and false after every
+     * terminal outcome; each state is announced through the one status node
+     * without moving focus.
+     *
+     *   var state = ns.asyncState(container);
+     *   state.loading();
+     *   load().then(function () { state.ready(); })
+     *         .catch(function (e) { console.error(e); state.error(msg, run); });
+     */
+    ns.asyncState = function (container) {
+        var status = ns.asyncStatusNode(container);
+        function settle(state, message) {
+            container.setAttribute('aria-busy', state === 'loading' ? 'true' : 'false');
+            container.dataset.state = state;
+            if (message != null) status.textContent = message;
+        }
+        return {
+            status: status,
+            loading: function (message) {
+                message = message || ns.t('loading', 'Loading…');
+                // A retry: the error notice gives way to the spinner again.
+                var notice = container.querySelector('.rv-async-error');
+                if (notice && notice.parentNode) notice.parentNode.replaceChild(ns.loadingIndicator(message), notice);
+                settle('loading', message);
+            },
+            ready: function (message) {
+                settle('ready', message || ns.t('visualizationReady', 'Visualization ready.'));
+            },
+            /** Show a quiet message in `target` (default: the container). */
+            empty: function (message, target) {
+                ns.setChildren(target || container, [ns.el('p', 'rv-no-data', message)]);
+                settle('empty', message);
+            },
+            /** Show the message and a "Try again" button that calls `retry`. */
+            error: function (message, retry, target) {
+                message = message || ns.t('visualizationLoadError', 'The visualization could not be loaded.');
+                ns.setChildren(target || container, [ns.errorNotice(message, retry)]);
+                settle('error', message);
+            },
+            /** A quiet message with no retry: the service is off, not failing. */
+            unavailable: function (message, target) {
+                ns.setChildren(target || container, [ns.el('p', 'rv-no-data rv-unavailable', message)]);
+                settle('unavailable', message);
+            },
+            /** Announce without changing state (e.g. a filter result count). */
+            announce: function (message) {
+                status.textContent = message;
+            }
+        };
+    };
+
+    /**
+     * Speak a short message without a status node of one's own: the theme's
+     * shared region (window.DREUtils.announce) when DRE-theme is present, else
+     * one module-wide visually hidden region.
+     */
+    var _region = null;
+    ns.announce = function (message) {
+        var utils = window.DREUtils;
+        if (utils && typeof utils.announce === 'function') {
+            utils.announce(message);
+            return;
+        }
+        if (!_region) {
+            _region = document.createElement('p');
+            _region.className = 'rv-dashboard-status';
+            _region.setAttribute('role', 'status');
+            _region.setAttribute('aria-live', 'polite');
+            _region.setAttribute('aria-atomic', 'true');
+            document.body.appendChild(_region);
+        }
+        _region.textContent = '';
+        // Set after a tick, so a repeated message is a change and re-announces.
+        setTimeout(function () { _region.textContent = message; }, 50);
     };
 })();
 ;
@@ -1722,6 +1936,9 @@
         return heading;
     }
 
+    /** One shared glyph (core/icons.js) as markup for the toolbar string below. */
+    function icon(body) { return ns.iconSvg(body).outerHTML; }
+
     /** Attach HTML-level toolbar (image, CSV, and pattern controls). */
     ns.attachToolbar = function (panel, chart) {
         if (!panel || !chart || !chart.getDataURL) return;
@@ -1749,15 +1966,15 @@
         // eslint-disable-next-line no-unsanitized/property -- icon constants + escaped titles
         bar.innerHTML = (showDecal
             ? '<button type="button" class="rv-toolbar-btn' + (ns._decalEnabled ? ' rv-toolbar-btn-active' : '') + '" data-action="decal" title="' + ns.escapeHtml(decalTitle) + '" aria-label="' + ns.escapeHtml(decalTitle) + '">'
-            + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><line x1="4" y1="14" x2="14" y2="4"/><line x1="4" y1="8" x2="8" y2="4"/><line x1="10" y1="20" x2="20" y2="10"/><line x1="16" y1="20" x2="20" y2="16"/></svg>'
+            + icon(ns.ICONS.patterns)
             + '</button>'
             : '')
             + '<button type="button" class="rv-toolbar-btn" data-action="save" title="' + ns.escapeHtml(saveTitle) + '" aria-label="' + ns.escapeHtml(saveTitle) + '">'
-            + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
+            + icon(ns.ICONS.save)
             + '</button>'
             + (hasCsv
                 ? '<button type="button" class="rv-toolbar-btn" data-action="csv" title="' + ns.escapeHtml(csvTitle) + '" aria-label="' + ns.escapeHtml(csvTitle) + '">'
-                + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/></svg></button>'
+                + icon(ns.ICONS.csv) + '</button>'
                 : '');
         chartHeading(panel).appendChild(bar);
         bar.addEventListener('click', function (e) {
@@ -1802,8 +2019,8 @@
     // its container; dashboards get a per-chart button, the single-widget blocks
     // one button for the whole block. Never shown inside an embed (dre-embed-body).
 
-    var EMBED_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>';
-    var CHECK_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    // The copy-feedback window (DESIGN-INTEGRATION.md "Copy feedback").
+    var COPIED_MS = 2000;
 
     // Host-side listener that resizes the iframe to the height the embed posts
     // (paired with the reporter in view/dre-visualizations/layout/embed.phtml).
@@ -1852,20 +2069,39 @@
         return Promise.resolve();
     };
 
-    // Briefly swap a button to a "copied" check, then restore its markup/title.
-    function flashCopied(btn, restoreHtml, restoreTitle) {
+    /**
+     * Copy feedback, the same on every surface of the product: the visible
+     * label reads "Copied" for two seconds and the word is announced. The
+     * labelled button hands its label to window.DREUtils.flashLabel (which
+     * swaps it and announces through the theme's shared region); the icon-only
+     * one swaps its glyph and name, and announces through ns.announce, which
+     * also prefers DREUtils and keeps a local region for a host without it.
+     */
+    function flashCopied(btn, label, restoreTitle) {
         var copied = ns.t('copied', 'Copied');
-        // eslint-disable-next-line no-unsanitized/property -- icon constant + escaped label
-        btn.innerHTML = CHECK_ICON + (btn.dataset.embedLabel ? '<span>' + ns.escapeHtml(copied) + '</span>' : '');
+        var utils = window.DREUtils;
+        clearTimeout(btn._embedTimer);
+        ns.setChildren(btn, [ns.iconSvg(ns.ICONS.check)].concat(label ? [label] : []));
         btn.classList.add('rv-toolbar-btn-active');
         btn.title = copied;
-        clearTimeout(btn._embedTimer);
+        if (label && utils && typeof utils.flashLabel === 'function') {
+            utils.flashLabel(label, copied, COPIED_MS);
+        } else {
+            if (label) {
+                if (!('label' in label.dataset)) label.dataset.label = label.textContent;
+                label.textContent = copied;
+            } else {
+                btn.setAttribute('aria-label', copied);
+            }
+            ns.announce(copied);
+        }
         btn._embedTimer = setTimeout(function () {
-            // eslint-disable-next-line no-unsanitized/property -- restores the escaped markup built above
-            btn.innerHTML = restoreHtml;
+            ns.setChildren(btn, [ns.iconSvg(ns.ICONS.embed)].concat(label ? [label] : []));
+            if (label && label.dataset.label != null) label.textContent = label.dataset.label;
             btn.classList.remove('rv-toolbar-btn-active');
             btn.title = restoreTitle;
-        }, 1600);
+            btn.setAttribute('aria-label', label ? label.dataset.label || restoreTitle : restoreTitle);
+        }, COPIED_MS);
     }
 
     /**
@@ -1879,18 +2115,18 @@
         var btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'rv-toolbar-btn rv-embed-btn' + (labelTxt ? ' rv-embed-btn--labeled' : '');
-        if (labelTxt) btn.dataset.embedLabel = labelTxt;
-        var baseHtml = EMBED_ICON + (labelTxt ? '<span>' + ns.escapeHtml(labelTxt) + '</span>' : '');
-        // eslint-disable-next-line no-unsanitized/property -- icon constant + escaped label
-        btn.innerHTML = baseHtml;
+        var label = labelTxt ? ns.el('span', 'rv-embed-label', labelTxt) : null;
+        ns.setChildren(btn, [ns.iconSvg(ns.ICONS.embed)].concat(label ? [label] : []));
         var copyTitle = ns.t('copyEmbed', 'Copy the code to put this on another website');
         btn.title = copyTitle;
-        btn.setAttribute('aria-label', copyTitle);
+        // A labelled button is named by its visible text, so "Copied" replaces
+        // that name while it shows; an icon-only one needs an explicit name.
+        if (!label) btn.setAttribute('aria-label', copyTitle);
         btn.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
             ns.copyToClipboard(ns.embedSnippet(opts.src, opts.title, opts.height)).then(function () {
-                flashCopied(btn, baseHtml, copyTitle);
+                flashCopied(btn, label, copyTitle);
             });
         });
         return btn;
@@ -1963,6 +2199,78 @@
                 wrap.insertBefore(bar, wrap.firstChild);
             })(hosts[i]);
         }
+    };
+})();
+;
+
+/* ---- js/core/fullscreen.js ---- */
+/**
+ * Dashboard core: the one fullscreen control every surface uses — the
+ * knowledge graph, the entity network and the maps (DESIGN-INTEGRATION.md
+ * "Shared widgets": one icon button per surface, aria-pressed reflecting the
+ * state, a label swapping between "Fullscreen" and "Exit fullscreen", and the
+ * fullscreen layer at --z-stage).
+ *
+ * It expands the surface IN the page (the `.rv-fullscreen` class, laid out by
+ * the stylesheet at --rv-z-stage) rather than through the browser Fullscreen
+ * API: a block's toolbar, sidebar, legend and text alternative are how a reader
+ * drives it, and the API would take the canvas out from under them. That is
+ * also why maps no longer use MapLibre's own FullscreenControl.
+ *
+ * Source file of the generated asset/js/dashboard-core.js (see base.js).
+ */
+(function () {
+    'use strict';
+
+    var ns = window.RV = window.RV || {};
+
+    /**
+     * A fullscreen toggle for `target`.
+     *
+     * @param {HTMLElement} target  the element that expands (the whole block)
+     * @param {Object} [opts] {
+     *     onChange:  (on) => void  — refit canvases after each toggle;
+     *     className: string        — replaces the default `.rv-btn` skin (a map
+     *                                control styles its own button)
+     * }
+     * @returns {HTMLButtonElement} with `rvDispose()` to drop its key listener
+     */
+    ns.fullscreenButton = function (target, opts) {
+        opts = opts || {};
+        var btn = ns.iconButton(ns.ICONS.expand, ns.t('fullscreen', 'Fullscreen'));
+        if (opts.className) btn.className = opts.className;
+        btn.classList.add('rv-fullscreen-btn');
+
+        function sync(on) {
+            var label = on ? ns.t('exitFullscreen', 'Exit fullscreen') : ns.t('fullscreen', 'Fullscreen');
+            btn.setAttribute('aria-pressed', String(on));
+            btn.setAttribute('aria-label', label);
+            btn.title = label;
+            btn.classList.toggle('rv-toolbar-btn-active', on);
+            ns.setChildren(btn, [ns.iconSvg(on ? ns.ICONS.collapse : ns.ICONS.expand)]);
+        }
+
+        function apply(on) {
+            target.classList.toggle('rv-fullscreen', on);
+            sync(on);
+            if (typeof opts.onChange === 'function') opts.onChange(on);
+        }
+
+        btn.addEventListener('click', function () {
+            apply(!target.classList.contains('rv-fullscreen'));
+        });
+        // Bubble phase on purpose: a surface whose own Escape clears a selection
+        // first stops the event there, so only a second Escape leaves fullscreen.
+        function onKey(ev) {
+            if (ev.key === 'Escape' && target.classList.contains('rv-fullscreen')) apply(false);
+        }
+        document.addEventListener('keydown', onKey);
+        btn.rvDispose = function () { document.removeEventListener('keydown', onKey); };
+
+        // A control rebuilt while its surface is expanded (a map re-created on
+        // a light/dark switch) starts in the state the surface is in.
+        sync(target.classList.contains('rv-fullscreen'));
+        return btn;
     };
 })();
 ;

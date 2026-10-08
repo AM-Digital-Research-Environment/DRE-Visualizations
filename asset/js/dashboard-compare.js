@@ -541,9 +541,11 @@
         var typeController = null;
         var typeRequestId = 0;
         var disposeType = function () {};
+        // The block's one live region and busy state (core/async.js). The
+        // comparison below reports through the same node rather than being a
+        // live region of its own, so a reader hears each outcome once.
+        var state = ns.asyncState(container);
 
-        container.innerHTML = '<div class="rv-loading"><div class="rv-spinner"></div>'
-            + '<span>' + escapeHtml(ns.t('loading', 'Loading…')) + '</span></div>';
         loadType(activeType);
 
         function loadType(type) {
@@ -554,18 +556,19 @@
             if (typeController) typeController.abort();
             typeController = typeof AbortController !== 'undefined' ? new AbortController() : null;
             var requestId = ++typeRequestId;
-            container.innerHTML = '<div class="rv-loading"><div class="rv-spinner"></div>'
-                + '<span>' + escapeHtml(ns.t('loading', 'Loading…')) + '</span></div>';
+            ns.setChildren(container, [ns.loadingIndicator()]);
+            state.loading();
             ns.fetchDataJson('item-dashboards/' + cfg.index,
                 typeController ? { signal: typeController.signal } : {}).then(function (entries) {
                 if (requestId !== typeRequestId) return;
                 renderType(cfg, entries);
+                state.ready();
             }).catch(function (error) {
                 if (error && error.name === 'AbortError') return;
                 if (requestId !== typeRequestId) return;
-                container.innerHTML = '<div class="rv-error">' + escapeHtml(ns.fill(
-                    t('compareListError', 'The list of {types} could not be loaded. Please try again.'),
-                    { types: cfg.nounPlural })) + '</div>';
+                console.error('DreVisualizations compare:', error);
+                state.error(ns.fill(t('compareListError', 'The list of {types} could not be loaded.'),
+                    { types: cfg.nounPlural }), function () { loadType(type); });
             });
         }
 
@@ -616,7 +619,6 @@
 
             var content = document.createElement('div');
             content.className = 'compare-content';
-            content.setAttribute('aria-live', 'polite');
             container.appendChild(content);
             renderComparison();
 
@@ -638,28 +640,21 @@
                     return;
                 }
                 if (errors.left || errors.right) {
-                    var notice = document.createElement('div');
-                    notice.className = 'rv-error';
-                    notice.setAttribute('role', 'alert');
-                    notice.textContent = ns.t('comparisonLoadError', 'The comparison could not be loaded.');
-                    var retry = document.createElement('button');
-                    retry.type = 'button';
-                    retry.textContent = ns.t('retry', 'Try again');
-                    retry.addEventListener('click', function () {
+                    var failed = ns.t('comparisonLoadError', 'The comparison could not be loaded.');
+                    content.appendChild(ns.errorNotice(failed, function () {
                         var retryLeft = errors.left, retryRight = errors.right;
                         errors.left = errors.right = false;
                         renderComparison();
                         if (retryLeft) fetchDashboard('left', leftId, function (data) { leftData = data; renderComparison(); });
                         if (retryRight) fetchDashboard('right', rightId, function (data) { rightData = data; renderComparison(); });
-                    });
-                    notice.appendChild(retry);
-                    content.appendChild(notice);
+                    }));
+                    state.announce(failed);
                     return;
                 }
                 if (!leftData || !rightData) {
                     content.setAttribute('aria-busy', 'true');
-                    content.innerHTML = '<div class="rv-loading"><div class="rv-spinner"></div>'
-                        + '<span>' + escapeHtml(ns.t('loadingComparison', 'Loading the comparison…')) + '</span></div>';
+                    ns.setChildren(content, [ns.loadingIndicator()]);
+                    state.announce(ns.t('loading', 'Loading…'));
                     return;
                 }
 
@@ -702,6 +697,7 @@
                 });
 
                 flushPendingCharts();
+                state.announce(ns.t('comparisonReady', 'Comparison ready.'));
             }
 
             function fetchDashboard(side, id, callback) {

@@ -69,10 +69,27 @@
                     delete s.dataset.rvLoading;
                     resolve();
                 };
-                s.onerror = reject;
+                s.onerror = function (error) {
+                    // Drop the dead tag, so "Try again" injects a fresh one.
+                    if (s.parentNode) s.parentNode.removeChild(s);
+                    reject(error);
+                };
                 head.appendChild(s);
             });
+            forgetOnFailure(key);
             return ns._libPromises[key];
+        }
+
+        /**
+         * A failed load must not be cached: every surface's "Try again" reruns
+         * its request through here, and a remembered rejection would fail it
+         * again at once without touching the network.
+         */
+        function forgetOnFailure(key) {
+            var promise = ns._libPromises[key];
+            promise.catch(function () {
+                if (ns._libPromises[key] === promise) delete ns._libPromises[key];
+            });
         }
 
         /**
@@ -96,6 +113,7 @@
                 : import(src).then(function (mod) {
                     if (register) register(mod);
                 });
+            forgetOnFailure(key);
             return ns._libPromises[key];
         }
 

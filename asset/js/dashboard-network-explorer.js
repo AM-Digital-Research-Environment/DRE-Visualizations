@@ -219,7 +219,7 @@
             var builder = tab.builder();
             if (!el) return;
             if (!builder) {
-                ns.setChildren(el, [ns.el('div', 'rv-error', ns.t('networkDrawError', 'This network could not be drawn. Please try again.'))]);
+                ns.setChildren(el, [ns.errorNotice(ns.t('visualizationLoadError', 'The visualization could not be loaded.'))]);
                 return;
             }
             var chart = ns.buildChart(function () { return builder(el, graph, siteBase); });
@@ -233,23 +233,29 @@
     function initContainer(container) {
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
+        var state = ns.asyncState(container);
         ns.basePath = basePath;
-        Promise.all([
-            ns.fetchDataJson('network-explorer.json'),
-            // ECharts may still be loading (or have failed to): wait for it, so a
-            // failure shows a message instead of a spinner that never ends.
-            ns.ensureLibs({ echarts: true, d3: true })
-        ]).then(function (values) {
-            var payload = values[0];
-            if (!payload || typeof payload !== 'object') {
-                ns.setChildren(container, [ns.el('div', 'rv-no-data', ns.t('networkNone', 'There are no networks to show yet.'))]);
-                return;
-            }
-            render(container, payload, firstAvailable(payload), siteBase);
-        }).catch(function (err) {
-            console.error('DreVisualizations network-explorer:', err);
-            ns.setChildren(container, [ns.el('div', 'rv-error', ns.t('networkLoadError', 'The network explorer could not be loaded. Please try again.'))]);
-        });
+        function run() {
+            state.loading();
+            Promise.all([
+                ns.fetchDataJson('network-explorer.json'),
+                // ECharts may still be loading (or have failed to): wait for it, so a
+                // failure shows a message instead of a spinner that never ends.
+                ns.ensureLibs({ echarts: true, d3: true })
+            ]).then(function (values) {
+                var payload = values[0];
+                if (!payload || typeof payload !== 'object') {
+                    state.empty(ns.t('networkNone', 'There are no networks to show yet.'));
+                    return;
+                }
+                render(container, payload, firstAvailable(payload), siteBase);
+                state.ready();
+            }).catch(function (err) {
+                console.error('DreVisualizations network-explorer:', err);
+                state.error(ns.t('visualizationLoadError', 'The visualization could not be loaded.'), run);
+            });
+        }
+        run();
     }
 
     function init() {

@@ -92,22 +92,29 @@
     function initWhatsNew(container) {
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
+        var state = ns.asyncState(container);
         ns.basePath = basePath;
-        Promise.all([
-            ns.fetchDataJson('item-dashboards/whats-new.json'),
-            // Wait for ECharts rather than leaving the spinner up if it is
-            // still loading or failed to load.
-            ns.ensureLibs({ echarts: true })
-        ]).then(function (values) {
-            var data = values[0];
-            if (!data || !data.windows || !data.windows.length) {
-                ns.setChildren(container, [ns.el('div', 'rv-no-data', ns.t('whatsNewNone', 'Nothing has been added recently.'))]);
-                return;
-            }
-            render(container, data, siteBase);
-        }).catch(function () {
-            ns.setChildren(container, [ns.el('div', 'rv-error', ns.t('whatsNewLoadError', 'Recent additions could not be loaded. Please try again.'))]);
-        });
+        function run() {
+            state.loading();
+            Promise.all([
+                ns.fetchDataJson('item-dashboards/whats-new.json'),
+                // Wait for ECharts rather than leaving the spinner up if it is
+                // still loading or failed to load.
+                ns.ensureLibs({ echarts: true })
+            ]).then(function (values) {
+                var data = values[0];
+                if (!data || !data.windows || !data.windows.length) {
+                    state.empty(ns.t('whatsNewNone', 'Nothing has been added recently.'));
+                    return;
+                }
+                render(container, data, siteBase);
+                state.ready();
+            }).catch(function (err) {
+                console.error('DreVisualizations whats-new:', err);
+                state.error(ns.t('visualizationLoadError', 'The visualization could not be loaded.'), run);
+            });
+        }
+        run();
     }
 
     function init() {

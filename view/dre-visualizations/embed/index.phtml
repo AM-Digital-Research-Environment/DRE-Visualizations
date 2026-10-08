@@ -246,8 +246,10 @@ $basePath = $this->basePath();
         var btn = e.target && e.target.closest ? e.target.closest('.dre-embed-copy') : null;
         if (!btn) return;
         var done = function () {
+            // Copy feedback as everywhere else: "Copied" for 2000 ms, announced.
             btn.textContent = doneLabel; btn.classList.add('copied');
-            setTimeout(function () { btn.textContent = copyLabel; btn.classList.remove('copied'); }, 1600);
+            if (RV.announce) RV.announce(doneLabel);
+            setTimeout(function () { btn.textContent = copyLabel; btn.classList.remove('copied'); }, 2000);
         };
         var text = snippetFor(btn);
         if (RV.copyToClipboard) { RV.copyToClipboard(text).then(done, done); }

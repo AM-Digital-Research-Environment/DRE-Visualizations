@@ -25,18 +25,18 @@ if ($viz === '') {
 // Single chart from a dashboard block. Module.php does not run on this route, so
 // request the CDN + core prelude and the dashboard controller ourselves.
 $this->dashboardAssets(['cdn' => true]);
-$siteSlug = $this->currentSite()->slug();
 ?>
 <div class="resource-vis-block dashboard-block dre-embed-single">
-    <div class="dashboard-async-container"
-         data-item-id="<?= $this->escapeHtmlAttr($info['itemId']) ?>"
-         data-layout="<?= $this->escapeHtmlAttr($info['layout']) ?>"
-         data-chart-only="<?= $this->escapeHtmlAttr($viz) ?>"
-         data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"
-         data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $siteSlug) ?>">
-        <div class="rv-loading">
-            <div class="rv-spinner"></div>
-            <span><?= $this->translate('Loading the visualisation…') ?></span>
-        </div>
-    </div>
+    <?= $this->partial('common/block-layout/partials/async-surface', [
+        'class' => 'dashboard-async-container',
+        'statusInside' => true,
+        'data' => [
+            'item-id' => (string) $info['itemId'],
+            'layout' => (string) $info['layout'],
+            'chart-only' => $viz,
+            'ready-status' => $this->translate('Visualisations ready.'),
+            'empty-status' => $this->translate('No visualisations are available.'),
+            'error-status' => $this->translate('The visualization could not be loaded.'),
+        ],
+    ]) ?>
 </div>

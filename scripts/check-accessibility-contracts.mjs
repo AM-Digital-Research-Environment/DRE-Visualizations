@@ -6,7 +6,7 @@
  * Browser smoke tests can prove that a deployed dashboard mounts; this check
  * prevents the module from silently rebuilding inaccessible markup first.
  */
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { CORE_SOURCES } from './lib/frontend-sources.mjs';
 
@@ -29,7 +29,9 @@ const dashboard = read('asset/js/dashboard.js');
 // The core's sources (the served dashboard-core.js is generated from them): the
 // chart toolbar lives in toolbar.js, the per-chart embed button in embed.js.
 const core = CORE_SOURCES.map((path) => read('asset/' + path)).join('\n');
-const template = read('view/common/block-layout/partials/dashboard-async.phtml');
+const template = read('view/common/block-layout/partials/async-surface.phtml');
+const dashboardTemplate = read('view/common/block-layout/partials/dashboard-async.phtml');
+const asyncCore = read('asset/js/core/async.js');
 const css = read('asset/css/dre-visualizations.css');
 
 requireFragment(
@@ -69,16 +71,37 @@ requireFragment(
 );
 
 for (const fragment of [
-  'class="rv-dashboard-status"',
+  'class="rv-dashboard-status rv-async-status"',
   'role="status"',
   'aria-live="polite"',
   'aria-atomic="true"',
   'class="rv-dashboard-content"',
-  'data-ready-status=',
-  'data-empty-status=',
-  'data-error-status=',
+  'class="rv-loading rv-async-loading" aria-hidden="true"',
+  '<noscript>',
+  "translate('This visualization needs JavaScript.')",
+  "translate('Loading…')",
 ]) {
-  requireFragment(template, fragment, `async dashboard template is missing ${fragment}`);
+  requireFragment(template, fragment, `async surface partial is missing ${fragment}`);
+}
+rejectFragment(template, 'aria-busy="', 'aria-busy is set by the script while work is active, never server-side');
+for (const fragment of ['ready-status', 'empty-status', 'error-status', 'partials/async-surface']) {
+  requireFragment(dashboardTemplate, fragment, `async dashboard template is missing ${fragment}`);
+}
+
+// Every block that shows a spinner must get it — and its live region and
+// <noscript> — from the one partial, never from hand-written markup.
+for (const file of readdirSync(join(ROOT, 'view'), { recursive: true })) {
+  const path = String(file).replace(/\\/g, '/');
+  if (!path.endsWith('.phtml') || path.endsWith('partials/async-surface.phtml')) continue;
+  if (read('view/' + path).includes('rv-spinner')) {
+    failures.push(`view/${path} renders its own spinner; use partials/async-surface`);
+  }
+}
+for (const fragment of [
+  "container.setAttribute('aria-busy', state === 'loading' ? 'true' : 'false')",
+  "ns.t('retry', 'Try again')",
+]) {
+  requireFragment(asyncCore, fragment, `core/async.js is missing ${fragment}`);
 }
 requireFragment(
   dashboard,

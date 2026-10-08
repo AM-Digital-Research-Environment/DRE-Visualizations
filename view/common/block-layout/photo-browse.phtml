@@ -207,12 +207,9 @@ $this->headScript()->appendFile(
             <span class="photo-browse-count"><?= $this->escapeHtml($countLabel) ?></span>
         </div>
 
-        <div class="photo-browse-stage">
-            <div class="rv-loading">
-                <div class="rv-spinner"></div>
-                <span><?= $this->translate('Loading the images…') ?></span>
-            </div>
-        </div>
+        <?= $this->partial('common/block-layout/partials/async-surface', [
+            'class' => 'photo-browse-stage',
+        ]) ?>
 
         <script type="application/json" class="photo-data"><?= $payload ?></script>
     </div>

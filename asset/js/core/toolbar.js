@@ -101,6 +101,9 @@
         return heading;
     }
 
+    /** One shared glyph (core/icons.js) as markup for the toolbar string below. */
+    function icon(body) { return ns.iconSvg(body).outerHTML; }
+
     /** Attach HTML-level toolbar (image, CSV, and pattern controls). */
     ns.attachToolbar = function (panel, chart) {
         if (!panel || !chart || !chart.getDataURL) return;
@@ -128,15 +131,15 @@
         // eslint-disable-next-line no-unsanitized/property -- icon constants + escaped titles
         bar.innerHTML = (showDecal
             ? '<button type="button" class="rv-toolbar-btn' + (ns._decalEnabled ? ' rv-toolbar-btn-active' : '') + '" data-action="decal" title="' + ns.escapeHtml(decalTitle) + '" aria-label="' + ns.escapeHtml(decalTitle) + '">'
-            + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/><line x1="4" y1="14" x2="14" y2="4"/><line x1="4" y1="8" x2="8" y2="4"/><line x1="10" y1="20" x2="20" y2="10"/><line x1="16" y1="20" x2="20" y2="16"/></svg>'
+            + icon(ns.ICONS.patterns)
             + '</button>'
             : '')
             + '<button type="button" class="rv-toolbar-btn" data-action="save" title="' + ns.escapeHtml(saveTitle) + '" aria-label="' + ns.escapeHtml(saveTitle) + '">'
-            + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
+            + icon(ns.ICONS.save)
             + '</button>'
             + (hasCsv
                 ? '<button type="button" class="rv-toolbar-btn" data-action="csv" title="' + ns.escapeHtml(csvTitle) + '" aria-label="' + ns.escapeHtml(csvTitle) + '">'
-                + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8"/></svg></button>'
+                + icon(ns.ICONS.csv) + '</button>'
                 : '');
         chartHeading(panel).appendChild(bar);
         bar.addEventListener('click', function (e) {

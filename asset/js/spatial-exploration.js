@@ -110,7 +110,7 @@
 
         /* -- header + description -- */
         var header = el('div', 'dashboard-header');
-        header.appendChild(el('h3', null, ns.t('spatialTitle', 'Spatial exploration')));
+        header.appendChild(el('h2', null, ns.t('spatialTitle', 'Spatial exploration')));
         header.appendChild(el('span', 'dashboard-total',
             ns.plural(data.locations.length, 'spatialPlace', 'place', 'places', true) + ' · '
             + ns.plural(data.countries.length, 'spatialCountry', 'country', 'countries', true)));
@@ -647,26 +647,28 @@
     function initContainer(container) {
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
+        var state = ns.asyncState(container);
         ns.basePath = basePath;
-        var libs = ns.ensureLibs({ maplibre: true });
-        Promise.all([
-            ns.fetchDataJson('item-dashboards/spatial-exploration.json'),
-            libs
-        ]).then(function (res) {
-            var data = decode(res[0]);
-            if (!data.locations.length) {
-                container.innerHTML = '<div class="rv-no-data">' + escapeHtml(ns.t('spatialNoPlaces', 'There are no mapped places yet.')) + '</div>';
-                return;
-            }
-            if (typeof window.maplibregl === 'undefined') {
-                container.innerHTML = '<div class="rv-error">' + escapeHtml(ns.t('mapLoadError', 'The map could not be loaded. Please try again.')) + '</div>';
-                return;
-            }
-            build(container, data, { basePath: basePath, siteBase: siteBase });
-        }).catch(function (err) {
-            console.error('DreVisualizations spatial-exploration:', err);
-            container.innerHTML = '<div class="rv-error">' + escapeHtml(ns.t('mapLoadError', 'The map could not be loaded. Please try again.')) + '</div>';
-        });
+        function run() {
+            state.loading();
+            Promise.all([
+                ns.fetchDataJson('item-dashboards/spatial-exploration.json'),
+                ns.ensureLibs({ maplibre: true })
+            ]).then(function (res) {
+                var data = decode(res[0]);
+                if (!data.locations.length) {
+                    state.empty(ns.t('spatialNoPlaces', 'There are no mapped places yet.'));
+                    return;
+                }
+                if (typeof window.maplibregl === 'undefined') throw new Error('MapLibre is not available');
+                build(container, data, { basePath: basePath, siteBase: siteBase });
+                state.ready(ns.t('mapReady', 'Map ready.'));
+            }).catch(function (err) {
+                console.error('DreVisualizations spatial-exploration:', err);
+                state.error(ns.t('mapLoadError', 'The map could not be loaded.'), run);
+            });
+        }
+        run();
     }
 
     // Defer the (heavier) fetch + render until the block nears the viewport.

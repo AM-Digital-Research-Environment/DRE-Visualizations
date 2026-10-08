@@ -120,9 +120,15 @@
         }
 
         var selectedId = readParam();
+        // The block's one live region and busy state (core/async.js); project
+        // swaps report through it too, so the content area is not a second one.
+        var state = ns.asyncState(container);
 
+        function run() {
+        state.loading();
         ns.fetchDataJson('item-dashboards/projects-index.json').then(function (projects) {
             container.innerHTML = '';
+            state.ready();
 
             var header = document.createElement('div');
             header.className = 'dashboard-header';
@@ -147,9 +153,8 @@
 
             var content = document.createElement('div');
             content.className = 'explorer-content';
-            // Announce dashboard swaps to assistive tech without re-reading
-            // every chart: polite live region + aria-busy while loading.
-            content.setAttribute('aria-live', 'polite');
+            // Dashboard swaps are announced through the block's status node
+            // (state.announce), with aria-busy on this area while one loads.
             container.appendChild(content);
             var abstractController = null;
             var dashboardController = null;
@@ -182,8 +187,8 @@
                 if (ns.disposeWithin) ns.disposeWithin(content);
                 if (!id) { ns.setChildren(content); content.setAttribute('aria-busy', 'false'); return; }
                 content.setAttribute('aria-busy', 'true');
-                content.innerHTML = '<div class="rv-loading"><div class="rv-spinner"></div>'
-                    + '<span>' + ns.escapeHtml(ns.t('loading', 'Loading…')) + '</span></div>';
+                ns.setChildren(content, [ns.loadingIndicator()]);
+                state.announce(ns.t('loading', 'Loading…'));
                 ns.fetchDataJson('item-dashboards/' + encodeURIComponent(id) + '.json',
                     dashboardController ? { signal: dashboardController.signal } : {}).then(function (data) {
                     return ns.ensureLibs(ns.chartLibraries(data)).then(function () { return data; });
@@ -192,17 +197,21 @@
                     content.innerHTML = '';
                     content.setAttribute('aria-busy', 'false');
                     if (!data || !data.totalItems) {
-                        content.innerHTML = '<div class="rv-no-data">'
-                            + ns.escapeHtml(ns.t('noProjectData', 'This project has nothing to visualise yet.')) + '</div>';
+                        var none = ns.t('noProjectData', 'This project has nothing to visualise yet.');
+                        ns.setChildren(content, [ns.el('p', 'rv-no-data', none)]);
+                        state.announce(none);
                         return;
                     }
                     ns.renderInto(content, data, siteBase);
+                    state.announce(ns.t('visualizationReady', 'Visualization ready.'));
                 }).catch(function (error) {
                     if (error && error.name === 'AbortError') return;
                     if (requestId !== dashboardRequestId) return;
+                    console.error('DreVisualizations project-explorer:', error);
                     content.setAttribute('aria-busy', 'false');
-                    content.innerHTML = '<div class="rv-error">'
-                        + ns.escapeHtml(ns.t('projectLoadError', 'This project could not be loaded. Please try again.')) + '</div>';
+                    var failed = ns.t('projectLoadError', 'This project could not be loaded.');
+                    ns.setChildren(content, [ns.errorNotice(failed, function () { load(id); })]);
+                    state.announce(failed);
                 });
             }
 
@@ -216,10 +225,12 @@
                 content.innerHTML = '<div class="rv-no-data">'
                     + ns.escapeHtml(ns.t('explorerPrompt', 'Choose a project above to see its visualisations.')) + '</div>';
             }
-        }).catch(function () {
-            container.innerHTML = '<div class="rv-error">'
-                + ns.escapeHtml(ns.t('explorerListError', 'The list of projects could not be loaded. Please try again.')) + '</div>';
+        }).catch(function (error) {
+            console.error('DreVisualizations project-explorer:', error);
+            state.error(ns.t('explorerListError', 'The list of projects could not be loaded.'), run);
         });
+        }
+        run();
     }
 
     function init() {

@@ -28,8 +28,8 @@
         freeze: '<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>',
         play: '<polygon points="7 4 20 12 7 20 7 4"/>',
         unpin: '<path d="M12 17v5"/><path d="M9 10.76V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v5.76l2 3.24H7z"/><line x1="3" y1="3" x2="21" y2="21"/>',
-        reset: '<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>',
-        save: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>'
+        reset: ns.ICONS.reset,
+        save: ns.ICONS.save
     };
 
     /* ------------------------------------------------------------------ */
@@ -433,21 +433,10 @@
         });
         add(saveBtn);
 
-        /* -- fullscreen (the button itself is in the template) -- */
-        var toggle = block.querySelector('.rv-fullscreen-toggle');
-        function refit() { setTimeout(function () { graph.resize(); }, 50); }
-        if (toggle) {
-            toggle.addEventListener('click', function () {
-                block.classList.toggle('rv-fullscreen');
-                refit();
-            });
-        }
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && block.classList.contains('rv-fullscreen')) {
-                block.classList.remove('rv-fullscreen');
-                refit();
-            }
-        });
+        /* -- fullscreen: the shared control (core/fullscreen.js), last in the row -- */
+        toolbar.appendChild(ns.fullscreenButton(block, {
+            onChange: function () { setTimeout(function () { graph.resize(); }, 50); }
+        }));
     }
 
     /** The gesture hint that sits under the graph (graphChrome's, with the graph's own words). */

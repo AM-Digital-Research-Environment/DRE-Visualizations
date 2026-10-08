@@ -2,28 +2,17 @@
 /**
  * Linked Items Dashboard resource page block.
  *
- * Loads precomputed dashboard data asynchronously.
+ * Loads precomputed dashboard data asynchronously, through the shared
+ * async-dashboard markup (status, spinner, no-JavaScript message).
  * For research sections: shows timeline, types, languages, subjects,
  * contributors, and items-per-project charts.
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\ItemRepresentation $resource
  */
-
-// Dashboard front-end assets (CDN + core already injected by Module.php on
-// item pages). Single source of truth: DreVisualizations\View\Helper\DashboardAssets.
-$this->dashboardAssets();
-$siteSlug = $this->currentSite()->slug();
 ?>
-
-<div class="resource-vis-block dashboard-block">
-    <div class="dashboard-async-container"
-         data-item-id="<?= $resource->id() ?>"
-         data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"
-         data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $siteSlug) ?>">
-        <div class="rv-loading">
-            <div class="rv-spinner"></div>
-            <span><?= $this->translate('Loading the visualisations…') ?></span>
-        </div>
-    </div>
-</div>
+<?= $this->partial('common/block-layout/partials/dashboard-async', [
+    'itemId' => (string) $resource->id(),
+    // Module.php has already injected the CDN + core prelude on item pages.
+    'assets' => [],
+]) ?>

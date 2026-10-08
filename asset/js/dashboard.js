@@ -157,7 +157,7 @@
         var settled = false; // once true, a failure is reported to the host directly
         function fail(el, key, error) {
             failures++;
-            el.textContent = ns.t('visualizationsUnavailable', 'Visualisations are unavailable.');
+            el.textContent = ns.t('visualizationLoadError', 'The visualization could not be loaded.');
             el.classList.add('rv-chart-error');
             console.warn('[DreVisualizations] Chart failed: ' + key, error);
             if (settled && host.dataset) {
@@ -221,7 +221,7 @@
     /*  Async dashboard (precomputed JSON)                                 */
     /* ------------------------------------------------------------------ */
 
-    function showMessage(container, message, state) {
+    function showMessage(container, message, state, retry) {
         var content = container.querySelector('.rv-dashboard-content') || container;
         var status = container.querySelector('.rv-dashboard-status');
         container.setAttribute('aria-busy', 'false');
@@ -233,14 +233,16 @@
         var text = document.createElement('p');
         text.textContent = message;
         notice.appendChild(text);
-        if (state === 'error') {
-            // A reload also retries failed ESM/library requests and the manifest.
-            var retry = document.createElement('button');
-            retry.type = 'button';
-            retry.className = 'rv-dashboard-reload';
-            retry.textContent = ns.t('reloadPage', 'Reload page');
-            retry.addEventListener('click', function () { window.location.reload(); });
-            notice.appendChild(retry);
+        if (state === 'error' && typeof retry === 'function') {
+            // "Try again" reruns the request in place (core/libs.js forgets a
+            // failed library load and core/data.js a failed download, so the
+            // rerun really refetches) — the same control every surface offers.
+            var button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'rv-retry-btn';
+            button.textContent = ns.t('retry', 'Try again');
+            button.addEventListener('click', retry);
+            notice.appendChild(button);
         }
         content.appendChild(notice);
     }
@@ -257,6 +259,7 @@
         };
         container.setAttribute('aria-busy', 'true');
         container.dataset.state = 'loading';
+        if (status) status.textContent = ns.t('loading', 'Loading…');
         ns.basePath = basePath; // expose for builders that load module assets (e.g. choropleth GeoJSON)
         var directory = /^[a-z0-9-]+$/.test(container.dataset.dashboardDir || '')
             ? container.dataset.dashboardDir : 'item-dashboards';
@@ -305,13 +308,20 @@
     // view (a dedicated dashboard page, or libraries loaded eagerly) fires the
     // observer at once and ensureLibs resolves immediately — unchanged there.
     function mountWhenVisible(container, render) {
-        ns.mountWhenVisible(container, function () {
+        function run() {
             Promise.resolve().then(render).catch(function (error) {
                 console.warn('[DreVisualizations] Dashboard failed', error);
                 showMessage(container, container.dataset.errorStatus
-                    || ns.t('visualizationsUnavailable', 'Visualisations are unavailable.'), 'error');
+                    || ns.t('visualizationLoadError', 'The visualization could not be loaded.'), 'error', retry);
             });
-        });
+        }
+        function retry() {
+            var content = container.querySelector('.rv-dashboard-content') || container;
+            content.replaceChildren();
+            if (ns.loadingIndicator) content.appendChild(ns.loadingIndicator());
+            run();
+        }
+        ns.mountWhenVisible(container, run);
     }
 
     function init() {

@@ -19,8 +19,8 @@
     // its container; dashboards get a per-chart button, the single-widget blocks
     // one button for the whole block. Never shown inside an embed (dre-embed-body).
 
-    var EMBED_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>';
-    var CHECK_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    // The copy-feedback window (DESIGN-INTEGRATION.md "Copy feedback").
+    var COPIED_MS = 2000;
 
     // Host-side listener that resizes the iframe to the height the embed posts
     // (paired with the reporter in view/dre-visualizations/layout/embed.phtml).
@@ -69,20 +69,39 @@
         return Promise.resolve();
     };
 
-    // Briefly swap a button to a "copied" check, then restore its markup/title.
-    function flashCopied(btn, restoreHtml, restoreTitle) {
+    /**
+     * Copy feedback, the same on every surface of the product: the visible
+     * label reads "Copied" for two seconds and the word is announced. The
+     * labelled button hands its label to window.DREUtils.flashLabel (which
+     * swaps it and announces through the theme's shared region); the icon-only
+     * one swaps its glyph and name, and announces through ns.announce, which
+     * also prefers DREUtils and keeps a local region for a host without it.
+     */
+    function flashCopied(btn, label, restoreTitle) {
         var copied = ns.t('copied', 'Copied');
-        // eslint-disable-next-line no-unsanitized/property -- icon constant + escaped label
-        btn.innerHTML = CHECK_ICON + (btn.dataset.embedLabel ? '<span>' + ns.escapeHtml(copied) + '</span>' : '');
+        var utils = window.DREUtils;
+        clearTimeout(btn._embedTimer);
+        ns.setChildren(btn, [ns.iconSvg(ns.ICONS.check)].concat(label ? [label] : []));
         btn.classList.add('rv-toolbar-btn-active');
         btn.title = copied;
-        clearTimeout(btn._embedTimer);
+        if (label && utils && typeof utils.flashLabel === 'function') {
+            utils.flashLabel(label, copied, COPIED_MS);
+        } else {
+            if (label) {
+                if (!('label' in label.dataset)) label.dataset.label = label.textContent;
+                label.textContent = copied;
+            } else {
+                btn.setAttribute('aria-label', copied);
+            }
+            ns.announce(copied);
+        }
         btn._embedTimer = setTimeout(function () {
-            // eslint-disable-next-line no-unsanitized/property -- restores the escaped markup built above
-            btn.innerHTML = restoreHtml;
+            ns.setChildren(btn, [ns.iconSvg(ns.ICONS.embed)].concat(label ? [label] : []));
+            if (label && label.dataset.label != null) label.textContent = label.dataset.label;
             btn.classList.remove('rv-toolbar-btn-active');
             btn.title = restoreTitle;
-        }, 1600);
+            btn.setAttribute('aria-label', label ? label.dataset.label || restoreTitle : restoreTitle);
+        }, COPIED_MS);
     }
 
     /**
@@ -96,18 +115,18 @@
         var btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'rv-toolbar-btn rv-embed-btn' + (labelTxt ? ' rv-embed-btn--labeled' : '');
-        if (labelTxt) btn.dataset.embedLabel = labelTxt;
-        var baseHtml = EMBED_ICON + (labelTxt ? '<span>' + ns.escapeHtml(labelTxt) + '</span>' : '');
-        // eslint-disable-next-line no-unsanitized/property -- icon constant + escaped label
-        btn.innerHTML = baseHtml;
+        var label = labelTxt ? ns.el('span', 'rv-embed-label', labelTxt) : null;
+        ns.setChildren(btn, [ns.iconSvg(ns.ICONS.embed)].concat(label ? [label] : []));
         var copyTitle = ns.t('copyEmbed', 'Copy the code to put this on another website');
         btn.title = copyTitle;
-        btn.setAttribute('aria-label', copyTitle);
+        // A labelled button is named by its visible text, so "Copied" replaces
+        // that name while it shows; an icon-only one needs an explicit name.
+        if (!label) btn.setAttribute('aria-label', copyTitle);
         btn.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
             ns.copyToClipboard(ns.embedSnippet(opts.src, opts.title, opts.height)).then(function () {
-                flashCopied(btn, baseHtml, copyTitle);
+                flashCopied(btn, label, copyTitle);
             });
         });
         return btn;

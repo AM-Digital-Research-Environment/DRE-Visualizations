@@ -116,7 +116,7 @@
 
         /* -- header + description -- */
         var header = el('div', 'dashboard-header');
-        header.appendChild(el('h3', null, t('degTitle', 'Entity network')));
+        header.appendChild(el('h2', null, t('degTitle', 'Entity network')));
         header.appendChild(el('span', 'dashboard-total',
             ns.plural(data.nodes.length, 'degEntity', 'entity', 'entities', true) + ' · '
             + ns.plural(data.edges.length, 'link', 'link', 'links', true)
@@ -936,10 +936,7 @@
         }
 
         // Reset view ------------------------------------------------------
-        var resetBtn = el('button', 'rv-btn'); resetBtn.type = 'button';
-        resetBtn.title = ns.t('resetView', 'Reset view');
-        resetBtn.setAttribute('aria-label', ns.t('resetView', 'Reset view'));
-        resetBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 9 8 9"/></svg>';
+        var resetBtn = ns.iconButton(ns.ICONS.reset, ns.t('resetView', 'Reset view'));
         resetBtn.addEventListener('click', function () { resetView(); });
         toolbar.appendChild(resetBtn);
 
@@ -1167,28 +1164,31 @@
     function initContainer(container) {
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
+        var state = ns.asyncState(container);
         ns.basePath = basePath;
-        // Load MapLibre on demand through the shared loader (dashboard-core.js) —
-        // the same path the dashboards use — so a page with both a dashboard and
-        // this graph loads MapLibre exactly once. Fetch the data in parallel.
-        Promise.all([
-            ns.fetchDataJson('communities/entity-graph.json'),
-            ns.ensureLibs({ maplibre: true })
-        ]).then(function (res) {
-            var data = decode(res[0]);
-            if (!data.nodes.length) {
-                container.innerHTML = '<div class="rv-no-data">' + escapeHtml(t('degNone', 'There is no entity network to show yet.')) + '</div>';
-                return;
-            }
-            if (typeof window.maplibregl === 'undefined') {
-                container.innerHTML = '<div class="rv-error">' + escapeHtml(t('degLoadError', 'The entity network could not be loaded. Please try again.')) + '</div>';
-                return;
-            }
-            build(container, data, { basePath: basePath, siteBase: siteBase });
-        }).catch(function (err) {
-            console.error('DreVisualizations entity-graph:', err);
-            container.innerHTML = '<div class="rv-error">' + escapeHtml(t('degLoadError', 'The entity network could not be loaded. Please try again.')) + '</div>';
-        });
+        function run() {
+            state.loading();
+            // Load MapLibre on demand through the shared loader (dashboard-core.js) —
+            // the same path the dashboards use — so a page with both a dashboard and
+            // this graph loads MapLibre exactly once. Fetch the data in parallel.
+            Promise.all([
+                ns.fetchDataJson('communities/entity-graph.json'),
+                ns.ensureLibs({ maplibre: true })
+            ]).then(function (res) {
+                var data = decode(res[0]);
+                if (!data.nodes.length) {
+                    state.empty(t('degNone', 'There is no entity network to show yet.'));
+                    return;
+                }
+                if (typeof window.maplibregl === 'undefined') throw new Error('MapLibre is not available');
+                build(container, data, { basePath: basePath, siteBase: siteBase });
+                state.ready(t('degReady', 'Entity network ready.'));
+            }).catch(function (err) {
+                console.error('DreVisualizations entity-graph:', err);
+                state.error(t('visualizationLoadError', 'The visualization could not be loaded.'), run);
+            });
+        }
+        run();
     }
 
     // Defer the (heavier) fetch + render until the block nears the viewport.

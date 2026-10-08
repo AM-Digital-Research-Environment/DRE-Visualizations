@@ -17,13 +17,16 @@
  */
 export const CORE_SOURCES = [
   'js/core/base.js',
+  'js/core/icons.js',
   'js/core/theme.js',
   'js/core/data.js',
   'js/core/libs.js',
+  'js/core/async.js',
   'js/core/charts.js',
   'js/core/maps.js',
   'js/core/toolbar.js',
   'js/core/embed.js',
+  'js/core/fullscreen.js',
   'js/core/graph-walk.js',
   'js/core/reveal.js',
   'js/core/startup.js',

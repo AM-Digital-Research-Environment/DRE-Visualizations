@@ -11,18 +11,14 @@
 
 $this->dashboardAssets(['cdn' => true, 'controller' => 'compare']);
 
-$siteSlug = $this->currentSite()->slug();
 ?>
 
 <div class="resource-vis-block compare-block compare-genres-block">
-    <div class="compare-container"
-         data-entity-type="genres"
-         data-embed-slug="compare-genres"
-         data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"
-         data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $siteSlug) ?>">
-        <div class="rv-loading">
-            <div class="rv-spinner"></div>
-            <span><?= $this->translate('Loading the genre comparison…') ?></span>
-        </div>
-    </div>
+    <?= $this->partial('common/block-layout/partials/async-surface', [
+        'class' => 'compare-container',
+        'data' => [
+            'entity-type' => 'genres',
+            'embed-slug' => 'compare-genres',
+        ],
+    ]) ?>
 </div>

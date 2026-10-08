@@ -13,17 +13,13 @@
 // CDN + core prelude and the What's New controller.
 $this->dashboardAssets(['cdn' => true, 'controller' => 'whatsNew']);
 
-$siteSlug = $this->currentSite()->slug();
 ?>
 
 <div class="resource-vis-block whats-new-block">
-    <div class="whats-new-container"
-         data-embed-slug="whats-new"
-         data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"
-         data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $siteSlug) ?>">
-        <div class="rv-loading">
-            <div class="rv-spinner"></div>
-            <span><?= $this->translate('Loading recent additions…') ?></span>
-        </div>
-    </div>
+    <?= $this->partial('common/block-layout/partials/async-surface', [
+        'class' => 'whats-new-container',
+        'data' => [
+            'embed-slug' => 'whats-new',
+        ],
+    ]) ?>
 </div>

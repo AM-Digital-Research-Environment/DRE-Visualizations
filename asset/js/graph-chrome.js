@@ -28,7 +28,7 @@
     var el = ns.el;
     function t(key, fallback) { return ns.t(key, fallback); }
 
-    var CLOSE_ICON = '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>';
+    var CLOSE_ICON = ns.ICONS.close;   // the module's one icon set (core/icons.js)
 
     /* ------------------------------------------------------------------ */
     /*  Legend                                                             */

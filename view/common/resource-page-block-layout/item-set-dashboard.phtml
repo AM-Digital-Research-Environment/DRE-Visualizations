@@ -2,28 +2,16 @@
 /**
  * Item Set Dashboard resource page block.
  *
- * Hydrates the item set's precomputed dashboard asynchronously.
+ * Hydrates the item set's precomputed dashboard asynchronously, through the
+ * shared async-dashboard markup (status, spinner, no-JavaScript message).
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\ItemSetRepresentation $resource
  */
-
-$this->dashboardAssets();
-$site = $this->currentSite();
 ?>
-
-<div class="resource-vis-block dashboard-block">
-    <div class="dashboard-async-container"
-         data-item-id="<?= (int) $resource->id() ?>"
-         data-dashboard-dir="item-set-dashboards"
-         data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"
-         data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $site->slug()) ?>">
-        <noscript>
-            <div class="rv-no-data"><?= $this->translate('These interactive charts need JavaScript to work. Please turn it on, or use the collection’s search and browse pages instead.') ?></div>
-        </noscript>
-        <div class="rv-loading">
-            <div class="rv-spinner"></div>
-            <span><?= $this->translate('Loading the visualisations…') ?></span>
-        </div>
-    </div>
-</div>
+<?= $this->partial('common/block-layout/partials/dashboard-async', [
+    'itemId' => (string) (int) $resource->id(),
+    'dashboardDir' => 'item-set-dashboards',
+    // Module.php has already injected the CDN + core prelude on resource pages.
+    'assets' => [],
+]) ?>

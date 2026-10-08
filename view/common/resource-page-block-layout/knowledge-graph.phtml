@@ -4,16 +4,16 @@
  *
  * Renders a lightweight container. All data fetching and graph building
  * happens asynchronously in JavaScript via the Omeka S REST API,
- * so the page loads instantly.
+ * so the page loads instantly. The container's status, spinner and
+ * no-JavaScript message come from the shared async-surface partial; the
+ * toolbar's buttons — fullscreen included — are mounted by the script, since
+ * none of them can work without it.
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\ItemRepresentation $resource
  */
 
 $this->dashboardAssets(['knowledgeGraph' => true]);
-
-$siteSlug = $this->currentSite()->slug();
-$resourceClass = $resource->resourceClass();
 ?>
 
 <details class="resource-vis-block knowledge-graph-block rv-collapsible" open>
@@ -22,19 +22,11 @@ $resourceClass = $resource->resourceClass();
         <span class="rv-collapsible__chevron" aria-hidden="true"></span>
     </summary>
     <div class="rv-collapsible__panel">
-        <div class="knowledge-graph-toolbar">
-            <button type="button" class="rv-btn rv-fullscreen-toggle" aria-label="<?= $this->escapeHtmlAttr($this->translate('Toggle fullscreen')) ?>">
-                <span class="rv-icon-expand">&#x26F6;</span>
-            </button>
-        </div>
-        <div class="knowledge-graph-container"
-             data-item-id="<?= $resource->id() ?>"
-             data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"
-             data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $siteSlug) ?>">
-            <div class="rv-loading">
-                <div class="rv-spinner"></div>
-                <span><?= $this->translate('Loading the knowledge graph…') ?></span>
-            </div>
-        </div>
+        <div class="knowledge-graph-toolbar" role="toolbar"
+             aria-label="<?= $this->escapeHtmlAttr($this->translate('Knowledge graph actions')) ?>"></div>
+        <?= $this->partial('common/block-layout/partials/async-surface', [
+            'class' => 'knowledge-graph-container',
+            'data' => ['item-id' => (string) $resource->id()],
+        ]) ?>
     </div>
 </details>

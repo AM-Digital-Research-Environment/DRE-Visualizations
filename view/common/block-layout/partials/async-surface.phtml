@@ -1,0 +1,53 @@
+<?php
+/**
+ * The one markup source for an asynchronous visualization surface — every
+ * block that renders its picture in JavaScript after the page loads.
+ *
+ * DESIGN-INTEGRATION.md "Asynchronous states" in markup form:
+ *   - ONE persistent `role="status"` node (aria-live polite, aria-atomic) per
+ *     surface, carrying "Loading…" now and the ready / empty / error message
+ *     later (asset/js/core/async.js). By default it is rendered BEFORE the
+ *     container, so a block controller that replaces the container's children
+ *     can never destroy the live region; the async dashboards keep it inside
+ *     their container ($statusInside) and render into `.rv-dashboard-content`.
+ *   - the spinner is aria-hidden: the status node is what is announced;
+ *   - <noscript> inside the reserved space says the visualization needs
+ *     JavaScript, and hides the loading state that would otherwise never end.
+ * aria-busy is set by the script while work is active, never here: a page
+ * without JavaScript must not be left busy forever.
+ *
+ * Params:
+ *   string                    $class         container class(es)
+ *   array<string,scalar|null> $data          data-* attributes, keys without
+ *                                            the `data-` prefix; null skips one
+ *   bool                      $statusInside  dashboard form (default false)
+ *
+ * The container always carries data-base-path and data-site-base.
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ */
+
+$statusInside = !empty($statusInside);
+$loading = $this->translate('Loading…');
+$attributes = array_merge($data ?? [], [
+    'base-path' => $this->basePath(),
+    'site-base' => $this->basePath() . '/s/' . $this->currentSite()->slug(),
+]);
+
+$status = '<p class="rv-dashboard-status rv-async-status" role="status" aria-live="polite" aria-atomic="true">'
+    . $this->escapeHtml($loading) . '</p>';
+?>
+<?php if (!$statusInside): ?><?= $status ?><?php endif; ?>
+<div class="<?= $this->escapeHtmlAttr($class) ?>"<?php foreach ($attributes as $name => $value): ?><?php if ($value === null) continue; ?> data-<?= $this->escapeHtmlAttr((string) $name) ?>="<?= $this->escapeHtmlAttr((string) $value) ?>"<?php endforeach; ?>>
+    <?php if ($statusInside): ?><?= $status ?>
+    <div class="rv-dashboard-content"><?php endif; ?>
+        <noscript>
+            <style>.rv-async-status, .rv-async-loading { display: none; }</style>
+            <p class="rv-no-data rv-noscript"><?= $this->escapeHtml($this->translate('This visualization needs JavaScript.')) ?></p>
+        </noscript>
+        <div class="rv-loading rv-async-loading" aria-hidden="true">
+            <div class="rv-spinner"></div>
+            <span><?= $this->escapeHtml($loading) ?></span>
+        </div>
+    <?php if ($statusInside): ?></div><?php endif; ?>
+</div>

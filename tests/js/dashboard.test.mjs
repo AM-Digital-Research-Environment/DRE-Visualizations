@@ -43,12 +43,12 @@ async function dashboard({ data, libraryError, builderError } = {}) {
     };
     const layout = { order: ['curated', 'second'], wide: [], tall: [] };
     const errors = [];
-    let reloads = 0;
+    let fetches = 0;
     const ns = {
         LAYOUTS: { collectionOverview: layout }, DEFAULT_LAYOUT: { ...layout, order: ['generic'] },
         t: (_key, fallback) => fallback,
         ensureLibs: () => libraryError ? Promise.reject(libraryError) : Promise.resolve(),
-        fetchDataJson: () => data instanceof Error ? Promise.reject(data) : Promise.resolve(data ?? {
+        fetchDataJson: () => ++fetches && data instanceof Error ? Promise.reject(data) : Promise.resolve(data ?? {
             totalItems: 2, resourceType: 'generic', stats: [1], curated: [1], second: [2], generic: [3],
         }),
         renderStatCards: () => 'DUPLICATE_STATS',
@@ -62,13 +62,13 @@ async function dashboard({ data, libraryError, builderError } = {}) {
         }])),
     };
     vm.runInNewContext(source, {
-        window: { RV: ns, location: { reload() { reloads++; } } },
+        window: { RV: ns },
         document: { readyState: 'complete', createElement: element,
             querySelectorAll: selector => selector === '.dashboard-async-container' ? [host] : [] },
         console: { warn: (...args) => errors.push(args) },
     });
     await flush();
-    return { host, content, status, built, errors, reloads: () => reloads };
+    return { host, content, status, built, errors, fetches: () => fetches };
 }
 
 test('async wrapper preserves curated layout/title and the persistent live region', async () => {
@@ -88,11 +88,16 @@ for (const kind of ['data', 'library']) {
         assert.equal(result.host.dataset.state, 'error');
         assert.equal(result.host.attributes['aria-busy'], 'false');
         const notice = result.content.children[0];
-        assert.equal(notice.children[0].textContent, 'Visualisations are unavailable.');
-        assert.equal(notice.children[1].textContent, 'Reload page');
-        notice.children[1].click();
-        assert.equal(result.reloads(), 1);
+        assert.equal(notice.children[0].textContent, 'The visualization could not be loaded.');
+        assert.equal(notice.children[1].textContent, 'Try again');
         assert.equal(result.errors.length, 1);
+        // "Try again" reruns the request in place instead of reloading the page.
+        const before = result.fetches();
+        notice.children[1].click();
+        await flush();
+        assert.equal(result.fetches(), before + 1);
+        assert.equal(result.errors.length, 2);
+        assert.equal(result.host.dataset.state, 'error');
     });
 }
 

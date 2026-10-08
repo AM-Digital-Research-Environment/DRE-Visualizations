@@ -224,22 +224,35 @@
         ns.setupBlockEmbedButtons();
     }
 
-    function showError(container) {
-        ns.setChildren(container, [node('div', 'rv-no-data', ns.t(
-            'semanticLoadError',
-            'This map is not available yet. It is rebuilt when the collection is next processed.'
-        ))]);
-    }
-
     function init(container) {
         ns.basePath = container.getAttribute('data-base-path') || '';
-        Promise.all([
-            ns.ensureLibs({ echarts: true }),
-            ns.fetchDataJson('embeddings/map.json')
-        ]).then(function (values) {
-            if (!values[1] || values[1].schemaVersion !== 1) throw new Error('Unsupported semantic map schema');
-            render(container, values[1]);
-        }).catch(function () { showError(container); });
+        var state = ns.asyncState(container);
+        function run() {
+            state.loading();
+            Promise.all([
+                ns.ensureLibs({ echarts: true }),
+                ns.fetchDataJson('embeddings/map.json')
+            ]).then(function (values) {
+                if (!values[1] || values[1].schemaVersion !== 1) {
+                    var schema = new Error('Unsupported semantic map schema');
+                    schema.unavailable = true;
+                    throw schema;
+                }
+                render(container, values[1]);
+                state.ready(ns.t('mapReady', 'Map ready.'));
+            }).catch(function (error) {
+                console.error('DreVisualizations semantic-map:', error);
+                // A map not generated yet is unavailable, not failing: a quiet
+                // message and no retry. Anything else can be retried.
+                if (error && (error.unavailable || error.status === 404)) {
+                    state.unavailable(ns.t('semanticLoadError',
+                        'This map is not available yet. It is rebuilt when the collection is next processed.'));
+                } else {
+                    state.error(ns.t('mapLoadError', 'The map could not be loaded.'), run);
+                }
+            });
+        }
+        run();
     }
 
     function start() {

@@ -11,17 +11,13 @@
 
 $this->dashboardAssets(['cdn' => true, 'controller' => 'network']);
 
-$siteSlug = $this->currentSite()->slug();
 ?>
 
 <div class="resource-vis-block network-explorer-block">
-    <div class="network-explorer-container"
-         data-embed-slug="network-explorer"
-         data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"
-         data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $siteSlug) ?>">
-        <div class="rv-loading">
-            <div class="rv-spinner"></div>
-            <span><?= $this->translate('Loading the network explorer…') ?></span>
-        </div>
-    </div>
+    <?= $this->partial('common/block-layout/partials/async-surface', [
+        'class' => 'network-explorer-container',
+        'data' => [
+            'embed-slug' => 'network-explorer',
+        ],
+    ]) ?>
 </div>

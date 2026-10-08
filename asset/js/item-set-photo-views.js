@@ -36,13 +36,13 @@
     }
     var ICON = {
         calendar: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/>',
-        pin: '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
-        book: '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+        pin: ns.ICONS.pin,
+        book: ns.ICONS.book,
         arrow: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
         external: '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
         chevronLeft: '<path d="m15 18-6-6 6-6"/>',
         chevronRight: '<path d="m9 18 6-6-6-6"/>',
-        close: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'
+        close: ns.ICONS.close
     };
 
     /* ------------------------------------------------------------------ */
@@ -67,16 +67,23 @@
 
     function setupContainer(container) {
         var dataEl = container.querySelector('script.photo-data');
-        if (!dataEl) return;
+        var stage = container.querySelector('.photo-browse-stage');
+        if (!dataEl || !stage) return;
+        // The stage's status node and busy state (core/async.js).
+        var state = ns.asyncState(stage);
         var photos;
         try {
             photos = JSON.parse(dataEl.textContent || '[]');
         } catch (e) {
+            console.error('DreVisualizations photo-browse:', e);
+            state.error(ns.t('visualizationLoadError', 'The visualization could not be loaded.'));
             return;
         }
-        if (!photos.length) return;
+        if (!photos.length) {
+            state.empty(ns.t('photoNone', 'There are no images to show.'));
+            return;
+        }
 
-        var stage = container.querySelector('.photo-browse-stage');
         var buttons = Array.prototype.slice.call(container.querySelectorAll('.photo-view-btn'));
         var defaultView = container.dataset.defaultView || 'masonry';
         var grouping = container.dataset.grouping || 'photo';
@@ -132,6 +139,7 @@
         });
 
         showView(defaultView);
+        state.ready();
     }
 
     function clearLoading(stage) {
@@ -625,12 +633,18 @@
         });
         var fc = { type: 'FeatureCollection', features: geo };
 
-        loadMapLibre(mlCss, mlJs, mlWorker).then(function () {
-            createMap();
-        }).catch(function () {
-            mapEl.innerHTML = '<div class="rv-empty">'
-                + escapeHtml(ns.t('mapLoadError', 'The map could not be loaded. Please try again.')) + '</div>';
-        });
+        function load() {
+            loadMapLibre(mlCss, mlJs, mlWorker).then(function () {
+                ns.setChildren(mapEl);
+                createMap();
+            }).catch(function (error) {
+                console.error('DreVisualizations photo map:', error);
+                var failed = ns.t('mapLoadError', 'The map could not be loaded.');
+                ns.setChildren(mapEl, [ns.errorNotice(failed, load)]);
+                ns.announce(failed);
+            });
+        }
+        load();
 
         function createMap() {
             // High-contrast markers for the near-white Positron (and dark-matter)

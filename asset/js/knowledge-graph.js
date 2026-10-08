@@ -48,10 +48,6 @@
         return ns.HALO[c % ns.HALO.length];
     }
 
-    function showMessage(container, cls, text) {
-        ns.setChildren(container, [ns.el('p', cls, text)]);
-    }
-
     /* ------------------------------------------------------------------ */
     /*  Build                                                             */
     /* ------------------------------------------------------------------ */
@@ -127,24 +123,25 @@
     /*  Init                                                              */
     /* ------------------------------------------------------------------ */
 
-    function initKnowledgeGraph(container) {
+    function initKnowledgeGraph(container, state, retry) {
         if (!container.dataset.itemId) return;
         var siteBase = container.dataset.siteBase || '';
         var seed = parseInt(container.dataset.itemId, 10) || 1;
 
-        ns.kgData.load(container).then(function (data) {
+        return ns.kgData.load(container).then(function (data) {
             if (!data || !data.nodes || data.nodes.length < 2) {
-                showMessage(container, 'rv-no-data', t('kgNoRelationships', 'This record has no connections to show.'));
+                state.empty(t('kgNoRelationships', 'This record has no connections to show.'));
                 return;
             }
             if (typeof d3 === 'undefined' || !d3.forceSimulation) {
-                showMessage(container, 'rv-error', t('kgNoEngine', 'The graph could not be loaded. Please try again.'));
-                return;
+                throw new Error('d3-force is not available');
             }
+            ns.setChildren(container);
             build(container, data, siteBase, seed);
+            state.ready(t('kgReady', 'Knowledge graph ready.'));
         }).catch(function (err) {
             console.error('DreVisualizations:', err);
-            showMessage(container, 'rv-error', t('kgLoadError', 'The graph could not be loaded. Please try again.'));
+            state.error(t('visualizationLoadError', 'The visualization could not be loaded.'), retry);
         });
     }
 
@@ -155,14 +152,17 @@
      * downloads ECharts, and MapLibre follows later if the item has coordinates.
      */
     function mount(container) {
-        ns.mountWhenVisible(container, function () {
+        var state = ns.asyncState(container);
+        function run() {
+            state.loading();
             ns.ensureLibs({ d3: true })
-                .then(function () { initKnowledgeGraph(container); })
+                .then(function () { return initKnowledgeGraph(container, state, run); })
                 .catch(function (err) {
                     console.error('DreVisualizations:', err);
-                    showMessage(container, 'rv-error', t('kgNoEngine', 'The graph could not be loaded. Please try again.'));
+                    state.error(t('visualizationLoadError', 'The visualization could not be loaded.'), run);
                 });
-        });
+        }
+        ns.mountWhenVisible(container, run);
     }
 
     function init() {

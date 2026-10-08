@@ -1,65 +1,49 @@
 <?php
 /**
- * Shared async-dashboard container — the single markup source for the
- * dashboard site-page blocks (Collection Overview / Collection Dashboard /
- * Publications / Podcasts / YouTube). Injects the dashboard asset chain and
- * emits the container the orchestrator (dashboard.js) hydrates from the
- * precomputed JSON named by data-item-id.
+ * Shared async-dashboard container — the markup for every dashboard block:
+ * the site-page dashboards (Collection Overview / Collection Dashboard /
+ * Publications / Podcasts / YouTube) and the resource-page dashboards (linked
+ * items, item set). Injects the dashboard asset chain and emits the container
+ * the orchestrator (dashboard.js) hydrates from the precomputed JSON named by
+ * data-item-id, through the one async-surface partial every block shares.
  *
  * Params:
- *   string  $itemId   Precomputed artifact id under item-dashboards/
- *                     (e.g. 'publications', 'collection-overview').
- *   string  $slug     Embed slug (data-embed-slug — must match the
- *                     EmbedController BLOCKS key so copy-embed buttons work).
- *   string  $loading  Loading message (already translated by the caller).
- *   ?string $layout   Optional layout override (data-layout), e.g.
- *                     'collectionOverview' — otherwise the JSON's resourceType
- *                     picks the layout.
- *   ?string $title    Optional embed title override (data-title).
+ *   string  $itemId        Precomputed artifact id (e.g. 'publications',
+ *                          'collection-overview', or a resource id).
+ *   ?string $slug          Embed slug (data-embed-slug — must match the
+ *                          EmbedController BLOCKS key so copy-embed buttons
+ *                          work); omitted for resource-page dashboards.
+ *   ?string $layout        Optional layout override (data-layout), e.g.
+ *                          'collectionOverview' — otherwise the JSON's
+ *                          resourceType picks the layout.
+ *   ?string $title         Optional embed title override (data-title).
+ *   ?string $dashboardDir  Optional artifact directory (data-dashboard-dir).
+ *   array   $assets        Options for the dashboardAssets helper (default
+ *                          ['cdn' => true]: a site-page block, where Module.php
+ *                          has not injected the chart prelude).
  *
  * Zero-config: no $block access, so the bare embed route renders it too.
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  */
 
-// Site-page block (Module.php does not run on page controllers), so request the
-// CDN + core prelude too. Single source of truth: DashboardAssets view helper.
-$this->dashboardAssets(['cdn' => true]);
-
-$siteSlug = $this->currentSite()->slug();
-$layout = $layout ?? null;
-$title = $title ?? null;
-$readyStatus = $this->translate('Visualisations ready.');
-$emptyStatus = $this->translate('No visualisations are available.');
-$errorStatus = $this->translate('Visualisations are unavailable.');
+// Single source of truth for the asset chain: the DashboardAssets view helper.
+$this->dashboardAssets($assets ?? ['cdn' => true]);
 ?>
 
 <div class="resource-vis-block dashboard-block">
-    <div class="dashboard-async-container"
-         data-item-id="<?= $this->escapeHtmlAttr($itemId) ?>"
-         <?php if ($layout !== null): ?>data-layout="<?= $this->escapeHtmlAttr($layout) ?>"<?php endif; ?>
-         data-embed-slug="<?= $this->escapeHtmlAttr($slug) ?>"
-         <?php if ($title !== null): ?>data-title="<?= $this->escapeHtmlAttr($title) ?>"<?php endif; ?>
-         data-ready-status="<?= $this->escapeHtmlAttr($readyStatus) ?>"
-         data-empty-status="<?= $this->escapeHtmlAttr($emptyStatus) ?>"
-         data-error-status="<?= $this->escapeHtmlAttr($errorStatus) ?>"
-         data-base-path="<?= $this->escapeHtmlAttr($this->basePath()) ?>"
-         data-site-base="<?= $this->escapeHtmlAttr($this->basePath() . '/s/' . $siteSlug) ?>">
-        <p class="rv-dashboard-status" role="status" aria-live="polite" aria-atomic="true">
-            <?= $this->escapeHtml($loading) ?>
-        </p>
-        <div class="rv-dashboard-content">
-            <noscript>
-                <style>
-                    .dashboard-async-container .rv-loading,
-                    .dashboard-async-container .rv-dashboard-status { display: none; }
-                </style>
-                <div class="rv-no-data"><?= $this->translate('These interactive charts need JavaScript to work. Please turn it on, or use the collection’s search and browse pages instead.') ?></div>
-            </noscript>
-            <div class="rv-loading">
-                <div class="rv-spinner"></div>
-                <span aria-hidden="true"><?= $this->escapeHtml($loading) ?></span>
-            </div>
-        </div>
-    </div>
+    <?= $this->partial('common/block-layout/partials/async-surface', [
+        'class' => 'dashboard-async-container',
+        'statusInside' => true,
+        'data' => [
+            'item-id' => (string) $itemId,
+            'layout' => $layout ?? null,
+            'embed-slug' => $slug ?? null,
+            'title' => $title ?? null,
+            'dashboard-dir' => $dashboardDir ?? null,
+            'ready-status' => $this->translate('Visualisations ready.'),
+            'empty-status' => $this->translate('No visualisations are available.'),
+            'error-status' => $this->translate('The visualization could not be loaded.'),
+        ],
+    ]) ?>
 </div>
