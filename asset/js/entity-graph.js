@@ -604,7 +604,7 @@
                 keyboard: false
             });
             if (!map) return;
-            map.addControl(new window.maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+            map.addControl(ns.navControl(), 'top-right');
             map.on('load', function () { addAll(map); });
 
             map.on('click', function (e) {

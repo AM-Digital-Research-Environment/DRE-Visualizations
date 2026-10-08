@@ -22,6 +22,9 @@
      * and simply returns on null.
      */
     ns.createMap = function (options) {
+        // Every map speaks the page language: MapLibre's own control names,
+        // tooltips and gesture hints come from the module's translated strings.
+        options = Object.assign({ locale: ns.mapLocale() }, options);
         try {
             return new maplibregl.Map(options);
         } catch (error) {
@@ -37,12 +40,76 @@
     };
 
     /**
+     * MapLibre's interface strings, translated. The keys are MapLibre's own
+     * (its default `locale` table); the values go through RV_I18N like every
+     * other string the module shows, so a French page gets French zoom buttons
+     * and gesture hints (DESIGN-INTEGRATION.md "Maps").
+     */
+    ns.mapLocale = function () {
+        return {
+            'AttributionControl.ToggleAttribution': ns.t('mapToggleAttribution', 'Toggle attribution'),
+            'FullscreenControl.Enter': ns.t('fullscreen', 'Fullscreen'),
+            'FullscreenControl.Exit': ns.t('exitFullscreen', 'Exit fullscreen'),
+            'GlobeControl.Enable': ns.t('mapGlobeEnable', 'Show as a globe'),
+            'GlobeControl.Disable': ns.t('mapGlobeDisable', 'Show as a flat map'),
+            'Map.Title': ns.t('mapTitle', 'Map'),
+            'Marker.Title': ns.t('mapMarker', 'Map marker'),
+            'NavigationControl.ResetBearing': ns.t('mapResetBearing', 'Reset the map to north'),
+            'NavigationControl.ZoomIn': ns.t('mapZoomIn', 'Zoom in'),
+            'NavigationControl.ZoomOut': ns.t('mapZoomOut', 'Zoom out'),
+            'Popup.Close': ns.t('mapClosePopup', 'Close popup'),
+            'CooperativeGesturesHandler.WindowsHelpText': ns.t('mapGestureWindows', 'Use Ctrl + scroll to zoom the map'),
+            'CooperativeGesturesHandler.MacHelpText': ns.t('mapGestureMac', 'Use ⌘ + scroll to zoom the map'),
+            'CooperativeGesturesHandler.MobileHelpText': ns.t('mapGestureMobile', 'Use two fingers to move the map')
+        };
+    };
+
+    /**
+     * The one navigation-control preset every map uses: zoom in / out, no
+     * compass. The maps are north-up overviews that never rotate on purpose,
+     * so a compass is a control with nothing to do.
+     */
+    ns.navControl = function () {
+        return new maplibregl.NavigationControl({ showCompass: false });
+    };
+
+    /**
+     * The shared fullscreen button (core/fullscreen.js) as a MapLibre control,
+     * in place of MapLibre's FullscreenControl: it expands `target` — the map's
+     * chart panel, legend included — rather than the bare canvas, and it is the
+     * same button, label and Escape behaviour as the graphs'.
+     */
+    ns.mapFullscreenControl = function (target) {
+        var box = null;
+        var button = null;
+        return {
+            onAdd: function (map) {
+                box = document.createElement('div');
+                box.className = 'maplibregl-ctrl maplibregl-ctrl-group';
+                button = ns.fullscreenButton(target || map.getContainer(), {
+                    className: 'rv-map-fullscreen',
+                    onChange: function () {
+                        requestAnimationFrame(function () {
+                            try { map.resize(); } catch (e) { /* removed */ }
+                        });
+                    }
+                });
+                box.appendChild(button);
+                return box;
+            },
+            onRemove: function () {
+                if (button && button.rvDispose) button.rvDispose();
+                if (box && box.parentNode) box.parentNode.removeChild(box);
+            }
+        };
+    };
+
+    /**
      * Standard MapLibre map bootstrap shared by the map chart builders: themed
      * basemap, visible source attribution, cooperative gestures, and the common
      * control set. Options:
      *   center, zoom  — initial camera (default [0, 15] / 1.5);
-     *   nav           — NavigationControl options ({ visualizePitch: true } by
-     *                   default; e.g. { showCompass: false }) or false to skip;
+     *   nav           — false to skip the navigation control (ns.navControl);
      *   globe         — false to skip the GlobeControl (default on when the
      *                   vendored MapLibre provides it).
      * Callers still wire theme rebuilds themselves via ns.trackMap(map, rebuild),
@@ -59,10 +126,8 @@
             cooperativeGestures: true
         });
         if (!map) return null;
-        if (opts.nav !== false) {
-            map.addControl(new maplibregl.NavigationControl(opts.nav || { visualizePitch: true }), 'top-right');
-        }
-        map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+        if (opts.nav !== false) map.addControl(ns.navControl(), 'top-right');
+        map.addControl(ns.mapFullscreenControl(el.closest('.chart-panel') || el.parentNode), 'top-right');
         if (opts.globe !== false && maplibregl.GlobeControl) {
             map.addControl(new maplibregl.GlobeControl(), 'top-right');
         }
@@ -216,17 +281,22 @@
     };
 
     /**
-     * Get the configured basemap style. Blank configuration falls back to the
-     * self-hosted style above, keeping maps privacy-safe by default (no
-     * tile/style/glyph requests leave the Omeka origin).
+     * Get the configured basemap style. RV_MAP_CONFIG (DashboardAssets, via
+     * Site\BasemapStyle::mapConfig) names a style URL per mode, or none; read
+     * with `||`, never `??`, so an empty string can never become a style URL.
+     * When the URL is this module's own self-hosted default (`selfHosted`), or
+     * there is none, build that basemap here from the LIVE tokens instead —
+     * the served document can only carry the theme's fallback colours. Either
+     * way maps stay privacy-safe by default: no tile, style or glyph request
+     * leaves the Omeka origin.
      */
     ns.getBasemapStyle = function () {
         var config = window.RV_MAP_CONFIG || {};
+        if (config.selfHosted) return ns.selfHostedBasemapStyle();
         var configured = ns._darkMode
             ? (config.darkStyle || config.lightStyle)
             : (config.lightStyle || config.darkStyle);
-        if (configured) return configured;
-        return ns.selfHostedBasemapStyle();
+        return configured || ns.selfHostedBasemapStyle();
     };
 
     /**

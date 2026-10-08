@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace DreVisualizations\View\Helper;
 
 use DreVisualizations\Module;
+use DreVisualizations\Site\BasemapStyle;
 use Laminas\View\Helper\AbstractHelper;
 
 /**
@@ -209,13 +210,23 @@ class DashboardAssets extends AbstractHelper
             $this->i18nInjected = true;
         }
         if (!$this->mapConfigInjected) {
+            // The one basemap configuration both modules read. Never an empty
+            // style string: the configured URL, else this module's self-hosted
+            // default by URL (so a DRE Search map on the page draws the same
+            // basemap), else no key at all. See Site\BasemapStyle::mapConfig.
+            $site = $view->currentSite();
+            $defaults = $site ? [
+                'light' => $view->url('site/dre-basemap', ['site-slug' => $site->slug(), 'mode' => 'light']),
+                'dark' => $view->url('site/dre-basemap', ['site-slug' => $site->slug(), 'mode' => 'dark']),
+            ] : null;
             $headScript->appendScript('window.RV_MAP_CONFIG=Object.assign('
-                . self::scriptJson([
-                    'lightStyle' => (string) $view->setting(Module::SETTING_BASEMAP_LIGHT, ''),
-                    'darkStyle' => (string) $view->setting(Module::SETTING_BASEMAP_DARK, ''),
-                    'glyphs' => (string) $view->setting(Module::SETTING_MAP_GLYPHS, ''),
-                    'attribution' => (string) $view->setting(Module::SETTING_BASEMAP_ATTRIBUTION, ''),
-                ])
+                . self::scriptJson(BasemapStyle::mapConfig(
+                    (string) $view->setting(Module::SETTING_BASEMAP_LIGHT, ''),
+                    (string) $view->setting(Module::SETTING_BASEMAP_DARK, ''),
+                    (string) $view->setting(Module::SETTING_MAP_GLYPHS, ''),
+                    (string) $view->setting(Module::SETTING_BASEMAP_ATTRIBUTION, ''),
+                    $defaults,
+                ))
                 . ',window.RV_MAP_CONFIG||{});');
             $this->mapConfigInjected = true;
         }

@@ -39,7 +39,7 @@
                 scrollZoom: false,
             });
             if (!map) return;
-            map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
+            map.addControl(ns.navControl(), 'top-right');
 
             /** One marker + popup. Location names are curator data — always escaped. */
             function addMarkers(locs, color, roleLabel) {

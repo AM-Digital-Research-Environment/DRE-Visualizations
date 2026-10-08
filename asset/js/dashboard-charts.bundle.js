@@ -1600,8 +1600,8 @@
             scrollZoom: false,
         });
         if (!map) return;
-        map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
-        map.addControl(new maplibregl.FullscreenControl(), 'top-right');
+        map.addControl(ns.navControl(), 'top-right');
+        map.addControl(ns.mapFullscreenControl(el.closest('.chart-panel') || el.parentNode), 'top-right');
         new maplibregl.Marker({ color: THEME.accent })
             .setLngLat([data.lon, data.lat])
             .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML('<strong>' + esc(data.name || '') + '</strong>'))
@@ -2374,7 +2374,7 @@
 
         // Wrapped so the theme engine can rebuild the map on a light/dark toggle.
         function create() {
-            var map = ns.initMap(el, { center: [10, 18], zoom: 1.3, nav: { showCompass: false } });
+            var map = ns.initMap(el, { center: [10, 18], zoom: 1.3 });
             if (!map) return;
 
             map.on('load', function () {

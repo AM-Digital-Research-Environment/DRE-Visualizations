@@ -667,7 +667,7 @@
                 attributionControl: ns.getMapAttributionOptions()
             });
             if (!map) return;
-            map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+            map.addControl(ns.navControl(), 'top-right');
 
             map.on('load', function () {
                 map.addSource('photos', {

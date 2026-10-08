@@ -415,7 +415,7 @@
                 pitchWithRotate: false
             });
             if (!map) return;
-            map.addControl(new window.maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+            map.addControl(ns.navControl(), 'top-right');
             if (window.maplibregl.GlobeControl) {
                 map.addControl(new window.maplibregl.GlobeControl(), 'top-right');
             }

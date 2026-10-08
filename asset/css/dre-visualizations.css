@@ -1633,6 +1633,45 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     }
 }
 
+/* The shared fullscreen button as a MapLibre control (ns.mapFullscreenControl).
+   It rides MapLibre's own control-group geometry, so it lines up with the zoom
+   buttons above it and takes the same 44px size on touch. */
+.maplibregl-ctrl-group button.rv-map-fullscreen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--rv-text-strong);
+}
+.maplibregl-ctrl-group button.rv-map-fullscreen[aria-pressed="true"] {
+    color: var(--rv-accent);
+}
+.maplibregl-ctrl-group button.rv-map-fullscreen:focus-visible {
+    outline: 2px solid var(--rv-focus-color);
+    outline-offset: -2px;
+}
+
+/* A map's chart panel in fullscreen: the panel, legend included, fills the
+   viewport at the theme's stage layer, like the graphs' fullscreen blocks. */
+.chart-panel.rv-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: var(--rv-z-stage);
+    display: flex;
+    flex-direction: column;
+    gap: var(--rv-space-3);
+    margin: 0;
+    padding: var(--rv-space-4);
+    border-radius: 0;
+    background: var(--rv-bg);
+    overflow: auto;
+}
+.chart-panel.rv-fullscreen > [data-chart],
+.chart-panel.rv-fullscreen > .chart-container {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 20rem;
+}
+
 /* Map legend — rendered BELOW the map (appended to the .chart-panel by
    ns.mountMapLegend), never overlaid on the basemap, so it can't cover
    countries, markers or their labels. The cluster-partner map's toggleable

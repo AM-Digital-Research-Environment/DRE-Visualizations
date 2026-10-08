@@ -85,6 +85,7 @@ return [
         'invokables' => [
             Controller\Site\EmbedController::class => Controller\Site\EmbedController::class,
             Controller\Site\DataController::class => Controller\Site\DataController::class,
+            Controller\Site\BasemapController::class => Controller\Site\BasemapController::class,
         ],
     ],
     'form_elements' => [
@@ -156,6 +157,22 @@ return [
                             'defaults' => [
                                 '__NAMESPACE__' => 'DreVisualizations\\Controller\\Site',
                                 'controller' => Controller\Site\DataController::class,
+                                'action' => 'index',
+                            ],
+                        ],
+                    ],
+                    // The self-hosted basemap as a style URL (Site\BasemapStyle),
+                    // named by window.RV_MAP_CONFIG when no basemap is configured.
+                    'dre-basemap' => [
+                        'type' => \Laminas\Router\Http\Segment::class,
+                        'options' => [
+                            'route' => '/dre-basemap/:mode',
+                            'constraints' => ['mode' => 'light|dark'],
+                            'defaults' => [
+                                // Override the core `site` route's namespace, as
+                                // dre-data and dre-embed do.
+                                '__NAMESPACE__' => 'DreVisualizations\Controller\Site',
+                                'controller' => Controller\Site\BasemapController::class,
                                 'action' => 'index',
                             ],
                         ],
