@@ -13,6 +13,17 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.32.1] - 2026-10-11
+
+### Fixed
+
+- **The Publications collaboration network shows the collaborations again.** It kept the 60 top-ranked people and only the ties between two of them. The people who link the most prolific authors ranked lower and were cut, so on the live bibliography the chart showed 111 of nearly 2,000 ties, with several people standing alone. It now ranks people by PageRank over the whole network and grows outwards from the top-ranked person, adding the best-ranked collaborator of someone already shown, up to 120 people. On the live data that is 120 people and 564 ties in one connected network, with no one shown alone. Smaller groups that never co-publish with the main network are no longer shown.
+- Its colour groups are computed over the people shown, with multi-level Louvain (local moving, then each group collapsed and moved again). The old one-pass grouping over the whole network split the 60 people shown into 25 groups; the live data now gives 10.
+- A linked author or editor counts only when it is a Person record. ERef credits the Institute of African Studies as an author on 12 publications, and it appeared as a well-connected "person".
+- The chart description now says how people are chosen, sized and coloured.
+
+**Upgrade:** run **Regenerate now** after deploying; the change is in the precomputed data.
+
 ## [2.32.0] - 2026-10-11
 
 ### Changed

@@ -126,7 +126,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'funders' => 'The funding bodies credited on these publications. Click a bar to open a funder\'s page.',
             'topVenues' => 'The journals and book series these publications appear in most often.',
             'topAuthors' => 'The authors credited on the most publications.',
-            'coAuthorNetwork' => 'Authors and editors are linked when they appear on the same publication. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.',
+            'coAuthorNetwork' => 'Authors and editors are linked when they appear on the same publication. Each person is scored by how well connected they are across the whole network; the chart starts from the best-connected person and keeps adding the best-connected collaborator of someone already shown, up to 120 people. Circle size follows that score, and circle colour marks groups who publish together more often than with others. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.',
             'chord' => 'Keywords that are often assigned to the same publication.',
             'subjects' => 'The keywords assigned to these publications most often.',
             'subjectTrends' => 'How the most frequent keywords rise and fall over the years.',

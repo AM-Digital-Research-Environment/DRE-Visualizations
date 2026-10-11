@@ -143,6 +143,54 @@ trait SupportTrait
     }
 
     /**
+     * Choose up to $maxNodes nodes of a graph so that the chosen ones stay
+     * connected: start from the best-ranked node and keep adding the
+     * best-ranked neighbour of the nodes already chosen. A component that runs
+     * out before the cap is followed by the next one, from its best-ranked
+     * node, so a graph within the cap comes back whole.
+     *
+     * Taking the top N by rank instead keeps the hubs but drops the people
+     * between them, and with them most of the ties: on a sparse
+     * co-authorship graph the hubs end up as scattered, often isolated, dots.
+     *
+     * @param array<int, array<int, int|float>> $adj undirected adjacency
+     * @param list<int> $rankNodes every node of $adj, best-ranked first
+     * @return list<int> the chosen nodes, in the order they were added
+     */
+    private function connectedTopNodes(array $adj, array $rankNodes, int $maxNodes): array
+    {
+        $pos = array_flip($rankNodes);
+        $chosen = [];
+        $frontier = [];  // rank position => node, for neighbours of chosen nodes
+        $seed = 0;       // cursor into $rankNodes for the next component
+        $total = count($rankNodes);
+        while (count($chosen) < $maxNodes) {
+            if ($frontier) {
+                $p = min(array_keys($frontier));
+                $node = $frontier[$p];
+                unset($frontier[$p]);
+            } else {
+                while ($seed < $total && isset($chosen[$rankNodes[$seed]])) {
+                    $seed++;
+                }
+                // A new component needs room for one of its ties too, or its
+                // first node would be drawn on its own.
+                if ($seed >= $total || $maxNodes - count($chosen) < 2) {
+                    break;
+                }
+                $node = $rankNodes[$seed];
+            }
+            $chosen[$node] = true;
+            foreach ($adj[$node] ?? [] as $nb => $_) {
+                if (!isset($chosen[$nb])) {
+                    $frontier[$pos[$nb]] = $nb;
+                }
+            }
+        }
+        return array_keys($chosen);
+    }
+
+    /**
      * Single-level Louvain (modularity-maximising local moving) on a weighted
      * undirected graph. Returns [node => communityRepresentativeId]. Sufficient
      * for well-separated subject co-occurrence graphs; relabelled by the caller.
@@ -194,5 +242,46 @@ trait SupportTrait
             }
         }
         return $comm;
+    }
+
+    /**
+     * Multi-level Louvain: the local moving of louvain(), then every community
+     * collapsed into one node and moved again, until a pass merges nothing.
+     * The single pass stops at small, tight groups; on a sprawling
+     * co-authorship network that leaves dozens of them. Returns
+     * [node => communityRepresentativeId], like louvain().
+     */
+    private function louvainMultiLevel(array $adj, array $deg, float $m): array
+    {
+        $member = [];
+        foreach ($adj as $u => $_) {
+            $member[$u] = $u;
+        }
+        $levelAdj = $adj;
+        $levelDeg = $deg;
+        for ($level = 0; $level < 20; $level++) {
+            $comm = $this->louvain($levelAdj, $levelDeg, $m);
+            if (count(array_unique($comm)) === count($comm)) {
+                break;
+            }
+            // Collapse: a community's internal ties become a self-loop, which
+            // keeps its degree and the graph's total weight unchanged.
+            $nextAdj = [];
+            $nextDeg = [];
+            foreach ($levelAdj as $u => $neighbours) {
+                $cu = $comm[$u];
+                $nextDeg[$cu] = ($nextDeg[$cu] ?? 0) + $levelDeg[$u];
+                foreach ($neighbours as $v => $w) {
+                    $cv = $comm[$v];
+                    $nextAdj[$cu][$cv] = ($nextAdj[$cu][$cv] ?? 0) + $w;
+                }
+            }
+            foreach ($member as $u => $super) {
+                $member[$u] = $comm[$super];
+            }
+            $levelAdj = $nextAdj;
+            $levelDeg = $nextDeg;
+        }
+        return $member;
     }
 }

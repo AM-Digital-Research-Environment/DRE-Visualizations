@@ -21,12 +21,11 @@
   "builders": {"languages":"buildPieChart"},
   "coAuthorNetwork": {
     "communities": [
+      {"anchor":"Mwangi, Wanjiru","id":1,"size":10},
       {"anchor":"Njoroge, Peter","id":3,"size":9},
       {"anchor":"Osei, Kofi","id":2,"size":6},
       {"anchor":"Hoffmann, Felix","id":0,"size":5},
-      {"anchor":"Mwangi, Wanjiru","id":1,"size":5},
-      {"anchor":"Achieng, Grace","id":4,"size":5},
-      {"anchor":"Mbeki, Zola","id":5,"size":4}
+      {"anchor":"Mbeki, Zola","id":4,"size":4}
     ],
     "links": [
       {"relation":"coauthor","source":"Hoffmann, Felix","target":"Abubakar, Hauwa","value":1},
@@ -208,31 +207,31 @@
       {"community":0,"matched":false,"name":"Silva, João","rank":0.040683,"role":"both","value":4},
       {"community":3,"matched":false,"name":"Rossi, Marco","rank":0.038583,"role":"both","value":4},
       {"community":2,"matched":false,"name":"García, Lucía","rank":0.037604,"role":"both","value":4},
-      {"community":4,"itemId":416,"matched":true,"name":"Achieng, Grace","rank":0.035548,"role":"author","value":5},
-      {"community":5,"matched":false,"name":"Mbeki, Zola","rank":0.031337,"role":"author","value":3},
+      {"community":1,"itemId":416,"matched":true,"name":"Achieng, Grace","rank":0.035548,"role":"author","value":5},
+      {"community":4,"matched":false,"name":"Mbeki, Zola","rank":0.031337,"role":"author","value":3},
       {"community":2,"itemId":410,"matched":true,"name":"Oliveira, Rafael","rank":0.031109,"role":"author","value":3},
       {"community":2,"itemId":402,"matched":true,"name":"Ouédraogo, Issa","rank":0.030908,"role":"author","value":3},
       {"community":3,"itemId":408,"matched":true,"name":"Dlamini, Thandiwe","rank":0.030799,"role":"author","value":3},
       {"community":1,"itemId":422,"matched":true,"name":"Abubakar, Hauwa","rank":0.030687,"role":"both","value":4},
       {"community":0,"itemId":412,"matched":true,"name":"Traoré, Aïssata","rank":0.029602,"role":"both","value":3},
       {"community":1,"matched":false,"name":"Lefèvre, Claire","rank":0.029325,"role":"both","value":3},
-      {"community":4,"itemId":414,"matched":true,"name":"Weber, Lena","rank":0.028616,"role":"author","value":5},
-      {"community":5,"itemId":413,"matched":true,"name":"Nkosi, Sipho","rank":0.028482,"role":"author","value":4},
-      {"community":5,"itemId":418,"matched":true,"name":"Ferreira, Luíza","rank":0.028425,"role":"author","value":4},
+      {"community":1,"itemId":414,"matched":true,"name":"Weber, Lena","rank":0.028616,"role":"author","value":5},
+      {"community":4,"itemId":413,"matched":true,"name":"Nkosi, Sipho","rank":0.028482,"role":"author","value":4},
+      {"community":4,"itemId":418,"matched":true,"name":"Ferreira, Luíza","rank":0.028425,"role":"author","value":4},
       {"community":0,"itemId":401,"matched":true,"name":"Bakari, Amina","rank":0.028387,"role":"author","value":4},
       {"community":0,"matched":false,"name":"Novak, Petra","rank":0.024006,"role":"author","value":2},
       {"community":3,"itemId":417,"matched":true,"name":"Kaboré, Paul","rank":0.020777,"role":"author","value":2},
       {"community":1,"itemId":400,"matched":true,"name":"Adeyemi, Folake","rank":0.020486,"role":"author","value":2},
       {"community":3,"itemId":403,"matched":true,"name":"Santos, Ana Clara","rank":0.020182,"role":"author","value":2},
-      {"community":5,"itemId":420,"matched":true,"name":"Mensah, Kwame","rank":0.020165,"role":"author","value":2},
-      {"community":4,"itemId":405,"matched":true,"name":"Okonkwo, Chinedu","rank":0.019893,"role":"author","value":2},
+      {"community":4,"itemId":420,"matched":true,"name":"Mensah, Kwame","rank":0.020165,"role":"author","value":2},
+      {"community":1,"itemId":405,"matched":true,"name":"Okonkwo, Chinedu","rank":0.019893,"role":"author","value":2},
       {"community":3,"itemId":421,"matched":true,"name":"Diallo, Fatoumata","rank":0.015517,"role":"author","value":2},
       {"community":3,"matched":false,"name":"Smith, John","rank":0.015384,"role":"author","value":1},
-      {"community":4,"matched":false,"name":"Tanaka, Yuki","rank":0.01355,"role":"author","value":2},
+      {"community":1,"matched":false,"name":"Tanaka, Yuki","rank":0.01355,"role":"author","value":2},
       {"community":1,"matched":false,"name":"Ndiaye, Awa","rank":0.013415,"role":"author","value":2},
       {"community":2,"itemId":409,"matched":true,"name":"Schmidt, Jonas","rank":0.013336,"role":"author","value":2},
       {"community":3,"itemId":404,"matched":true,"name":"Müller, Katharina","rank":0.010816,"role":"author","value":1},
-      {"community":4,"itemId":424,"matched":true,"name":"Item 424","rank":0.01077,"role":"author","value":1}
+      {"community":1,"itemId":424,"matched":true,"name":"Item 424","rank":0.01077,"role":"author","value":1}
     ]
   },
   "contributors": [
@@ -243,7 +242,7 @@
     {"itemId":602,"name":"Ouagadougou","value":1}
   ],
   "currentLocations": [],
-  "descriptions": {"abstractWordcloud":"The words that come up most often across the publication abstracts. Words are reduced to their base form, and everyday words such as \"the\" and \"of\" are left out.","chord":"Keywords that are often assigned to the same publication.","coAuthorNetwork":"Authors and editors are linked when they appear on the same publication. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.","funders":"The funding bodies credited on these publications. Click a bar to open a funder's page.","languages":"The languages the publications are written in.","locations":"The cities these publications appeared in. Each bubble is sized by the number of publications issued there; click one to list them.","stackedTimeline":"Publications issued each year, split by type.","subjectTrends":"How the most frequent keywords rise and fall over the years.","subjects":"The keywords assigned to these publications most often.","topAuthors":"The authors credited on the most publications.","topVenues":"The journals and book series these publications appear in most often.","types":"The mix of publication types: article, book, chapter, thesis, and so on."},
+  "descriptions": {"abstractWordcloud":"The words that come up most often across the publication abstracts. Words are reduced to their base form, and everyday words such as \"the\" and \"of\" are left out.","chord":"Keywords that are often assigned to the same publication.","coAuthorNetwork":"Authors and editors are linked when they appear on the same publication. Each person is scored by how well connected they are across the whole network; the chart starts from the best-connected person and keeps adding the best-connected collaborator of someone already shown, up to 120 people. Circle size follows that score, and circle colour marks groups who publish together more often than with others. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.","funders":"The funding bodies credited on these publications. Click a bar to open a funder's page.","languages":"The languages the publications are written in.","locations":"The cities these publications appeared in. Each bubble is sized by the number of publications issued there; click one to list them.","stackedTimeline":"Publications issued each year, split by type.","subjectTrends":"How the most frequent keywords rise and fall over the years.","subjects":"The keywords assigned to these publications most often.","topAuthors":"The authors credited on the most publications.","topVenues":"The journals and book series these publications appear in most often.","types":"The mix of publication types: article, book, chapter, thesis, and so on."},
   "funders": [
     {"itemId":507,"name":"Deutsche Forschungsgemeinschaft","value":16},
     {"itemId":500,"name":"University of Bayreuth","value":10}

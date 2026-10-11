@@ -16,7 +16,9 @@ trait NetworkChartsTrait
     // Provided by SupportTrait / Aggregators (or another trait); declared so
     // this trait states what it relies on and PHP checks the signatures.
     abstract public function findItemsLinkingTo(int $entityId, array $reverseLinks, array $terms): array;
+    abstract private function connectedTopNodes(array $adj, array $rankNodes, int $maxNodes): array;
     abstract private function louvain(array $adj, array $deg, float $m): array;
+    abstract private function louvainMultiLevel(array $adj, array $deg, float $m): array;
     abstract private function personTemplateId(): int;
     abstract private function projectTemplateId(): int;
     abstract private function sortCounts(array &$counts): void;
@@ -640,11 +642,18 @@ trait NetworkChartsTrait
      * carries a `relation` ('coauthor' | 'coeditor' | 'mixed') — its dominant
      * relationship across the publications the pair shares — so the front-end can
      * tell co-authorship apart from author–editor and co-editorship ties.
-     * Communities use the same Louvain + weighted-PageRank as the subject graph.
+     * A linked value counts only when it points at a Person record: ERef also
+     * credits institutes as authors, and they are not collaborators.
+     *
+     * Nodes are ranked by weighted PageRank over the whole graph, then up to
+     * $maxNodes are chosen by connectedTopNodes(), so the chart shows a connected
+     * stretch of the network and not its top-ranked people cut off from the
+     * people who link them. Communities come from multi-level Louvain over the
+     * chosen nodes only, so the legend describes the groups the reader sees.
      *
      * @return array{nodes:list<array>,links:list<array>,communities:list<array>}|null
      */
-    public function buildCoAuthorNetwork(array $itemIds, array $links, array $literals, array $items, int $minCooccurrence = 1, int $maxNodes = 60): ?array
+    public function buildCoAuthorNetwork(array $itemIds, array $links, array $literals, array $items, int $minCooccurrence = 1, int $maxNodes = 120): ?array
     {
         // Map each distinct contributor name to an integer node id so the integer-
         // keyed louvain()/weightedPagerank() helpers apply unchanged. Each node
@@ -675,6 +684,9 @@ trait NetworkChartsTrait
             $editorIds = [];
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
                 if ($term !== 'bibo:authorList' && $term !== 'bibo:editorList') {
+                    continue;
+                }
+                if (($items[$vrid]['template_id'] ?? null) !== $this->personTemplateId()) {
                     continue;
                 }
                 $title = trim((string) ($items[$vrid]['title'] ?? ''));
@@ -757,8 +769,29 @@ trait NetworkChartsTrait
             return null;
         }
 
-        $m = array_sum($deg) / 2.0;
-        $rawComm = $this->louvain($adj, $deg, $m);
+        $pr = $this->weightedPagerank($adj, $deg);
+        $rankNodes = array_keys($adj);
+        usort($rankNodes, fn ($x, $y) => (($pr[$y] ?? 0) <=> ($pr[$x] ?? 0))
+            ?: strnatcasecmp((string) $x, (string) $y));
+        $topSet = array_flip($this->connectedTopNodes($adj, $rankNodes, $maxNodes));
+        $ranked = array_values(array_filter($rankNodes, fn ($u) => isset($topSet[$u])));
+
+        // Louvain visits nodes in key order; keeping $adj's order makes the
+        // grouping independent of the order the selection added them in.
+        $shownAdj = [];
+        $shownDeg = [];
+        foreach ($adj as $a => $neighbours) {
+            if (!isset($topSet[$a])) {
+                continue;
+            }
+            foreach ($neighbours as $b => $w) {
+                if (isset($topSet[$b])) {
+                    $shownAdj[$a][$b] = $w;
+                    $shownDeg[$a] = ($shownDeg[$a] ?? 0) + $w;
+                }
+            }
+        }
+        $rawComm = $this->louvainMultiLevel($shownAdj, $shownDeg, array_sum($shownDeg) / 2.0);
         $relabel = [];
         $nextC = 0;
         $commOf = [];
@@ -768,13 +801,6 @@ trait NetworkChartsTrait
             }
             $commOf[$node] = $relabel[$c];
         }
-
-        $pr = $this->weightedPagerank($adj, $deg);
-        $rankNodes = array_keys($adj);
-        usort($rankNodes, fn ($x, $y) => (($pr[$y] ?? 0) <=> ($pr[$x] ?? 0))
-            ?: strnatcasecmp((string) $x, (string) $y));
-        $ranked = array_slice($rankNodes, 0, $maxNodes);
-        $topSet = array_flip($ranked);
 
         $roleName = function (int $mask): string {
             if ($mask === 3) {

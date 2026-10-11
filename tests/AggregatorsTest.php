@@ -399,6 +399,75 @@ foreach (($relNet['nodes'] ?? []) as $nd) { $roleOf[$nd['name']] = $nd['role']; 
 check(($roleOf['A'] ?? null) === 'author', 'coAuthorNetwork: A role is author');
 check(($roleOf['C'] ?? null) === 'both', 'coAuthorNetwork: C role is both (author and editor)');
 
+// --- buildCoAuthorNetwork counts only linked Person records ---
+$orgItems = [
+    100 => ['title' => 'Linked Person', 'template_id' => 4],
+    101 => ['title' => 'Institute of African Studies', 'template_id' => 2],
+];
+$orgLinks = [];
+for ($k = 0; $k < 3; $k++) { $orgLinks[600 + $k] = [['bibo:authorList', 'Author', 100], ['bibo:authorList', 'Author', 101]]; }
+$orgLits = [600 => ['bibo:authorList' => ['Y']], 601 => ['bibo:authorList' => ['Y', 'Z']], 602 => ['bibo:authorList' => ['Z']]];
+$orgNet = $aggregators->buildCoAuthorNetwork([600, 601, 602], $orgLinks, $orgLits, $orgItems);
+$orgNames = array_column($orgNet['nodes'] ?? [], 'name');
+check(in_array('Linked Person', $orgNames, true) && !in_array('Institute of African Studies', $orgNames, true), 'coAuthorNetwork: a linked institution is not an author node');
+
+// --- buildCoAuthorNetwork keeps a connected selection under the cap ---
+// Hubs A and B are joined only through X; C and D share five papers and no one
+// else. By PageRank the top four are A, B, X and one of C/D, so a plain top-N cut
+// would draw that one with no tie. The connected selection walks A → X → B and
+// spends the last slot on a hub's co-author.
+$cnLits = [];
+$pid = 500;
+foreach (['A', 'B'] as $hub) {
+    for ($k = 1; $k <= 5; $k++) { $cnLits[$pid++] = ['bibo:authorList' => [$hub, $hub . $k]]; }
+}
+$cnLits[$pid++] = ['bibo:authorList' => ['A', 'X']];
+$cnLits[$pid++] = ['bibo:authorList' => ['X', 'B']];
+for ($k = 0; $k < 5; $k++) { $cnLits[$pid++] = ['bibo:authorList' => ['C', 'D']]; }
+$cnNet = $aggregators->buildCoAuthorNetwork(array_keys($cnLits), [], $cnLits, [], 1, 4);
+$cnNames = array_column($cnNet['nodes'] ?? [], 'name');
+$cnTied = [];
+foreach (($cnNet['links'] ?? []) as $l) { $cnTied[$l['source']] = true; $cnTied[$l['target']] = true; }
+check(count($cnNames) === 4 && !array_diff(['A', 'X', 'B'], $cnNames), 'coAuthorNetwork: the cap keeps both hubs and the person who links them');
+check(!in_array('C', $cnNames, true) && !in_array('D', $cnNames, true), 'coAuthorNetwork: a separate pair does not take a slot');
+check(count($cnTied) === count($cnNames), 'coAuthorNetwork: no node is drawn without a tie');
+$cnComm = array_values(array_unique(array_column($cnNet['nodes'] ?? [], 'community')));
+sort($cnComm);
+check($cnComm === range(0, count($cnNet['communities'] ?? []) - 1), 'coAuthorNetwork: communities are numbered over the nodes shown');
+
+// --- buildCoAuthorNetwork returns a graph within the cap whole ---
+$allNet = $aggregators->buildCoAuthorNetwork(array_keys($cnLits), [], $cnLits, []);
+check(count($allNet['nodes'] ?? []) === 15, 'coAuthorNetwork: every component is shown when the graph fits the cap');
+
+// --- louvainMultiLevel merges what one local-moving pass leaves apart ---
+// A ring of 12 triangles: one pass stops at the triangles, but pairing
+// neighbouring triangles scores higher modularity, and only the collapse step
+// can reach it. Triangles are never split.
+$ringAdj = [];
+$ringDeg = [];
+$tie = function (int $a, int $b) use (&$ringAdj, &$ringDeg): void {
+    $ringAdj[$a][$b] = 1;
+    $ringAdj[$b][$a] = 1;
+    $ringDeg[$a] = ($ringDeg[$a] ?? 0) + 1;
+    $ringDeg[$b] = ($ringDeg[$b] ?? 0) + 1;
+};
+for ($t = 0; $t < 12; $t++) {
+    $tie(3 * $t, 3 * $t + 1);
+    $tie(3 * $t + 1, 3 * $t + 2);
+    $tie(3 * $t, 3 * $t + 2);
+    $tie(3 * $t + 2, 3 * (($t + 1) % 12));
+}
+$ringM = array_sum($ringDeg) / 2.0;
+$onePass = (new ReflectionMethod($aggregators, 'louvain'))->invoke($aggregators, $ringAdj, $ringDeg, $ringM);
+$multi = (new ReflectionMethod($aggregators, 'louvainMultiLevel'))->invoke($aggregators, $ringAdj, $ringDeg, $ringM);
+$wholeTriangles = true;
+for ($t = 0; $t < 12; $t++) {
+    if ($multi[3 * $t] !== $multi[3 * $t + 1] || $multi[3 * $t] !== $multi[3 * $t + 2]) { $wholeTriangles = false; }
+}
+check(count(array_unique($onePass)) === 12, 'louvain: one pass on a ring of triangles stops at the triangles');
+check(count(array_unique($multi)) < 12 && count(array_unique($multi)) >= 2, 'louvainMultiLevel: merges neighbouring triangles');
+check($wholeTriangles, 'louvainMultiLevel: never splits a triangle');
+
 // --- media charts: duration bands + curated PHP word-form fallback ---
 $duration = $aggregators->buildDurationHistogram([0, 15 * 60, 25 * 60, 65 * 60]);
 check($duration === [
