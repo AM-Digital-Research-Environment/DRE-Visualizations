@@ -37,7 +37,7 @@ does not match its configured index.
 
 ## Published artifacts
 
-Compact inputs are committed beneath `data/embeddings/` as PHP-denied `.php` envelopes (the JSON schemas below remain the same). Set `OMEKA_SITE_URL` to the canonical site; builders check its site, profile hash and source revision before/after harvesting. Only a matching input is copied into the protected runtime snapshot during regeneration. Existing unscoped inputs require a new build. Browser clients use `RV.fetchDataJson`.
+Compact inputs are committed beneath `data/embeddings/` as PHP-denied `.php` envelopes (the JSON schemas below remain the same). Set `OMEKA_SITE_URL` to the canonical site; builders check its site, profile hash and source revision before/after harvesting. Only a matching input is copied into the protected runtime snapshot during regeneration. The revision changes only when publication is withdrawn (a privatising write, a manual withdrawal, a canonical-site change), so ordinary edits keep a build valid; records deleted since the build stay in it until the next one. Existing unscoped inputs require a new build. Browser clients use `RV.fetchDataJson`.
 
 Input payloads:
 

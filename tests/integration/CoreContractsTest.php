@@ -44,7 +44,7 @@ try {
     $source = $request('source.json');
     $check($source->getStatusCode() === 200 && isset(json_decode($source->getContent(), true)['revision']), 'Source endpoint exposes the canonical revision');
     $publish = static function () use ($root): array {
-        return (new SnapshotPublisher($root, 1, 'test'))->publish(static function ($dir): array {
+        return (new SnapshotPublisher($root, 1, 'test', 0.0))->publish(static function ($dir): array {
             $writer = new JsonArtifactWriter();
             $writer->write($dir . '/item-dashboards/projects-index.json', []);
             $writer->write($dir . '/item-dashboards/collection-overview.json', ['totalItems' => 1]);
@@ -65,26 +65,91 @@ try {
     $site->siteId = 1;
     $shared = new Laminas\EventManager\SharedEventManager();
     (new DreVisualizations\Module())->attachListeners($shared);
-    foreach (['Item', 'Media', 'ItemSet', 'Site'] as $name) {
+    $fresh = static fn (): bool => $store->reading(fn () => $store->isFresh());
+    foreach (['Item' => 'items', 'Media' => 'media', 'ItemSet' => 'item_sets', 'Site' => 'sites'] as $name => $resource) {
         $publish();
         $events = new Laminas\EventManager\EventManager($shared, ['Omeka\\Api\\Adapter\\' . $name . 'Adapter']);
-        $apiRequest = new stdClass(); // stands in for the Omeka\Api\Request the adapter passes
-        $events->trigger('api.update.pre', null, ['request' => $apiRequest]);
-        $check($request('current.json')->getStatusCode() === 404, $name . ' API event withdraws publication');
+        $apiRequest = new Omeka\Api\Request(Omeka\Api\Request::CREATE, $resource);
+        $events->trigger('api.create.pre', null, ['request' => $apiRequest]);
+        $check($request('current.json')->getStatusCode() === 200 && !$fresh(), $name . ' API write keeps serving the snapshot, now stale');
         try {
             $publish();
             throw new RuntimeException('Published during a source write');
         } catch (RuntimeException $e) {
             $check(str_contains($e->getMessage(), 'source write'), 'Active API write blocks publication');
         }
-        $events->trigger('api.update.post', null, ['request' => $apiRequest]);
+        $events->trigger('api.create.post', null, ['request' => $apiRequest, 'response' => new Omeka\Api\Response()]);
+        $check($request('current.json')->getStatusCode() === 200 && !$fresh(), $name . ' write leaves a stale snapshot served after .post');
         $publish();
-        $check($request('current.json')->getStatusCode() === 200, $name . ' write releases its lock after .post');
+        $check($request('current.json')->getStatusCode() === 200 && $fresh(), $name . ' write releases its lock after .post');
     }
+
+    // Updates compare what the public could see before (the database) and after (the entities).
+    $db = Doctrine\DBAL\DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
+    foreach (['CREATE TABLE resource (id INTEGER PRIMARY KEY, is_public INTEGER)',
+        'CREATE TABLE value (id INTEGER, resource_id INTEGER, property_id INTEGER, type TEXT, lang TEXT, value TEXT, uri TEXT, value_resource_id INTEGER, is_public INTEGER)',
+        'CREATE TABLE media (id INTEGER, item_id INTEGER)'] as $sql) $db->executeStatement($sql);
+    $db->insert('resource', ['id' => 1, 'is_public' => 1]);
+    $db->insert('resource', ['id' => 10, 'is_public' => 1]);
+    $db->insert('media', ['id' => 10, 'item_id' => 1]);
+    $db->insert('value', ['id' => 1, 'resource_id' => 1, 'property_id' => 1, 'type' => 'literal', 'value' => 'Title', 'is_public' => 1]);
+    $db->insert('value', ['id' => 2, 'resource_id' => 1, 'property_id' => 2, 'type' => 'literal', 'value' => 'Abstract', 'is_public' => 1]);
+    $services = new Laminas\ServiceManager\ServiceManager();
+    $services->setService('Omeka\Connection', $db);
+    $adapter = new class($services) {
+        public function __construct(private Laminas\ServiceManager\ServiceManager $services) {}
+        public function getServiceLocator() { return $this->services; }
+    };
+    $entity = static fn (bool $public, bool $abstractPublic = true, bool $mediaPublic = true): object => new class($public, $abstractPublic, $mediaPublic) {
+        public function __construct(private bool $public, private bool $abstractPublic, private bool $mediaPublic) {}
+        public function getId() { return 1; }
+        public function isPublic() { return $this->public; }
+        public function getValues() {
+            $value = static fn (int $property, string $text, bool $public): object => new class($property, $text, $public) {
+                public function __construct(private int $property, private string $text, private bool $public) {}
+                public function getProperty() { return new class($this->property) { public function __construct(private int $id) {} public function getId() { return $this->id; } }; }
+                public function getType() { return 'literal'; }
+                public function getLang() { return null; }
+                public function getValue() { return $this->text; }
+                public function getUri() { return null; }
+                public function getValueResource() { return null; }
+                public function isPublic() { return $this->public; }
+            };
+            return [$value(1, 'Title', true), $value(2, 'Abstract', $this->abstractPublic)];
+        }
+        public function getMedia() {
+            return [new class($this->mediaPublic) {
+                public function __construct(private bool $public) {}
+                public function getId() { return 10; }
+                public function isPublic() { return $this->public; }
+            }];
+        }
+    };
+    $events = new Laminas\EventManager\EventManager($shared, ['Omeka\\Api\\Adapter\\ItemAdapter']);
+    $update = static function (object $after, ?object $target = null) use ($events, $adapter): void {
+        $apiRequest = (new Omeka\Api\Request(Omeka\Api\Request::UPDATE, 'items'))->setId(1);
+        $events->trigger('api.update.pre', $target ?? $adapter, ['request' => $apiRequest]);
+        $events->trigger('api.update.post', $target ?? $adapter, ['request' => $apiRequest, 'response' => new Omeka\Api\Response($after)]);
+    };
+    foreach ([
+        'An update that keeps everything public keeps serving' => [$entity(true), 200],
+        'Making the item private withdraws publication' => [$entity(false), 404],
+        'Making a public value private withdraws publication' => [$entity(true, false), 404],
+        'Making a public medium private withdraws publication' => [$entity(true, true, false), 404],
+    ] as $message => [$after, $status]) {
+        $publish();
+        $update($after);
+        $check($request('current.json')->getStatusCode() === $status, $message);
+    }
+    $check($store->reading(fn () => $store->refreshAllowed()), 'The automatic refresh may republish after a privatising write');
+    $publish();
+    $update($entity(true), new class {});
+    $check($request('current.json')->getStatusCode() === 404, 'An update whose earlier state cannot be read is treated as privatising');
+
     // A write that throws never fires .post; its lock must die with the request.
     $events = new Laminas\EventManager\EventManager($shared, ['Omeka\\Api\\Adapter\\ItemAdapter']);
-    $failed = new stdClass();
-    $events->trigger('api.update.pre', null, ['request' => $failed]);
+    $failed = new Omeka\Api\Request(Omeka\Api\Request::CREATE, 'items');
+    $events->trigger('api.create.pre', null, ['request' => $failed]);
     unset($failed);
     gc_collect_cycles();
     $publish();

@@ -65,11 +65,38 @@ staging before publication. Failure or cancellation preserves a previous
 snapshot only while that snapshot remains valid. Current and previous
 generations may remain on private disk; only the current one is served.
 
-Omeka API edits withdraw publication automatically. Finish an import/edit batch,
-then regenerate. **Withdraw published data** immediately revokes publication
-without starting a job; use it before direct SQL maintenance. Stop a job in
-Omeka's Jobs screen. Cancellation checks run during loading, between generators,
-during layout iterations and before publication.
+### After edits
+
+An Omeka API write (an admin save, a REST call, an import or batch-edit job)
+marks the published snapshot stale but keeps it online. When the request or job
+ends, the module queues one background regeneration (a `PrecomputeDashboards`
+job with `trigger: edit`). That job waits until no write has landed for five
+minutes, regenerates, and repeats if edits arrived meanwhile, so a burst of
+edits or a whole import costs one run. Only one such job runs at a time; later
+writes leave it to catch up. The maintenance page shows whether the published
+data is current or stale.
+
+A write that makes something private withdraws publication at once, because a
+stale snapshot could still show it: an item, medium or item set switched from
+public to private, an item's medium hidden from its edit form, or a public
+value made private. The automatic job then republishes after one quiet minute.
+Deleting items, media or values, or removing items from the site, does not
+withdraw; they leave the snapshot within the same five-minute refresh.
+
+The automatic refresh needs Omeka's default PHP-CLI job strategy (the same one
+**Regenerate now** uses); with the synchronous strategy it is skipped, so as not
+to run a regeneration inside the request that saved an item. It only starts
+once a snapshot has been published by hand at least once.
+
+**Withdraw published data** immediately revokes publication without starting a
+job; use it before direct SQL maintenance. Automatic refreshes never republish
+after it, nor after a canonical-site change: click **Regenerate now** when you
+are done. Direct SQL changes bypass Omeka events, so they neither mark the
+snapshot stale nor queue a refresh.
+
+Stop a job in Omeka's Jobs screen. Cancellation checks run during loading,
+between generators, during layout iterations, before publication and while an
+automatic refresh waits for edits to settle.
 
 Optional word-cloud and semantic builders require `OMEKA_SITE_URL` (for example,
 `https://your-host/s/your-canonical-site`). Set it as a repository Actions

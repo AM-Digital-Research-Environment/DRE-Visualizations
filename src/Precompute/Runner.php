@@ -31,6 +31,9 @@ final class Runner
         // Persists ForceAtlas2 layouts between generations. Defaults to the
         // store root three levels above <store>/generations/<id>/item-dashboards.
         private readonly ?string $layoutCacheDir = null,
+        // Runs once every database read is done (SnapshotPublisher's check
+        // that no Omeka write landed mid-read); nothing below queries again.
+        private readonly ?\Closure $loaded = null,
     ) {
         $this->checkpoint = $checkpoint ?? static function (): void {};
         $this->logFn = $logFn;
@@ -41,6 +44,7 @@ final class Runner
     {
         $this->artifacts->ensureDirectory($this->outputDir);
         $data = (new DataLoader($this->connection, $this->siteId, $this->checkpoint))->load($this->logFn);
+        if ($this->loaded) ($this->loaded)();
         $paths = new GeneratorPaths(
             $this->outputDir, $this->communitiesDir, $this->countriesGeojson, $this->knowledgeGraphsDir,
             $this->galleriesDir, $this->featuredDir, $this->itemSetDashboardsDir, $this->wordcloudsDir,

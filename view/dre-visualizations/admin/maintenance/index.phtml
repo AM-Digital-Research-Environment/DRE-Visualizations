@@ -10,6 +10,7 @@
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \DreVisualizations\Form\MaintenanceForm $form
  * @var array{id:int,title:string,slug:string}|null $scopeSite
+ * @var array{state:string,createdAt:?string,changedAt:int} $publication
  */
 
 $translate = $this->plugin('translate');
@@ -43,9 +44,24 @@ echo $this->pageTitle($translate('DRE Visualizations: maintenance'), 1);
         <p>
             <?= $translate('Regenerates every precomputed artefact: per-entity dashboards (sections, projects, people, institutions, locations, subjects), category overviews, the collection overview, the Discursive Communities graph, and the per-country choropleth index.') ?>
         </p>
+        <?php
+        $created = $publication['createdAt'] ? $this->i18n()->dateFormat(new DateTime($publication['createdAt']), 'medium', 'short') : '';
+        $changed = $publication['changedAt'] ? $this->i18n()->dateFormat((new DateTime())->setTimestamp($publication['changedAt']), 'medium', 'short') : '';
+        $statusText = match ($publication['state']) {
+            'current' => sprintf($translate('Published data is up to date (generated %s).'), $created),
+            'stale' => sprintf($translate('Published data was generated %1$s and stays online. Edits since %2$s are not in it yet; it refreshes automatically once edits have been quiet for five minutes.'), $created, $changed),
+            'withdrawn-private' => $translate('An edit made something private, so the visualisations are hidden. They are regenerated automatically once edits have been quiet for a minute.'),
+            'withdrawn' => $translate('Publication was withdrawn. The visualisations stay hidden until you click Regenerate now.'),
+            default => $translate('Nothing is published yet. Click Regenerate now to publish the visualisations.'),
+        };
+        ?>
+        <p>
+            <strong><?= $translate('Status:') ?></strong>
+            <?= $this->escapeHtml($statusText) ?>
+        </p>
         <p>
             <strong><?= $translate('When to run:') ?></strong>
-            <?= $translate('After importing or substantially editing items, so the visualisations reflect the current data. Data edits withdraw the published snapshot. Regenerate after edits are complete.') ?>
+            <?= $translate('Only when you want the visualisations updated straight away. After an edit or import, the published data stays online and refreshes in the background once edits have been quiet for five minutes. Making an item, medium, item set or value private hides the visualisations until that refresh.') ?>
         </p>
         <?= $this->form()->openTag($form) ?>
             <?= $this->formCollection($form) ?>

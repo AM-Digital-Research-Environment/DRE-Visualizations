@@ -6,6 +6,7 @@ namespace DreVisualizations\Controller\Admin;
 use DreVisualizations\Form\MaintenanceForm;
 use DreVisualizations\Job\PrecomputeDashboards;
 use DreVisualizations\Listener\SnapshotInvalidation;
+use DreVisualizations\Precompute\SnapshotStore;
 use DreVisualizations\Service\CanonicalSite;
 use Laminas\Http\Response;
 use Laminas\Mvc\Controller\AbstractActionController;
@@ -24,7 +25,8 @@ use Omeka\Stdlib\Message;
  *     background job and flashes a link to its log at /admin/job/{id}/log.
  *
  *   withdrawAction    POST  /admin/dre-visualizations/maintenance/withdraw
- *     Stops serving the published snapshot until the next regeneration.
+ *     Stops serving the published snapshot until the next manual regeneration;
+ *     the automatic refresh after edits does not republish it.
  *
  * ACL: editor + site-admin + global-admin (granted in Module::onBootstrap).
  */
@@ -37,7 +39,30 @@ class MaintenanceController extends AbstractActionController
         return new ViewModel([
             'form' => $this->getForm(MaintenanceForm::class),
             'scopeSite' => $this->canonicalSite->publicSite(),
+            'publication' => self::publicationStatus(SnapshotStore::tryDefault()),
         ]);
+    }
+
+    /**
+     * What visitors currently get: 'current', 'stale' (an automatic refresh
+     * follows), 'withdrawn-private' (likewise), 'withdrawn' (waits for
+     * Regenerate now) or 'none'.
+     *
+     * @return array{state:string,createdAt:?string,changedAt:int}
+     */
+    public static function publicationStatus(?SnapshotStore $store): array
+    {
+        $status = $store?->reading(function () use ($store): array {
+            $manifest = $store->manifest();
+            $state = match (true) {
+                $manifest !== null => $store->isFresh() ? 'current' : 'stale',
+                $store->withdrawnByHand() => 'withdrawn',
+                $store->refreshAllowed() => 'withdrawn-private',
+                default => 'none',
+            };
+            return ['state' => $state, 'createdAt' => $manifest['createdAt'] ?? null, 'changedAt' => $store->changes()['changedAt']];
+        });
+        return $status ?? ['state' => 'none', 'createdAt' => null, 'changedAt' => 0];
     }
 
     public function regenerateAction(): Response
@@ -71,7 +96,7 @@ class MaintenanceController extends AbstractActionController
     {
         if ($this->validPost()) {
             SnapshotInvalidation::withdraw();
-            $this->messenger()->addSuccess('Published visualizations withdrawn.'); // @translate
+            $this->messenger()->addSuccess('Published visualizations withdrawn. They stay hidden until you regenerate.'); // @translate
         }
         return $this->backToIndex();
     }

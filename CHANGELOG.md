@@ -13,6 +13,17 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.32.0] - 2026-10-11
+
+### Changed
+
+- **Editing or deleting an item no longer takes the visualisations offline.** An Omeka write marks the published snapshot stale and keeps serving it. When the request or job ends, one background regeneration is queued; it waits until edits have been quiet for five minutes, then publishes, and repeats if edits arrived meanwhile. An import or batch edit costs one run, not one per record. The maintenance page shows whether the published data is current or stale.
+- Publication is still withdrawn at once when a write makes something private (an item, medium or item set made private, or a public value made private), because a stale snapshot could still show it. The automatic refresh republishes it after one quiet minute. **Withdraw published data** and canonical-site changes still wait for **Regenerate now**.
+- Ordinary edits keep the source revision, so scoped word-cloud and semantic inputs stay valid across them. Only a withdrawal invalidates them.
+- A regeneration waits up to 30 seconds for an in-flight write instead of failing, and discards its run only if a write lands before the corpus is fully read. **Regenerate now** retries up to three times when that happens.
+
+**Upgrade:** no regeneration needed. The automatic refresh needs Omeka's default PHP-CLI job strategy and starts only after a snapshot has been published once.
+
 ## [2.31.2] - 2026-10-08
 
 The first packaged release of the 2.31 line. Neither 2.31.0 nor 2.31.1 was packaged: each release run stopped at a gate. So read 2.31.0 (the shared interaction contract with DRE-theme and DRE Search) and 2.31.1 below as part of this release.

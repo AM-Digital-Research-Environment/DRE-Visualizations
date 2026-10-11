@@ -296,7 +296,7 @@ the repository's Python-based GitHub Action.
 - the **Photo Browsing** galleries (one JSON per image-bearing item set)
 - the per-item **knowledge graphs** + item location maps
 
-Watch progress and any errors at **Admin → Jobs → the job's log**. Re-run after importing or substantially editing items.
+Watch progress and any errors at **Admin → Jobs → the job's log**. After an edit, deletion or import, the published snapshot stays online and the same job runs by itself once edits have been quiet for five minutes; making something private hides the visualisations until it has run. "Regenerate now" is for when you want the update straight away.
 
 > Knowledge graphs require a current published snapshot. There is no live API fallback after withdrawal.
 

@@ -187,7 +187,8 @@ class Module extends AbstractModule
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
     {
-        // Invalidate before AND after writes, so an overlapping job cannot publish a mixed snapshot.
+        // Mark the snapshot stale (or withdraw it, when a write makes something private)
+        // before AND after writes, so an overlapping job cannot publish a mixed snapshot.
         $this->invalidation ??= new SnapshotInvalidation();
         foreach (SnapshotInvalidation::RESOURCES as $resource) {
             foreach (SnapshotInvalidation::OPERATIONS as $operation) {

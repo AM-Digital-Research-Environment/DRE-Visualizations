@@ -34,6 +34,8 @@ final class SnapshotPublisher
         private readonly string $dataDir,
         private readonly int $siteId,
         private readonly string $moduleVersion,
+        // How long a capture or commit waits for an in-flight Omeka write to finish.
+        private readonly float $writeWaitSeconds = 30.0,
     ) {
         if ($siteId < 1) {
             throw new \InvalidArgumentException('A positive site id is required for snapshot publication.');
@@ -45,7 +47,8 @@ final class SnapshotPublisher
     }
 
     /**
-     * @param callable(string,string):array $generate Receives the staging directory.
+     * @param callable(string,string,callable():void):array $generate Receives the staging
+     *        directory, the revision, and a callback to run once the corpus is read.
      * @return array<string,mixed> Published current.json manifest.
      */
     public function publish(callable $generate, ?callable $beforeCommit = null): array
@@ -61,7 +64,7 @@ final class SnapshotPublisher
         }
         if (!flock($lock, LOCK_EX | LOCK_NB)) {
             fclose($lock);
-            throw new RuntimeException(sprintf(
+            throw new PublicationBusy(sprintf(
                 'A dashboard generation is already running for site %d.',
                 $this->siteId
             ));
@@ -69,7 +72,8 @@ final class SnapshotPublisher
 
         $store = new SnapshotStore($this->dataDir);
         try {
-            $revision = $store->quiescent(fn () => $store->revision());
+            [$revision, $source] = $store->quiescent(
+                fn () => [$store->revision(), $store->changes()['token']], $this->writeWaitSeconds);
         } catch (\Throwable $e) {
             flock($lock, LOCK_UN);
             fclose($lock);
@@ -79,9 +83,21 @@ final class SnapshotPublisher
         $stagingDir = $generationsDir . '/.staging-' . $generationId;
         $publishedDir = $generationsDir . '/' . $generationId;
 
+        // A write between capturing $source and the end of the corpus read may
+        // leave the corpus mixing two states, so the generator calls $loaded
+        // once it has read everything. Writes after that only make this
+        // generation stale; the automatic refresh publishes another.
+        $loaded = false;
+        $confirmLoaded = function () use ($store, $source, &$loaded): void {
+            if ($store->reading(fn () => $store->changes()['token']) !== $source) {
+                throw new SourceChanged('The corpus changed while it was being read; this run was discarded.');
+            }
+            $loaded = true;
+        };
+
         try {
             $this->artifacts->ensureDirectory($stagingDir);
-            $stats = $generate($stagingDir, $revision);
+            $stats = $generate($stagingDir, $revision, $confirmLoaded);
             $sourceCounts = is_array($stats['sourceCounts'] ?? null) ? $stats['sourceCounts'] : [];
             if (!is_int($sourceCounts['items'] ?? null) || $sourceCounts['items'] < 1) {
                 throw new RuntimeException('Snapshot source counts must report at least one scoped item.');
@@ -95,6 +111,7 @@ final class SnapshotPublisher
             $manifest = [
                 'schemaVersion' => self::SCHEMA_VERSION,
                 'revision' => $revision,
+                'sourceChange' => $source,
                 'generationId' => $generationId,
                 'basePath' => 'generations/' . $generationId,
                 'moduleVersion' => $this->moduleVersion,
@@ -108,13 +125,17 @@ final class SnapshotPublisher
                 'createdAt' => gmdate('Y-m-d\TH:i:s\Z'),
                 'warnings' => array_values(is_array($stats['warnings'] ?? null) ? $stats['warnings'] : []),
             ];
-            $store->quiescent(function () use ($store, $revision, $manifest, $beforeCommit): void {
+            $store->quiescent(function () use ($store, $revision, $source, &$loaded, $manifest, $beforeCommit): void {
                 if ($beforeCommit) $beforeCommit();
                 if ($store->revision() !== $revision) {
-                    throw new RuntimeException('The corpus changed during generation; publication was withdrawn. Regenerate again.');
+                    throw new SourceChanged('The corpus changed during generation; publication was withdrawn. Regenerate again.');
+                }
+                // A generator that never confirmed its read: any write since the capture rejects it.
+                if (!$loaded && $store->changes()['token'] !== $source) {
+                    throw new SourceChanged('The corpus changed during generation; this run was discarded.');
                 }
                 $this->artifacts->write($this->dataDir . '/current.json', $manifest, durable: true);
-            });
+            }, $this->writeWaitSeconds);
             $this->prune($generationsDir, $generationId);
             return $manifest;
         } catch (\Throwable $e) {

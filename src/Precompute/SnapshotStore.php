@@ -4,7 +4,13 @@ namespace DreVisualizations\Precompute;
 
 use RuntimeException;
 
-/** Private publication state. The short policy lock never waits for aggregation. */
+/**
+ * Private publication state. The short policy lock never waits for aggregation.
+ *
+ * revision.json changes only on withdrawal and scopes the manifest and the
+ * offline inputs; changes.json changes on every Omeka write and tells a stale
+ * snapshot from a current one.
+ */
 final readonly class SnapshotStore
 {
     public function __construct(public string $directory) {}
@@ -78,7 +84,11 @@ final readonly class SnapshotStore
         return $this->locked($operation, false);
     }
 
-    /** Acquire before an API write; PHP also releases this handle if the request fails. */
+    /**
+     * Acquire before an API write; PHP also releases this handle if the request
+     * fails. The write marks the source changed but leaves the published
+     * snapshot served: it stays up, stale, until the automatic refresh.
+     */
     public function beginWrite()
     {
         (new JsonArtifactWriter())->ensureDirectory($this->directory);
@@ -87,29 +97,138 @@ final readonly class SnapshotStore
             if ($lock) fclose($lock);
             throw new RuntimeException('Cannot protect a source write.');
         }
-        try { $this->withdraw(); }
+        try { $this->markChanged(); }
         catch (\Throwable $e) { fclose($lock); throw $e; }
         return $lock;
     }
 
-    public function endWrite($lock): void
+    /** A write that made something private withdraws: a stale snapshot could still show it. */
+    public function endWrite($lock, bool $privatised = false): void
     {
-        try { $this->withdraw(); }
+        try { $privatised ? $this->withdraw(automatic: true) : $this->markChanged(); }
         finally { flock($lock, LOCK_UN); fclose($lock); }
     }
 
-    /** Capture a revision or commit only when no API writer is active. */
-    public function quiescent(callable $operation): mixed
+    /**
+     * Capture a revision or commit only when no API writer is active. A write
+     * lasts milliseconds, so wait up to $waitSeconds for one to finish rather
+     * than discard a finished generation over it.
+     */
+    public function quiescent(callable $operation, float $waitSeconds = 0.0): mixed
     {
         (new JsonArtifactWriter())->ensureDirectory($this->directory);
         $lock = fopen($this->directory . '/.source-write.lock', 'c');
         if (!$lock) throw new RuntimeException('Cannot open the source write guard.');
-        if (!flock($lock, LOCK_EX | LOCK_NB)) {
-            fclose($lock);
-            throw new RuntimeException('A source write is still in progress; regenerate after edits finish.');
+        $deadline = microtime(true) + $waitSeconds;
+        while (!flock($lock, LOCK_EX | LOCK_NB)) {
+            if (microtime(true) >= $deadline) {
+                fclose($lock);
+                throw new PublicationBusy('A source write is still in progress; regenerate after edits finish.');
+            }
+            usleep(200_000);
         }
         try { return $this->locked($operation); }
         finally { flock($lock, LOCK_UN); fclose($lock); }
+    }
+
+    /**
+     * The latest source change: a token every API write replaces, and when it
+     * did. A manifest records the token its corpus was read at, so the two
+     * differing means the published snapshot is stale. Null token: no write
+     * since the store was created. Readable in either lock mode, or none (the
+     * file is replaced atomically).
+     *
+     * @return array{token:?string,changedAt:int}
+     */
+    public function changes(): array
+    {
+        $path = $this->directory . '/changes.json';
+        $data = is_file($path) ? json_decode((string) file_get_contents($path), true) : null;
+        return [
+            'token' => is_string($data['token'] ?? null) ? $data['token'] : null,
+            'changedAt' => is_int($data['changedAt'] ?? null) ? $data['changedAt'] : 0,
+        ];
+    }
+
+    /** Record a source change; the published snapshot stays served. Not durable: losing one only delays a refresh. */
+    public function markChanged(): void
+    {
+        $this->locked(function (): void {
+            (new JsonArtifactWriter())->write($this->directory . '/changes.json',
+                ['token' => bin2hex(random_bytes(16)), 'changedAt' => time()]);
+        });
+    }
+
+    /** Whether the served manifest was read at the latest source change. Caller holds the policy lock. */
+    public function isFresh(): bool
+    {
+        $manifest = $this->manifest();
+        return $manifest !== null && ($manifest['sourceChange'] ?? null) === $this->changes()['token'];
+    }
+
+    /**
+     * Whether an automatic refresh may publish here: something was published
+     * once, and any withdrawal was the automatic kind (a privatising write).
+     * A manual withdrawal, a site change or an old-version upgrade waits for
+     * someone to click Regenerate now. Caller holds the policy lock.
+     */
+    public function refreshAllowed(): bool
+    {
+        return is_array($this->current()) && !$this->withdrawnByHand();
+    }
+
+    /** Whether publication was withdrawn other than by a privatising write. Caller holds the policy lock. */
+    public function withdrawnByHand(): bool
+    {
+        $data = $this->current();
+        return is_array($data) && ($data['withdrawn'] ?? false) && ($data['refresh'] ?? null) !== 'automatic';
+    }
+
+    /** current.json as written (a manifest or a tombstone), or null when absent. */
+    private function current(): ?array
+    {
+        $path = $this->directory . '/current.json';
+        $data = is_file($path) ? json_decode((string) file_get_contents($path), true) : null;
+        return is_array($data) ? $data : null;
+    }
+
+    /**
+     * The automatic refresher's lock, held for the job's lifetime, or null when
+     * another refresher holds it. One refresher at a time catches up with every
+     * write, so a write that finds the lock taken needs no job of its own.
+     * $waitSeconds rides out refreshIdle()'s momentary hold.
+     *
+     * @return resource|null
+     */
+    public function claimRefresh(float $waitSeconds = 0.0)
+    {
+        (new JsonArtifactWriter())->ensureDirectory($this->directory);
+        $lock = fopen($this->directory . '/.refresh.lock', 'c');
+        if (!$lock) throw new RuntimeException('Cannot open the refresh lock.');
+        $deadline = microtime(true) + $waitSeconds;
+        while (!flock($lock, LOCK_EX | LOCK_NB)) {
+            if (microtime(true) >= $deadline) {
+                fclose($lock);
+                return null;
+            }
+            usleep(100_000);
+        }
+        return $lock;
+    }
+
+    public function releaseRefresh($lock): void
+    {
+        flock($lock, LOCK_UN);
+        fclose($lock);
+    }
+
+    /** Whether no refresher is running; momentarily takes the lock to find out. */
+    public function refreshIdle(): bool
+    {
+        $lock = $this->claimRefresh();
+        if ($lock === null) return false;
+        $this->releaseRefresh($lock);
+        return true;
     }
 
     /** Caller holds the policy lock exclusively: a missing revision is created. */
@@ -129,13 +248,26 @@ final readonly class SnapshotStore
         return is_string($state['revision'] ?? null) ? $state['revision'] : null;
     }
 
-    public function withdraw(): void
+    /**
+     * Stop serving the published snapshot. An $automatic withdrawal (a write
+     * made something private) is republished by the automatic refresh; any
+     * other waits for Regenerate now, and an automatic one never relaxes it.
+     * Changing the revision also invalidates offline inputs, which may hold
+     * what was just hidden.
+     */
+    public function withdraw(bool $automatic = false): void
     {
-        $this->locked(function (): void {
+        $this->locked(function () use ($automatic): void {
             // Changing the revision also revokes the old manifest if the tombstone write fails.
             $writer = new JsonArtifactWriter();
             $writer->write($this->directory . '/revision.json', ['revision' => bin2hex(random_bytes(16))], durable: true);
-            $writer->write($this->directory . '/current.json', ['withdrawn' => true], durable: true);
+            $writer->write($this->directory . '/changes.json',
+                ['token' => bin2hex(random_bytes(16)), 'changedAt' => time()]);
+            // Nothing ever published, or already withdrawn by hand: an automatic
+            // withdrawal leaves that state, so it cannot start a first publication.
+            if ($automatic && ($this->current() === null || $this->withdrawnByHand())) return;
+            $writer->write($this->directory . '/current.json',
+                ['withdrawn' => true] + ($automatic ? ['refresh' => 'automatic'] : []), durable: true);
         });
     }
 

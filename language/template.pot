@@ -93,10 +93,6 @@ msgstr ""
 msgid "Africa Multiple Research Centres (AMRCs) and partners"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:48
-msgid "After importing or substantially editing items, so the visualisations reflect the current data. Data edits withdraw the published snapshot. Regenerate after edits are complete."
-msgstr ""
-
 #: config/client-strings.json:langAll
 msgid "All"
 msgstr ""
@@ -108,6 +104,10 @@ msgstr ""
 #: config/client-strings.json:kgResourceSharedBy
 #: config/client-strings.json:kgSharedBy
 msgid "Also on"
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:53
+msgid "An edit made something private, so the visualisations are hidden. They are regenerated automatically once edits have been quiet for a minute."
 msgstr ""
 
 #: src/Site/BlockLayout/Podcasts.php:21
@@ -341,7 +341,7 @@ msgstr ""
 msgid "Comparison ready."
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:50
+#: src/Controller/Admin/MaintenanceController.php:75
 msgid "Configure a canonical public site in the DRE Visualizations module settings before regenerating data."
 msgstr ""
 
@@ -419,7 +419,7 @@ msgstr ""
 msgid "Dark basemap style URL"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:59
+#: src/Controller/Admin/MaintenanceController.php:84
 msgid "Dashboard regeneration queued — rebuilds every precomputed visualisation (entities, overviews, communities). Track progress: %1$sjob #%2$d%3$s"
 msgstr ""
 
@@ -447,7 +447,7 @@ msgstr ""
 msgid "Download data (CSV)"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:21
+#: view/dre-visualizations/admin/maintenance/index.phtml:22
 msgid "DRE Visualizations: maintenance"
 msgstr ""
 
@@ -459,7 +459,7 @@ msgstr ""
 msgid "Each dot is a project. Its position marks the start year; its size shows the number of research items."
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:66
+#: view/dre-visualizations/admin/maintenance/index.phtml:82
 msgid "Each site has a public embed gallery with copy-paste iframe snippets for every visualisation block — and, for dashboards, for each individual chart. Open it to preview a block and grab its code."
 msgstr ""
 
@@ -475,7 +475,7 @@ msgstr ""
 msgid "Embed this"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:64
+#: view/dre-visualizations/admin/maintenance/index.phtml:80
 msgid "Embed visualisations"
 msgstr ""
 
@@ -750,7 +750,7 @@ msgstr ""
 msgid "Institutions with the most items"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:89
+#: src/Controller/Admin/MaintenanceController.php:114
 msgid "Invalid form submission. Please reload the page and try again."
 msgstr ""
 
@@ -1093,7 +1093,7 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:40
+#: view/dre-visualizations/admin/maintenance/index.phtml:41
 msgid "No canonical public site is configured. Open this module’s configuration, select a public site, and save before regenerating data."
 msgstr ""
 
@@ -1121,6 +1121,10 @@ msgstr ""
 
 #: config/client-strings.json:whatsNewNone
 msgid "Nothing has been added recently."
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:55
+msgid "Nothing is published yet. Click Regenerate now to publish the visualisations."
 msgstr ""
 
 #: config/client-strings.json:spatialNoneOfType
@@ -1159,8 +1163,12 @@ msgstr ""
 msgid "Only public items assigned to this public site enter generated JSON. Regeneration fails closed until a site is selected."
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:36
+#: view/dre-visualizations/admin/maintenance/index.phtml:37
 msgid "Only public items assigned to this public site, including relationship targets and media, enter generated JSON."
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:64
+msgid "Only when you want the visualisations updated straight away. After an edit or import, the published data stays online and refreshes in the background once edits have been quiet for five minutes. Making an item, medium, item set or value private hides the visualisations until that refresh."
 msgstr ""
 
 #: config/client-strings.json:spatialOpenPage
@@ -1418,8 +1426,12 @@ msgstr ""
 msgid "publication"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:33
+#: view/dre-visualizations/admin/maintenance/index.phtml:34
 msgid "Publication scope:"
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:54
+msgid "Publication was withdrawn. The visualisations stay hidden until you click Regenerate now."
 msgstr ""
 
 #: config/client-strings.json:publicationOther
@@ -1431,8 +1443,16 @@ msgstr ""
 msgid "Publications"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:74
-msgid "Published visualizations withdrawn."
+#: view/dre-visualizations/admin/maintenance/index.phtml:51
+msgid "Published data is up to date (generated %s)."
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:52
+msgid "Published data was generated %1$s and stays online. Edits since %2$s are not in it yet; it refreshes automatically once edits have been quiet for five minutes."
+msgstr ""
+
+#: src/Controller/Admin/MaintenanceController.php:99
+msgid "Published visualizations withdrawn. They stay hidden until you regenerate."
 msgstr ""
 
 #: config/client-strings.json:boxplotQ1
@@ -1443,7 +1463,7 @@ msgstr ""
 msgid "Q3"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:25
+#: view/dre-visualizations/admin/maintenance/index.phtml:26
 msgid "Rebuild all precomputed visualisation data directly from the Omeka database — no shell access or external tools required. Runs as a background job; track progress in the Jobs admin page."
 msgstr ""
 
@@ -1476,15 +1496,15 @@ msgstr ""
 msgid "Records on similar topics"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:30
+#: view/dre-visualizations/admin/maintenance/index.phtml:31
 msgid "Regenerate dashboard data"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:53
+#: view/dre-visualizations/admin/maintenance/index.phtml:69
 msgid "Regenerate now"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:44
+#: view/dre-visualizations/admin/maintenance/index.phtml:45
 msgid "Regenerates every precomputed artefact: per-entity dashboards (sections, projects, people, institutions, locations, subjects), category overviews, the collection overview, the Discursive Communities graph, and the per-country choropleth index."
 msgstr ""
 
@@ -1734,6 +1754,10 @@ msgstr ""
 
 #: config/client-strings.json:beeswarmStart
 msgid "Start:"
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:59
+msgid "Status:"
 msgstr ""
 
 #: config/client-strings.json:kgFreezeTitle
@@ -2136,7 +2160,7 @@ msgstr ""
 msgid "What's New"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:47
+#: view/dre-visualizations/admin/maintenance/index.phtml:63
 msgid "When to run:"
 msgstr ""
 
@@ -2176,7 +2200,7 @@ msgstr ""
 msgid "Whole collection"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:55
+#: view/dre-visualizations/admin/maintenance/index.phtml:71
 msgid "Withdraw published data"
 msgstr ""
 

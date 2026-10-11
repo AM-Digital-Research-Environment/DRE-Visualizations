@@ -16,6 +16,13 @@
    policy lock coordinates withdrawal, protected reads and the final revision/site
    check. An additional source-write guard prevents revision capture or publication
    during an active API mutation. Publication uses validated staging plus atomic manifests.
+   `revision.json` changes only on withdrawal; `changes.json` changes on every API
+   write. A manifest records the change token its corpus was read at, so a
+   mismatch means stale, and the Runner confirms the token after DataLoader so no
+   corpus mixes two states. Listener\SnapshotInvalidation marks writes, withdraws
+   on privatisation (Listener\VisibilityState) and has Service\AutomaticRefresh
+   dispatch one `trigger: edit` job when the process ends; that job holds the
+   refresh lock while it waits for quiet and publishes until current.
 6. DataController and PublishedSnapshot read current private storage under a
    shared lock (writers lock exclusively), open the artifact, and stream it after
    releasing the lock. Manifests of another `SnapshotPublisher::SCHEMA_VERSION`

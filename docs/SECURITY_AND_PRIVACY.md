@@ -11,10 +11,26 @@ values instead of the cached resource title. A private explicit primary medium
 does not fall back to another image.
 
 API writes to items, media, item sets, sites, annotations, templates, properties
-and classes withdraw publication before and after the write. Changing the
-canonical site also withdraws it. Regeneration checks the source revision and
-site immediately before publication. Direct SQL changes bypass Omeka events:
-withdraw before maintenance, then regenerate afterwards.
+and classes mark the published snapshot stale, and an automatic regeneration
+follows once edits are quiet. Until then the snapshot keeps showing what was
+public when it was generated, including records deleted since. A write that
+hides something withdraws publication as soon as it completes: an item, medium
+or item set made private, or a public value made private (compared between the
+database before the write and the hydrated entities after it). An update whose
+earlier state cannot be read is treated the same way. Changing the canonical
+site also withdraws, as does **Withdraw published data**; automatic refreshes
+do not republish after either.
+
+Each write holds a shared lock while it runs. A regeneration captures the source
+state only when no write is active, discards its run if a write lands before the
+corpus is fully read, and checks the revision and site immediately before
+publication. A privatising write during a run therefore rejects it. Direct SQL
+changes bypass Omeka events: withdraw before maintenance, then regenerate
+afterwards.
+
+The revision that scopes offline inputs changes only on withdrawal, so ordinary
+edits keep word-cloud and semantic inputs valid, while a privatising write
+invalidates them until they are rebuilt.
 
 The semantic builder is a separate public-only pipeline: it calls the
 unauthenticated Omeka API and rejects every record whose `o:is_public` value is
