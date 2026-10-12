@@ -1,0 +1,50 @@
+{
+  "builders": {"languages":"buildPieChart"},
+  "currentLocations": [],
+  "descriptions": {"coAuthorNetwork":"Authors and editors are linked when they appear on the same publication. Circle size follows how well connected a person is, and circle colour marks groups who publish together more often than with others. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.","languages":"The languages these publications are written in.","stackedTimeline":"The publications recorded here that appeared in this journal, counted by year and split by type.","subjects":"The keywords assigned to these publications most often."},
+  "labels": {"coAuthorNetwork":"Collaboration network","stackedTimeline":"Publications by year and type","subjects":"Keywords"},
+  "languages": [
+    {"itemId":812,"name":"Portuguese","value":2},
+    {"itemId":810,"name":"English","value":1},
+    {"itemId":811,"name":"French","value":1}
+  ],
+  "locations": [],
+  "resourceType": "venue",
+  "stackedTimeline": {
+    "series": [
+      {
+        "data": [1,1,1,1],
+        "name": "Journal article"
+      }
+    ],
+    "years": [2019,2020,2024,2025]
+  },
+  "subjects": [
+    {"itemId":719,"name":"sound recording","value":2},
+    {"itemId":713,"name":"Kinship","value":1},
+    {"itemId":708,"name":"Language policy","value":1},
+    {"itemId":726,"name":"photography","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "timeline": {"2019":1,"2020":1,"2024":1,"2025":1},
+  "topAuthors": [
+    {"matched":false,"name":"Mbeki, Zola","value":2},
+    {"itemId":406,"matched":true,"name":"Mwangi, Wanjiru","value":2},
+    {"itemId":422,"matched":true,"name":"Abubakar, Hauwa","value":1},
+    {"itemId":401,"matched":true,"name":"Bakari, Amina","value":1},
+    {"matched":false,"name":"Bello, Ibrahim","value":1},
+    {"itemId":408,"matched":true,"name":"Dlamini, Thandiwe","value":1},
+    {"itemId":418,"matched":true,"name":"Ferreira, Luíza","value":1},
+    {"matched":false,"name":"García, Lucía","value":1},
+    {"itemId":404,"matched":true,"name":"Müller, Katharina","value":1},
+    {"itemId":423,"matched":true,"name":"Njoroge, Peter","value":1},
+    {"itemId":413,"matched":true,"name":"Nkosi, Sipho","value":1},
+    {"matched":false,"name":"Rossi, Marco","value":1},
+    {"itemId":409,"matched":true,"name":"Schmidt, Jonas","value":1}
+  ],
+  "totalItems": 4,
+  "types": [
+    {"itemId":805,"name":"Journal article","value":4}
+  ]
+}

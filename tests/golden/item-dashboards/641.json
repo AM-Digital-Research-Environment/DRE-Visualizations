@@ -1,0 +1,21 @@
+{
+  "contributors": [],
+  "currentLocations": [],
+  "languages": [],
+  "locations": [],
+  "publishedHere": {
+    "series": [
+      {
+        "data": [1],
+        "name": "Journal article"
+      }
+    ],
+    "years": [2024]
+  },
+  "resourceType": "location",
+  "selfLocation": {"itemId":641,"lat":12.2383,"lon":-1.5616,"name":"Burkina Faso"},
+  "subjects": [],
+  "timeline": {},
+  "totalItems": 1,
+  "types": []
+}

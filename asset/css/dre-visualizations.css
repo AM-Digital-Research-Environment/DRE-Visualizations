@@ -1257,6 +1257,32 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     font-variant-numeric: tabular-nums;
 }
 
+/* Bar-chart pager — under a ranked list longer than one page (twenty bars).
+   The buttons are toolbar buttons; a disabled one stays flat on hover. */
+.rv-bar-pager {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--rv-space-1);
+    margin: var(--rv-space-2) 0 0;
+}
+
+.rv-bar-pager-status {
+    min-width: 12ch;
+    padding: 0 var(--rv-space-2);
+    font-size: var(--rv-text-xs);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    color: var(--rv-text-color);
+}
+
+.rv-bar-pager .rv-toolbar-btn:disabled,
+.rv-bar-pager .rv-toolbar-btn:disabled:hover {
+    background: transparent;
+    opacity: 0.45;
+}
+
 /* Word-cloud language toggle — segmented buttons above the cloud (shown only
    when the precomputed input carries more than one language). */
 .rv-word-langs {

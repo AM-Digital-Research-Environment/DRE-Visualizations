@@ -157,7 +157,7 @@ final class GoldenCorpus
 
     private function vocabulary(): void
     {
-        $vocabularies = [1 => 'dcterms', 2 => 'bibo', 3 => 'geo', 4 => 'foaf', 5 => 'frapo', 6 => 'marcrel', 7 => 'fabio', 8 => 'dctype'];
+        $vocabularies = [1 => 'dcterms', 2 => 'bibo', 3 => 'geo', 4 => 'foaf', 5 => 'frapo', 6 => 'marcrel', 7 => 'fabio', 8 => 'dctype', 9 => 'dre'];
         foreach ($vocabularies as $id => $prefix) {
             $this->conn->insert('vocabulary', ['id' => $id, 'prefix' => $prefix]);
         }
@@ -181,6 +181,7 @@ final class GoldenCorpus
             'marcrel:pht' => 'Photographer', 'marcrel:spk' => 'Speaker', 'marcrel:hst' => 'Host',
             'marcrel:pup' => 'Publication place', 'marcrel:prn' => 'Production company', 'marcrel:ctb' => 'Contributor (role)',
             'fabio:hasDateCollected' => 'Has Date Collected',
+            'dre:series' => 'Series',
         ];
         $id = 0;
         foreach ($props as $term => $label) {
@@ -194,6 +195,7 @@ final class GoldenCorpus
             'fabio:JournalArticle' => 'Journal Article', 'fabio:BookChapter' => 'Book Chapter',
             'dctype:Text' => 'Text', 'dctype:StillImage' => 'Still Image', 'dctype:Sound' => 'Sound',
             'dctype:MovingImage' => 'Moving Image',
+            'bibo:Journal' => 'Journal', 'bibo:Series' => 'Series',
         ];
         $id = 0;
         foreach ($classes as $term => $label) {
@@ -366,6 +368,9 @@ final class GoldenCorpus
         $this->ilam($context);
         $this->digitalReturn($context);
         $this->privateRecords($context);
+        // Last, and drawing nothing from the seeded generator, so every record
+        // above keeps the values it had before journals and series were linked.
+        $this->publicationVenues();
     }
 
     /** @return array<string,int> key => organisation id */
@@ -915,6 +920,69 @@ final class GoldenCorpus
     }
 
     /** Records that must never reach an artifact. */
+    /**
+     * The records the publications sync links a bibliography to: Journal
+     * records with their countries of origin (one with two countries, one in
+     * Singapore, too small for the country outlines), book series, publisher
+     * Organisations, and the countries the places of publication are part of.
+     * Deterministic: no draws from the seeded generator.
+     */
+    private function publicationVenues(): void
+    {
+        $stamp = '2026-10-11 09:00:00';
+        $countries = [
+            640 => ['Nigeria', '9.0', '8.0'], 641 => ['Burkina Faso', '12.2383', '-1.5616'],
+            642 => ['Brazil', '-14.0', '-53.0'], 643 => ['Kenya', '0.1', '38.0'],
+            644 => ['South Africa', '-29.0', '24.0'], 645 => ['Germany', '51.0', '10.0'],
+            646 => ['United Kingdom', '54.6', '-2.0'], 647 => ['Singapore', '1.3', '103.8'],
+        ];
+        foreach ($countries as $id => [$name, $lat, $lon]) {
+            $this->item($id, self::T_LOCATION, 'dcterms:Location', $name, $stamp, kind: 'locations');
+            $this->geo($id, $lat, $lon);
+        }
+        // The places of publication the publications draw from, each part of its country.
+        foreach ([600 => 640, 602 => 641, 607 => 642, 606 => 643, 604 => 644] as $city => $country) {
+            $this->link($city, 'dcterms:isPartOf', $country);
+        }
+
+        $journals = [
+            3100 => ['Journal of African Cultural Studies', [646]],
+            3101 => ['Africa Spectrum', [645]],
+            3102 => ['Afro-Ásia', [642]],
+            3103 => ['Journal of Religion in Africa', [646, 645]],
+            3104 => ['Asian Journal of African Studies', [647]],
+        ];
+        foreach ($journals as $id => [$title, $origin]) {
+            $this->item($id, null, 'bibo:Journal', $title, $stamp, kind: 'journals');
+            foreach ($origin as $country) {
+                $this->link($id, 'dcterms:spatial', $country);
+            }
+        }
+        $this->item(3110, null, 'bibo:Series', 'Africa Multiple Working Papers', $stamp, kind: 'series');
+        $this->item(3111, null, 'bibo:Series', 'Bayreuth African Studies', $stamp, kind: 'series');
+        $this->item(520, self::T_ORG, 'foaf:Organization', 'Brill', $stamp, [self::SET_INSTITUTION], kind: 'organisations');
+        $this->item(521, self::T_ORG, 'foaf:Organization', 'Routledge', $stamp, [self::SET_INSTITUTION], kind: 'organisations');
+
+        $journalIds = array_keys($journals);
+        for ($i = 0; $i < 30; $i++) {
+            $id = 2100 + $i;
+            if ($i % 3 !== 2) {
+                // Articles: the Journal record their container reconciled to.
+                $this->link($id, 'dcterms:isPartOf', $journalIds[$i % count($journalIds)]);
+            } elseif ($i % 2 === 0) {
+                // A chapter's series statement.
+                $this->link($id, 'dre:series', $i % 4 === 2 ? 3110 : 3111);
+            } else {
+                // A monograph whose container is its series.
+                $this->link($id, 'dcterms:isPartOf', 3111);
+            }
+            if ($i % 4 < 2) {
+                // The publisher reconciled to an Organisation (a literal may name it too).
+                $this->link($id, 'dcterms:publisher', 520 + $i % 4);
+            }
+        }
+    }
+
     private function privateRecords(array $c): void
     {
         // A private item in the site, linked from public items and in public sets.

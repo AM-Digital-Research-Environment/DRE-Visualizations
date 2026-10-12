@@ -160,7 +160,7 @@
     ],
     "series": [
       {
-        "value": [15,4,14,9,6,12]
+        "value": [15,4,14,10,6,12]
       }
     ]
   },
@@ -168,6 +168,7 @@
   "roles": [
     {"name":"Creator","value":6},
     {"name":"Photographer","value":3},
+    {"name":"author","value":2},
     {"name":"Author","value":1},
     {"name":"Interviewer","value":1},
     {"name":"Speaker","value":1}

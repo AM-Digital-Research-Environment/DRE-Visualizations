@@ -334,7 +334,7 @@
     ],
     "series": [
       {
-        "value": [39,7,23,17,7,6]
+        "value": [39,7,23,19,7,6]
       }
     ]
   },
@@ -342,6 +342,7 @@
   "roles": [
     {"name":"Creator","value":18},
     {"name":"Photographer","value":10},
+    {"name":"author","value":3},
     {"name":"Interviewer","value":3},
     {"name":"Speaker","value":2},
     {"name":"Contributor","value":1},

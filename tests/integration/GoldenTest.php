@@ -467,6 +467,8 @@ try {
         'item-dashboards/201.json', 'item-dashboards/300.json', 'item-dashboards/400.json',
         'item-dashboards/501.json', 'item-dashboards/600.json', 'item-dashboards/700.json',
         'item-dashboards/800.json', 'item-dashboards/810.json', 'item-dashboards/820.json',
+        // A journal and a series (venue), and a country that only publications reach.
+        'item-dashboards/3100.json', 'item-dashboards/3111.json', 'item-dashboards/646.json',
         // Galleries: plain item set, ILAM issues, the Museu Afro-Digital split.
         'photo-galleries/50000.json', 'photo-galleries/collection-international-library-of-african-music-ilam.json',
         'photo-galleries/collection-memorias-perifericas-capoeira-angola-salvador.json',
@@ -483,7 +485,16 @@ try {
     $explorer = array_keys($decode('network-explorer.json')); // canonical: keys sorted
     verify($explorer === ['affiliations', 'collaboration', 'contributors', 'institutions'], 'Network explorer carries all four graphs (has: ' . implode(', ', $explorer) . ')');
     $publications = $decode('item-dashboards/publications.json');
-    verify(isset($publications['coAuthorNetwork'], $publications['topAuthors'], $publications['topVenues'], $publications['funders'], $publications['abstractWordcloud'], $publications['locations']), 'Publications dashboard carries its bibliography charts');
+    verify(isset($publications['coAuthorNetwork'], $publications['topAuthors'], $publications['topJournals'], $publications['topSeries'], $publications['topPublishers'], $publications['funders'], $publications['abstractWordcloud'], $publications['locations'], $publications['publicationCountries']), 'Publications dashboard carries its bibliography charts');
+    $journal = $decode('item-dashboards/3100.json');
+    $series = $decode('item-dashboards/3111.json');
+    verify(($journal['resourceType'] ?? '') === 'venue' && ($series['resourceType'] ?? '') === 'venue'
+        && isset($journal['stackedTimeline'], $journal['topAuthors'], $series['stackedTimeline'], $series['topAuthors'], $series['coAuthorNetwork'])
+        && !isset($journal['coAuthorNetwork']),
+        'Journal and series records carry their venue charts (a network only from five publications)');
+    $country = $decode('item-dashboards/646.json');
+    verify(isset($country['publishedHere']) && $country['totalItems'] > 0 && ($country['types'] ?? []) === [],
+        'A country reached only by publications shows them apart from the research-item charts');
 
     // 5. Compare with (or rewrite) the golden files.
     $packed = packGolden($actual);

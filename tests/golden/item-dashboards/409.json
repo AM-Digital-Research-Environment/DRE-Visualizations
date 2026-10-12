@@ -106,13 +106,14 @@
     ],
     "series": [
       {
-        "value": [18,5,12,19,4,5]
+        "value": [18,5,12,17,4,5]
       }
     ]
   },
   "resourceType": "person",
   "roles": [
     {"name":"Host","value":10},
+    {"name":"author","value":2},
     {"name":"Creator","value":2},
     {"name":"Interviewer","value":2},
     {"name":"Speaker","value":2}

@@ -273,14 +273,50 @@ $tplLabels = [10 => 'Research Items', 11 => 'Article'];
 check($aggregators->buildTemplates([1, 2, 3], $tplItems, $tplLabels) === [['name' => 'Research Items', 'value' => 2], ['name' => 'Article', 'value' => 1]], 'buildTemplates groups by template label');
 check($aggregators->buildTemplates([1, 2], $tplItems, $tplLabels) === null, 'buildTemplates null when single template (monotone)');
 
-// --- buildTopLiteral (venues) ---
-$pubLits = [
-    1 => ['dcterms:isPartOf' => ['Antipode']],
-    2 => ['dcterms:isPartOf' => ['Antipode']],
-    3 => ['dcterms:isPartOf' => ['Society']],
+// --- buildTopValues (publishers: Organisation links + names not yet reconciled) ---
+$pubItems = [700 => ['title' => 'Brill'], 701 => ['title' => 'Routledge'], 702 => ['title' => '']];
+$pubLinks = [
+    1 => [['dcterms:publisher', 'P', 700]],
+    2 => [['dcterms:publisher', 'P', 700], ['dcterms:publisher', 'P', 700]], // repeat on one item counts once
+    3 => [['dcterms:publisher', 'P', 701], ['dcterms:publisher', 'P', 702]], // untitled link skipped
 ];
-check($aggregators->buildTopLiteral([1, 2, 3], $pubLits, 'dcterms:isPartOf') === [['name' => 'Antipode', 'value' => 2], ['name' => 'Society', 'value' => 1]], 'buildTopLiteral counts venue literals');
-check($aggregators->buildTopLiteral([1, 2, 3], $pubLits, 'dcterms:publisher') === null, 'buildTopLiteral null when term absent');
+$pubLits = [
+    2 => ['dcterms:publisher' => ['brill']],        // spells a linked title: no second count on item 2
+    4 => ['dcterms:publisher' => [' BRILL ']],      // joins the linked Brill row
+    5 => ['dcterms:publisher' => ['Karthala', '']], // unreconciled name counts as text; empty ignored
+];
+check($aggregators->buildTopValues([1, 2, 3, 4, 5], $pubLinks, $pubLits, $pubItems, 'dcterms:publisher') === [
+    ['name' => 'Brill', 'value' => 3, 'itemId' => 700],
+    ['name' => 'Karthala', 'value' => 1],
+    ['name' => 'Routledge', 'value' => 1, 'itemId' => 701],
+], 'buildTopValues counts links by record and folds matching literals into them');
+check($aggregators->buildTopValues([1, 2, 3], $pubLinks, $pubLits, $pubItems, 'dcterms:isPartOf') === null, 'buildTopValues null when term absent');
+check($aggregators->countDistinctValues([1, 2, 3, 4, 5], $pubLinks, $pubLits, $pubItems, 'dcterms:publisher') === 3, 'countDistinctValues counts linked and literal publishers once each');
+
+// --- buildTopLinkedOfClass (journals and book series through the records they link) ---
+$venueItems = [
+    710 => ['title' => 'Africa Spectrum', 'class_term' => 'bibo:Journal'],
+    711 => ['title' => 'Afrika und Übersee', 'class_term' => 'bibo:Journal'],
+    720 => ['title' => 'Bayreuth African Studies', 'class_term' => 'bibo:Series'],
+    730 => ['title' => 'Edited Volume', 'class_term' => 'fabio:Book'],
+    740 => ['title' => 'Project', 'class_term' => 'foaf:Project'],
+];
+$venueLinks = [
+    1 => [['dcterms:isPartOf', 'P', 710]],
+    2 => [['dcterms:isPartOf', 'P', 710], ['dcterms:isPartOf', 'P', 740]], // a project is not a venue
+    3 => [['dcterms:isPartOf', 'P', 711]],
+    4 => [['dcterms:isPartOf', 'P', 730], ['dre:series', 'S', 720]],      // chapter: book container, series statement
+    5 => [['dcterms:isPartOf', 'P', 720], ['dre:series', 'S', 720]],      // monograph: the series twice counts once
+];
+check($aggregators->buildTopLinkedOfClass([1, 2, 3, 4, 5], $venueLinks, $venueItems, ['dcterms:isPartOf'], ['bibo:Journal']) === [
+    ['name' => 'Africa Spectrum', 'value' => 2, 'itemId' => 710],
+    ['name' => 'Afrika und Übersee', 'value' => 1, 'itemId' => 711],
+], 'buildTopLinkedOfClass ranks the Journal records articles link to');
+check($aggregators->buildTopLinkedOfClass([1, 2, 3, 4, 5], $venueLinks, $venueItems, ['dcterms:isPartOf', 'dre:series'], ['bibo:Series']) === [
+    ['name' => 'Bayreuth African Studies', 'value' => 2, 'itemId' => 720],
+], 'buildTopLinkedOfClass reaches a series through isPartOf and dre:series, once per item');
+check($aggregators->countLinkedOfClass([1, 2, 3, 4, 5], $venueLinks, $venueItems, ['dcterms:isPartOf'], ['bibo:Journal']) === 2, 'countLinkedOfClass counts distinct journals');
+check($aggregators->buildTopLinkedOfClass([1], $venueLinks, $venueItems, ['dcterms:isPartOf'], ['bibo:Series']) === null, 'buildTopLinkedOfClass null when no record of the class');
 
 // --- buildTopLinked (funders with click-through, per-item dedupe) ---
 $fundItems = [900 => ['title' => 'DFG'], 901 => ['title' => 'EXC 2052'], 902 => ['title' => '']];
@@ -294,15 +330,6 @@ check($aggregators->buildTopLinked([1, 2, 3], $fundLinks, $fundItems, 'frapo:isF
     ['name' => 'EXC 2052', 'value' => 1, 'itemId' => 901],
 ], 'buildTopLinked counts linked funders (deduped per item, untitled skipped)');
 check($aggregators->buildTopLinked([3], $fundLinks, $fundItems, 'marcrel:pup') === null, 'buildTopLinked null when term absent');
-
-// --- countDistinctLiterals (distinct venues/publishers for stat cards) ---
-$distinctLits = [
-    1 => ['dcterms:publisher' => ['Brill', ' Brill ']],   // trims to one publisher
-    2 => ['dcterms:publisher' => ['Routledge', '']],       // empty value ignored
-    3 => ['dcterms:isPartOf' => ['Antipode']],             // other term ignored
-];
-check($aggregators->countDistinctLiterals([1, 2, 3], $distinctLits, 'dcterms:publisher') === 2, 'countDistinctLiterals trims + dedupes publishers');
-check($aggregators->countDistinctLiterals([1, 2, 3], $distinctLits, 'marcrel:pup') === 0, 'countDistinctLiterals 0 when term absent');
 
 // --- countItemsLinkedTo (peer-review flag: bibo:status links to an authority item) ---
 $statusItems = [800 => ['title' => ' Peer reviewed '], 801 => ['title' => 'Not peer reviewed']];
@@ -336,6 +363,128 @@ check($pupMap[0]['name'] === 'London' && $pupMap[0]['value'] === 2, 'buildLinked
 check($pupMap[0]['items'] === [['id' => 1, 'title' => 'Border Markets'], ['id' => 2, 'title' => 'Imaginaries']], 'buildLinkedPlacesMap carries per-place publication lists');
 check($pupMap[1]['lat'] === 40.7 && $pupMap[1]['lon'] === -74.0 && $pupMap[1]['itemId'] === 501, 'buildLinkedPlacesMap keeps coordinates + location itemId');
 check($aggregators->buildLinkedPlacesMap([3], $pupLinks, $pupItems, $pupGeo, 'marcrel:pup') === null, 'buildLinkedPlacesMap null when nothing mappable (dcterms:spatial not counted)');
+
+// --- buildPublicationCountries (place of publication's country + journal's country) ---
+$pcItems = [
+    1 => ['title' => 'Chapter in London'], 2 => ['title' => 'Article in a UK journal'],
+    3 => ['title' => 'Book in Singapore'], 4 => ['title' => 'Article in a two-country journal'],
+    5 => ['title' => 'Talk'], 6 => ['title' => 'Chapter in Dar es Salaam'],
+    600 => ['title' => 'London', 'class_term' => 'dcterms:Location'],
+    601 => ['title' => 'United Kingdom', 'class_term' => 'dcterms:Location'],
+    602 => ['title' => 'Singapore', 'class_term' => 'dcterms:Location'],
+    603 => ['title' => 'United States of America', 'class_term' => 'dcterms:Location'],
+    604 => ['title' => 'Dar es Salaam', 'class_term' => 'dcterms:Location'],
+    605 => ['title' => 'Tanzania', 'class_term' => 'dcterms:Location'],
+    610 => ['title' => 'Journal of the UK', 'class_term' => 'bibo:Journal'],
+    611 => ['title' => 'Transatlantic Journal', 'class_term' => 'bibo:Journal'],
+];
+$pcGeo = [
+    600 => ['name' => 'London', 'lat' => 51.5, 'lon' => -0.13, 'itemId' => 600],
+    601 => ['name' => 'United Kingdom', 'lat' => 54.6, 'lon' => -2.0, 'itemId' => 601],
+    602 => ['name' => 'Singapore', 'lat' => 1.3, 'lon' => 103.8, 'itemId' => 602],
+    603 => ['name' => 'United States of America', 'lat' => 39.8, 'lon' => -98.6, 'itemId' => 603],
+    604 => ['name' => 'Dar es Salaam', 'lat' => -6.8, 'lon' => 39.28, 'itemId' => 604],
+];
+check(($aggregators->buildCountryIndex($pcGeo, $features)[602] ?? '') === 'Malaysia',
+    'at 1:110m Singapore falls inside Malaysia\'s outline (why countries come from the place hierarchy)');
+$pcNames = $aggregators->loadCountryNames(dirname(__DIR__) . '/asset/data/geo/countries.geojson');
+check(($pcNames['tanzania'] ?? '') === 'United Republic of Tanzania' && ($pcNames['czech republic'] ?? '') === 'Czechia',
+    'loadCountryNames maps NAME / NAME_LONG spellings to the ADMIN outline name');
+$pcLinks = [
+    1 => [['marcrel:pup', 'Place of publication', 600]],
+    2 => [['dcterms:isPartOf', 'Is part of', 610]],
+    3 => [['marcrel:pup', 'Place of publication', 602]],
+    4 => [['dcterms:isPartOf', 'Is part of', 611], ['marcrel:pup', 'Place of publication', 600]],
+    5 => [['bibo:status', 'Status', 600]],
+    6 => [['marcrel:pup', 'Place of publication', 604]],
+    600 => [['dcterms:isPartOf', 'Is part of', 601]],
+    604 => [['dcterms:isPartOf', 'Is part of', 605]],
+    610 => [['dcterms:spatial', 'Country of origin', 601]],
+    611 => [['dcterms:spatial', 'Country of origin', 601], ['dcterms:spatial', 'Country of origin', 603]],
+];
+$pc = $aggregators->buildPublicationCountries([1, 2, 3, 4, 5, 6], $pcLinks, $pcItems, $pcGeo, $pcNames);
+$pcBy = array_column($pc ?? [], null, 'country');
+check(array_keys($pcBy) === ['United Kingdom', 'Singapore', 'Tanzania', 'United States of America'], 'buildPublicationCountries sorts countries by count');
+check($pcBy['United Kingdom']['count'] === 3 && $pcBy['United Kingdom']['outline'] === 'United Kingdom',
+    'a place of publication and a journal country add up, once per publication');
+check(array_column($pcBy['United Kingdom']['items'], 'id') === [1, 2, 4], 'buildPublicationCountries lists each country\'s publications');
+check($pcBy['United States of America']['count'] === 1, 'a journal with two countries counts in both');
+check($pcBy['Tanzania']['outline'] === 'United Republic of Tanzania', 'a city takes the country it is part of, joined to its outline by name');
+check($pcBy['Singapore']['outline'] === null && $pcBy['Singapore']['lat'] === 1.3,
+    'a city-state without an outline keeps its own name and coordinates, not Malaysia');
+check($aggregators->buildPublicationCountries([5], $pcLinks, $pcItems, $pcGeo, $pcNames) === null, 'buildPublicationCountries null when nothing places a publication');
+
+// --- publicationsByPlace (the place pages' "Published here" panel) ---
+$pbp = $aggregators->publicationsByPlace([1, 2, 3, 4, 5, 6], $pcLinks, $pcItems);
+check(($pbp[600] ?? null) === [1, 4], 'publicationsByPlace: a city holds the publications naming it as their place of publication');
+check(($pbp[601] ?? null) === [1, 2, 4], 'publicationsByPlace: a country adds its cities\' publications and its journals\' articles, once each');
+check(($pbp[603] ?? null) === [4], 'publicationsByPlace: an article counts for both countries of a two-country journal');
+check(($pbp[604] ?? null) === [6] && ($pbp[605] ?? null) === [6], 'publicationsByPlace: a chapter published in Dar es Salaam also counts for Tanzania');
+check(($pbp[602] ?? null) === [3], 'publicationsByPlace: a place with no parent keeps its own publications');
+check(!isset($pbp[610]) && !isset($pbp[611]), 'publicationsByPlace: a journal record is not a place');
+check($aggregators->publicationsByPlace([5], $pcLinks, $pcItems) === [], 'publicationsByPlace: empty when nothing places a publication');
+$chainItems = [
+    1 => ['title' => 'Book in Bayreuth'], 2 => ['title' => 'Book in a loop'],
+    620 => ['title' => 'Bayreuth', 'class_term' => 'dcterms:Location'],
+    621 => ['title' => 'Bavaria', 'class_term' => 'dcterms:Location'],
+    622 => ['title' => 'Germany', 'class_term' => 'dcterms:Location'],
+    623 => ['title' => 'University of Bayreuth', 'class_term' => 'foaf:Organization'],
+    630 => ['title' => 'Loop A', 'class_term' => 'dcterms:Location'],
+    631 => ['title' => 'Loop B', 'class_term' => 'dcterms:Location'],
+];
+$chainLinks = [
+    1 => [['marcrel:pup', 'Place of publication', 620]],
+    2 => [['marcrel:pup', 'Place of publication', 630]],
+    620 => [['dcterms:isPartOf', 'Is part of', 623], ['dcterms:isPartOf', 'Is part of', 621]],
+    621 => [['dcterms:isPartOf', 'Is part of', 622]],
+    630 => [['dcterms:isPartOf', 'Is part of', 631]],
+    631 => [['dcterms:isPartOf', 'Is part of', 630]],
+];
+$chain = $aggregators->publicationsByPlace([1, 2], $chainLinks, $chainItems);
+check(($chain[620] ?? null) === [1] && ($chain[621] ?? null) === [1] && ($chain[622] ?? null) === [1],
+    'publicationsByPlace: a publication counts at every level of its place hierarchy (city, region, country)');
+check(!isset($chain[623]), 'publicationsByPlace: only a Location is a parent place (not an organisation)');
+check(($chain[630] ?? null) === [2] && ($chain[631] ?? null) === [2], 'publicationsByPlace: a loop in the place hierarchy ends the chain');
+$chainCountries = $aggregators->buildPublicationCountries([1], $chainLinks, $chainItems, [], []);
+check(($chainCountries[0]['country'] ?? '') === 'Germany', 'buildPublicationCountries: a city two levels down takes the top of its hierarchy');
+
+// --- ranked lists: whole for the bar chart's pager, capped per entity ---
+$rankItems = [];
+$rankLinks = [];
+for ($k = 0; $k < 130; $k++) {
+    $rankItems[3000 + $k] = ['title' => sprintf('Author %03d', $k)];
+    $rankLinks[$k + 1] = [['bibo:authorList', 'list of authors', 3000 + $k]];
+}
+check(count($aggregators->buildTopAuthors(range(1, 130), $rankLinks, [], $rankItems) ?? []) === 130,
+    'buildTopAuthors keeps the whole list by default (the bar chart pages it)');
+check(count($aggregators->buildTopLinked(range(1, 130), $rankLinks, $rankItems, 'bibo:authorList') ?? []) === 130,
+    'buildTopLinked keeps the whole list by default');
+check(count($aggregators->buildTopLinked(range(1, 130), $rankLinks, $rankItems, 'bibo:authorList', 5) ?? []) === 5,
+    'buildTopLinked still honours an explicit cap');
+check(count($aggregators->aggregateItems(range(1, 130), $rankItems, $rankLinks, [], [])['contributors']) === A::RANKED_LIST_CAP,
+    'a dashboard keeps RANKED_LIST_CAP contributors (five pages)');
+
+// --- places of publication are not contributors (marcrel:pup is a place) ---
+$roleItems = [13 => ['title' => 'Jane', 'template_id' => 4], 600 => ['title' => 'London'], 700 => ['title' => 'Brill']];
+$roleLinks = [
+    1 => [['bibo:authorList', 'list of authors', 13], ['marcrel:pup', 'Publication place', 600], ['dcterms:publisher', 'Publisher', 700]],
+    2 => [['marcrel:aut', 'author', 13]],
+];
+$roleAgg = $aggregators->aggregateItems([1, 2], $roleItems, $roleLinks, [], []);
+check(array_column($roleAgg['contributors'] ?? [], 'value', 'name') === ['Jane' => 2], 'contributors count publication authors and leave out the place of publication');
+check(array_column($aggregators->buildRoles([1, 2], $roleLinks, $roleItems) ?? [], 'value', 'name') === ['author' => 2], 'roles: a publication author is an author, a place is no role');
+check(array_column($aggregators->buildRolesFor(600, [1], $roleLinks) ?? [], 'value', 'name') === [], 'roles: a place of publication holds no role');
+
+// --- buildSankey follows dcterms:isPartOf to a project only, not to a journal ---
+$skItems = [13 => ['title' => 'Jane', 'template_id' => 4], 30 => ['title' => 'Project X', 'template_id' => 5],
+    31 => ['title' => 'A Journal', 'class_term' => 'bibo:Journal'], 40 => ['title' => 'Article']];
+$skLinks = [
+    1 => [['marcrel:aut', 'author', 13], ['dcterms:isPartOf', 'P', 30], ['dcterms:type', 'T', 40]],
+    2 => [['bibo:authorList', 'list of authors', 13], ['dcterms:isPartOf', 'P', 31], ['dcterms:type', 'T', 40]],
+];
+$sk = $aggregators->buildSankey([1, 2], $skLinks, $skItems);
+check(array_column($sk['nodes'] ?? [], 'name') === ['Jane', 'Project X', 'Article'] && ($sk['links'][0]['value'] ?? 0) === 1,
+    'buildSankey: the journal of an article is not drawn as its project');
 
 // --- buildTopAuthors (literal + matched person union) ---
 $authItems = [100 => ['title' => 'Daley, Patricia', 'template_id' => 4]];
@@ -663,6 +812,22 @@ $egCa = $egById[100][5];
 $egCb = $egById[101][5];
 check($egCa !== -1 && $egCb !== -1 && $egCa !== $egCb, 'buildEntityGraph: the two author clusters land in distinct communities');
 check($egById[200][5] === $egCa && $egById[20][5] === $egCa, 'buildEntityGraph: org + location share their author\'s community');
+// A place of publication is not a person, and an organisation credited as a
+// sponsor is an organisation, not a person.
+$egPlaceItems = $egItems + [
+    300 => ['title' => 'Bayreuth', 'class_term' => 'dcterms:Location'],
+    201 => ['title' => 'Sponsor Y', 'template_id' => 2, 'class_term' => 'foaf:Organization'],
+];
+$egPlaceLinks = $egLinks;
+for ($k = 0; $k < 3; $k++) {
+    $egPlaceLinks[2000 + $k] = [['bibo:authorList', 'Author', 100], ['marcrel:pup', 'Place', 300], ['marcrel:spn', 'Sponsor', 201]];
+}
+$egPlace = $aggregators->buildEntityGraph(array_merge(range(1000, $rid - 1), [2000, 2001, 2002]), $egPlaceLinks, $egPlaceItems, [10, 11], 2);
+$egPlaceById = [];
+foreach ($egPlace['nodes'] as $nd) { $egPlaceById[$nd[0]] = $nd; }
+check(!isset($egPlaceById[300]), 'buildEntityGraph: a place of publication is not an entity');
+check(($egPlaceById[201][2] ?? null) === 1, 'buildEntityGraph: an organisation credited as sponsor is typed Organisation');
+
 // Baked ForceAtlas2 positions (pseudo lng/lat) + label rank + bounds envelope.
 check(($eg['meta']['columns']['nodes'] ?? []) === ['id', 'label', 'type', 'count', 'degree', 'community', 'section', 'lng', 'lat', 'rank'],
     'buildEntityGraph: node columns advertise baked lng/lat/rank');

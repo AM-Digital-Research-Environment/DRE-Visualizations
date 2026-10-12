@@ -406,7 +406,8 @@ final class OverviewDashboardGenerator extends DashboardGenerator
     protected function generateSpatialExploration(): void
     {
         $this->log('=== Spatial Exploration ===');
-        $spatial = $this->aggregators->buildSpatialPlaces($this->geo, $this->reverseLinks, $this->countryIndex);
+        $spatial = $this->aggregators->buildSpatialPlaces($this->geo, $this->reverseLinks, $this->countryIndex,
+            array_fill_keys(array_keys($this->itemsOfClass(self::CLASS_JOURNAL)), true));
         if (!$spatial['locations']) {
             $this->log('  no geocoded, item-referenced locations — skipped');
             return;

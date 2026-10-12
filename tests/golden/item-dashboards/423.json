@@ -157,15 +157,17 @@
     ],
     "series": [
       {
-        "value": [16,5,21,15,7,6]
+        "value": [16,5,21,17,7,6]
       }
     ]
   },
   "resourceType": "person",
   "roles": [
+    {"name":"author","value":6},
     {"name":"Creator","value":2},
     {"name":"Interviewer","value":2},
     {"name":"Contributor","value":1},
+    {"name":"editor","value":1},
     {"name":"Interviewee","value":1},
     {"name":"Photographer","value":1},
     {"name":"Speaker","value":1}

@@ -121,13 +121,14 @@
     ],
     "series": [
       {
-        "value": [9,6,18,10,5,4]
+        "value": [9,6,18,12,5,4]
       }
     ]
   },
   "resourceType": "person",
   "roles": [
     {"name":"Creator","value":4},
+    {"name":"author","value":2},
     {"name":"Contributor","value":1},
     {"name":"Photographer","value":1}
   ],

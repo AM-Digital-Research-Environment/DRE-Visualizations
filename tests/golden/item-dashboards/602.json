@@ -187,6 +187,15 @@
       "value": 1
     }
   ],
+  "publishedHere": {
+    "series": [
+      {
+        "data": [1],
+        "name": "Journal article"
+      }
+    ],
+    "years": [2024]
+  },
   "resourceType": "location",
   "selfLocation": {"itemId":602,"lat":12.3714,"lon":-1.5197,"name":"Ouagadougou"},
   "subjects": [
@@ -209,7 +218,7 @@
     {"itemId":724,"name":"restitution","value":1}
   ],
   "timeline": {"2019":2,"2020":1,"2021":4,"2022":2,"2023":2,"2024":1,"2025":2},
-  "totalItems": 16,
+  "totalItems": 17,
   "types": [
     {"itemId":802,"name":"Field notes","value":4},
     {"itemId":801,"name":"Photograph","value":4},

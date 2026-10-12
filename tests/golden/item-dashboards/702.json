@@ -14,14 +14,16 @@
     {"itemId":718,"name":"mobile phones","value":1}
   ],
   "contributors": [
+    {"itemId":416,"name":"Achieng, Grace","value":2},
     {"itemId":417,"name":"Kaboré, Paul","value":2},
-    {"itemId":416,"name":"Achieng, Grace","value":1},
     {"itemId":511,"name":"Digital Research Environment Team","value":1},
     {"itemId":424,"name":"Item 424","value":1},
     {"itemId":413,"name":"Nkosi, Sipho","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
     {"itemId":402,"name":"Ouédraogo, Issa","value":1},
     {"itemId":403,"name":"Santos, Ana Clara","value":1},
-    {"itemId":407,"name":"Sawadogo, Mariam","value":1}
+    {"itemId":407,"name":"Sawadogo, Mariam","value":1},
+    {"itemId":414,"name":"Weber, Lena","value":1}
   ],
   "currentLocations": [
     {

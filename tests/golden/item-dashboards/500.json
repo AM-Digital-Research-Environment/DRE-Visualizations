@@ -11,21 +11,35 @@
       {"category":"person","itemId":424,"name":"Item 424","value":1}
     ]
   },
+  "collabNetwork": {
+    "links": [
+      {"source":"University of Bayreuth","target":"Brill","value":2},
+      {"source":"University of Bayreuth","target":"Routledge","value":2}
+    ],
+    "nodes": [
+      {"isSelf":true,"itemId":500,"name":"University of Bayreuth","value":18},
+      {"itemId":520,"name":"Brill","value":2},
+      {"itemId":521,"name":"Routledge","value":2}
+    ]
+  },
   "contributors": [
-    {"itemId":418,"name":"Ferreira, Luíza","value":2},
-    {"itemId":600,"name":"Lagos","value":2},
-    {"itemId":604,"name":"Makhanda","value":2},
-    {"itemId":416,"name":"Achieng, Grace","value":1},
+    {"itemId":418,"name":"Ferreira, Luíza","value":4},
+    {"itemId":423,"name":"Njoroge, Peter","value":4},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":3},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":3},
+    {"itemId":422,"name":"Abubakar, Hauwa","value":2},
+    {"itemId":416,"name":"Achieng, Grace","value":2},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":2},
+    {"itemId":419,"name":"Hoffmann, Felix","value":2},
+    {"itemId":409,"name":"Schmidt, Jonas","value":2},
+    {"itemId":414,"name":"Weber, Lena","value":2},
     {"itemId":400,"name":"Adeyemi, Folake","value":1},
-    {"itemId":408,"name":"Dlamini, Thandiwe","value":1},
-    {"itemId":419,"name":"Hoffmann, Felix","value":1},
-    {"itemId":606,"name":"Nairobi","value":1},
-    {"itemId":423,"name":"Njoroge, Peter","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":420,"name":"Mensah, Kwame","value":1},
     {"itemId":413,"name":"Nkosi, Sipho","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
     {"itemId":410,"name":"Oliveira, Rafael","value":1},
-    {"itemId":402,"name":"Ouédraogo, Issa","value":1},
-    {"itemId":607,"name":"Salvador","value":1},
-    {"itemId":409,"name":"Schmidt, Jonas","value":1}
+    {"itemId":403,"name":"Santos, Ana Clara","value":1}
   ],
   "currentLocations": [
     {
@@ -117,13 +131,13 @@
       {"max":28,"name":"Items"},
       {"max":7,"name":"Languages"},
       {"max":20,"name":"Subjects"},
-      {"max":15,"name":"People"},
+      {"max":21,"name":"People"},
       {"max":8,"name":"Types"},
       {"max":55,"name":"Year span"}
     ],
     "series": [
       {
-        "value": [18,6,20,14,8,6]
+        "value": [18,6,20,17,8,6]
       }
     ]
   },

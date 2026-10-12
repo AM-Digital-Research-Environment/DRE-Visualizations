@@ -231,6 +231,7 @@
   "roles": [
     {"name":"Creator","value":5},
     {"name":"Contributor","value":4},
+    {"name":"author","value":2},
     {"name":"Interviewer","value":2},
     {"name":"Interviewee","value":1},
     {"name":"Speaker","value":1}

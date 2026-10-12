@@ -165,13 +165,14 @@
     ],
     "series": [
       {
-        "value": [12,6,17,11,7,12]
+        "value": [12,6,17,12,7,12]
       }
     ]
   },
   "resourceType": "person",
   "roles": [
     {"name":"Creator","value":4},
+    {"name":"author","value":3},
     {"name":"Contributor","value":2},
     {"name":"Author","value":1},
     {"name":"Interviewee","value":1},

@@ -63,6 +63,7 @@
         genres: 'resourceTypes',
         sections: 'projects',
         series: 'playlists',
+        journals: 'venues',
         places: 'locations'
     };
 

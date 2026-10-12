@@ -72,6 +72,7 @@ Contextual charts adapted per entity type. All chart elements are clickable, lin
 | Origin > Current Location (flow map) | x | x | | | x | | | | |
 | Items by Country (choropleth) | x | x | | | | | | | |
 | Self-location MiniMap | | | | x | x | | | | |
+| Published here (publications by year and type) | | | | | x | | | | |
 | Affiliation Map | | x | x | | | | | | |
 | Profile (radar) | | x | x | x | | | | | |
 | Subject Co-occurrence (chord) | x | x | | | | | | | |
@@ -90,9 +91,17 @@ The collection / section / project overviews additionally carry a **box plot** o
 
 Dashboard layouts are resource-type-aware: each resource template has its own chart order and wide/tall configuration defined in `dashboard-layouts.js`. This prevents layout gaps in the 2-column grid by pairing half-width charts side by side.
 
+#### Journals and book series
+
+Journal records (`bibo:Journal`, template 23, item set 41268) and Series records (`bibo:Series`, template 33, item set 45028) get a dashboard of their own, built from the cluster publications that link to them: an article to its journal and a monograph to its series through `dcterms:isPartOf`, a book or chapter to its series through its series statement (`dre:series`). Only items of the Publications item set (29918) count. The dashboard shows the publications by year and type, their languages, the most published authors (linked Person records and names not yet reconciled alike), their keywords and, from five publications on, the collaboration network of their authors and editors. It uses the `venue` layout (`resourceType: "venue"`). The generator picks the records by resource class, so `templateResourceTypes` in `config/amira-profile.json` needs no entry for templates 23 and 33. On the live data every one of the 267 records (195 journals, 72 series) has at least one publication; eleven have five or more.
+
+#### Published here (Locations)
+
+A Location page adds a **Published here** panel (`publishedHere`): the cluster publications issued at the place, by year and type. A city counts the publications that name it as their place of publication (`marcrel:pup`). Every place it is part of (`dcterms:isPartOf`, up to its country) counts them too, and a country also counts the articles of the journals that come from it (the Journal record's `dcterms:spatial`) — the same two routes as the Publications map's countries (`Aggregators::publicationsByPlace`). The panel stays apart from the research-item charts, which keep counting only items whose `dcterms:spatial` or `dcterms:provenance` is the place. A place reached only by publications — a journal's country, a city named only as a place of publication — gets a dashboard with this panel alone; its `totalItems` counts the publications, because the page draws nothing when it is 0. The Collection Overview's *Locations* card still counts the places of research items only. On the live data 98 places get the panel, led by Germany (178 publications), the United Kingdom (150), the United States (90) and Bayreuth (51).
+
 ### Category Overviews (Item Pages)
 
-Parent/category items get aggregate dashboards spanning their entire item set. Each overview includes a ranked distribution bar chart of the category members plus contextual charts:
+Parent/category items get aggregate dashboards spanning their entire item set. Each overview includes a ranked distribution bar chart of the category members plus contextual charts. Like every ranked bar chart in the module, it shows twenty bars at a time with a pager under the chart (first, previous, next, last) when the list is longer; the pages share one value axis, and the CSV download and data table hold the whole list. Archive-wide lists are kept whole; per-entity lists (contributors, co-authors, co-subjects) keep the top 100 (`Aggregators::RANKED_LIST_CAP`).
 
 | Overview | Profile key | Distribution Chart | Additional Charts |
 |---|---|---|---|
@@ -152,10 +161,10 @@ A collection-wide **places map**: every geocoded location the research items ref
 
 A bibliographic analytics view over the cluster **Publications** item set (articles, books, chapters, working papers, …). Added as a **site-page block** (Admin > Sites > [site] > Pages), it loads `asset/data/item-dashboards/publications.json` and shows:
 
-- **summary stat cards** — publications, how many are **peer-reviewed** (`bibo:status`), how many carry a **full text** (EPub's open-access PDFs attached as media), publication types, languages, the people credited as **authors or editors** (distinct Person records across `bibo:authorList` + `bibo:editorList`), the distinct **venues** (journals & book series, `dcterms:isPartOf`) and **publishers** (`dcterms:publisher`), and the **places of publication** on the map — the same reusable component as the Collection Overview;
+- **summary stat cards** — publications, how many are **peer-reviewed** (`bibo:status`), how many carry a **full text** (EPub's open-access PDFs attached as media), publication types, languages, the people credited as **authors or editors** (distinct Person records across `bibo:authorList` + `bibo:editorList`), the distinct **journals** (with the number of **book series** beneath), **publishers** (Organisation links and any name not yet reconciled), and the **countries of publication** (with the number of cities named as places of publication) — the same reusable component as the Collection Overview;
 - a **publication-type** breakdown (`dcterms:type`: Article vs. Book vs. Chapter …) and publications per year;
-- a **places-of-publication map** — the cities the publications were issued in (`marcrel:pup`, linked to geocoded Location items), as clustered MapLibre bubbles sized by publication count; click a bubble to list the publications issued there. Places the sync couldn't reconcile to a Location item (literal-only values) stay off the map;
-- **top venues** (`dcterms:isPartOf`) and **top authors** (`bibo:authorList`, unifying literal names with linked Person records);
+- **where the publications appeared** — one MapLibre map with two layers. Countries are shaded by the number of publications that appeared there: an article counts for its **journal's country of origin** (`dcterms:isPartOf` → a Journal record → its `dcterms:spatial`), a book, chapter or working paper for the country its **place of publication** is part of (`marcrel:pup` → a Location → its `dcterms:isPartOf` country). A publication counts once per country; a journal with two countries counts in both. Countries come from the Location hierarchy, not from the outline a point falls in (at 1:110m Singapore lies inside Malaysia's outline); a country too small for the outlines is drawn as a disc. Over the shading, the places of publication are clustered bubbles sized by publication count. Click a country or a bubble to list its publications. Places the sync couldn't reconcile to a Location item (literal-only values) stay off the map;
+- **journals** (the Journal records articles link to through `dcterms:isPartOf`) and **book series** (Series records reached through `dcterms:isPartOf` or `dre:series`), both clickable through to the record's page; **publishers** (`dcterms:publisher` Organisation links, plus names not yet reconciled) and **top authors** (`bibo:authorList`, unifying literal names with linked Person records);
 - **funders** (`frapo:isFundedBy` — the DFG, the EXC 2052 grant, partner foundations), clickable through to each funder's page;
 - a **collaboration network** — authors and editors who appear together on a publication, with each edge coloured by the relationship (**co-authorship**, **author–editor**, or **co-editorship**) and people matched to a Person record drawn solid (click-through) versus external names muted. Up to 120 people are shown: ranked by PageRank over the whole network, chosen by growing outwards from the top-ranked person through the best-ranked collaborator of someone already shown, and grouped by multi-level Louvain over the people shown. Linked authors that are not Person records (institutes credited as authors) are left out;
 - a **keyword** word cloud and **keyword co-occurrence** chord over `dcterms:subject`, plus Languages as a pie;
@@ -281,6 +290,8 @@ Go to **Admin > Sites > [site] > Theme > Configure resource pages**:
 - **Item page**: add "Knowledge Graph" and "Visualizations" blocks
 - **Item set page**: add "Item Set Dashboard" block (optional)
 
+The Journal and Series dashboards render through the same **Visualisations** block (Linked Items Dashboard). Omeka configures resource pages per resource type, not per resource template, so Journal and Series records use the item page's blocks: on amira, check that the block is on the item page (Admin → Sites → amira → Theme → Configure resource pages → Item page). It stays hidden on any record without a dashboard.
+
 ## Pre-computing Data
 
 Visualizations load from the current private snapshot through a checked Omeka endpoint. See [Administration](docs/ADMINISTRATION.md) for the 2.29 storage migration and regeneration steps. Dashboard snapshots
@@ -349,7 +360,7 @@ DreVisualizations/
 │   │   ├── dashboard-layouts.js                  # Per-resource-type layout configs
 │   │   ├── dashboard-charts-timeline.js          # Timeline (bar by year)
 │   │   ├── dashboard-charts-pie.js               # Pie/donut chart
-│   │   ├── dashboard-charts-bar.js               # Horizontal bar chart (top 20)
+│   │   ├── dashboard-charts-bar.js               # Horizontal bar chart, paged 20 bars at a time
 │   │   ├── dashboard-charts-wordcloud.js         # Word cloud with slider
 │   │   ├── dashboard-charts-gantt.js             # Gantt chart (project timelines)
 │   │   ├── dashboard-charts-heatmap.js           # Heatmap (type × language)
@@ -406,10 +417,10 @@ DreVisualizations/
 │   │   ├── BasicChartsTrait.php        # aggregateItems, heatmap, roles, templates
 │   │   ├── TemporalChartsTrait.php     # timelines, trends, boxplot, time-chord, what's-new
 │   │   ├── NetworkChartsTrait.php      # chord, sankey, contributor/affiliation/collab/co-author networks
-│   │   ├── GeoChartsTrait.php          # choropleth, geo-flows, country index
+│   │   ├── GeoChartsTrait.php          # choropleth, geo-flows, country index, publication countries
 │   │   ├── HierarchyChartsTrait.php    # sunburst, treemap
 │   │   ├── EntityGraphTrait.php        # global multi-entity co-occurrence graph (MapLibre block)
-│   │   ├── PublicationChartsTrait.php  # venues/funders, top authors, publication stat-card counts
+│   │   ├── PublicationChartsTrait.php  # journals/series/publishers/funders, top authors, stat-card counts
 │   │   └── OverviewChartsTrait.php     # radar, stat cards, sections/section×university, cluster map
 │   ├── KnowledgeGraphs.php             # Per-item knowledge-graph builder (IDF-ranked)
 │   ├── ForceLayout.php                 # Pure-PHP ForceAtlas2 — bakes entity-network positions

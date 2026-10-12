@@ -23,7 +23,7 @@ abstract class DashboardGenerator
     protected $checkpoint;
     protected array $countryIndex = [];
 
-    /** Lazily-discovered marcrel:* role terms — see marcrelTerms(). */
+    /** Lazily-discovered marcrel:* agent role terms (places left out) — see marcrelTerms(). */
     protected ?array $marcrelTerms = null;
 
     /**
@@ -101,6 +101,14 @@ abstract class DashboardGenerator
     /** Resource classes the generators group by (the profile pins templates, not classes). */
     protected const CLASS_SECTION = 'frapo:ResearchGroup';
     protected const CLASS_ORGANISATION = 'foaf:Organization';
+    /**
+     * Journal records (template "Journal"). Their dcterms:spatial is the
+     * journal's country of origin, which the Publications map uses; it is not
+     * where a work comes from, so the place views leave journal records out.
+     */
+    protected const CLASS_JOURNAL = 'bibo:Journal';
+    /** Book and working-paper series records (template "Series"). */
+    protected const CLASS_SERIES = 'bibo:Series';
 
     /** @var array<string,array<int,array>> class term => items of that class */
     private array $byClass = [];
@@ -133,10 +141,17 @@ abstract class DashboardGenerator
         );
     }
 
-    /** @return string[] Terms that credit an organisation: funding, holding, and marcrel:* roles. */
+    /**
+     * Terms that credit an organisation: funding, holding, publishing, a
+     * corporate authorship or editorship of a publication, and the agent
+     * marcrel:* roles.
+     *
+     * @return string[]
+     */
     protected function institutionCreditTerms(): array
     {
-        return array_merge(['frapo:isFundedBy', 'dcterms:provenance'], $this->marcrelTerms());
+        return array_merge(['frapo:isFundedBy', 'dcterms:provenance', 'dcterms:publisher', 'bibo:authorList', 'bibo:editorList'],
+            $this->marcrelTerms());
     }
 
     /**
@@ -257,7 +272,7 @@ abstract class DashboardGenerator
         $terms = [];
         foreach ($this->reverseLinks as $rev) {
             foreach ($rev as $t => $_) {
-                if (str_starts_with($t, 'marcrel:')) {
+                if (Roles::isAgentRole($t)) {
                     $terms[$t] = $t;
                 }
             }

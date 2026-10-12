@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace DreVisualizations\Precompute\Aggregators;
 
+use DreVisualizations\Precompute\Roles;
+
 /**
  * Force-graph / flow builders: subject chord, contributor→project→type
  * sankey, and the contributor / affiliation / collaboration / co-author
@@ -29,11 +31,7 @@ trait NetworkChartsTrait
 
     private function isPersonContributionTerm(string $term): bool
     {
-        return str_starts_with($term, 'marcrel:')
-            || $term === 'dcterms:creator'
-            || $term === 'dcterms:contributor'
-            || $term === 'bibo:authorList'
-            || $term === 'bibo:editorList';
+        return Roles::isCredit($term);
     }
 
     /** Build a co-occurrence chord diagram for a given property. */
@@ -119,9 +117,10 @@ trait NetworkChartsTrait
                 if ($title === '') {
                     continue;
                 }
-                if (str_starts_with($term, 'marcrel:') || $term === 'dcterms:creator' || $term === 'dcterms:contributor') {
+                if (Roles::isCredit($term)) {
                     $itemContributors[] = $vrid;
-                } elseif ($term === 'dcterms:isPartOf') {
+                } elseif ($term === 'dcterms:isPartOf' && ($items[$vrid]['template_id'] ?? null) === $this->projectTemplateId()) {
+                    // Only a project: a publication's isPartOf is its journal or book.
                     $itemProject = $vrid;
                 } elseif ($term === 'dcterms:type') {
                     $itemTypes[] = $vrid;
@@ -467,7 +466,7 @@ trait NetworkChartsTrait
                 $isOrg = ($items[$vrid]['class_term'] ?? '') === 'foaf:Organization';
                 if ($term === 'dcterms:isPartOf' && ($items[$vrid]['template_id'] ?? null) === $this->projectTemplateId()) {
                     $projectId = $vrid;
-                } elseif ($isOrg && ($term === 'frapo:isFundedBy' || $term === 'dcterms:provenance' || str_starts_with($term, 'marcrel:'))) {
+                } elseif ($isOrg && ($term === 'frapo:isFundedBy' || $term === 'dcterms:provenance' || Roles::isCredit($term))) {
                     $institutions[$vrid] = true;
                 } elseif ($this->isPersonContributionTerm($term) && ($items[$vrid]['template_id'] ?? null) === $this->personTemplateId()) {
                     foreach ($links[$vrid] ?? [] as [$pTerm, , $affId]) {

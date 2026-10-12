@@ -305,6 +305,18 @@
     "parents": [],
     "year": null
   },
+  "520.json": {
+    "abstract": "",
+    "itemId": 520,
+    "parents": [],
+    "year": null
+  },
+  "521.json": {
+    "abstract": "",
+    "itemId": 521,
+    "parents": [],
+    "year": null
+  },
   "600.json": {
     "abstract": "",
     "itemId": 600,
@@ -422,6 +434,54 @@
   "619.json": {
     "abstract": "",
     "itemId": 619,
+    "parents": [],
+    "year": null
+  },
+  "640.json": {
+    "abstract": "",
+    "itemId": 640,
+    "parents": [],
+    "year": null
+  },
+  "641.json": {
+    "abstract": "",
+    "itemId": 641,
+    "parents": [],
+    "year": null
+  },
+  "642.json": {
+    "abstract": "",
+    "itemId": 642,
+    "parents": [],
+    "year": null
+  },
+  "643.json": {
+    "abstract": "",
+    "itemId": 643,
+    "parents": [],
+    "year": null
+  },
+  "644.json": {
+    "abstract": "",
+    "itemId": 644,
+    "parents": [],
+    "year": null
+  },
+  "645.json": {
+    "abstract": "",
+    "itemId": 645,
+    "parents": [],
+    "year": null
+  },
+  "646.json": {
+    "abstract": "",
+    "itemId": 646,
+    "parents": [],
+    "year": null
+  },
+  "647.json": {
+    "abstract": "",
+    "itemId": 647,
     "parents": [],
     "year": null
   },
@@ -2396,6 +2456,48 @@
       {"id":306,"name":"Digital Return of Sound Archives"}
     ],
     "year": "1962"
+  },
+  "3100.json": {
+    "abstract": "",
+    "itemId": 3100,
+    "parents": [],
+    "year": null
+  },
+  "3101.json": {
+    "abstract": "",
+    "itemId": 3101,
+    "parents": [],
+    "year": null
+  },
+  "3102.json": {
+    "abstract": "",
+    "itemId": 3102,
+    "parents": [],
+    "year": null
+  },
+  "3103.json": {
+    "abstract": "",
+    "itemId": 3103,
+    "parents": [],
+    "year": null
+  },
+  "3104.json": {
+    "abstract": "",
+    "itemId": 3104,
+    "parents": [],
+    "year": null
+  },
+  "3110.json": {
+    "abstract": "",
+    "itemId": 3110,
+    "parents": [],
+    "year": null
+  },
+  "3111.json": {
+    "abstract": "",
+    "itemId": 3111,
+    "parents": [],
+    "year": null
   },
   "3167.json": {
     "abstract": "",

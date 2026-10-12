@@ -143,9 +143,9 @@
         // 9 / 10 — the knowledge graph's two discovery-flavoured item buckets
         'related item': 9, 'related items': 9,
         'shared item': 10, 'shared items': 10,
-        // 11 — groupings
+        // 11 — groupings, the journal or series a publication appeared in among them
         'research section': 11, 'research sections': 11, 'section': 11, 'sections': 11,
-        'group': 11, 'groups': 11
+        'group': 11, 'groups': 11, 'publication venue': 11, 'publication venues': 11
     };
     var ENTITY_SLOT_FALLBACK = 8;
 

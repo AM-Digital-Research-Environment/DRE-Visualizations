@@ -3,9 +3,12 @@ declare(strict_types=1);
 
 namespace DreVisualizations\Precompute\Aggregators;
 
+use DreVisualizations\Precompute\Roles;
+
 /**
  * Geography: country point-in-polygon indexing, the per-country
- * choropleth, and the origin→current geographic flow arcs.
+ * choropleth, the countries publications appeared in, the publications
+ * issued in each place, and the origin→current geographic flow arcs.
  *
  * Composed into {@see \DreVisualizations\Precompute\Aggregators}; its methods
  * reach shared constants and helpers on that class through `self::`.
@@ -101,6 +104,145 @@ trait GeoChartsTrait
             }
         }
         return $places ? $this->sortByValueDesc(array_values($places)) : null;
+    }
+
+    /**
+     * The countries publications appeared in, each publication counted once
+     * per country. A place of publication (marcrel:pup → a city) gives the
+     * country the city is part of; a journal (dcterms:isPartOf → a bibo:Journal
+     * record) gives the journal's country of origin, its dcterms:spatial. The
+     * two cover different works — books and chapters name a place, articles a
+     * journal — so together they place nearly the whole bibliography.
+     *
+     * A place's country is the top of its Location hierarchy (city → country
+     * through dcterms:isPartOf), not the outline its coordinates fall in: at
+     * 1:110m Singapore lies inside Malaysia's outline. Rows group on the
+     * outline name a country's title matches ($countryNames, from
+     * loadCountryNames) and carry that name as `outline` for the map to shade;
+     * a country without an outline keeps its title and coordinates so the map
+     * can still mark it.
+     *
+     * @param array<string,string> $countryNames lower-cased country name or alias => outline name
+     * @return list<array{country:string,outline:?string,count:int,lat:?float,lon:?float,items:list<array{id:int,title:string}>}>|null
+     */
+    public function buildPublicationCountries(array $itemIds, array $links, array $items, array $geo, array $countryNames): ?array
+    {
+        $rows = [];
+        foreach ($itemIds as $iid) {
+            $seen = [];
+            foreach ($this->publicationPlaces($iid, $links, $items) as $locId) {
+                $countryId = $this->topPlace($locId, $links, $items);
+                $title = trim((string) ($items[$countryId]['title'] ?? ''));
+                if ($title === '') {
+                    continue;
+                }
+                $outline = $countryNames[mb_strtolower($title)] ?? null;
+                $key = $outline ?? $title;
+                if (isset($seen[$key])) {
+                    continue;
+                }
+                $seen[$key] = true;
+                $point = $geo[$countryId] ?? $geo[$locId] ?? null;
+                $rows[$key] ??= [
+                    'country' => $title, 'outline' => $outline, 'count' => 0,
+                    'lat' => $point['lat'] ?? null, 'lon' => $point['lon'] ?? null, 'items' => [],
+                ];
+                $rows[$key]['count']++;
+                $rows[$key]['items'][] = ['id' => $iid, 'title' => $items[$iid]['title'] ?? ('Item ' . $iid)];
+            }
+        }
+        if (!$rows) {
+            return null;
+        }
+        $rows = array_values($rows);
+        usort($rows, static fn ($a, $b) => ($b['count'] <=> $a['count']) ?: strnatcasecmp($a['country'], $b['country']));
+        return $rows;
+    }
+
+    /**
+     * The publications issued in each place, for the place pages: a city holds
+     * the publications that name it as their place of publication, and every
+     * place it is part of (a region, its country) holds them too; a country
+     * also holds the articles of the journals that come from it. The same two
+     * routes as buildPublicationCountries, kept at every level of the place
+     * hierarchy rather than only its top. Each place lists a publication once,
+     * in $itemIds order.
+     *
+     * @param list<int> $itemIds
+     * @return array<int,list<int>> place id => publication ids
+     */
+    public function publicationsByPlace(array $itemIds, array $links, array $items): array
+    {
+        $byPlace = [];
+        foreach ($itemIds as $iid) {
+            foreach ($this->publicationPlaces($iid, $links, $items) as $locId) {
+                foreach ($this->placeChain($locId, $links, $items) as $placeId) {
+                    $byPlace[$placeId][$iid] = true;
+                }
+            }
+        }
+        return array_map('array_keys', $byPlace);
+    }
+
+    /**
+     * Where a publication was issued, as its record names it: the place of
+     * publication (marcrel:pup → a city) and, for an article, the country of
+     * origin of its journal (dcterms:isPartOf → a bibo:Journal record's
+     * dcterms:spatial).
+     *
+     * @return list<int>
+     */
+    private function publicationPlaces(int $iid, array $links, array $items): array
+    {
+        $places = [];
+        foreach ($links[$iid] ?? [] as [$term, , $vrid]) {
+            if (Roles::isPlaceRole($term)) {
+                $places[] = $vrid;
+            } elseif ($term === 'dcterms:isPartOf' && ($items[$vrid]['class_term'] ?? '') === 'bibo:Journal') {
+                foreach ($links[$vrid] ?? [] as [$journalTerm, , $country]) {
+                    if ($journalTerm === 'dcterms:spatial') {
+                        $places[] = $country;
+                    }
+                }
+            }
+        }
+        return $places;
+    }
+
+    /** The top of a Location's dcterms:isPartOf chain (a city's country); the place itself when it has no parent. */
+    private function topPlace(int $locId, array $links, array $items): int
+    {
+        $chain = $this->placeChain($locId, $links, $items);
+        return $chain[count($chain) - 1];
+    }
+
+    /**
+     * A Location and the places it is part of, nearest first — city, region,
+     * country — following the first dcterms:isPartOf link to a Location at
+     * each step. A loop in the hierarchy ends the chain.
+     *
+     * @return non-empty-list<int>
+     */
+    private function placeChain(int $locId, array $links, array $items): array
+    {
+        $chain = [$locId];
+        $visited = [$locId => true];
+        $id = $locId;
+        while (true) {
+            $parent = null;
+            foreach ($links[$id] ?? [] as [$term, , $vrid]) {
+                if ($term === 'dcterms:isPartOf' && ($items[$vrid]['class_term'] ?? '') === 'dcterms:Location' && !isset($visited[$vrid])) {
+                    $parent = $vrid;
+                    break;
+                }
+            }
+            if ($parent === null) {
+                return $chain;
+            }
+            $visited[$parent] = true;
+            $chain[] = $parent;
+            $id = $parent;
+        }
     }
 
     /**
@@ -230,6 +372,36 @@ trait GeoChartsTrait
             }
         }
         return $features;
+    }
+
+    /**
+     * Every name a country outline answers to — ADMIN, NAME, NAME_EN and
+     * NAME_LONG, lower-cased — mapped to its ADMIN name, the one the choropleth
+     * joins on. "Tanzania", "Czech Republic" and "Serbia" are Omeka titles that
+     * differ from ADMIN.
+     *
+     * @return array<string,string>
+     */
+    public function loadCountryNames(string $geojsonPath): array
+    {
+        $names = [];
+        if (!is_readable($geojsonPath)) {
+            return $names;
+        }
+        $gj = json_decode((string) file_get_contents($geojsonPath), true);
+        foreach ($gj['features'] ?? [] as $ft) {
+            $props = $ft['properties'] ?? [];
+            $admin = $props['ADMIN'] ?? $props['NAME'] ?? null;
+            if (!is_string($admin) || $admin === '') {
+                continue;
+            }
+            foreach (['ADMIN', 'NAME', 'NAME_EN', 'NAME_LONG'] as $key) {
+                if (is_string($props[$key] ?? null) && $props[$key] !== '') {
+                    $names[mb_strtolower($props[$key])] ??= $admin;
+                }
+            }
+        }
+        return $names;
     }
 
     /** Map each location id to its country name via point-in-polygon. */

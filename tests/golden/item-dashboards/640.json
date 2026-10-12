@@ -1,0 +1,25 @@
+{
+  "contributors": [],
+  "currentLocations": [],
+  "languages": [],
+  "locations": [],
+  "publishedHere": {
+    "series": [
+      {
+        "data": [2,1,1,1],
+        "name": "Journal article"
+      },
+      {
+        "data": [0,0,1,0],
+        "name": "Monograph"
+      }
+    ],
+    "years": [2019,2020,2022,2025]
+  },
+  "resourceType": "location",
+  "selfLocation": {"itemId":640,"lat":9,"lon":8,"name":"Nigeria"},
+  "subjects": [],
+  "timeline": {},
+  "totalItems": 6,
+  "types": []
+}

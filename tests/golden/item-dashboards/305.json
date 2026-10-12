@@ -91,13 +91,13 @@
   },
   "contributors": [
     {"itemId":405,"name":"Okonkwo, Chinedu","value":5},
-    {"itemId":400,"name":"Adeyemi, Folake","value":2},
+    {"itemId":400,"name":"Adeyemi, Folake","value":3},
     {"itemId":411,"name":"Kiprop, David","value":2},
     {"itemId":413,"name":"Nkosi, Sipho","value":2},
     {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
     {"itemId":408,"name":"Dlamini, Thandiwe","value":1},
-    {"itemId":600,"name":"Lagos","value":1},
     {"itemId":420,"name":"Mensah, Kwame","value":1},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":1},
     {"itemId":402,"name":"Ouédraogo, Issa","value":1},
     {"itemId":412,"name":"Traoré, Aïssata","value":1}
   ],
@@ -334,15 +334,15 @@
   "roles": [
     {"name":"Creator","value":9},
     {"name":"Interviewer","value":3},
+    {"name":"author","value":2},
     {"name":"Contributor","value":2},
     {"name":"Interviewee","value":2},
     {"name":"Contributor (role)","value":1},
-    {"name":"Photographer","value":1},
-    {"name":"Publication place","value":1}
+    {"name":"Photographer","value":1}
   ],
   "sankey": {
     "links": [
-      {"source":"Adeyemi, Folake","target":"Urban Ecologies of Lagos","value":4},
+      {"source":"Adeyemi, Folake","target":"Urban Ecologies of Lagos","value":5},
       {"source":"Urban Ecologies of Lagos","target":"Video","value":7},
       {"source":"Urban Ecologies of Lagos","target":"Sound recording","value":9},
       {"source":"Kiprop, David","target":"Urban Ecologies of Lagos","value":4},
@@ -355,8 +355,8 @@
       {"source":"Urban Ecologies of Lagos","target":"Photograph","value":7},
       {"source":"Bayreuth Academy Working Group","target":"Urban Ecologies of Lagos","value":1},
       {"source":"Ouédraogo, Issa","target":"Urban Ecologies of Lagos","value":2},
-      {"source":"Lagos","target":"Urban Ecologies of Lagos","value":1},
-      {"source":"Urban Ecologies of Lagos","target":"Journal article","value":1}
+      {"source":"Mwangi, Wanjiru","target":"Urban Ecologies of Lagos","value":1},
+      {"source":"Urban Ecologies of Lagos","target":"Journal article","value":2}
     ],
     "nodes": [
       {"name":"Adeyemi, Folake"},
@@ -373,7 +373,7 @@
       {"name":"Photograph"},
       {"name":"Bayreuth Academy Working Group"},
       {"name":"Ouédraogo, Issa"},
-      {"name":"Lagos"},
+      {"name":"Mwangi, Wanjiru"},
       {"name":"Journal article"}
     ]
   },

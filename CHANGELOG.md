@@ -13,6 +13,33 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.34.0] - 2026-10-12
+
+### Added
+
+- **The Publications map shows countries as well as cities.** Countries are shaded by the number of publications that appeared there: an article counts for the country its journal comes from (the Journal record's country of origin), a book or chapter for the country of its place of publication. The place-of-publication bubbles sit on top. Click a country to list its publications. On the live data that places 516 of the 555 publications in 36 countries; most of the rest are talks without proceedings. A new stat card counts the countries.
+- **Journals, Book series and Publishers charts** on the Publications dashboard, ranked by the records the publications sync links: the Journal an article appeared in, the series a monograph, book or chapter belongs to (`dcterms:isPartOf` or `dre:series`), and the publisher Organisation. Bars click through to the record's page.
+- Publisher and corporate-author pages: an organisation's dashboard now covers the publications it published (`dcterms:publisher`) or is credited on as an author or editor, alongside what it funds and holds.
+- **Bar charts page through long lists.** A ranked list longer than twenty bars gets a pager under the chart (first, previous, "21–40 of 195", next, last), on every dashboard and block. Every page keeps the first page's value axis, so bar lengths compare across pages. The CSV download and the data table carry the whole list, not only the page on screen. The archive-wide lists are now complete — all 195 journals, 417 authors and 78 publishers on the Publications dashboard, and every member of a category overview (they were cut to the top 20) — and a page's contributors, co-authors and co-subjects keep 100 instead of 20 or 30.
+- **Journal and book series pages get their own dashboard.** A Journal or Series record now shows the cluster publications that link to it — articles to their journal, monographs, books and chapters to their series (`dcterms:isPartOf` or `dre:series`) — by year and type, with their languages, most published authors, keywords and, from five publications on, the collaboration network of their authors and editors (new `venue` layout). On the live data that is 267 dashboards: 195 journals and 72 series. They show through the item page's *Visualisations* block, which Journal and Series records share with every other item.
+- **Location pages show what was published there.** A new *Published here* panel counts, by year and type, the publications whose place of publication is the city, or for a country also the publications of its cities and the articles of the journals that come from it. It sits apart from the research-item charts, which keep counting only what comes from or is held at the place. A place reached only by publications gets a page with this panel alone. On the live data 98 places get the panel, led by Germany (178 publications), the United Kingdom (150) and Bayreuth (51).
+
+### Changed
+
+- The stat cards count journals and book series, and publishers, through their linked records. They counted only the text values the sync had not yet reconciled, so the more the reconciliation linked, the lower the numbers went: the Publishers card disappeared once every publisher was linked, and Venues counted 110 leftover titles.
+- The *Journals and book series* chart (`topVenues`) is replaced by the Journals and Book series charts. It ranked the unreconciled text containers only, which by now are mostly edited volumes and conference names.
+- Publication authors and editors count as contributors and roles wherever a dashboard covers publications (a subject, language or funder page, a person's roles), as `marcrel:aut` already did for research items. A publication's author is an "author" in the roles chart, not "list of authors".
+- In a knowledge graph, `dcterms:isPartOf` is typed by what it links to: a journal, series or edited book is a *Publication venue*, a person's institution an *Institution*, a city's country a *Location*; only a project is a *Project*. A publisher is an *Institution*, and two works in one book series are related like two articles in one journal.
+
+### Fixed
+
+- **Places of publication were treated as people.** Every builder matched contributor roles on the `marcrel:` prefix, so `marcrel:pup` (place of publication) counted London, Bayreuth and Lagos as contributors on funder, subject and language pages, added a "Publication place" role, and drew them as *Person* nodes in the entity network (Discursive Communities). One rule (`Roles`) now decides which properties credit an agent, and leaves the place roles out.
+- In the entity network, an organisation credited in a role (a sponsor, a corporate author) or holding an item is drawn as an *Organisation*, not a *Person* or a *Location*.
+- Journal records carry their country of origin in `dcterms:spatial`. Spatial Exploration and Location pages no longer read it as a place a research item comes from, which would have added 70 journal records to the United Kingdom.
+- The Sankey (contributor → project → type) followed any `dcterms:isPartOf`, so a publication's journal would have been drawn as its project.
+
+**Upgrade:** run **Regenerate now** after deploying; most of the changes are in the precomputed data. The artifact schema is unchanged, so the published snapshot keeps being served until then, without the new charts. The Journal, Series and place dashboards show through the item page's *Visualisations* block (Admin → Sites → [site] → Theme → Configure resource pages → Item page), so check it is placed there.
+
 ## [2.33.0] - 2026-10-12
 
 ### Added

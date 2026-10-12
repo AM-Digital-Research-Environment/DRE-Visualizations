@@ -15,11 +15,14 @@
     {"itemId":719,"name":"sound recording","value":1}
   ],
   "contributors": [
-    {"itemId":402,"name":"Ouédraogo, Issa","value":5},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":6},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":3},
     {"itemId":411,"name":"Kiprop, David","value":3},
+    {"itemId":423,"name":"Njoroge, Peter","value":3},
     {"itemId":416,"name":"Achieng, Grace","value":2},
     {"itemId":511,"name":"Digital Research Environment Team","value":2},
-    {"itemId":408,"name":"Dlamini, Thandiwe","value":2},
+    {"itemId":419,"name":"Hoffmann, Felix","value":2},
+    {"itemId":417,"name":"Kaboré, Paul","value":2},
     {"itemId":406,"name":"Mwangi, Wanjiru","value":2},
     {"itemId":410,"name":"Oliveira, Rafael","value":2},
     {"itemId":407,"name":"Sawadogo, Mariam","value":2},
@@ -27,11 +30,7 @@
     {"itemId":401,"name":"Bakari, Amina","value":1},
     {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
     {"itemId":421,"name":"Diallo, Fatoumata","value":1},
-    {"itemId":419,"name":"Hoffmann, Felix","value":1},
-    {"itemId":417,"name":"Kaboré, Paul","value":1},
-    {"itemId":600,"name":"Lagos","value":1},
-    {"itemId":420,"name":"Mensah, Kwame","value":1},
-    {"itemId":423,"name":"Njoroge, Peter","value":1}
+    {"itemId":420,"name":"Mensah, Kwame","value":1}
   ],
   "currentLocations": [
     {

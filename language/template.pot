@@ -23,6 +23,10 @@ msgstr ""
 msgid "{count} or more"
 msgstr ""
 
+#: config/client-strings.json:rangeOfTotal
+msgid "{from}–{to} of {total}"
+msgstr ""
+
 #: config/client-strings.json:compareSideA
 msgid "{type} A"
 msgstr ""
@@ -172,6 +176,10 @@ msgstr ""
 
 #: src/Site/BlockLayout/Publications.php:21
 msgid "Bibliographic analytics across all publications (articles, books, chapters, …): by-template breakdown, top venues and authors, co-author network and keyword co-occurrence. No configuration needed."
+msgstr ""
+
+#: config/client-strings.json:chartLabel.topSeries
+msgid "Book series"
 msgstr ""
 
 #: view/common/block-layout/featured-collections.phtml:115
@@ -563,6 +571,10 @@ msgstr ""
 msgid "Find a record on the map"
 msgstr ""
 
+#: config/client-strings.json:firstPage
+msgid "First page"
+msgstr ""
+
 #: config/client-strings.json:flow
 msgid "Flow"
 msgstr ""
@@ -853,8 +865,8 @@ msgstr ""
 msgid "Items:"
 msgstr ""
 
-#: config/client-strings.json:chartLabel.topVenues
-msgid "Journals and book series"
+#: config/client-strings.json:chartLabel.topJournals
+msgid "Journals"
 msgstr ""
 
 #: config/client-strings.json:kgMinStrength
@@ -907,6 +919,10 @@ msgstr ""
 
 #: config/client-strings.json:whatsNewLast
 msgid "Last"
+msgstr ""
+
+#: config/client-strings.json:lastPage
+msgid "Last page"
 msgstr ""
 
 #: config/client-strings.json:kgMaxCommonalityHelp
@@ -1093,6 +1109,10 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
+#: config/client-strings.json:nextPage
+msgid "Next page"
+msgstr ""
+
 #: view/dre-visualizations/admin/maintenance/index.phtml:41
 msgid "No canonical public site is configured. Open this module’s configuration, select a public site, and save before regenerating data."
 msgstr ""
@@ -1247,6 +1267,14 @@ msgstr ""
 msgid "Other"
 msgstr ""
 
+#: config/client-strings.json:pages
+msgid "Pages"
+msgstr ""
+
+#: config/client-strings.json:pagesOf
+msgid "Pages: {title}"
+msgstr ""
+
 #: config/client-strings.json:compareNounPeople
 msgid "people"
 msgstr ""
@@ -1342,6 +1370,10 @@ msgstr ""
 msgid "Place of origin"
 msgstr ""
 
+#: config/client-strings.json:placeOfPublication
+msgid "Place of publication"
+msgstr ""
+
 #: config/client-strings.json:spatialPlaceOther
 msgid "places"
 msgstr ""
@@ -1374,6 +1406,10 @@ msgstr ""
 
 #: config/client-strings.json:previous
 msgid "Previous"
+msgstr ""
+
+#: config/client-strings.json:previousPage
+msgid "Previous page"
 msgstr ""
 
 #: config/client-strings.json:chartLabel.radar
@@ -1447,6 +1483,14 @@ msgstr ""
 msgid "Publications"
 msgstr ""
 
+#: config/client-strings.json:chartDescription.publishedHere
+msgid "Publications issued here, counted by year and split by type. A book or chapter counts for the place of publication it names and for the country that place is in; an article counts for the country its journal comes from."
+msgstr ""
+
+#: config/client-strings.json:publicationsPerCountry
+msgid "Publications per country"
+msgstr ""
+
 #: view/dre-visualizations/admin/maintenance/index.phtml:51
 msgid "Published data is up to date (generated %s)."
 msgstr ""
@@ -1455,8 +1499,16 @@ msgstr ""
 msgid "Published data was generated %1$s and stays online. Edits since %2$s are not in it yet; it refreshes automatically once edits have been quiet for five minutes."
 msgstr ""
 
+#: config/client-strings.json:chartLabel.publishedHere
+msgid "Published here"
+msgstr ""
+
 #: src/Controller/Admin/MaintenanceController.php:99
 msgid "Published visualizations withdrawn. They stay hidden until you regenerate."
+msgstr ""
+
+#: config/client-strings.json:chartLabel.topPublishers
+msgid "Publishers"
 msgstr ""
 
 #: config/client-strings.json:boxplotQ1
@@ -1861,6 +1913,10 @@ msgstr ""
 msgid "The authors credited on the most publications, whether they have a record here or appear as a name only."
 msgstr ""
 
+#: config/client-strings.json:chartDescription.topSeries
+msgid "The book and working-paper series these publications belong to most often."
+msgstr ""
+
 #: config/client-strings.json:chartDescription.languageTimeline
 msgid "The changing mix of languages from year to year."
 msgstr ""
@@ -1889,8 +1945,8 @@ msgstr ""
 msgid "The image-heavy item set to display as a photo gallery. Ignored when a Featured collection is selected above."
 msgstr ""
 
-#: config/client-strings.json:chartDescription.topVenues
-msgid "The journals and book series these publications appear in most often."
+#: config/client-strings.json:chartDescription.topJournals
+msgid "The journals these publications appear in most often."
 msgstr ""
 
 #: config/client-strings.json:chartDescription.languages
@@ -1923,6 +1979,10 @@ msgstr ""
 
 #: config/client-strings.json:chartDescription.coAuthors
 msgid "The people who appear alongside this person most often."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.topPublishers
+msgid "The publishers that issued the most of these publications."
 msgstr ""
 
 #: config/client-strings.json:chartDescription.clusterPartners

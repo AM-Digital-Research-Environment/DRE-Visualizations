@@ -1,0 +1,29 @@
+{
+  "contributors": [],
+  "currentLocations": [],
+  "languages": [],
+  "locations": [],
+  "publishedHere": {
+    "series": [
+      {
+        "data": [0,0,1,0,0],
+        "name": "Book chapter"
+      },
+      {
+        "data": [1,2,0,1,1],
+        "name": "Journal article"
+      },
+      {
+        "data": [0,1,0,0,0],
+        "name": "Monograph"
+      }
+    ],
+    "years": [2019,2020,2023,2024,2025]
+  },
+  "resourceType": "location",
+  "selfLocation": {"itemId":642,"lat":-14,"lon":-53,"name":"Brazil"},
+  "subjects": [],
+  "timeline": {},
+  "totalItems": 7,
+  "types": []
+}

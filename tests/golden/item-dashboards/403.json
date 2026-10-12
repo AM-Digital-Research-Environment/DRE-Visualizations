@@ -229,13 +229,14 @@
     ],
     "series": [
       {
-        "value": [20,7,20,14,7,13]
+        "value": [20,7,20,15,7,13]
       }
     ]
   },
   "resourceType": "person",
   "roles": [
     {"name":"Creator","value":12},
+    {"name":"author","value":2},
     {"name":"Contributor","value":2},
     {"name":"Author","value":1},
     {"name":"Interviewee","value":1},

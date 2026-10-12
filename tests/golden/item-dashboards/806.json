@@ -1,6 +1,11 @@
 {
   "contributors": [
-    {"itemId":607,"name":"Salvador","value":1}
+    {"itemId":423,"name":"Njoroge, Peter","value":2},
+    {"itemId":400,"name":"Adeyemi, Folake","value":1},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
+    {"itemId":419,"name":"Hoffmann, Felix","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
+    {"itemId":414,"name":"Weber, Lena","value":1}
   ],
   "currentLocations": [],
   "languages": [

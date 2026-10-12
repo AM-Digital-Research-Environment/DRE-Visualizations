@@ -206,13 +206,14 @@
     ],
     "series": [
       {
-        "value": [16,6,20,17,5,5]
+        "value": [16,6,20,16,5,5]
       }
     ]
   },
   "resourceType": "person",
   "roles": [
     {"name":"Interviewee","value":4},
+    {"name":"author","value":3},
     {"name":"Creator","value":3},
     {"name":"Speaker","value":3},
     {"name":"Contributor","value":1},

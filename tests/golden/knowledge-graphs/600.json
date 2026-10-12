@@ -4,6 +4,7 @@
     {"name":"Research Item"}
   ],
   "edges": [
+    {"name":"Is Part Of","source":"item_600","target":"resource_640"},
     {"name":"references","source":"item_1001","target":"item_600"},
     {"name":"references","source":"item_1020","target":"item_600"},
     {"name":"references","source":"item_1044","target":"item_600"},
@@ -36,6 +37,7 @@
   ],
   "nodes": [
     {"category":0,"community":-1,"id":"item_600","isCenter":true,"itemId":600,"name":"Lagos","symbolSize":45},
+    {"category":0,"community":-1,"freqPct":0.3,"id":"resource_640","itemId":640,"name":"Nigeria","symbolSize":22},
     {"category":1,"community":-1,"id":"item_1001","itemId":1001,"name":"Festival radio memory voices (2)","symbolSize":16},
     {"category":1,"community":-1,"id":"item_1020","itemId":1020,"name":"Migration ritual memory (21)","symbolSize":16},
     {"category":1,"community":-1,"id":"item_1044","itemId":1044,"name":"School harvest city family (45)","symbolSize":16},

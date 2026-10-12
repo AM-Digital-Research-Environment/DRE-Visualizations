@@ -53,27 +53,26 @@
     {"itemId":412,"name":"Traoré, Aïssata","value":11},
     {"itemId":418,"name":"Ferreira, Luíza","value":9},
     {"itemId":419,"name":"Hoffmann, Felix","value":9},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":9},
     {"itemId":410,"name":"Oliveira, Rafael","value":9},
-    {"itemId":406,"name":"Mwangi, Wanjiru","value":8},
     {"itemId":408,"name":"Dlamini, Thandiwe","value":7},
     {"itemId":413,"name":"Nkosi, Sipho","value":7},
     {"itemId":405,"name":"Okonkwo, Chinedu","value":7},
     {"itemId":422,"name":"Abubakar, Hauwa","value":6},
     {"itemId":423,"name":"Njoroge, Peter","value":6},
     {"itemId":407,"name":"Sawadogo, Mariam","value":6},
+    {"itemId":400,"name":"Adeyemi, Folake","value":5},
     {"itemId":415,"name":"Balogun, Tunde","value":5},
     {"itemId":1219,"name":"DECCA West Africa","value":5},
     {"itemId":417,"name":"Kaboré, Paul","value":5},
     {"itemId":404,"name":"Müller, Katharina","value":5},
-    {"itemId":400,"name":"Adeyemi, Folake","value":4},
     {"itemId":510,"name":"Bayreuth Academy Working Group","value":4},
     {"itemId":420,"name":"Mensah, Kwame","value":4},
     {"itemId":414,"name":"Weber, Lena","value":4},
     {"itemId":424,"name":"Item 424","value":3},
     {"itemId":1222,"name":"Jambo Records","value":3},
     {"itemId":511,"name":"Digital Research Environment Team","value":2},
-    {"itemId":409,"name":"Schmidt, Jonas","value":2},
-    {"itemId":600,"name":"Lagos","value":1}
+    {"itemId":409,"name":"Schmidt, Jonas","value":2}
   ],
   "currentLocations": [
     {
@@ -598,7 +597,7 @@
     {"name":"Photographer","value":21},
     {"name":"Production company","value":8},
     {"name":"Contributor (role)","value":6},
-    {"name":"Publication place","value":1}
+    {"name":"author","value":2}
   ],
   "stackedTimeline": {
     "series": [

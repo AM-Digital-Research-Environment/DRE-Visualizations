@@ -136,8 +136,8 @@
     {"itemId":417,"name":"Kaboré, Paul","value":5},
     {"itemId":411,"name":"Kiprop, David","value":5},
     {"itemId":405,"name":"Okonkwo, Chinedu","value":5},
+    {"itemId":400,"name":"Adeyemi, Folake","value":4},
     {"itemId":408,"name":"Dlamini, Thandiwe","value":4},
-    {"itemId":400,"name":"Adeyemi, Folake","value":3},
     {"itemId":424,"name":"Item 424","value":3},
     {"itemId":407,"name":"Sawadogo, Mariam","value":3},
     {"itemId":422,"name":"Abubakar, Hauwa","value":2},
@@ -145,13 +145,12 @@
     {"itemId":401,"name":"Bakari, Amina","value":2},
     {"itemId":510,"name":"Bayreuth Academy Working Group","value":2},
     {"itemId":420,"name":"Mensah, Kwame","value":2},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":2},
     {"itemId":423,"name":"Njoroge, Peter","value":2},
     {"itemId":413,"name":"Nkosi, Sipho","value":2},
     {"itemId":412,"name":"Traoré, Aïssata","value":2},
     {"itemId":415,"name":"Balogun, Tunde","value":1},
     {"itemId":511,"name":"Digital Research Environment Team","value":1},
-    {"itemId":600,"name":"Lagos","value":1},
-    {"itemId":406,"name":"Mwangi, Wanjiru","value":1},
     {"itemId":404,"name":"Müller, Katharina","value":1},
     {"itemId":409,"name":"Schmidt, Jonas","value":1}
   ],
@@ -584,14 +583,14 @@
     {"name":"Interviewee","value":9},
     {"name":"Photographer","value":9},
     {"name":"Contributor (role)","value":3},
-    {"name":"Publication place","value":1}
+    {"name":"author","value":2}
   ],
   "sankey": {
     "links": [
       {"source":"Kaboré, Paul","target":"Kinship Across Borders","value":4},
       {"source":"Kinship Across Borders","target":"Field notes","value":8},
       {"source":"Kinship Across Borders","target":"Photograph","value":3},
-      {"source":"Adeyemi, Folake","target":"Urban Ecologies of Lagos","value":4},
+      {"source":"Adeyemi, Folake","target":"Urban Ecologies of Lagos","value":5},
       {"source":"Urban Ecologies of Lagos","target":"Video","value":3},
       {"source":"Urban Ecologies of Lagos","target":"Sound recording","value":9},
       {"source":"Kiprop, David","target":"Urban Ecologies of Lagos","value":4},
@@ -621,7 +620,8 @@
       {"source":"Urban Ecologies of Lagos","target":"Photograph","value":6},
       {"source":"Ferreira, Luíza","target":"Kinship Across Borders","value":1},
       {"source":"Kaboré, Paul","target":"Afro-Brazilian Memory Work","value":1},
-      {"source":"Ouédraogo, Issa","target":"Urban Ecologies of Lagos","value":2}
+      {"source":"Ouédraogo, Issa","target":"Urban Ecologies of Lagos","value":2},
+      {"source":"Urban Ecologies of Lagos","target":"Journal article","value":1}
     ],
     "nodes": [
       {"name":"Kaboré, Paul"},
@@ -641,7 +641,8 @@
       {"name":"Ferreira, Luíza"},
       {"name":"Ouédraogo, Issa"},
       {"name":"Oliveira, Rafael"},
-      {"name":"Okonkwo, Chinedu"}
+      {"name":"Okonkwo, Chinedu"},
+      {"name":"Journal article"}
     ]
   },
   "stackedTimeline": {

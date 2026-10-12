@@ -5,6 +5,13 @@ namespace DreVisualizations\Precompute;
 
 final class EntityDashboardGenerator extends DashboardGenerator
 {
+    /**
+     * Publications a journal or series needs before its collaboration network
+     * is drawn: below that the network is a few separate pairs, which the
+     * top-authors chart already shows.
+     */
+    private const VENUE_NETWORK_MIN_PUBLICATIONS = 5;
+
     public function generate(): int
     {
         $this->generateSections();
@@ -13,6 +20,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
         $this->generateInstitutions();
         $this->generateLocations();
         $this->generateSubjects();
+        $this->generateVenues();
         $this->generateByItemSet($this->profile->itemSet('resourceType'), 'dcterms:type', 'Resource Types', 'authority', ['types']);
         $this->generateByItemSet($this->profile->itemSet('language'), 'dcterms:language', 'Languages', 'authority', ['languages'], 'languages-index.json');
         $this->generateByItemSet($this->profile->itemSet('genre'), 'dcterms:format', 'Genres', 'genre', [], 'genres-index.json');
@@ -172,7 +180,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
             usort($coauthors, static fn ($a, $b) => ($b['value'] <=> $a['value'])
                 ?: strcmp((string) $a['name'], (string) $b['name'])
                 ?: ((int) $a['itemId'] <=> (int) $b['itemId']));
-            $dashboard['coAuthors'] = array_slice($coauthors, 0, 20);
+            $dashboard['coAuthors'] = array_slice($coauthors, 0, Aggregators::RANKED_LIST_CAP);
             unset($dashboard['contributors']);
 
             if ($roles = $this->aggregators->buildRolesFor($pid, $itemIds, $this->links)) {
@@ -248,13 +256,28 @@ final class EntityDashboardGenerator extends DashboardGenerator
     {
         $locs = $this->itemsWhere(fn ($info) => ($info['template_id'] ?? null) === $this->profile->template('location'));
         $this->log('=== Locations (' . count($locs) . ') ===');
+        // The publications issued at each place: a city's are those naming it as
+        // their place of publication; a country adds those of its cities and the
+        // articles of the journals that come from it. A work was issued there, it
+        // does not come from there, so these stay out of the research-item charts
+        // and get a panel of their own.
+        $publishedHere = $this->aggregators->publicationsByPlace($this->publicationIds(), $this->links, $this->items);
         $withItems = 0;
         foreach ($locs as $lid => $linfo) {
-            $itemIds = $this->linkingItems($lid, ['dcterms:spatial', 'dcterms:provenance']);
-            if (!$itemIds) {
+            $itemIds = array_values(array_filter(
+                $this->linkingItems($lid, ['dcterms:spatial', 'dcterms:provenance']),
+                fn (int $iid) => ($this->items[$iid]['class_term'] ?? '') !== self::CLASS_JOURNAL
+            ));
+            $pubIds = $publishedHere[$lid] ?? [];
+            $pubTimeline = $pubIds
+                ? $this->aggregators->buildStackedTimeline($pubIds, $this->links, $this->items, $this->itemYear)
+                : null;
+            if (!$itemIds && !$pubTimeline) {
                 continue;
             }
-            $withItems++;
+            if ($itemIds) {
+                $withItems++;
+            }
             $dashboard = $this->aggregators->aggregateItems($itemIds, $this->items, $this->links, $this->itemYear, $this->geo);
             if (isset($this->geo[$lid])) {
                 $g = $this->geo[$lid];
@@ -262,6 +285,13 @@ final class EntityDashboardGenerator extends DashboardGenerator
             }
             if ($geoFlows = $this->aggregators->buildGeoFlows($itemIds, $this->links, $this->items, $this->geo)) {
                 $dashboard['geoFlows'] = $geoFlows;
+            }
+            if ($pubTimeline) {
+                $dashboard['publishedHere'] = $pubTimeline;
+                // The page draws nothing when totalItems is 0, so it counts the
+                // publications too: a place of publication with no research
+                // items of its own still shows its panel.
+                $dashboard['totalItems'] = count(array_unique(array_merge($itemIds, $pubIds)));
             }
             $dashboard['resourceType'] = $this->profile->templateResourceType($this->items[$lid]['template_id'] ?? null) ?? 'location';
             $this->save($lid, $dashboard);
@@ -293,13 +323,66 @@ final class EntityDashboardGenerator extends DashboardGenerator
             usort($cosubs, static fn ($a, $b) => ($b['value'] <=> $a['value'])
                 ?: strcmp((string) $a['name'], (string) $b['name'])
                 ?: ((int) $a['itemId'] <=> (int) $b['itemId']));
-            $dashboard['coSubjects'] = array_slice($cosubs, 0, 30);
+            $dashboard['coSubjects'] = array_slice($cosubs, 0, Aggregators::RANKED_LIST_CAP);
             unset($dashboard['subjects']);
             $dashboard['resourceType'] = 'authority';
             $this->save($sid, $dashboard);
         }
 
         $this->saveIndex('subjects-index.json', $index);
+    }
+
+    /**
+     * Journal and Series records, each from the publications that link to it:
+     * an article to its journal and a monograph to its series through
+     * dcterms:isPartOf, a book or chapter to its series through its series
+     * statement (dre:series). Only publications count: the dashboard is the
+     * bibliography's view of the venue.
+     */
+    protected function generateVenues(): void
+    {
+        $venues = $this->itemsOfClass(self::CLASS_JOURNAL) + $this->itemsOfClass(self::CLASS_SERIES);
+        $this->log('=== Journals and series (' . count($venues) . ') ===');
+        $isPublication = array_fill_keys($this->publicationIds(), true);
+        foreach ($venues as $vid => $vinfo) {
+            $itemIds = array_values(array_filter(
+                $this->linkingItems($vid, ['dcterms:isPartOf', 'dre:series']),
+                static fn (int $iid) => isset($isPublication[$iid])
+            ));
+            if (!$itemIds) {
+                continue;
+            }
+            $dashboard = $this->aggregators->aggregateItems($itemIds, $this->items, $this->links, $this->itemYear, $this->geo);
+            // Top authors replaces the linked-people ranking: it also counts the
+            // author names not reconciled to a Person record.
+            unset($dashboard['contributors']);
+            if ($v = $this->aggregators->buildStackedTimeline($itemIds, $this->links, $this->items, $this->itemYear)) {
+                $dashboard['stackedTimeline'] = $v;
+            }
+            if ($v = $this->aggregators->buildTopAuthors($itemIds, $this->links, $this->literals, $this->items, Aggregators::RANKED_LIST_CAP)) {
+                $dashboard['topAuthors'] = $v;
+            }
+            if (count($itemIds) >= self::VENUE_NETWORK_MIN_PUBLICATIONS
+                && ($v = $this->aggregators->buildCoAuthorNetwork($itemIds, $this->links, $this->literals, $this->items))) {
+                $dashboard['coAuthorNetwork'] = $v;
+            }
+            $where = ($vinfo['class_term'] ?? '') === self::CLASS_JOURNAL
+                ? 'appeared in this journal' : 'belong to this series';
+            $dashboard['builders'] = ['languages' => 'buildPieChart'];
+            $dashboard['labels'] = [
+                'stackedTimeline' => 'Publications by year and type',
+                'coAuthorNetwork' => 'Collaboration network',
+                'subjects' => 'Keywords',
+            ];
+            $dashboard['descriptions'] = [
+                'stackedTimeline' => 'The publications recorded here that ' . $where . ', counted by year and split by type.',
+                'languages' => 'The languages these publications are written in.',
+                'coAuthorNetwork' => 'Authors and editors are linked when they appear on the same publication. Circle size follows how well connected a person is, and circle colour marks groups who publish together more often than with others. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.',
+                'subjects' => 'The keywords assigned to these publications most often.',
+            ];
+            $dashboard['resourceType'] = 'venue';
+            $this->save($vid, $dashboard);
+        }
     }
 
     protected function generateByItemSet(int $setId, string $term, string $label, string $resourceType, array $excludeKeys, ?string $indexFile = null): void

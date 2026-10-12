@@ -109,12 +109,13 @@
     ],
     "series": [
       {
-        "value": [12,7,12,8,8,6]
+        "value": [12,7,12,10,8,6]
       }
     ]
   },
   "resourceType": "person",
   "roles": [
+    {"name":"author","value":5},
     {"name":"Creator","value":4},
     {"name":"Contributor","value":1},
     {"name":"Interviewee","value":1},

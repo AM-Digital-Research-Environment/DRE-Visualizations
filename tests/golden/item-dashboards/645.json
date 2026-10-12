@@ -1,0 +1,21 @@
+{
+  "contributors": [],
+  "currentLocations": [],
+  "languages": [],
+  "locations": [],
+  "publishedHere": {
+    "series": [
+      {
+        "data": [2,1,1,1,1,2],
+        "name": "Journal article"
+      }
+    ],
+    "years": [2019,2020,2021,2022,2023,2025]
+  },
+  "resourceType": "location",
+  "selfLocation": {"itemId":645,"lat":51,"lon":10,"name":"Germany"},
+  "subjects": [],
+  "timeline": {},
+  "totalItems": 8,
+  "types": []
+}

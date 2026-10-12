@@ -1,0 +1,21 @@
+{
+  "contributors": [],
+  "currentLocations": [],
+  "languages": [],
+  "locations": [],
+  "publishedHere": {
+    "series": [
+      {
+        "data": [1,1],
+        "name": "Journal article"
+      }
+    ],
+    "years": [2019,2023]
+  },
+  "resourceType": "location",
+  "selfLocation": {"itemId":643,"lat":0.1,"lon":38,"name":"Kenya"},
+  "subjects": [],
+  "timeline": {},
+  "totalItems": 2,
+  "types": []
+}

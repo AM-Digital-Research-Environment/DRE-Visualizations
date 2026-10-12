@@ -151,6 +151,15 @@
       "value": 1
     }
   ],
+  "publishedHere": {
+    "series": [
+      {
+        "data": [1,1],
+        "name": "Journal article"
+      }
+    ],
+    "years": [2019,2023]
+  },
   "resourceType": "location",
   "selfLocation": {"itemId":606,"lat":-1.2921,"lon":36.8219,"name":"Nairobi"},
   "subjects": [
@@ -171,7 +180,7 @@
     {"itemId":720,"name":"pilgrimage","value":1}
   ],
   "timeline": {"1960":1,"1961":1,"1962":1,"2019":1,"2021":1,"2022":2,"2023":1,"2025":1},
-  "totalItems": 11,
+  "totalItems": 13,
   "types": [
     {"itemId":802,"name":"Field notes","value":4},
     {"itemId":800,"name":"Interview","value":3},

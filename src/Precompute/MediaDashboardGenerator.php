@@ -30,8 +30,28 @@ final class MediaDashboardGenerator extends DashboardGenerator
         if ($v = $this->aggregators->buildLinkedPlacesMap($pubs, $this->links, $this->items, $this->geo, 'marcrel:pup')) {
             $dashboard['locations'] = $v;
         }
-        if ($v = $this->aggregators->buildTopLiteral($pubs, $this->literals, 'dcterms:isPartOf')) {
-            $dashboard['topVenues'] = $v;
+        // The countries the publications appeared in — the place of publication's
+        // country for books and chapters, the journal's country of origin for
+        // articles — shaded under those city bubbles. An overlay key the map
+        // reads from the whole dashboard, like geoFlows, not a panel of its own.
+        $countryNames = $this->aggregators->loadCountryNames($this->countriesGeojson);
+        if ($v = $this->aggregators->buildPublicationCountries($pubs, $this->links, $this->items, $this->geo, $countryNames)) {
+            $dashboard['publicationCountries'] = $v;
+        }
+        // Venues through the records the sync links them to: the Journal an
+        // article appeared in (dcterms:isPartOf) and the book series a work
+        // belongs to (dcterms:isPartOf for a monograph, dre:series for a book's
+        // or chapter's series statement). Unreconciled containers stay literals
+        // — mostly edited volumes held nowhere else here — and are not ranked.
+        if ($v = $this->aggregators->buildTopLinkedOfClass($pubs, $this->links, $this->items, ['dcterms:isPartOf'], ['bibo:Journal'])) {
+            $dashboard['topJournals'] = $v;
+        }
+        if ($v = $this->aggregators->buildTopLinkedOfClass($pubs, $this->links, $this->items, ['dcterms:isPartOf', 'dre:series'], ['bibo:Series'])) {
+            $dashboard['topSeries'] = $v;
+        }
+        // Publishers: Organisation links, plus any name not yet reconciled.
+        if ($v = $this->aggregators->buildTopValues($pubs, $this->links, $this->literals, $this->items, 'dcterms:publisher')) {
+            $dashboard['topPublishers'] = $v;
         }
         if ($v = $this->aggregators->buildTopAuthors($pubs, $this->links, $this->literals, $this->items)) {
             $dashboard['topAuthors'] = $v;
@@ -73,15 +93,16 @@ final class MediaDashboardGenerator extends DashboardGenerator
                 }
             }
         }
-        // Bibliographic breadth cards: distinct venues (journals & book series,
-        // dcterms:isPartOf) and publishers (dcterms:publisher) are literal EP3
-        // fields; places of publication counts what the map above renders. The
-        // peer-review flag is NOT a literal — the sync links bibo:status to a
-        // "Peer reviewed" / "Not peer reviewed" authority item — so it is
-        // counted through the links map, on the exact title (no substring hit
-        // for "Not peer reviewed").
-        $venueCount = $this->aggregators->countDistinctLiterals($pubs, $this->literals, 'dcterms:isPartOf');
-        $publisherCount = $this->aggregators->countDistinctLiterals($pubs, $this->literals, 'dcterms:publisher');
+        // Bibliographic breadth cards: distinct journals and book series (the
+        // linked records the charts above rank), publishers (links and names
+        // alike), and the countries and cities the map shows. The peer-review
+        // flag is a link too — the sync links bibo:status to a "Peer reviewed" /
+        // "Not peer reviewed" authority item — counted on the exact title (no
+        // substring hit for "Not peer reviewed").
+        $journalCount = $this->aggregators->countLinkedOfClass($pubs, $this->links, $this->items, ['dcterms:isPartOf'], ['bibo:Journal']);
+        $seriesCount = $this->aggregators->countLinkedOfClass($pubs, $this->links, $this->items, ['dcterms:isPartOf', 'dre:series'], ['bibo:Series']);
+        $publisherCount = $this->aggregators->countDistinctValues($pubs, $this->links, $this->literals, $this->items, 'dcterms:publisher');
+        $cityCount = count($dashboard['locations'] ?? []);
         $peerReviewed = $this->aggregators->countItemsLinkedTo($pubs, $this->links, $this->items, 'bibo:status', 'Peer reviewed');
         // EPub deposits carry their open-access PDF as attached media (ERef
         // records are metadata-only), so "has media" = full text available.
@@ -95,11 +116,11 @@ final class MediaDashboardGenerator extends DashboardGenerator
             ['key' => 'types', 'label' => 'Publication types', 'value' => count($dashboard['types'] ?? [])],
             ['key' => 'languages', 'label' => 'Languages', 'value' => count($dashboard['languages'] ?? [])],
             ['key' => 'people', 'label' => 'Authors and editors', 'value' => count($peopleIds)],
-            ['key' => 'venues', 'label' => 'Venues', 'value' => $venueCount,
-                'subtitle' => 'journals and book series'],
+            ['key' => 'journals', 'label' => 'Journals', 'value' => $journalCount,
+                'subtitle' => $seriesCount > 0 ? 'and ' . $seriesCount . ' book series' : null],
             ['key' => 'publishers', 'label' => 'Publishers', 'value' => $publisherCount],
-            ['key' => 'places', 'label' => 'Places of publication', 'value' => count($dashboard['locations'] ?? []),
-                'subtitle' => 'shown on the map'],
+            ['key' => 'countries', 'label' => 'Countries of publication', 'value' => count($dashboard['publicationCountries'] ?? []),
+                'subtitle' => $cityCount > 0 ? $cityCount . ($cityCount === 1 ? ' city' : ' cities') . ' named as places of publication' : null],
         ]);
 
         // Publications-specific chart wording, plus the Languages pie. The shared
@@ -110,7 +131,10 @@ final class MediaDashboardGenerator extends DashboardGenerator
         $dashboard['labels'] = [
             'types' => 'Publication types',
             'stackedTimeline' => 'Publications by year and type',
-            'locations' => 'Places of publication',
+            'locations' => 'Where the publications appeared',
+            'topJournals' => 'Journals',
+            'topSeries' => 'Book series',
+            'topPublishers' => 'Publishers',
             'funders' => 'Funders',
             'coAuthorNetwork' => 'Collaboration network',
             'chord' => 'Keywords that appear together',
@@ -122,9 +146,11 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'types' => 'The mix of publication types: article, book, chapter, thesis, and so on.',
             'languages' => 'The languages the publications are written in.',
             'stackedTimeline' => 'Publications issued each year, split by type.',
-            'locations' => 'The cities these publications appeared in. Each bubble is sized by the number of publications issued there; click one to list them.',
+            'locations' => 'Countries are shaded by the number of publications that appeared there: an article counts for the country its journal comes from, a book or chapter for the country of its place of publication. The bubbles mark those places of publication, sized by the number of publications issued there. Click a country or a bubble to list its publications.',
+            'topJournals' => 'The journals these publications appear in most often. Click a bar to open the journal\'s page.',
+            'topSeries' => 'The book and working-paper series these publications belong to most often.',
+            'topPublishers' => 'The publishers that issued the most of these publications.',
             'funders' => 'The funding bodies credited on these publications. Click a bar to open a funder\'s page.',
-            'topVenues' => 'The journals and book series these publications appear in most often.',
             'topAuthors' => 'The authors credited on the most publications.',
             'coAuthorNetwork' => 'Authors and editors are linked when they appear on the same publication. Each person is scored by how well connected they are across the whole network; the chart starts from the best-connected person and keeps adding the best-connected collaborator of someone already shown, up to 120 people. Circle size follows that score, and circle colour marks groups who publish together more often than with others. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.',
             'chord' => 'Keywords that are often assigned to the same publication.',

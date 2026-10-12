@@ -82,6 +82,42 @@
         }
     }
 
+    /** The first name property a GeoJSON feature carries (its display name). */
+    function featureName(props) {
+        for (var i = 0; i < NAME_PROPS.length; i++) {
+            if (typeof props[NAME_PROPS[i]] === 'string') return props[NAME_PROPS[i]];
+        }
+        return null;
+    }
+
+    /**
+     * The entry of `byName` (lower-cased country name → value) that a feature's
+     * ADMIN / NAME / NAME_EN / NAME_LONG names, or undefined.
+     */
+    function featureMatch(props, byName) {
+        for (var i = 0; i < NAME_PROPS.length; i++) {
+            var v = props[NAME_PROPS[i]];
+            if (typeof v === 'string' && byName[v.toLowerCase()] !== undefined) return byName[v.toLowerCase()];
+        }
+        return undefined;
+    }
+
+    /**
+     * Country shading shared with the other MapLibre charts: the cached
+     * outlines, the accent ramp with its log-spaced breaks and fill expression,
+     * the name join and polygon bounds. The publications map shades the
+     * countries its works appeared in under its city bubbles with these.
+     */
+    ns.countryShading = {
+        load: loadCountries,
+        ramp: buildRamp,
+        breaks: buildBreaks,
+        fill: fillExpression,
+        extendBounds: extendBounds,
+        featureName: featureName,
+        featureMatch: featureMatch
+    };
+
     ns.charts.buildChoropleth = function (el, data, siteBase) {
         if (!data || !data.length || typeof maplibregl === 'undefined') return null;
         el.style.borderRadius = '6px';
@@ -98,20 +134,11 @@
         var maxCount = Math.max.apply(null, data.map(function (d) { return d.count || 0; }).concat(1));
 
         function lookupCount(props) {
-            for (var i = 0; i < NAME_PROPS.length; i++) {
-                var v = props[NAME_PROPS[i]];
-                if (typeof v === 'string' && counts[v.toLowerCase()] !== undefined) {
-                    return counts[v.toLowerCase()];
-                }
-            }
-            return 0;
+            return featureMatch(props, counts) || 0;
         }
 
         function countryName(props) {
-            for (var i = 0; i < NAME_PROPS.length; i++) {
-                if (typeof props[NAME_PROPS[i]] === 'string') return props[NAME_PROPS[i]];
-            }
-            return ns.t('unknownCountry', 'Unknown');
+            return featureName(props) || ns.t('unknownCountry', 'Unknown');
         }
 
         // Wrapped so the theme engine can rebuild the map on a light/dark toggle.

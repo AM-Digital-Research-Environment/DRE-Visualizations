@@ -42,7 +42,7 @@
       {"max":28,"name":"Items"},
       {"max":7,"name":"Languages"},
       {"max":20,"name":"Subjects"},
-      {"max":15,"name":"People"},
+      {"max":21,"name":"People"},
       {"max":8,"name":"Types"},
       {"max":55,"name":"Year span"}
     ],

@@ -1,0 +1,47 @@
+{
+  "builders": {"languages":"buildPieChart"},
+  "currentLocations": [],
+  "descriptions": {"coAuthorNetwork":"Authors and editors are linked when they appear on the same publication. Circle size follows how well connected a person is, and circle colour marks groups who publish together more often than with others. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.","languages":"The languages these publications are written in.","stackedTimeline":"The publications recorded here that appeared in this journal, counted by year and split by type.","subjects":"The keywords assigned to these publications most often."},
+  "labels": {"coAuthorNetwork":"Collaboration network","stackedTimeline":"Publications by year and type","subjects":"Keywords"},
+  "languages": [
+    {"itemId":810,"name":"English","value":2},
+    {"itemId":812,"name":"Portuguese","value":2}
+  ],
+  "locations": [],
+  "resourceType": "venue",
+  "stackedTimeline": {
+    "series": [
+      {
+        "data": [1,1,1,1],
+        "name": "Journal article"
+      }
+    ],
+    "years": [2021,2022,2023,2024]
+  },
+  "subjects": [
+    {"itemId":717,"name":"Afrobeat","value":1},
+    {"itemId":703,"name":"Christianity","value":1},
+    {"itemId":721,"name":"healing","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":718,"name":"mobile phones","value":1},
+    {"itemId":720,"name":"pilgrimage","value":1},
+    {"itemId":725,"name":"radio","value":1}
+  ],
+  "timeline": {"2021":1,"2022":1,"2023":1,"2024":1},
+  "topAuthors": [
+    {"itemId":416,"matched":true,"name":"Achieng, Grace","value":2},
+    {"itemId":422,"matched":true,"name":"Abubakar, Hauwa","value":1},
+    {"itemId":401,"matched":true,"name":"Bakari, Amina","value":1},
+    {"itemId":421,"matched":true,"name":"Diallo, Fatoumata","value":1},
+    {"itemId":418,"matched":true,"name":"Ferreira, Luíza","value":1},
+    {"matched":false,"name":"Ndiaye, Awa","value":1},
+    {"itemId":413,"matched":true,"name":"Nkosi, Sipho","value":1},
+    {"itemId":405,"matched":true,"name":"Okonkwo, Chinedu","value":1},
+    {"itemId":412,"matched":true,"name":"Traoré, Aïssata","value":1},
+    {"itemId":414,"matched":true,"name":"Weber, Lena","value":1}
+  ],
+  "totalItems": 4,
+  "types": [
+    {"itemId":805,"name":"Journal article","value":4}
+  ]
+}

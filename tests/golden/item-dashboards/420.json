@@ -115,12 +115,13 @@
     ],
     "series": [
       {
-        "value": [9,3,15,8,5,5]
+        "value": [9,3,15,11,5,5]
       }
     ]
   },
   "resourceType": "person",
   "roles": [
+    {"name":"author","value":2},
     {"name":"Interviewer","value":2},
     {"name":"Contributor","value":1},
     {"name":"Interviewee","value":1},

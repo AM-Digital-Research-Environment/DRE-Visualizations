@@ -1,10 +1,27 @@
 {
   "contributors": [
-    {"itemId":600,"name":"Lagos","value":6},
-    {"itemId":604,"name":"Makhanda","value":4},
-    {"itemId":607,"name":"Salvador","value":3},
-    {"itemId":606,"name":"Nairobi","value":2},
-    {"itemId":602,"name":"Ouagadougou","value":1}
+    {"itemId":423,"name":"Njoroge, Peter","value":7},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":6},
+    {"itemId":416,"name":"Achieng, Grace","value":5},
+    {"itemId":419,"name":"Hoffmann, Felix","value":5},
+    {"itemId":414,"name":"Weber, Lena","value":5},
+    {"itemId":422,"name":"Abubakar, Hauwa","value":4},
+    {"itemId":401,"name":"Bakari, Amina","value":4},
+    {"itemId":418,"name":"Ferreira, Luíza","value":4},
+    {"itemId":413,"name":"Nkosi, Sipho","value":4},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":3},
+    {"itemId":410,"name":"Oliveira, Rafael","value":3},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":3},
+    {"itemId":412,"name":"Traoré, Aïssata","value":3},
+    {"itemId":400,"name":"Adeyemi, Folake","value":2},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":2},
+    {"itemId":417,"name":"Kaboré, Paul","value":2},
+    {"itemId":420,"name":"Mensah, Kwame","value":2},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":2},
+    {"itemId":403,"name":"Santos, Ana Clara","value":2},
+    {"itemId":409,"name":"Schmidt, Jonas","value":2},
+    {"itemId":424,"name":"Item 424","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1}
   ],
   "currentLocations": [],
   "languages": [

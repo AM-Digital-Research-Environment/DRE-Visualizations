@@ -32,6 +32,8 @@ require_once __DIR__ . '/Aggregators/OverviewChartsTrait.php';
 require_once __DIR__ . '/Aggregators/MediaChartsTrait.php';
 // ForceAtlas2 layout helper that EntityGraphTrait uses to bake node positions.
 require_once __DIR__ . '/ForceLayout.php';
+// Which linked properties credit an agent — shared by every contributor count.
+require_once __DIR__ . '/Roles.php';
 
 /**
  * Pure aggregation + chart-data builders for the dashboard precompute.
@@ -102,6 +104,13 @@ final class Aggregators
     {
         return is_callable($this->checkpoint) ? $this->checkpoint : null;
     }
+
+    /**
+     * Rows kept in a per-entity ranked list (contributors, co-authors,
+     * co-subjects). The bar chart shows twenty to a page, so this is five pages;
+     * the archive-wide lists (publications, overviews) are kept whole.
+     */
+    public const RANKED_LIST_CAP = 100;
 
     public const RADAR_AXES = [
         ['items', 'Items'],

@@ -235,19 +235,36 @@
     ]
   },
   "contributors": [
-    {"itemId":600,"name":"Lagos","value":6},
-    {"itemId":604,"name":"Makhanda","value":4},
-    {"itemId":607,"name":"Salvador","value":3},
-    {"itemId":606,"name":"Nairobi","value":2},
-    {"itemId":602,"name":"Ouagadougou","value":1}
+    {"itemId":423,"name":"Njoroge, Peter","value":7},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":6},
+    {"itemId":416,"name":"Achieng, Grace","value":5},
+    {"itemId":419,"name":"Hoffmann, Felix","value":5},
+    {"itemId":414,"name":"Weber, Lena","value":5},
+    {"itemId":422,"name":"Abubakar, Hauwa","value":4},
+    {"itemId":401,"name":"Bakari, Amina","value":4},
+    {"itemId":418,"name":"Ferreira, Luíza","value":4},
+    {"itemId":413,"name":"Nkosi, Sipho","value":4},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":3},
+    {"itemId":410,"name":"Oliveira, Rafael","value":3},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":3},
+    {"itemId":412,"name":"Traoré, Aïssata","value":3},
+    {"itemId":400,"name":"Adeyemi, Folake","value":2},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":2},
+    {"itemId":417,"name":"Kaboré, Paul","value":2},
+    {"itemId":420,"name":"Mensah, Kwame","value":2},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":2},
+    {"itemId":403,"name":"Santos, Ana Clara","value":2},
+    {"itemId":409,"name":"Schmidt, Jonas","value":2},
+    {"itemId":424,"name":"Item 424","value":1},
+    {"itemId":404,"name":"Müller, Katharina","value":1}
   ],
   "currentLocations": [],
-  "descriptions": {"abstractWordcloud":"The words that come up most often across the publication abstracts. Words are reduced to their base form, and everyday words such as \"the\" and \"of\" are left out.","chord":"Keywords that are often assigned to the same publication.","coAuthorNetwork":"Authors and editors are linked when they appear on the same publication. Each person is scored by how well connected they are across the whole network; the chart starts from the best-connected person and keeps adding the best-connected collaborator of someone already shown, up to 120 people. Circle size follows that score, and circle colour marks groups who publish together more often than with others. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.","funders":"The funding bodies credited on these publications. Click a bar to open a funder's page.","languages":"The languages the publications are written in.","locations":"The cities these publications appeared in. Each bubble is sized by the number of publications issued there; click one to list them.","stackedTimeline":"Publications issued each year, split by type.","subjectTrends":"How the most frequent keywords rise and fall over the years.","subjects":"The keywords assigned to these publications most often.","topAuthors":"The authors credited on the most publications.","topVenues":"The journals and book series these publications appear in most often.","types":"The mix of publication types: article, book, chapter, thesis, and so on."},
+  "descriptions": {"abstractWordcloud":"The words that come up most often across the publication abstracts. Words are reduced to their base form, and everyday words such as \"the\" and \"of\" are left out.","chord":"Keywords that are often assigned to the same publication.","coAuthorNetwork":"Authors and editors are linked when they appear on the same publication. Each person is scored by how well connected they are across the whole network; the chart starts from the best-connected person and keeps adding the best-connected collaborator of someone already shown, up to 120 people. Circle size follows that score, and circle colour marks groups who publish together more often than with others. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.","funders":"The funding bodies credited on these publications. Click a bar to open a funder's page.","languages":"The languages the publications are written in.","locations":"Countries are shaded by the number of publications that appeared there: an article counts for the country its journal comes from, a book or chapter for the country of its place of publication. The bubbles mark those places of publication, sized by the number of publications issued there. Click a country or a bubble to list its publications.","stackedTimeline":"Publications issued each year, split by type.","subjectTrends":"How the most frequent keywords rise and fall over the years.","subjects":"The keywords assigned to these publications most often.","topAuthors":"The authors credited on the most publications.","topJournals":"The journals these publications appear in most often. Click a bar to open the journal's page.","topPublishers":"The publishers that issued the most of these publications.","topSeries":"The book and working-paper series these publications belong to most often.","types":"The mix of publication types: article, book, chapter, thesis, and so on."},
   "funders": [
     {"itemId":507,"name":"Deutsche Forschungsgemeinschaft","value":16},
     {"itemId":500,"name":"University of Bayreuth","value":10}
   ],
-  "labels": {"abstractWordcloud":"Words in the abstracts","chord":"Keywords that appear together","coAuthorNetwork":"Collaboration network","funders":"Funders","locations":"Places of publication","stackedTimeline":"Publications by year and type","subjectTrends":"Keywords over time","subjects":"Keywords","types":"Publication types"},
+  "labels": {"abstractWordcloud":"Words in the abstracts","chord":"Keywords that appear together","coAuthorNetwork":"Collaboration network","funders":"Funders","locations":"Where the publications appeared","stackedTimeline":"Publications by year and type","subjectTrends":"Keywords over time","subjects":"Keywords","topJournals":"Journals","topPublishers":"Publishers","topSeries":"Book series","types":"Publication types"},
   "languages": [
     {"itemId":810,"name":"English","value":10},
     {"itemId":811,"name":"French","value":10},
@@ -316,6 +333,120 @@
       "value": 1
     }
   ],
+  "publicationCountries": [
+    {
+      "count": 8,
+      "country": "Germany",
+      "items": [
+        {"id":2101,"title":"City and music: Education mobility gender mobility music"},
+        {"id":2103,"title":"Archive and mobility: Music religion gender"},
+        {"id":2106,"title":"Mobility and diaspora: Language city kinship"},
+        {"id":2113,"title":"Memory and brazil: Africa sound ritual memory postcolonial"},
+        {"id":2116,"title":"Memory and postcolonial: Religion archive heritage knowledge gender"},
+        {"id":2118,"title":"Heritage and africa: Sound music memory"},
+        {"id":2121,"title":"Education and mobility: Diaspora archive religion mobility"},
+        {"id":2128,"title":"Education and city: Diaspora archive kinship sound"}
+      ],
+      "lat": 51,
+      "lon": 10,
+      "outline": "Germany"
+    },
+    {
+      "count": 8,
+      "country": "United Kingdom",
+      "items": [
+        {"id":2100,"title":"Memory and sound: Africa kinship diaspora"},
+        {"id":2103,"title":"Archive and mobility: Music religion gender"},
+        {"id":2110,"title":"Heritage and religion: Diaspora archive memory archive diaspora"},
+        {"id":2113,"title":"Memory and brazil: Africa sound ritual memory postcolonial"},
+        {"id":2115,"title":"Diaspora and music: Memory ritual mobility archive"},
+        {"id":2118,"title":"Heritage and africa: Sound music memory"},
+        {"id":2125,"title":"Heritage and sound: Religion city gender language heritage"},
+        {"id":2128,"title":"Education and city: Diaspora archive kinship sound"}
+      ],
+      "lat": 54.6,
+      "lon": -2,
+      "outline": "United Kingdom"
+    },
+    {
+      "count": 7,
+      "country": "Brazil",
+      "items": [
+        {"id":2107,"title":"Sound and language: Language brazil diaspora heritage sound"},
+        {"id":2111,"title":"Language and education: City gender city mobility archive"},
+        {"id":2112,"title":"Mobility and gender: Africa language brazil ritual"},
+        {"id":2115,"title":"Diaspora and music: Memory ritual mobility archive"},
+        {"id":2122,"title":"Archive and africa: Religion heritage city ritual"},
+        {"id":2127,"title":"Ritual and religion: Knowledge postcolonial religion"},
+        {"id":2129,"title":"Education and brazil: Mobility memory religion"}
+      ],
+      "lat": -14,
+      "lon": -53,
+      "outline": "Brazil"
+    },
+    {
+      "count": 6,
+      "country": "Nigeria",
+      "items": [
+        {"id":2100,"title":"Memory and sound: Africa kinship diaspora"},
+        {"id":2101,"title":"City and music: Education mobility gender mobility music"},
+        {"id":2103,"title":"Archive and mobility: Music religion gender"},
+        {"id":2106,"title":"Mobility and diaspora: Language city kinship"},
+        {"id":2117,"title":"Religion and brazil: City memory heritage sound"},
+        {"id":2128,"title":"Education and city: Diaspora archive kinship sound"}
+      ],
+      "lat": 9,
+      "lon": 8,
+      "outline": "Nigeria"
+    },
+    {
+      "count": 4,
+      "country": "Singapore",
+      "items": [
+        {"id":2104,"title":"Memory and memory: Language ritual knowledge religion kinship"},
+        {"id":2109,"title":"Heritage and africa: Heritage postcolonial ritual gender"},
+        {"id":2119,"title":"Diaspora and gender: Diaspora mobility africa mobility"},
+        {"id":2124,"title":"Sound and music: City memory kinship mobility diaspora"}
+      ],
+      "lat": 1.3,
+      "lon": 103.8,
+      "outline": null
+    },
+    {
+      "count": 4,
+      "country": "South Africa",
+      "items": [
+        {"id":2114,"title":"Brazil and ritual: City heritage ritual"},
+        {"id":2119,"title":"Diaspora and gender: Diaspora mobility africa mobility"},
+        {"id":2122,"title":"Archive and africa: Religion heritage city ritual"},
+        {"id":2126,"title":"Education and language: Gender sound language brazil"}
+      ],
+      "lat": -29,
+      "lon": 24,
+      "outline": "South Africa"
+    },
+    {
+      "count": 2,
+      "country": "Kenya",
+      "items": [
+        {"id":2121,"title":"Education and mobility: Diaspora archive religion mobility"},
+        {"id":2125,"title":"Heritage and sound: Religion city gender language heritage"}
+      ],
+      "lat": 0.1,
+      "lon": 38,
+      "outline": "Kenya"
+    },
+    {
+      "count": 1,
+      "country": "Burkina Faso",
+      "items": [
+        {"id":2112,"title":"Mobility and gender: Africa language brazil ritual"}
+      ],
+      "lat": 12.2383,
+      "lon": -1.5616,
+      "outline": "Burkina Faso"
+    }
+  ],
   "resourceType": "publications",
   "stackedTimeline": {
     "series": [
@@ -341,9 +472,9 @@
     {"key":"types","label":"Publication types","value":3},
     {"key":"languages","label":"Languages","value":3},
     {"key":"people","label":"Authors and editors","value":22},
-    {"key":"venues","label":"Venues","subtitle":"journals and book series","value":6},
+    {"key":"journals","label":"Journals","subtitle":"and 2 book series","value":5},
     {"key":"publishers","label":"Publishers","value":8},
-    {"key":"places","label":"Places of publication","subtitle":"shown on the map","value":5}
+    {"key":"countries","label":"Countries of publication","subtitle":"5 cities named as places of publication","value":8}
   ],
   "subjectTrends": {
     "series": [
@@ -437,15 +568,42 @@
     {"itemId":400,"matched":true,"name":"Adeyemi, Folake","value":2},
     {"itemId":421,"matched":true,"name":"Diallo, Fatoumata","value":2},
     {"itemId":417,"matched":true,"name":"Kaboré, Paul","value":2},
-    {"matched":false,"name":"Kamau, Esther","value":2}
+    {"matched":false,"name":"Kamau, Esther","value":2},
+    {"matched":false,"name":"Lefèvre, Claire","value":2},
+    {"itemId":420,"matched":true,"name":"Mensah, Kwame","value":2},
+    {"matched":false,"name":"Ndiaye, Awa","value":2},
+    {"matched":false,"name":"Novak, Petra","value":2},
+    {"itemId":405,"matched":true,"name":"Okonkwo, Chinedu","value":2},
+    {"matched":false,"name":"Rossi, Marco","value":2},
+    {"itemId":403,"matched":true,"name":"Santos, Ana Clara","value":2},
+    {"itemId":409,"matched":true,"name":"Schmidt, Jonas","value":2},
+    {"matched":false,"name":"Silva, João","value":2},
+    {"matched":false,"name":"Tanaka, Yuki","value":2},
+    {"itemId":412,"matched":true,"name":"Traoré, Aïssata","value":2},
+    {"itemId":424,"matched":true,"name":"Item 424","value":1},
+    {"itemId":404,"matched":true,"name":"Müller, Katharina","value":1},
+    {"matched":false,"name":"Smith, John","value":1}
   ],
-  "topVenues": [
-    {"name":"Journal of African Cultural Studies","value":5},
-    {"name":"Africa Spectrum","value":4},
-    {"name":"Journal of Religion in Africa","value":4},
-    {"name":"Afro-Ásia","value":3},
-    {"name":"Africa Multiple Working Papers","value":2},
-    {"name":"Cahiers d'Études africaines","value":2}
+  "topJournals": [
+    {"itemId":3101,"name":"Africa Spectrum","value":4},
+    {"itemId":3102,"name":"Afro-Ásia","value":4},
+    {"itemId":3104,"name":"Asian Journal of African Studies","value":4},
+    {"itemId":3100,"name":"Journal of African Cultural Studies","value":4},
+    {"itemId":3103,"name":"Journal of Religion in Africa","value":4}
+  ],
+  "topPublishers": [
+    {"itemId":520,"name":"Brill","value":13},
+    {"itemId":521,"name":"Routledge","value":9},
+    {"name":"Karthala","value":5},
+    {"name":"James Currey","value":4},
+    {"name":"EDUFBA","value":2},
+    {"name":"https://example.org/press/4","value":1},
+    {"name":"https://example.org/press/15","value":1},
+    {"name":"https://example.org/press/26","value":1}
+  ],
+  "topSeries": [
+    {"itemId":3111,"name":"Bayreuth African Studies","value":7},
+    {"itemId":3110,"name":"Africa Multiple Working Papers","value":3}
   ],
   "totalItems": 30,
   "types": [

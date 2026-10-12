@@ -11,19 +11,17 @@
     {"itemId":718,"name":"mobile phones","value":1}
   ],
   "contributors": [
-    {"itemId":422,"name":"Abubakar, Hauwa","value":2},
+    {"itemId":422,"name":"Abubakar, Hauwa","value":3},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":3},
+    {"itemId":400,"name":"Adeyemi, Folake","value":2},
+    {"itemId":401,"name":"Bakari, Amina","value":2},
+    {"itemId":418,"name":"Ferreira, Luíza","value":2},
     {"itemId":419,"name":"Hoffmann, Felix","value":2},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":2},
     {"itemId":403,"name":"Santos, Ana Clara","value":2},
-    {"itemId":401,"name":"Bakari, Amina","value":1},
-    {"itemId":418,"name":"Ferreira, Luíza","value":1},
     {"itemId":424,"name":"Item 424","value":1},
     {"itemId":417,"name":"Kaboré, Paul","value":1},
-    {"itemId":600,"name":"Lagos","value":1},
-    {"itemId":604,"name":"Makhanda","value":1},
-    {"itemId":406,"name":"Mwangi, Wanjiru","value":1},
-    {"itemId":413,"name":"Nkosi, Sipho","value":1},
-    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
-    {"itemId":607,"name":"Salvador","value":1}
+    {"itemId":413,"name":"Nkosi, Sipho","value":1}
   ],
   "currentLocations": [
     {

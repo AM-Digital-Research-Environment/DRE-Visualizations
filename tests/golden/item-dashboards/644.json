@@ -1,0 +1,25 @@
+{
+  "contributors": [],
+  "currentLocations": [],
+  "languages": [],
+  "locations": [],
+  "publishedHere": {
+    "series": [
+      {
+        "data": [0,1,1],
+        "name": "Journal article"
+      },
+      {
+        "data": [1,0,1],
+        "name": "Monograph"
+      }
+    ],
+    "years": [2019,2020,2024]
+  },
+  "resourceType": "location",
+  "selfLocation": {"itemId":644,"lat":-29,"lon":24,"name":"South Africa"},
+  "subjects": [],
+  "timeline": {},
+  "totalItems": 4,
+  "types": []
+}

@@ -1,0 +1,54 @@
+{
+  "builders": {"languages":"buildPieChart"},
+  "currentLocations": [],
+  "descriptions": {"coAuthorNetwork":"Authors and editors are linked when they appear on the same publication. Circle size follows how well connected a person is, and circle colour marks groups who publish together more often than with others. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.","languages":"The languages these publications are written in.","stackedTimeline":"The publications recorded here that appeared in this journal, counted by year and split by type.","subjects":"The keywords assigned to these publications most often."},
+  "labels": {"coAuthorNetwork":"Collaboration network","stackedTimeline":"Publications by year and type","subjects":"Keywords"},
+  "languages": [
+    {"itemId":810,"name":"English","value":2},
+    {"itemId":811,"name":"French","value":1},
+    {"itemId":812,"name":"Portuguese","value":1}
+  ],
+  "locations": [],
+  "resourceType": "venue",
+  "stackedTimeline": {
+    "series": [
+      {
+        "data": [1,1,1,1],
+        "name": "Journal article"
+      }
+    ],
+    "years": [2019,2022,2023,2025]
+  },
+  "subjects": [
+    {"itemId":705,"name":"Urbanization","value":2},
+    {"itemId":709,"name":"Education","value":1},
+    {"itemId":721,"name":"healing","value":1},
+    {"itemId":706,"name":"Oral tradition","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":724,"name":"restitution","value":1},
+    {"itemId":719,"name":"sound recording","value":1}
+  ],
+  "timeline": {"2019":1,"2022":1,"2023":1,"2025":1},
+  "topAuthors": [
+    {"itemId":406,"matched":true,"name":"Mwangi, Wanjiru","value":2},
+    {"itemId":416,"matched":true,"name":"Achieng, Grace","value":1},
+    {"matched":false,"name":"Bello, Ibrahim","value":1},
+    {"itemId":408,"matched":true,"name":"Dlamini, Thandiwe","value":1},
+    {"itemId":419,"matched":true,"name":"Hoffmann, Felix","value":1},
+    {"itemId":424,"matched":true,"name":"Item 424","value":1},
+    {"itemId":417,"matched":true,"name":"Kaboré, Paul","value":1},
+    {"matched":false,"name":"Kamau, Esther","value":1},
+    {"matched":false,"name":"Lefèvre, Claire","value":1},
+    {"itemId":420,"matched":true,"name":"Mensah, Kwame","value":1},
+    {"itemId":423,"matched":true,"name":"Njoroge, Peter","value":1},
+    {"itemId":413,"matched":true,"name":"Nkosi, Sipho","value":1},
+    {"matched":false,"name":"Osei, Kofi","value":1},
+    {"itemId":403,"matched":true,"name":"Santos, Ana Clara","value":1},
+    {"matched":false,"name":"Silva, João","value":1},
+    {"matched":false,"name":"Tanaka, Yuki","value":1}
+  ],
+  "totalItems": 4,
+  "types": [
+    {"itemId":805,"name":"Journal article","value":4}
+  ]
+}

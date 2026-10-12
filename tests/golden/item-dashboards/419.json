@@ -187,12 +187,13 @@
     ],
     "series": [
       {
-        "value": [20,7,22,19,7,6]
+        "value": [20,7,22,18,7,6]
       }
     ]
   },
   "resourceType": "person",
   "roles": [
+    {"name":"author","value":5},
     {"name":"Creator","value":4},
     {"name":"Interviewer","value":3},
     {"name":"Contributor","value":2},

@@ -10,8 +10,9 @@
     {"itemId":722,"name":"urban farming","value":1}
   ],
   "contributors": [
+    {"itemId":422,"name":"Abubakar, Hauwa","value":2},
     {"itemId":421,"name":"Diallo, Fatoumata","value":2},
-    {"itemId":422,"name":"Abubakar, Hauwa","value":1},
+    {"itemId":416,"name":"Achieng, Grace","value":1},
     {"itemId":400,"name":"Adeyemi, Folake","value":1},
     {"itemId":401,"name":"Bakari, Amina","value":1},
     {"itemId":419,"name":"Hoffmann, Felix","value":1},

@@ -43,6 +43,7 @@ final class KnowledgeGraphs
         'dcterms:isPartOf' => 'Project',
         'dcterms:format' => 'Genre',
         'frapo:isFundedBy' => 'Institution',
+        'dcterms:publisher' => 'Institution',
         'dcterms:relation' => 'Related item', 'dcterms:hasPart' => 'Related item',
         'dcterms:replaces' => 'Related item', 'dcterms:isReplacedBy' => 'Related item',
         'dcterms:hasVersion' => 'Related item', 'dcterms:isVersionOf' => 'Related item',
@@ -61,10 +62,13 @@ final class KnowledgeGraphs
         'dcterms:subject', 'dcterms:isPartOf', 'dcterms:spatial',
         'dcterms:creator', 'dcterms:contributor',
         'bibo:authorList', 'bibo:editorList',
+        // Two works in one book series are related the way two articles in one
+        // journal are (dcterms:isPartOf, above).
+        'dre:series',
     ];
 
     /** Priority order for direct relationships when capping. */
-    private const CAT_PRIORITY = ['Person', 'Contributor', 'Subject', 'Project', 'Location', 'Institution', 'Genre', 'Related item'];
+    private const CAT_PRIORITY = ['Person', 'Contributor', 'Subject', 'Project', 'Publication venue', 'Location', 'Institution', 'Genre', 'Related item'];
 
     // Node budgets. Raised in v2.22 when the front end moved off the ECharts graph
     // series onto the d3-force canvas renderer: it lays out with Barnes–Hut plus a
@@ -82,13 +86,32 @@ final class KnowledgeGraphs
     private const MAX_CROSS_EDGES = 400;
     private const MAX_CROSS_SCAN = 250;
 
-    private static function getCategory(string $term): ?string
+    /**
+     * A linked resource's node category, from the property and, where one
+     * property links different kinds of record, the target's class.
+     */
+    private static function getCategory(string $term, array $target = []): ?string
     {
+        $class = (string) ($target['class_term'] ?? '');
+        // dcterms:isPartOf is a research item's project, a person's institution,
+        // a city's country, an article's journal and a chapter's book.
+        if ($term === 'dcterms:isPartOf' || $term === 'dre:series') {
+            return match (true) {
+                $class === 'foaf:Organization' => 'Institution',
+                $class === 'dcterms:Location' => 'Location',
+                $class === 'bibo:Journal', $class === 'bibo:Series', str_starts_with($class, 'fabio:') => 'Publication venue',
+                default => $term === 'dre:series' ? 'Publication venue' : 'Project',
+            };
+        }
         if (isset(self::PROP_CAT[$term])) {
             return self::PROP_CAT[$term];
         }
+        // A publication's place of publication is a place, not a contributor.
+        if (Roles::isPlaceRole($term)) {
+            return 'Location';
+        }
         if (str_starts_with($term, 'marcrel:')) {
-            return 'Contributor';
+            return $class === 'foaf:Organization' ? 'Institution' : 'Contributor';
         }
         return null;
     }
@@ -228,7 +251,7 @@ final class KnowledgeGraphs
         // ── Direct relationships, prioritised by category ──────────────
         $directRels = [];
         foreach ($links[$itemId] ?? [] as [$term, $label, $vrid]) {
-            $cat = self::getCategory($term);
+            $cat = self::getCategory($term, $items[$vrid] ?? []);
             if ($cat === null) {
                 continue;
             }

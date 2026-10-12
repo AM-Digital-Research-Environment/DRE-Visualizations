@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace DreVisualizations\Precompute\Aggregators;
 
+use DreVisualizations\Precompute\Roles;
+
 /**
  * Radar breadth profile and the curated Collection-Overview charts (stat
  * cards, research-sections bar, section × university heatmap,
@@ -73,7 +75,7 @@ trait OverviewChartsTrait
                     $types[$vrid] = true;
                 } elseif ($term === 'dcterms:spatial') {
                     $locs[$vrid] = true;
-                } elseif ($term === 'dcterms:creator' || $term === 'dcterms:contributor' || str_starts_with($term, 'marcrel:')) {
+                } elseif (Roles::isCredit($term)) {
                     $contribs[$vrid] = true;
                 }
             }

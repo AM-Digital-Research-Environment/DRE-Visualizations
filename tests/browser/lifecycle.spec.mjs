@@ -148,6 +148,31 @@ test.describe('lifecycle', () => {
     expect([...new Set(requests.filter((path) => path.startsWith('/asset/vendor/')))]).toEqual(['/asset/vendor/echarts.min.js']);
   });
 
+  test('a long bar chart pages twenty bars at a time, and its data table keeps every row', async ({ page }) => {
+    const people = Array.from({ length: 45 }, (_, i) => ({ name: `Person ${String(i + 1).padStart(2, '0')}`, value: 45 - i, itemId: 100 + i }));
+    await stubData(page, (path) => (path.endsWith('/test.json') ? { totalItems: 45, contributors: people } : undefined));
+    await openSurface(page, 'dashboard');
+    const panel = page.locator('.chart-panel', { has: page.locator('[data-chart="contributors"]') });
+    const status = panel.locator('.rv-bar-pager-status');
+    const topBar = () => panel.locator('[data-chart="contributors"]').evaluate((el) => {
+      const labels = window.echarts.getInstanceByDom(el).getOption().yAxis[0].data;
+      return labels[labels.length - 1];
+    });
+    await expect(status).toHaveText('1–20 of 45');
+    await expect(panel.getByRole('button', { name: 'Previous page' })).toBeDisabled();
+    expect(await topBar()).toBe('Person 01');
+    await panel.getByRole('button', { name: 'Next page' }).click();
+    await expect(status).toHaveText('21–40 of 45');
+    expect(await topBar()).toBe('Person 21');
+    await panel.getByRole('button', { name: 'Last page' }).click();
+    await expect(status).toHaveText('41–45 of 45');
+    await expect(panel.getByRole('button', { name: 'Next page' })).toBeDisabled();
+    await panel.getByRole('button', { name: 'First page' }).click();
+    await expect(status).toHaveText('1–20 of 45');
+    await panel.locator('.rv-data-table-toggle').click();
+    await expect(panel.locator('.rv-data-table-grid tbody tr')).toHaveCount(45);
+  });
+
   test('a failed dashboard shows "Try again", which reruns the request in place', async ({ page }) => {
     let fail = true;
     await stubData(page, (path) => (path.endsWith('/test.json') ? (fail ? 503 : DASHBOARD) : undefined));

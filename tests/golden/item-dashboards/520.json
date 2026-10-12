@@ -1,0 +1,76 @@
+{
+  "collabNetwork": {
+    "links": [
+      {"source":"Brill","target":"Deutsche Forschungsgemeinschaft","value":6},
+      {"source":"Brill","target":"University of Bayreuth","value":2}
+    ],
+    "nodes": [
+      {"isSelf":true,"itemId":520,"name":"Brill","value":8},
+      {"itemId":507,"name":"Deutsche Forschungsgemeinschaft","value":6},
+      {"itemId":500,"name":"University of Bayreuth","value":2}
+    ]
+  },
+  "contributors": [
+    {"itemId":416,"name":"Achieng, Grace","value":4},
+    {"itemId":419,"name":"Hoffmann, Felix","value":3},
+    {"itemId":422,"name":"Abubakar, Hauwa","value":2},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":2},
+    {"itemId":423,"name":"Njoroge, Peter","value":2},
+    {"itemId":414,"name":"Weber, Lena","value":2},
+    {"itemId":424,"name":"Item 424","value":1},
+    {"itemId":417,"name":"Kaboré, Paul","value":1},
+    {"itemId":413,"name":"Nkosi, Sipho","value":1},
+    {"itemId":405,"name":"Okonkwo, Chinedu","value":1},
+    {"itemId":410,"name":"Oliveira, Rafael","value":1},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":1},
+    {"itemId":409,"name":"Schmidt, Jonas","value":1}
+  ],
+  "currentLocations": [],
+  "languages": [
+    {"itemId":812,"name":"Portuguese","value":5},
+    {"itemId":811,"name":"French","value":2},
+    {"itemId":810,"name":"English","value":1}
+  ],
+  "locations": [],
+  "radar": {
+    "indicator": [
+      {"max":28,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":20,"name":"Subjects"},
+      {"max":21,"name":"People"},
+      {"max":8,"name":"Types"},
+      {"max":55,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [8,3,12,13,3,6]
+      }
+    ]
+  },
+  "resourceType": "organisation",
+  "subjects": [
+    {"itemId":718,"name":"mobile phones","value":2},
+    {"itemId":726,"name":"photography","value":2},
+    {"itemId":722,"name":"urban farming","value":2},
+    {"itemId":709,"name":"Education","value":1},
+    {"itemId":721,"name":"healing","value":1},
+    {"itemId":702,"name":"Islam","value":1},
+    {"itemId":700,"name":"Music","value":1},
+    {"itemId":706,"name":"Oral tradition","value":1},
+    {"itemId":720,"name":"pilgrimage","value":1},
+    {"itemId":701,"name":"Religion","value":1},
+    {"itemId":719,"name":"sound recording","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "templates": [
+    {"name":"Journal Article","value":6},
+    {"name":"Book Chapter","value":2}
+  ],
+  "timeline": {"2019":2,"2020":1,"2021":1,"2022":1,"2023":1,"2024":1,"2025":1},
+  "totalItems": 8,
+  "types": [
+    {"itemId":805,"name":"Journal article","value":6},
+    {"itemId":806,"name":"Book chapter","value":1},
+    {"itemId":807,"name":"Monograph","value":1}
+  ]
+}

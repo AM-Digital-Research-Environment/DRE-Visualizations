@@ -237,7 +237,12 @@
         pin: '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/>'
             + '<circle cx="12" cy="10" r="3"/>',
         book: '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5'
-            + 'a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>'
+            + 'a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+        // A bar chart's pager: previous / next page, first / last page.
+        chevronLeft: '<path d="m15 18-6-6 6-6"/>',
+        chevronRight: '<path d="m9 18 6-6-6-6"/>',
+        chevronsLeft: '<path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/>',
+        chevronsRight: '<path d="m6 17 5-5-5-5"/><path d="m13 17 5-5-5-5"/>'
     };
 })();
 ;
@@ -388,9 +393,9 @@
         // 9 / 10 — the knowledge graph's two discovery-flavoured item buckets
         'related item': 9, 'related items': 9,
         'shared item': 10, 'shared items': 10,
-        // 11 — groupings
+        // 11 — groupings, the journal or series a publication appeared in among them
         'research section': 11, 'research sections': 11, 'section': 11, 'sections': 11,
-        'group': 11, 'groups': 11
+        'group': 11, 'groups': 11, 'publication venue': 11, 'publication venues': 11
     };
     var ENTITY_SLOT_FALLBACK = 8;
 

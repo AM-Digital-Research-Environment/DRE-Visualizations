@@ -73,11 +73,23 @@
                     'subjectTrends', 'locations', 'choropleth', 'chord',
                     'timeChord', 'contributorNetwork', 'affiliationMap']
         },
+        // `publishedHere` is the place's publications (its place of publication,
+        // and for a country its journals' origin), by year and type — kept apart
+        // from the research-item charts above it.
         location: {
             order: ['selfLocation', 'timeline', 'types', 'languages',
-                    'contributors', 'subjects', 'locations'],
-            wide:  ['selfLocation', 'subjects', 'locations'],
+                    'contributors', 'subjects', 'locations', 'publishedHere'],
+            wide:  ['selfLocation', 'subjects', 'locations', 'publishedHere'],
             tall:  ['selfLocation', 'subjects', 'locations']
+        },
+        // A Journal or Series record, from the publications that link to it. The
+        // stacked timeline already splits them by type, so `types` is left out;
+        // languages + topAuthors pair on one row.
+        venue: {
+            order: ['stackedTimeline', 'languages', 'topAuthors',
+                    'coAuthorNetwork', 'subjects'],
+            wide:  ['stackedTimeline', 'coAuthorNetwork', 'subjects'],
+            tall:  ['coAuthorNetwork', 'subjects']
         },
         authority: {
             order: ['timeline', 'types', 'languages', 'coSubjects',
@@ -193,14 +205,17 @@
             tall:  ['subjects', 'locations']
         },
         // Half-width charts are paired consecutively (types+languages,
-        // topVenues+topAuthors) so neither sits alone on a row; every other key is
-        // full-width. `templates` and the (empty) `timeline` are intentionally
-        // omitted — `types` already breaks publications down by type. `locations`
-        // here is the places-of-publication map (marcrel:pup → geocoded
-        // Locations), retitled by the dashboard's own labels override.
+        // topJournals+topSeries, topPublishers+topAuthors) so none sits alone on
+        // a row; every other key is full-width. `templates` and the (empty)
+        // `timeline` are intentionally omitted — `types` already breaks
+        // publications down by type. `locations` here is the places-of-publication
+        // map (marcrel:pup → geocoded Locations) over the countries the
+        // publications appeared in (the dashboard's `publicationCountries`), retitled by
+        // the dashboard's own labels override.
         publications: {
             order: ['types', 'languages', 'stackedTimeline', 'locations',
-                    'topVenues', 'topAuthors', 'funders', 'coAuthorNetwork',
+                    'topJournals', 'topSeries', 'topPublishers', 'topAuthors',
+                    'funders', 'coAuthorNetwork',
                     'chord', 'subjects', 'subjectTrends', 'abstractWordcloud'],
             wide:  ['stackedTimeline', 'locations', 'funders', 'coAuthorNetwork',
                     'chord', 'subjects', 'subjectTrends', 'abstractWordcloud'],

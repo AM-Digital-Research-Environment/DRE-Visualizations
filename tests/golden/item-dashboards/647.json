@@ -1,0 +1,21 @@
+{
+  "contributors": [],
+  "currentLocations": [],
+  "languages": [],
+  "locations": [],
+  "publishedHere": {
+    "series": [
+      {
+        "data": [1,1,1,1],
+        "name": "Journal article"
+      }
+    ],
+    "years": [2021,2022,2023,2024]
+  },
+  "resourceType": "location",
+  "selfLocation": {"itemId":647,"lat":1.3,"lon":103.8,"name":"Singapore"},
+  "subjects": [],
+  "timeline": {},
+  "totalItems": 4,
+  "types": []
+}

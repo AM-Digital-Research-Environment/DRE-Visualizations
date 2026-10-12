@@ -186,13 +186,14 @@
     ],
     "series": [
       {
-        "value": [21,7,23,16,7,6]
+        "value": [21,7,23,17,7,6]
       }
     ]
   },
   "resourceType": "person",
   "roles": [
     {"name":"Creator","value":9},
+    {"name":"author","value":4},
     {"name":"Contributor","value":2},
     {"name":"Speaker","value":2},
     {"name":"Interviewee","value":1},

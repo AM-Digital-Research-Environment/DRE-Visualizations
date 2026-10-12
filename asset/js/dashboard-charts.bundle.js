@@ -79,11 +79,23 @@
                     'subjectTrends', 'locations', 'choropleth', 'chord',
                     'timeChord', 'contributorNetwork', 'affiliationMap']
         },
+        // `publishedHere` is the place's publications (its place of publication,
+        // and for a country its journals' origin), by year and type — kept apart
+        // from the research-item charts above it.
         location: {
             order: ['selfLocation', 'timeline', 'types', 'languages',
-                    'contributors', 'subjects', 'locations'],
-            wide:  ['selfLocation', 'subjects', 'locations'],
+                    'contributors', 'subjects', 'locations', 'publishedHere'],
+            wide:  ['selfLocation', 'subjects', 'locations', 'publishedHere'],
             tall:  ['selfLocation', 'subjects', 'locations']
+        },
+        // A Journal or Series record, from the publications that link to it. The
+        // stacked timeline already splits them by type, so `types` is left out;
+        // languages + topAuthors pair on one row.
+        venue: {
+            order: ['stackedTimeline', 'languages', 'topAuthors',
+                    'coAuthorNetwork', 'subjects'],
+            wide:  ['stackedTimeline', 'coAuthorNetwork', 'subjects'],
+            tall:  ['coAuthorNetwork', 'subjects']
         },
         authority: {
             order: ['timeline', 'types', 'languages', 'coSubjects',
@@ -199,14 +211,17 @@
             tall:  ['subjects', 'locations']
         },
         // Half-width charts are paired consecutively (types+languages,
-        // topVenues+topAuthors) so neither sits alone on a row; every other key is
-        // full-width. `templates` and the (empty) `timeline` are intentionally
-        // omitted — `types` already breaks publications down by type. `locations`
-        // here is the places-of-publication map (marcrel:pup → geocoded
-        // Locations), retitled by the dashboard's own labels override.
+        // topJournals+topSeries, topPublishers+topAuthors) so none sits alone on
+        // a row; every other key is full-width. `templates` and the (empty)
+        // `timeline` are intentionally omitted — `types` already breaks
+        // publications down by type. `locations` here is the places-of-publication
+        // map (marcrel:pup → geocoded Locations) over the countries the
+        // publications appeared in (the dashboard's `publicationCountries`), retitled by
+        // the dashboard's own labels override.
         publications: {
             order: ['types', 'languages', 'stackedTimeline', 'locations',
-                    'topVenues', 'topAuthors', 'funders', 'coAuthorNetwork',
+                    'topJournals', 'topSeries', 'topPublishers', 'topAuthors',
+                    'funders', 'coAuthorNetwork',
                     'chord', 'subjects', 'subjectTrends', 'abstractWordcloud'],
             wide:  ['stackedTimeline', 'locations', 'funders', 'coAuthorNetwork',
                     'chord', 'subjects', 'subjectTrends', 'abstractWordcloud'],
@@ -362,7 +377,12 @@
 
 /* ---- js/dashboard-charts-bar.js ---- */
 /**
- * Bar chart builder: horizontal bars for ranked lists (top 20).
+ * Bar chart builder: horizontal bars for ranked lists, twenty to a page.
+ *
+ * A list longer than a page gets a pager under the chart (first, previous,
+ * "21–40 of 143", next, last). Every page shares the first page's value axis,
+ * so a bar's length compares across pages. The CSV download and the data
+ * table carry the whole list, not just the page on screen.
  *
  * Registers into window.RV.charts for the dashboard orchestrator.
  */
@@ -376,40 +396,114 @@
 
     ns.charts = ns.charts || {};
 
+    var PAGE_SIZE = 20;
+
+    /** One pager button: an icon with a spoken name. */
+    function pagerButton(icon, label, onClick) {
+        var btn = ns.el('button', 'rv-toolbar-btn rv-bar-pager-btn');
+        btn.type = 'button';
+        btn.title = label;
+        btn.setAttribute('aria-label', label);
+        btn.appendChild(ns.iconSvg(icon));
+        btn.addEventListener('click', onClick);
+        return btn;
+    }
+
     ns.charts.buildBarChart = function (el, data, siteBase) {
-        var entries = toEntries(data);
-        if (!entries.length) return;
+        // Largest first; Array#sort is stable, so ties keep the precompute's
+        // order (alphabetical).
+        var all = toEntries(data).slice().sort(function (a, b) { return b.value - a.value; });
+        if (!all.length) return;
         var chart = initChart(el);
-        entries.sort(function (a, b) { return a.value - b.value; });
-        if (entries.length > 20) entries = entries.slice(entries.length - 20);
+        var pages = Math.ceil(all.length / PAGE_SIZE);
+        var page = 0;
+        var axisMax = all[0].value;
+        var shown = [];
 
-        var names = entries.map(function (e) { return e.name; });
-        var values = entries.map(function (e) { return e.value; });
+        function render() {
+            // The category axis draws its first entry at the bottom.
+            shown = all.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).reverse();
+            chart.setOption({
+                tooltip: { trigger: 'axis', confine: true, axisPointer: { type: 'shadow' } },
+                aria: { enabled: true },
+                // ECharts 6 keeps axis labels inside the canvas by default (grid
+                // outerBoundsMode), so the grid sizes itself to the real label width
+                // instead of an estimate from the character count.
+                grid: { left: 8, right: 20, top: 10, bottom: 20 },
+                xAxis: { type: 'value', minInterval: 1, max: pages > 1 ? axisMax : null },
+                yAxis: {
+                    type: 'category', data: shown.map(function (e) { return e.name; }),
+                    axisLabel: {
+                        fontSize: THEME.fontSize, width: 200, overflow: 'truncate',
+                        formatter: function (v) { return truncateLabel(v, THEME.labelMaxLen); }
+                    }
+                },
+                series: [{
+                    type: 'bar',
+                    data: shown.map(function (e, i) {
+                        return { value: e.value, itemId: e.itemId, itemStyle: { color: COLORS[i % COLORS.length], borderRadius: [0, 3, 3, 0] } };
+                    }),
+                    barMaxWidth: THEME.barMaxWidth
+                }]
+            });
+        }
 
-        chart.setOption({
-            tooltip: { trigger: 'axis', confine: true, axisPointer: { type: 'shadow' } },
-            aria: { enabled: true },
-            // ECharts 6 keeps axis labels inside the canvas by default (grid
-            // outerBoundsMode), so the grid sizes itself to the real label width
-            // instead of an estimate from the character count.
-            grid: { left: 8, right: 20, top: 10, bottom: 20 },
-            xAxis: { type: 'value', minInterval: 1 },
-            yAxis: {
-                type: 'category', data: names,
-                axisLabel: {
-                    fontSize: THEME.fontSize, width: 200, overflow: 'truncate',
-                    formatter: function (v) { return truncateLabel(v, THEME.labelMaxLen); }
-                }
-            },
-            series: [{
-                type: 'bar',
-                data: values.map(function (v, i) {
-                    return { value: v, itemId: entries[i].itemId, itemStyle: { color: COLORS[i % COLORS.length], borderRadius: [0, 3, 3, 0] } };
-                }),
-                barMaxWidth: THEME.barMaxWidth
-            }]
-        });
-        addClickHandler(chart, entries, siteBase);
+        render();
+        addClickHandler(chart, function () { return shown; }, siteBase);
+        // The whole list, for the CSV download and the data table (core/toolbar.js).
+        chart.csvRows = function () {
+            return [[ns.t('series', 'Series'), ns.t('category', 'Category'), ns.t('value', 'Value')]]
+                .concat(all.map(function (e) { return ['bar', e.name, e.value]; }));
+        };
+
+        // A single page needs no pager, and keeps the dashboard's
+        // dispose-and-rebuild on a light/dark switch.
+        if (el._rvBarPager) {
+            el._rvBarPager.remove();
+            el._rvBarPager = null;
+        }
+        if (pages < 2 || !el.parentNode) return chart;
+
+        // A light/dark switch re-renders the page in place (COLORS and THEME are
+        // updated in place), so the pager and the reader's page survive it.
+        chart._rvRebuild = render;
+
+        var status = ns.el('span', 'rv-bar-pager-status');
+        status.setAttribute('aria-live', 'polite');
+        var first = pagerButton(ns.ICONS.chevronsLeft, ns.t('firstPage', 'First page'), function () { go(0); });
+        var prev = pagerButton(ns.ICONS.chevronLeft, ns.t('previousPage', 'Previous page'), function () { go(page - 1); });
+        var next = pagerButton(ns.ICONS.chevronRight, ns.t('nextPage', 'Next page'), function () { go(page + 1); });
+        var last = pagerButton(ns.ICONS.chevronsRight, ns.t('lastPage', 'Last page'), function () { go(pages - 1); });
+        var pager = ns.setChildren(ns.el('div', 'rv-bar-pager'), [first, prev, status, next, last]);
+        pager.setAttribute('role', 'group');
+        var panel = el.closest('.chart-panel');
+        var title = panel && panel.querySelector('h3');
+        var titleText = title ? (title.textContent || '').trim() : '';
+        pager.setAttribute('aria-label', titleText
+            ? ns.fill(ns.t('pagesOf', 'Pages: {title}'), { title: titleText })
+            : ns.t('pages', 'Pages'));
+
+        function sync() {
+            status.textContent = ns.fill(ns.t('rangeOfTotal', '{from}–{to} of {total}'), {
+                from: ns.formatNumber(page * PAGE_SIZE + 1),
+                to: ns.formatNumber(Math.min((page + 1) * PAGE_SIZE, all.length)),
+                total: ns.formatNumber(all.length)
+            });
+            first.disabled = prev.disabled = page === 0;
+            next.disabled = last.disabled = page === pages - 1;
+        }
+
+        function go(target) {
+            target = Math.max(0, Math.min(pages - 1, target));
+            if (target === page || chart.isDisposed()) return;
+            page = target;
+            render();
+            sync();
+        }
+
+        sync();
+        el.parentNode.insertBefore(pager, el.nextSibling);
+        el._rvBarPager = pager;
         return chart;
     };
 })();
@@ -1252,10 +1346,20 @@
 
     /* -- Geographic origins map -- */
 
+    /*
+     * Overlays read from the whole dashboard (the 4th argument):
+     *   currentLocations      — where items are held now, an orange bubble layer
+     *   geoFlows              — origin → current-location lines
+     *   publicationCountries  — the Publications dashboard's countries
+     *                           [{country, outline, count, lat, lon, items}],
+     *                           shaded under its places-of-publication bubbles
+     */
     ns.charts.buildMap = function (el, data, siteBase, allData) {
         var hasOriginData = data && data.length;
         var hasCurrentData = allData && allData.currentLocations && allData.currentLocations.length;
-        if ((!hasOriginData && !hasCurrentData) || typeof maplibregl === 'undefined') return null;
+        var countryRows = (allData && allData.publicationCountries) || [];
+        var shading = countryRows.length > 0 && ns.countryShading ? ns.countryShading : null;
+        if ((!hasOriginData && !hasCurrentData && !shading) || typeof maplibregl === 'undefined') return null;
         data = data || [];
 
         el.style.borderRadius = '6px';
@@ -1479,26 +1583,26 @@
                 return activePopup;
             }
 
-            map.on('click', 'points', function (e) {
-                var props = e.features[0].properties;
-                var locItems = locationItems[props.name] || [];
+            // A popup listing a place's items, eight to a page.
+            function showListPopup(lngLat, props, list) {
                 var perPage = 8;
-
-                showPopup(e.lngLat, buildMapPopup(props, locItems, 0, perPage, siteBase));
-
-                function attachPageHandlers() {
-                    var el = activePopup && activePopup.getElement();
-                    if (!el) return;
-                    el.querySelectorAll('[data-page]').forEach(function (btn) {
+                showPopup(lngLat, buildMapPopup(props, list, 0, perPage, siteBase));
+                (function attach() {
+                    var pe = activePopup && activePopup.getElement();
+                    if (!pe) return;
+                    pe.querySelectorAll('[data-page]').forEach(function (btn) {
                         btn.addEventListener('click', function (evt) {
                             evt.stopPropagation();
-                            var page = parseInt(btn.dataset.page, 10);
-                            activePopup.setHTML(buildMapPopup(props, locItems, page, perPage, siteBase));
-                            attachPageHandlers();
+                            activePopup.setHTML(buildMapPopup(props, list, parseInt(btn.dataset.page, 10), perPage, siteBase));
+                            attach();
                         });
                     });
-                }
-                attachPageHandlers();
+                })();
+            }
+
+            map.on('click', 'points', function (e) {
+                var props = e.features[0].properties;
+                showListPopup(e.lngLat, props, locationItems[props.name] || []);
             });
 
             if (hasFlows) {
@@ -1540,20 +1644,7 @@
             if (hasCurrent) {
                 map.on('click', 'cur-points', function (e) {
                     var props = e.features[0].properties;
-                    var locItems = currentItems[props.name] || [];
-                    var perPage = 8;
-                    showPopup(e.lngLat, buildMapPopup(props, locItems, 0, perPage, siteBase));
-                    (function attach() {
-                        var pe = activePopup && activePopup.getElement();
-                        if (!pe) return;
-                        pe.querySelectorAll('[data-page]').forEach(function (btn) {
-                            btn.addEventListener('click', function (evt) {
-                                evt.stopPropagation();
-                                activePopup.setHTML(buildMapPopup(props, locItems, parseInt(btn.dataset.page, 10), perPage, siteBase));
-                                attach();
-                            });
-                        });
-                    })();
+                    showListPopup(e.lngLat, props, currentItems[props.name] || []);
                 });
 
                 map.on('click', 'cur-clusters', function (e) {
@@ -1569,19 +1660,133 @@
                 });
             }
 
+            // --- Country shading (publications) ---
+            // Countries filled on the accent ramp by how many publications
+            // appeared there, beneath every bubble and line. A country too small
+            // for the outlines (Singapore) is a disc of the same colour.
+            // Rows join the outlines on `outline` (the outline's own name, set
+            // when the country's title matched one), else on the title.
+            function countryKey(r) { return String(r.outline || r.country).toLowerCase(); }
+            var countryByName = {};
+            var maxCountry = 1;
+            countryRows.forEach(function (r) {
+                if (!r || !r.country) return;
+                countryByName[countryKey(r)] = r;
+                maxCountry = Math.max(maxCountry, r.count || 0);
+            });
+            var countryRamp = shading ? shading.ramp() : null;
+            var countryBreaks = shading ? shading.breaks(maxCountry) : null;
+
+            if (shading) {
+                shading.load().then(function (geo) {
+                    if (!map || !map.getStyle || map.getSource('pub-countries')) return;
+                    var fill = shading.fill(countryRamp, countryBreaks);
+                    var below = map.getLayer('flow-lines') ? 'flow-lines' : 'clusters';
+                    var outlined = {};
+                    var shaded = {
+                        type: 'FeatureCollection',
+                        features: geo.features.map(function (f) {
+                            var props = f.properties || {};
+                            var row = shading.featureMatch(props, countryByName);
+                            if (row) outlined[countryKey(row)] = true;
+                            return {
+                                type: 'Feature', geometry: f.geometry,
+                                properties: { count: row ? row.count || 0 : 0, key: row ? countryKey(row) : '' }
+                            };
+                        })
+                    };
+                    map.addSource('pub-countries', { type: 'geojson', data: shaded });
+                    map.addLayer({
+                        id: 'country-fill', type: 'fill', source: 'pub-countries',
+                        paint: { 'fill-color': fill, 'fill-opacity': 0.85 }
+                    }, below);
+                    map.addLayer({
+                        id: 'country-line', type: 'line', source: 'pub-countries',
+                        paint: { 'line-color': THEME.border, 'line-width': 0.5 }
+                    }, below);
+
+                    var loose = countryRows.filter(function (r) {
+                        return r && r.country && !outlined[countryKey(r)]
+                            && r.lat != null && r.lon != null
+                            && Number.isFinite(Number(r.lat)) && Number.isFinite(Number(r.lon));
+                    });
+                    if (loose.length) {
+                        map.addSource('pub-country-dots', {
+                            type: 'geojson',
+                            data: {
+                                type: 'FeatureCollection',
+                                features: loose.map(function (r) {
+                                    return {
+                                        type: 'Feature',
+                                        geometry: { type: 'Point', coordinates: [Number(r.lon), Number(r.lat)] },
+                                        properties: { count: r.count || 0, key: countryKey(r) }
+                                    };
+                                })
+                            }
+                        });
+                        map.addLayer({
+                            id: 'country-dots', type: 'circle', source: 'pub-country-dots',
+                            paint: {
+                                'circle-color': fill, 'circle-radius': 6,
+                                'circle-stroke-width': 1, 'circle-stroke-color': THEME.border
+                            }
+                        }, below);
+                    }
+
+                    // A click on a country lists its publications — unless a
+                    // bubble above it took the click.
+                    var bubbleLayers = ['clusters', 'points', 'cur-clusters', 'cur-points', 'flow-lines', 'current-dots'];
+                    function onCountry(e) {
+                        var over = map.queryRenderedFeatures(e.point, {
+                            layers: bubbleLayers.filter(function (id) { return map.getLayer(id); })
+                        });
+                        if (over.length || !e.features || !e.features.length) return;
+                        var row = countryByName[e.features[0].properties.key];
+                        if (!row) return;
+                        showListPopup(e.lngLat, { name: row.country, value: row.count }, row.items || []);
+                    }
+                    ['country-fill', 'country-dots'].forEach(function (layerId) {
+                        if (!map.getLayer(layerId)) return;
+                        map.on('click', layerId, onCountry);
+                        map.on('mousemove', layerId, function (e) {
+                            var counted = e.features && e.features.length && e.features[0].properties.count > 0;
+                            map.getCanvas().style.cursor = counted ? 'pointer' : '';
+                        });
+                        map.on('mouseleave', layerId, function () { map.getCanvas().style.cursor = ''; });
+                    });
+                }).catch(function (err) {
+                    if (window.console) console.error('Country shading failed:', err);
+                });
+            }
+
             // --- Fit bounds ---
-            if (features.length === 1 && !hasFlows && !hasCurrent) {
+            if (features.length === 1 && !hasFlows && !hasCurrent && !shading) {
                 map.setCenter(features[0].geometry.coordinates);
                 map.setZoom(4);
             } else {
                 var pts = features.map(function (f) { return f.geometry.coordinates; })
                     .concat(hasFlows ? geoFlows.links.map(function (l) { return [l.toLon, l.toLat]; }) : [])
-                    .concat(hasCurrent ? currentData.map(function (loc) { return [loc.lon, loc.lat]; }) : []);
+                    .concat(hasCurrent ? currentData.map(function (loc) { return [loc.lon, loc.lat]; }) : [])
+                    .concat(countryRows.filter(function (r) {
+                        return r && r.lat != null && r.lon != null && Number.isFinite(Number(r.lat)) && Number.isFinite(Number(r.lon));
+                    }).map(function (r) { return [Number(r.lon), Number(r.lat)]; }));
                 ns.fitToPoints(map, pts, { padding: 40, maxZoom: 6 });
             }
 
             // --- Legend (rendered below the map; see ns.mountMapLegend) ---
-            if (hasCurrent || hasFlows) {
+            if (shading) {
+                var swatches = countryRamp.stops.map(function (c) {
+                    return '<span class="rv-map-legend-swatch" style="background:' + esc(c) + '"></span>';
+                }).join('');
+                ns.mountMapLegend(el,
+                    '<div class="rv-map-legend-row"><span>1</span>' + swatches + '<span>' + esc(String(maxCountry)) + '</span></div>'
+                        + '<div class="rv-map-legend-caption">' + esc(ns.t('publicationsPerCountry', 'Publications per country')) + '</div>'
+                        + (features.length
+                            ? '<div class="rv-map-legend-row"><span class="rv-map-legend-dot" style="background:' + esc(THEME.accent) + '"></span> '
+                                + esc(ns.t('placeOfPublication', 'Place of publication')) + '</div>'
+                            : ''),
+                    'rv-choropleth-legend');
+            } else if (hasCurrent || hasFlows) {
                 var legendHtml =
                     '<div class="rv-map-legend-row"><span class="rv-map-legend-dot" style="background:' + esc(THEME.accent) + '"></span> ' + esc(ns.t('origin', 'Place of origin')) + '</div>' +
                     '<div class="rv-map-legend-row"><span class="rv-map-legend-dot" style="background:' + esc(currentColor) + '"></span> ' + esc(ns.t('currentLocation', 'Current location')) + '</div>';
@@ -2389,6 +2594,42 @@
         }
     }
 
+    /** The first name property a GeoJSON feature carries (its display name). */
+    function featureName(props) {
+        for (var i = 0; i < NAME_PROPS.length; i++) {
+            if (typeof props[NAME_PROPS[i]] === 'string') return props[NAME_PROPS[i]];
+        }
+        return null;
+    }
+
+    /**
+     * The entry of `byName` (lower-cased country name → value) that a feature's
+     * ADMIN / NAME / NAME_EN / NAME_LONG names, or undefined.
+     */
+    function featureMatch(props, byName) {
+        for (var i = 0; i < NAME_PROPS.length; i++) {
+            var v = props[NAME_PROPS[i]];
+            if (typeof v === 'string' && byName[v.toLowerCase()] !== undefined) return byName[v.toLowerCase()];
+        }
+        return undefined;
+    }
+
+    /**
+     * Country shading shared with the other MapLibre charts: the cached
+     * outlines, the accent ramp with its log-spaced breaks and fill expression,
+     * the name join and polygon bounds. The publications map shades the
+     * countries its works appeared in under its city bubbles with these.
+     */
+    ns.countryShading = {
+        load: loadCountries,
+        ramp: buildRamp,
+        breaks: buildBreaks,
+        fill: fillExpression,
+        extendBounds: extendBounds,
+        featureName: featureName,
+        featureMatch: featureMatch
+    };
+
     ns.charts.buildChoropleth = function (el, data, siteBase) {
         if (!data || !data.length || typeof maplibregl === 'undefined') return null;
         el.style.borderRadius = '6px';
@@ -2405,20 +2646,11 @@
         var maxCount = Math.max.apply(null, data.map(function (d) { return d.count || 0; }).concat(1));
 
         function lookupCount(props) {
-            for (var i = 0; i < NAME_PROPS.length; i++) {
-                var v = props[NAME_PROPS[i]];
-                if (typeof v === 'string' && counts[v.toLowerCase()] !== undefined) {
-                    return counts[v.toLowerCase()];
-                }
-            }
-            return 0;
+            return featureMatch(props, counts) || 0;
         }
 
         function countryName(props) {
-            for (var i = 0; i < NAME_PROPS.length; i++) {
-                if (typeof props[NAME_PROPS[i]] === 'string') return props[NAME_PROPS[i]];
-            }
-            return ns.t('unknownCountry', 'Unknown');
+            return featureName(props) || ns.t('unknownCountry', 'Unknown');
         }
 
         // Wrapped so the theme engine can rebuild the map on a light/dark toggle.
@@ -3170,6 +3402,7 @@
         genres: 'resourceTypes',
         sections: 'projects',
         series: 'playlists',
+        journals: 'venues',
         places: 'locations'
     };
 
@@ -3270,6 +3503,7 @@
     ns.CHART_MAP = {
         'selfLocation':        c.buildMiniMap,
         'stackedTimeline':     c.buildStackedTimeline,
+        'publishedHere':       c.buildStackedTimeline,
         'timeline':            c.buildTimeline,
         'gantt':               c.buildGantt,
         'beeswarm':            c.buildBeeswarm,
@@ -3285,7 +3519,9 @@
         'sectionUniversity':   c.buildHeatmap,
         'radar':               c.buildRadar,
         'templates':           c.buildPieChart,
-        'topVenues':           c.buildBarChart,
+        'topJournals':         c.buildBarChart,
+        'topSeries':           c.buildBarChart,
+        'topPublishers':       c.buildBarChart,
         'topAuthors':          c.buildBarChart,
         'funders':             c.buildBarChart,
         'playlists':           c.buildBarChart,
@@ -3331,6 +3567,7 @@
     ns.CHART_LABELS = {
         'selfLocation':        'Location',
         'stackedTimeline':     'Items by year and type',
+        'publishedHere':       'Published here',
         'timeline':            'Items by year',
         'gantt':               'Project timelines',
         'beeswarm':            'Projects by start year',
@@ -3367,7 +3604,9 @@
         'sectionUniversity':   'Research section by university',
         'radar':               'Profile',
         'templates':           'Records by description template',
-        'topVenues':           'Journals and book series',
+        'topJournals':         'Journals',
+        'topSeries':           'Book series',
+        'topPublishers':       'Publishers',
         'topAuthors':          'Most published authors',
         'funders':             'Funders',
         'playlists':           'Videos by playlist',
@@ -3394,6 +3633,7 @@
         'subjects':            'The subjects and tags used most often. Controlled subject headings and free-text tags are counted together.',
         'selfLocation':        '',
         'stackedTimeline':     'Items collected each year, split by resource type.',
+        'publishedHere':       'Publications issued here, counted by year and split by type. A book or chapter counts for the place of publication it names and for the country that place is in; an article counts for the country its journal comes from.',
         'gantt':               'How long each project in this research section ran.',
         'beeswarm':            'Each dot is a project. Its position marks the start year; its size shows the number of research items.',
         'heatmap':             'Item counts for every combination of resource type and language.',
@@ -3409,7 +3649,9 @@
         'sectionUniversity':   'Research items counted by research section and university.',
         'radar':               'A profile across six measures: items, languages, subjects, people, resource types and year span. Each is scaled against the largest of its kind.',
         'templates':           'Records counted by the description template they use: Article, Book, Research Item, and so on.',
-        'topVenues':           'The journals and book series these publications appear in most often.',
+        'topJournals':         'The journals these publications appear in most often.',
+        'topSeries':           'The book and working-paper series these publications belong to most often.',
+        'topPublishers':       'The publishers that issued the most of these publications.',
         'topAuthors':          'The authors credited on the most publications, whether they have a record here or appear as a name only.',
         'funders':             'The funding bodies credited on these publications.',
         'playlists':           'Videos counted by the playlist they belong to.',

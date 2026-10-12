@@ -232,6 +232,19 @@
       "value": 1
     }
   ],
+  "publishedHere": {
+    "series": [
+      {
+        "data": [2,1,1,1],
+        "name": "Journal article"
+      },
+      {
+        "data": [0,0,1,0],
+        "name": "Monograph"
+      }
+    ],
+    "years": [2019,2020,2022,2025]
+  },
   "resourceType": "location",
   "selfLocation": {"itemId":600,"lat":6.5244,"lon":3.3792,"name":"Lagos"},
   "subjects": [
@@ -261,7 +274,7 @@
     {"itemId":705,"name":"Urbanization","value":1}
   ],
   "timeline": {"1955":1,"1956":1,"1957":1,"1958":1,"1959":1,"2021":5,"2022":2,"2023":5,"2024":2,"2025":2},
-  "totalItems": 23,
+  "totalItems": 29,
   "types": [
     {"itemId":803,"name":"Sound recording","value":7},
     {"itemId":801,"name":"Photograph","value":6},

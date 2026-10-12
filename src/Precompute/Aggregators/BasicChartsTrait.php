@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace DreVisualizations\Precompute\Aggregators;
 
+use DreVisualizations\Precompute\Roles;
+
 /**
  * Core per-item distributions: the primary aggregateItems pass, the
  * resource-type × language heatmap, contributor roles, and the
@@ -50,7 +52,7 @@ trait BasicChartsTrait
             $hasSyn = $synType !== null && $synType !== '';
             $counted = [];
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
-                $dimension = ($term === 'dcterms:creator' || $term === 'dcterms:contributor' || str_starts_with($term, 'marcrel:')) ? 'contributors' : $term;
+                $dimension = Roles::isCredit($term) ? 'contributors' : $term;
                 $key = $dimension . ':' . $vrid;
                 if (isset($counted[$key])) continue;
                 $counted[$key] = true;
@@ -69,7 +71,7 @@ trait BasicChartsTrait
                 } elseif ($term === 'dcterms:subject') {
                     $subjects[$vrid] ??= ['name' => $title, 'value' => 0, 'itemId' => $vrid];
                     $subjects[$vrid]['value']++;
-                } elseif ($term === 'dcterms:creator' || $term === 'dcterms:contributor' || str_starts_with($term, 'marcrel:')) {
+                } elseif (Roles::isCredit($term)) {
                     $contributors[$vrid] ??= ['name' => $title, 'value' => 0, 'itemId' => $vrid];
                     $contributors[$vrid]['value']++;
                 } elseif ($term === 'dcterms:spatial') {
@@ -121,7 +123,9 @@ trait BasicChartsTrait
             'types' => $this->sortByValueDesc(array_values($types)),
             'languages' => $this->sortByValueDesc(array_values($languages)),
             'subjects' => array_slice($subjectsSorted, 0, 200),
-            'contributors' => array_slice($contributorsSorted, 0, 30),
+            // Paged twenty at a time by the bar chart; capped so the thousands
+            // of per-entity dashboards stay small.
+            'contributors' => array_slice($contributorsSorted, 0, self::RANKED_LIST_CAP),
             'locations' => $this->sortByValueDesc(array_values($locations)),
             'currentLocations' => $this->sortByValueDesc(array_values($currentLocations)),
             'totalItems' => count($itemIds),
@@ -212,8 +216,9 @@ trait BasicChartsTrait
         $roleCounts = [];
         foreach ($itemIds as $iid) {
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
-                if (str_starts_with($term, 'marcrel:') || $term === 'dcterms:creator' || $term === 'dcterms:contributor') {
-                    $roleCounts[$label] = ($roleCounts[$label] ?? 0) + 1;
+                if (Roles::isCredit($term)) {
+                    $role = Roles::roleLabel($term, $label);
+                    $roleCounts[$role] = ($roleCounts[$role] ?? 0) + 1;
                 }
             }
         }
@@ -236,8 +241,9 @@ trait BasicChartsTrait
                 if ($vrid !== $entityId) {
                     continue;
                 }
-                if (str_starts_with($term, 'marcrel:') || $term === 'dcterms:creator' || $term === 'dcterms:contributor') {
-                    $roleCounts[$label] = ($roleCounts[$label] ?? 0) + 1;
+                if (Roles::isCredit($term)) {
+                    $role = Roles::roleLabel($term, $label);
+                    $roleCounts[$role] = ($roleCounts[$role] ?? 0) + 1;
                 }
             }
         }

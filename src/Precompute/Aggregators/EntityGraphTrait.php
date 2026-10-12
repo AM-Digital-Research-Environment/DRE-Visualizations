@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace DreVisualizations\Precompute\Aggregators;
 
 use DreVisualizations\Precompute\ForceLayout;
+use DreVisualizations\Precompute\Roles;
 
 /**
  * Entity Network: a global, collection-wide co-occurrence graph linking the
@@ -101,11 +102,16 @@ trait EntityGraphTrait
                 if ($title === '') {
                     continue;
                 }
-                if ($term === 'dcterms:creator' || $term === 'dcterms:contributor'
-                    || $term === 'foaf:member' || $term === 'bibo:authorList'
-                    || $term === 'bibo:editorList' || str_starts_with($term, 'marcrel:')) {
-                    if ($assign($vrid, self::ET_PERSON, $title)) {
+                $isOrg = ($items[$vrid]['class_term'] ?? '') === 'foaf:Organization';
+                if ($term === 'foaf:member' || Roles::isCredit($term)) {
+                    // A credit can name an organisation (a sponsor, a corporate
+                    // author); typed by what it links to, or the lower Person
+                    // index would win and draw it as a person.
+                    if ($assign($vrid, $isOrg ? self::ET_ORG : self::ET_PERSON, $title)) {
                         $ents[$vrid] = true;
+                    }
+                    if ($isOrg) {
+                        continue;
                     }
                     // Surface the person's affiliated organizations.
                     foreach ($links[$vrid] ?? [] as [$pterm, $plabel, $org]) {
@@ -121,7 +127,8 @@ trait EntityGraphTrait
                         $ents[$vrid] = true;
                     }
                 } elseif ($term === 'dcterms:spatial' || $term === 'dcterms:provenance') {
-                    if ($assign($vrid, self::ET_LOCATION, $title)) {
+                    // A current location can be the institution holding the item.
+                    if ($assign($vrid, $isOrg ? self::ET_ORG : self::ET_LOCATION, $title)) {
                         $ents[$vrid] = true;
                     }
                 } elseif ($term === 'frapo:isFundedBy') {

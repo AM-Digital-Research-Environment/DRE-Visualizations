@@ -216,7 +216,7 @@
     ],
     "series": [
       {
-        "value": [22,6,20,15,7,6]
+        "value": [22,6,20,18,7,6]
       }
     ]
   },
@@ -226,7 +226,9 @@
     {"name":"Photographer","value":4},
     {"name":"Contributor","value":3},
     {"name":"Speaker","value":3},
-    {"name":"Interviewer","value":2}
+    {"name":"author","value":2},
+    {"name":"Interviewer","value":2},
+    {"name":"editor","value":1}
   ],
   "subjects": [
     {"itemId":715,"name":"capoeira","value":5},

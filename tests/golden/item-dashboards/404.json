@@ -139,7 +139,7 @@
     ],
     "series": [
       {
-        "value": [9,5,11,9,4,12]
+        "value": [9,5,11,10,4,12]
       }
     ]
   },
@@ -147,6 +147,7 @@
   "roles": [
     {"name":"Contributor","value":3},
     {"name":"Creator","value":2},
+    {"name":"author","value":1},
     {"name":"Author","value":1},
     {"name":"Interviewer","value":1}
   ],

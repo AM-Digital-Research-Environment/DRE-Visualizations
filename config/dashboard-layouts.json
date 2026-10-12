@@ -93,7 +93,15 @@
       "languages",
       "contributors",
       "subjects",
-      "locations"
+      "locations",
+      "publishedHere"
+    ],
+    "venue": [
+      "stackedTimeline",
+      "languages",
+      "topAuthors",
+      "coAuthorNetwork",
+      "subjects"
     ],
     "authority": [
       "timeline",
@@ -263,7 +271,9 @@
       "languages",
       "stackedTimeline",
       "locations",
-      "topVenues",
+      "topJournals",
+      "topSeries",
+      "topPublishers",
       "topAuthors",
       "funders",
       "coAuthorNetwork",

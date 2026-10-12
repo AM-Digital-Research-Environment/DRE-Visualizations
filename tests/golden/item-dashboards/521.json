@@ -1,0 +1,73 @@
+{
+  "collabNetwork": {
+    "links": [
+      {"source":"Routledge","target":"Deutsche Forschungsgemeinschaft","value":4},
+      {"source":"Routledge","target":"University of Bayreuth","value":2}
+    ],
+    "nodes": [
+      {"isSelf":true,"itemId":521,"name":"Routledge","value":8},
+      {"itemId":507,"name":"Deutsche Forschungsgemeinschaft","value":4},
+      {"itemId":500,"name":"University of Bayreuth","value":2}
+    ]
+  },
+  "contributors": [
+    {"itemId":412,"name":"Traoré, Aïssata","value":3},
+    {"itemId":401,"name":"Bakari, Amina","value":2},
+    {"itemId":418,"name":"Ferreira, Luíza","value":2},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":2},
+    {"itemId":423,"name":"Njoroge, Peter","value":2},
+    {"itemId":403,"name":"Santos, Ana Clara","value":2},
+    {"itemId":400,"name":"Adeyemi, Folake","value":1},
+    {"itemId":421,"name":"Diallo, Fatoumata","value":1},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":1},
+    {"itemId":419,"name":"Hoffmann, Felix","value":1},
+    {"itemId":420,"name":"Mensah, Kwame","value":1},
+    {"itemId":410,"name":"Oliveira, Rafael","value":1},
+    {"itemId":402,"name":"Ouédraogo, Issa","value":1},
+    {"itemId":414,"name":"Weber, Lena","value":1}
+  ],
+  "currentLocations": [],
+  "languages": [
+    {"itemId":810,"name":"English","value":4},
+    {"itemId":811,"name":"French","value":3},
+    {"itemId":812,"name":"Portuguese","value":1}
+  ],
+  "locations": [],
+  "radar": {
+    "indicator": [
+      {"max":28,"name":"Items"},
+      {"max":7,"name":"Languages"},
+      {"max":20,"name":"Subjects"},
+      {"max":21,"name":"People"},
+      {"max":8,"name":"Types"},
+      {"max":55,"name":"Year span"}
+    ],
+    "series": [
+      {
+        "value": [8,3,9,14,2,6]
+      }
+    ]
+  },
+  "resourceType": "organisation",
+  "subjects": [
+    {"itemId":721,"name":"healing","value":3},
+    {"itemId":717,"name":"Afrobeat","value":2},
+    {"itemId":709,"name":"Education","value":2},
+    {"itemId":712,"name":"Archives","value":1},
+    {"itemId":703,"name":"Christianity","value":1},
+    {"itemId":714,"name":"Gender","value":1},
+    {"itemId":713,"name":"Kinship","value":1},
+    {"itemId":707,"name":"Popular music","value":1},
+    {"itemId":705,"name":"Urbanization","value":1}
+  ],
+  "templates": [
+    {"name":"Journal Article","value":5},
+    {"name":"Book Chapter","value":3}
+  ],
+  "timeline": {"2019":1,"2020":2,"2021":1,"2022":1,"2023":1,"2024":1,"2025":1},
+  "totalItems": 8,
+  "types": [
+    {"itemId":805,"name":"Journal article","value":5},
+    {"itemId":807,"name":"Monograph","value":3}
+  ]
+}

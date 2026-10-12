@@ -232,6 +232,38 @@ graphCheck(($authorEdge['name'] ?? null) === 'Author',
 graphCheck(in_array('Another article by the same author', $pubNames, true),
     'bibo:authorList is shareable, so a second work by the same author co-occurs');
 
+// A publication's containers, place and publisher are typed by what they link to:
+// dcterms:isPartOf reaches a journal or a book (a venue) as readily as a project,
+// and marcrel:pup is a place, not a contributor.
+$venueItems = [
+    30 => ['title' => 'A chapter', 'class_label' => 'Book Chapter', 'class_term' => 'fabio:BookChapter'],
+    31 => ['title' => 'An edited book', 'class_term' => 'fabio:Book'],
+    32 => ['title' => 'A book series', 'class_term' => 'bibo:Series'],
+    33 => ['title' => 'London', 'class_term' => 'dcterms:Location'],
+    34 => ['title' => 'A press', 'class_term' => 'foaf:Organization'],
+    35 => ['title' => 'A project', 'class_term' => 'foaf:Project'],
+    36 => ['title' => 'A sponsor', 'class_term' => 'foaf:Organization'],
+];
+$venueGraph = KnowledgeGraphs::buildGraph(30, $venueItems, [30 => [
+    ['dcterms:isPartOf', 'Is part of', 31],
+    ['dre:series', 'Series', 32],
+    ['marcrel:pup', 'Place of publication', 33],
+    ['dcterms:publisher', 'Publisher', 34],
+    ['dcterms:isPartOf', 'Is part of', 35],
+    ['marcrel:spn', 'Sponsor', 36],
+]], [], [], [], []);
+$venueCats = array_column($venueGraph['categories'] ?? [], 'name');
+$venueCatOf = [];
+foreach ($venueGraph['nodes'] ?? [] as $n) {
+    $venueCatOf[$n['itemId']] = $venueCats[$n['category']] ?? null;
+}
+graphCheck(($venueCatOf[31] ?? null) === 'Publication venue' && ($venueCatOf[32] ?? null) === 'Publication venue',
+    'the book and series of a chapter are publication venues');
+graphCheck(($venueCatOf[33] ?? null) === 'Location', 'a place of publication is a Location, not a Contributor');
+graphCheck(($venueCatOf[34] ?? null) === 'Institution', 'a publisher is an Institution');
+graphCheck(($venueCatOf[35] ?? null) === 'Project', 'dcterms:isPartOf still files a project under Project');
+graphCheck(($venueCatOf[36] ?? null) === 'Institution', 'an organisation in a marcrel role is an Institution');
+
 /* ------------------------------------------------------------------ */
 /*  assignCommunities                                                  */
 /* ------------------------------------------------------------------ */

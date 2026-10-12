@@ -36,9 +36,12 @@ trait SpatialTrait
      * @param array $geo          [locId => ['name'=>, 'lat'=>, 'lon'=>, 'itemId'=>]]
      * @param array $reverseLinks [valueResourceId => [term => [ids]]]
      * @param array $countryIndex [locId => countryName] (from buildCountryIndex)
+     * @param array<int,true> $skip items whose places are not counted (journal
+     *                        records: their dcterms:spatial is the journal's
+     *                        country of origin, not where a work comes from)
      * @return array{locations: list<array{0:int,1:string,2:float,3:float,4:int,5:int,6:int}>, countries: list<array{0:string,1:int,2:array{0:float,1:float,2:float,3:float}}>}
      */
-    public function buildSpatialPlaces(array $geo, array $reverseLinks, array $countryIndex): array
+    public function buildSpatialPlaces(array $geo, array $reverseLinks, array $countryIndex, array $skip = []): array
     {
         // One pass over geocoded locations: distinct-item origin/current counts + country.
         $rows = [];
@@ -46,11 +49,15 @@ trait SpatialTrait
             $rev = $reverseLinks[$locId] ?? [];
             $originItems = [];
             foreach ($rev['dcterms:spatial'] ?? [] as $iid) {
-                $originItems[$iid] = true;
+                if (!isset($skip[$iid])) {
+                    $originItems[$iid] = true;
+                }
             }
             $currentItems = [];
             foreach ($rev['dcterms:provenance'] ?? [] as $iid) {
-                $currentItems[$iid] = true;
+                if (!isset($skip[$iid])) {
+                    $currentItems[$iid] = true;
+                }
             }
             $originCount = count($originItems);
             $currentCount = count($currentItems);

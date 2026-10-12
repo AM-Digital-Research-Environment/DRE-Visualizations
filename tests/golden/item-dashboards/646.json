@@ -1,0 +1,21 @@
+{
+  "contributors": [],
+  "currentLocations": [],
+  "languages": [],
+  "locations": [],
+  "publishedHere": {
+    "series": [
+      {
+        "data": [2,1,2,2,1],
+        "name": "Journal article"
+      }
+    ],
+    "years": [2019,2020,2022,2023,2025]
+  },
+  "resourceType": "location",
+  "selfLocation": {"itemId":646,"lat":54.6,"lon":-2,"name":"United Kingdom"},
+  "subjects": [],
+  "timeline": {},
+  "totalItems": 8,
+  "types": []
+}

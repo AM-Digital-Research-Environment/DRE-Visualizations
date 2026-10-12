@@ -17,18 +17,20 @@
     {"itemId":724,"name":"restitution","value":1}
   ],
   "contributors": [
-    {"itemId":416,"name":"Achieng, Grace","value":6},
+    {"itemId":416,"name":"Achieng, Grace","value":7},
+    {"itemId":410,"name":"Oliveira, Rafael","value":3},
     {"itemId":402,"name":"Ouédraogo, Issa","value":3},
-    {"itemId":410,"name":"Oliveira, Rafael","value":2},
+    {"itemId":424,"name":"Item 424","value":2},
+    {"itemId":406,"name":"Mwangi, Wanjiru","value":2},
+    {"itemId":401,"name":"Bakari, Amina","value":1},
     {"itemId":415,"name":"Balogun, Tunde","value":1},
     {"itemId":510,"name":"Bayreuth Academy Working Group","value":1},
+    {"itemId":408,"name":"Dlamini, Thandiwe","value":1},
     {"itemId":419,"name":"Hoffmann, Felix","value":1},
-    {"itemId":424,"name":"Item 424","value":1},
     {"itemId":417,"name":"Kaboré, Paul","value":1},
     {"itemId":411,"name":"Kiprop, David","value":1},
-    {"itemId":600,"name":"Lagos","value":1},
-    {"itemId":604,"name":"Makhanda","value":1},
-    {"itemId":406,"name":"Mwangi, Wanjiru","value":1}
+    {"itemId":404,"name":"Müller, Katharina","value":1},
+    {"itemId":423,"name":"Njoroge, Peter","value":1}
   ],
   "currentLocations": [
     {
