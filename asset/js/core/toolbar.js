@@ -1,6 +1,7 @@
 /**
- * Dashboard core: the per-chart toolbar — save as image, download as CSV, and
- * the fill-pattern (decal) toggle every chart shares.
+ * Dashboard core: the per-chart toolbar — save as image, download as CSV, the
+ * fill-pattern (decal) toggle every chart shares, and the slots the embed
+ * (core/embed.js) and fullscreen (core/fullscreen.js) buttons take in it.
  *
  * Source file of the generated asset/js/dashboard-core.js (see base.js).
  */
@@ -170,12 +171,79 @@
         return heading;
     }
 
+    // The toolbar's slots, in the order they read: what the chart can export,
+    // then the embed code, then fullscreen — always last, as on the graphs.
+    var SLOTS = ['export', 'embed', 'fullscreen'];
+
+    /**
+     * The panel's ONE `.rv-chart-toolbar`, created on first use. Its controls
+     * arrive in no fixed order — a dashboard gives every panel its embed button
+     * at once, but a chart built as it nears the viewport gets its export
+     * buttons later — so each goes in at its slot instead of being appended,
+     * and a panel can never grow a second toolbar that pushes the first one
+     * away from the title.
+     *
+     * @param {HTMLElement} panel
+     * @param {string} slot      one of SLOTS
+     * @param {Node|Node[]} controls
+     * @returns {HTMLElement} the toolbar
+     */
+    ns.addToChartToolbar = function (panel, slot, controls) {
+        var heading = chartHeading(panel);
+        var bar = heading.querySelector('.rv-chart-toolbar');
+        if (!bar) {
+            var title = panel.querySelector('h3');
+            var panelTitle = title ? (title.textContent || '').trim() : '';
+            var toolbarLabel = ns.t('chartActions', 'Chart actions');
+            bar = document.createElement('div');
+            bar.className = 'rv-chart-toolbar';
+            bar.setAttribute('role', 'toolbar');
+            bar.setAttribute('aria-label', panelTitle ? toolbarLabel + ': ' + panelTitle : toolbarLabel);
+            heading.appendChild(bar);
+        }
+        var rank = SLOTS.indexOf(slot);
+        var before = null;
+        for (var i = 0; i < bar.children.length && !before; i++) {
+            if (SLOTS.indexOf(bar.children[i].getAttribute('data-slot')) > rank) before = bar.children[i];
+        }
+        [].concat(controls).forEach(function (control) {
+            control.setAttribute('data-slot', slot);
+            bar.insertBefore(control, before);
+        });
+        return bar;
+    };
+
+    /**
+     * Fullscreen for one chart panel, last in its toolbar. The panel is the
+     * surface because everything that drives the chart lives in it: the
+     * description, a word cloud's slider and languages, a map's legend, the
+     * data table. Never inside an embed, whose frame is already the chart.
+     */
+    ns.attachPanelFullscreen = function (panel) {
+        if (!panel || (document.body && document.body.classList.contains('dre-embed-body'))) return;
+        var heading = panel.querySelector('.rv-chart-heading');
+        if (heading && heading.querySelector('.rv-fullscreen-btn')) return;
+        ns.addToChartToolbar(panel, 'fullscreen', ns.fullscreenButton(panel, { className: 'rv-toolbar-btn' }));
+    };
+
     /** One shared glyph (core/icons.js) as markup for the toolbar string below. */
     function icon(body) { return ns.iconSvg(body).outerHTML; }
 
-    /** Attach HTML-level toolbar (image, CSV, and pattern controls). */
-    ns.attachToolbar = function (panel, chart) {
-        if (!panel || !chart || !chart.getDataURL) return;
+    /**
+     * The chart panel's toolbar: save as image, download the data, the fill
+     * patterns — for a chart that can export — and fullscreen, which every
+     * chart gets (maps included) unless `opts.fullscreen` is false: a block
+     * whose controls sit outside its panels expands as a whole instead
+     * (core/embed.js ns.setupBlockEmbedButtons).
+     */
+    ns.attachToolbar = function (panel, chart, opts) {
+        if (!panel || !chart) return;
+        if (typeof chart.getDataURL === 'function') attachExports(panel, chart);
+        if (!opts || opts.fullscreen !== false) ns.attachPanelFullscreen(panel);
+    };
+
+    function attachExports(panel, chart) {
+        if (panel.querySelector('.rv-chart-toolbar [data-action="save"]')) return;
         // A dashboard rebuild (light/dark switch) replaces the ECharts instance
         // in the same container; the buttons act on whichever one is live.
         var dom = typeof chart.getDom === 'function' ? chart.getDom() : null;
@@ -192,13 +260,9 @@
         var hasCsv = ns.chartCsvRows(chart).length > 1;
         var title = panel.querySelector('h3');
         var panelTitle = title ? (title.textContent || '').trim() : '';
-        var toolbarLabel = ns.t('chartActions', 'Chart actions');
-        var bar = document.createElement('div');
-        bar.className = 'rv-chart-toolbar';
-        bar.setAttribute('role', 'toolbar');
-        bar.setAttribute('aria-label', panelTitle ? toolbarLabel + ': ' + panelTitle : toolbarLabel);
+        var buttons = document.createElement('div');
         // eslint-disable-next-line no-unsanitized/property -- icon constants + escaped titles
-        bar.innerHTML = (showDecal
+        buttons.innerHTML = (showDecal
             ? '<button type="button" class="rv-toolbar-btn' + (ns._decalEnabled ? ' rv-toolbar-btn-active' : '') + '" data-action="decal" title="' + ns.escapeHtml(decalTitle) + '" aria-label="' + ns.escapeHtml(decalTitle) + '">'
             + icon(ns.ICONS.patterns)
             + '</button>'
@@ -210,13 +274,14 @@
                 ? '<button type="button" class="rv-toolbar-btn" data-action="csv" title="' + ns.escapeHtml(csvTitle) + '" aria-label="' + ns.escapeHtml(csvTitle) + '">'
                 + icon(ns.ICONS.csv) + '</button>'
                 : '');
-        chartHeading(panel).appendChild(bar);
+        var exports = Array.prototype.slice.call(buttons.children);
+        ns.addToChartToolbar(panel, 'export', exports);
         if (hasCsv && !chart._noDataTable) {
             ns.attachDataTable(panel, function () { return ns.chartCsvRows(live()); }, panelTitle);
         }
-        bar.addEventListener('click', function (e) {
-            var btn = e.target.closest('[data-action]');
-            if (!btn) return;
+        exports.forEach(function (btn) { btn.addEventListener('click', onExport); });
+        function onExport(e) {
+            var btn = e.currentTarget;
             var name = panelTitle || 'chart';
             if (btn.dataset.action === 'save') {
                 var url = live().getDataURL({ pixelRatio: 2, backgroundColor: ns.exportBg() });
@@ -229,6 +294,6 @@
             } else if (btn.dataset.action === 'decal') {
                 ns.toggleDecals();
             }
-        });
-    };
+        }
+    }
 })();

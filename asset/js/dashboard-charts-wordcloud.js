@@ -70,9 +70,16 @@
         // scales with them so words still don't collide after the bump.
         function wordCloudOption(count) {
             var slice = entries.slice(0, count);
-            var minFont = count > 100 ? 12 : count > 50 ? 14 : 16;
-            var maxFont = count > 100 ? 72 : count > 50 ? 84 : (count > 10 ? 96 : 110);
-            var grid = count > 100 ? 6 : count > 50 ? 8 : 10;
+            // The type is set in pixels, so a cloud in a fullscreen panel would
+            // stay its page size in the middle of the stage. There it scales
+            // with the stage's area over a wide panel's (1100 × 350), up to
+            // 1.8×; on the page it is exactly as it was.
+            var scale = el.closest('.rv-fullscreen')
+                ? Math.min(1.8, Math.max(1, Math.sqrt(el.clientWidth * el.clientHeight / (1100 * 350))))
+                : 1;
+            var minFont = Math.round((count > 100 ? 12 : count > 50 ? 14 : 16) * scale);
+            var maxFont = Math.round((count > 100 ? 72 : count > 50 ? 84 : (count > 10 ? 96 : 110)) * scale);
+            var grid = Math.round((count > 100 ? 6 : count > 50 ? 8 : 10) * scale);
             return {
                 tooltip: {
                     confine: true,
@@ -122,6 +129,14 @@
 
         var panel = el.closest('.chart-panel');
         if (!panel) return chart;
+        // Entering or leaving fullscreen changes the scale above: lay the cloud
+        // out again once the panel has its new size.
+        panel.addEventListener('rv-fullscreenchange', function () {
+            if (chart.isDisposed()) return;
+            requestAnimationFrame(function () {
+                if (!chart.isDisposed()) chart._rvRebuild();
+            });
+        });
         var desc = panel.querySelector('.chart-description');
         var anchor = desc ? desc.nextSibling : el;
 

@@ -110,6 +110,112 @@
     };
 
     /**
+     * Node diameters for a network chart: the circle's AREA follows the
+     * node's `value`, scaled against the largest in the network, between `min`
+     * and `max` px. The page's own entity (`isSelf`) is drawn at 45px.
+     *
+     * @returns {function(Object): number}
+     */
+    ns.networkNodeSize = function (nodes, min, max) {
+        var top = nodes.reduce(function (m, nd) {
+            return nd.isSelf ? m : Math.max(m, Number(nd.value) || 0);
+        }, 0) || 1;
+        return function (nd) {
+            if (nd.isSelf) return 45;
+            return Math.round(min + (max - min) * Math.sqrt(Math.max(0, Number(nd.value) || 0) / top));
+        };
+    };
+
+    /** One d3-force settle: [x, y] per node, in the frame's proportions. */
+    function settle(d3, nodes, edges, aspect, scale) {
+        var byName = {};
+        var sim = nodes.map(function (node) {
+            var entry = { id: node.name, r: node.size * scale / 2 + 4 };
+            if (node.fixed) { entry.fx = 0; entry.fy = 0; }
+            byName[node.name] = entry;
+            return entry;
+        });
+        var links = edges.filter(function (link) {
+            return byName[link.source] && byName[link.target] && link.source !== link.target;
+        }).map(function (link) { return { source: link.source, target: link.target }; });
+        // The pull to the centre is weaker across than down, by the square of
+        // the aspect, so the settled shape is about as wide as the frame.
+        var pull = 0.08;
+        var simulation = d3.forceSimulation(sim)
+            .force('link', d3.forceLink(links).id(function (d) { return d.id; })
+                .distance(function (link) { return link.source.r + link.target.r + 18; }).strength(0.6))
+            .force('charge', d3.forceManyBody().strength(-40).distanceMax(220))
+            .force('collide', d3.forceCollide(function (d) { return d.r; }).iterations(2))
+            .force('x', d3.forceX(0).strength(pull / (aspect * aspect)))
+            .force('y', d3.forceY(0).strength(pull))
+            .stop();
+        var ticks = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()));
+        for (var i = 0; i < ticks; i++) simulation.tick();
+        return sim.map(function (d) { return [d.x, d.y]; });
+    }
+
+    /**
+     * How much ECharts will scale a settled network to draw it: a
+     * `layout: 'none'` graph is fitted into 80% of the frame's limiting side,
+     * its proportions kept.
+     */
+    function fitOf(positions, w, h) {
+        var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        positions.forEach(function (p) {
+            minX = Math.min(minX, p[0]); maxX = Math.max(maxX, p[0]);
+            minY = Math.min(minY, p[1]); maxY = Math.max(maxY, p[1]);
+        });
+        return 0.8 * Math.min(w / Math.max(1, maxX - minX), h / Math.max(1, maxY - minY));
+    }
+
+    /**
+     * Lay out an ECharts node-link chart before it is drawn, so the whole
+     * network is in view. ECharts' own force layout spreads the nodes out in
+     * pixels from the centre and never fits the result to the frame: a
+     * project's handful of contributors happens to fit, but a collection-wide
+     * network of 150 people runs far past every edge and opens zoomed in.
+     *
+     * Here d3-force settles the network into a compact shape with the frame's
+     * proportions — nodes kept apart by their drawn size, unconnected groups
+     * held together, `fixed` nodes (the page's own entity) at the centre — and
+     * the chart draws it with `layout: 'none'`, which ECharts scales to the
+     * frame on every resize and in fullscreen. Node sizes stay in px while the
+     * layout scales, so when a network is too big for its frame (150 people
+     * on a phone) the circles are drawn smaller and the network is settled
+     * again, until it fits or the circles reach 40% of their size. A small
+     * network is not blown up to fill the frame: the zoom keeps its links
+     * within twice their settled length. d3-force seeds its own randomness,
+     * so a network lays out the same on every load.
+     *
+     * Without d3 it returns null, and the caller keeps ECharts' force layout.
+     *
+     * @param {HTMLElement} el  the chart container
+     * @param {Array<{name: string, size: number, fixed?: boolean}>} nodes
+     *        `size` is the drawn diameter in px; names are unique
+     * @param {Array<{source: string, target: string}>} links  by node name
+     * @returns {{positions: Array<Array<number>>, scale: number, option: Object}|null}
+     *        [x, y] per node in `nodes` order; `scale` multiplies every
+     *        node's size; `option` goes into the graph series
+     */
+    ns.layoutNetwork = function (el, nodes, links) {
+        var d3 = window.d3;
+        if (!d3 || typeof d3.forceSimulation !== 'function' || !nodes.length) return null;
+        var w = el.clientWidth || 600;
+        var h = el.clientHeight || 350;
+        var aspect = Math.min(3, Math.max(0.6, w / Math.max(1, h)));
+        var scale = 1;
+        var positions = null;
+        var fit = 1;
+        for (var pass = 0; pass < 3; pass++) {
+            positions = settle(d3, nodes, links, aspect, scale);
+            fit = fitOf(positions, w, h);
+            if (fit >= 1 || scale <= 0.4 || pass === 2) break;
+            scale = Math.max(0.4, scale * fit);
+        }
+        return { positions: positions, scale: scale, option: { layout: 'none', zoom: fit > 2 ? 2 / fit : 1 } };
+    };
+
+    /**
      * Track a renderer that owns its own canvas — neither an ECharts instance nor
      * a MapLibre map, so neither of the two lists above can re-theme it. The
      * knowledge graph is the one such surface: it paints nodes and edges itself,

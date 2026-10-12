@@ -21,6 +21,28 @@
         chart._noDecal = true;
         var n = data.nodes.length;
 
+        // A circle's area follows its count, against the largest in this
+        // network (see ns.networkNodeSize).
+        var nodeSize = ns.networkNodeSize(data.nodes, 10, 32);
+        // Laid out to fit the panel (ns.layoutNetwork): ECharts' force layout
+        // ran the collection-wide institution network past the frame. Without d3 the series keeps that force
+        // layout.
+        var layout = ns.layoutNetwork ? ns.layoutNetwork(el, data.nodes.map(function (nd) {
+            return { name: nd.name, size: nodeSize(nd), fixed: !!nd.isSelf };
+        }), data.links) : null;
+        var placement = layout
+            ? layout.option
+            : {
+                layout: 'force',
+                force: {
+                    repulsion: n > 15 ? 400 : 250,
+                    gravity: n > 15 ? 0.06 : 0.1,
+                    edgeLength: [60, 200],
+                    friction: 0.85,
+                    layoutAnimation: !ns.prefersReducedMotion()
+                }
+            };
+
         chart.setOption({
             tooltip: {
                 confine: true,
@@ -40,14 +62,16 @@
                 }
             },
             aria: { enabled: true },
-            series: [{
-                type: 'graph', layout: 'force',
+            series: [Object.assign({
+                type: 'graph',
                 scaleLimit: { min: 0.3, max: 5 },
                 data: data.nodes.map(function (nd, i) {
                     var isSelf = !!nd.isSelf;
-                    var size = isSelf ? 45 : Math.max(12, Math.min(35, nd.value * 3));
                     return {
-                        name: nd.name, symbolSize: size, value: nd.value,
+                        name: nd.name, value: nd.value,
+                        symbolSize: Math.round(nodeSize(nd) * (layout ? layout.scale : 1)),
+                        x: layout ? layout.positions[i][0] : undefined,
+                        y: layout ? layout.positions[i][1] : undefined,
                         isSelf: isSelf, itemId: nd.itemId,
                         itemStyle: isSelf
                             ? { color: THEME.accent, borderColor: THEME.text, borderWidth: 3 }
@@ -67,17 +91,10 @@
                         lineStyle: { width: Math.max(1, Math.min(6, l.value)), curveness: 0.15, opacity: 0.5 }
                     };
                 }),
-                force: {
-                    repulsion: n > 15 ? 400 : 250,
-                    gravity: n > 15 ? 0.06 : 0.1,
-                    edgeLength: [60, 200],
-                    friction: 0.85,
-                    layoutAnimation: !ns.prefersReducedMotion()
-                },
                 roam: true, draggable: true,
                 emphasis: { focus: 'adjacency', lineStyle: { width: 4, opacity: 0.9 } },
                 blur: { itemStyle: { opacity: 0.15 }, lineStyle: { opacity: 0.08 } }
-            }]
+            }, placement)]
         });
 
         chart.on('click', function (p) {

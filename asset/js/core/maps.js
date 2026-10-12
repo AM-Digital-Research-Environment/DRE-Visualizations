@@ -74,35 +74,43 @@
     };
 
     /**
-     * The shared fullscreen button (core/fullscreen.js) as a MapLibre control,
-     * in place of MapLibre's FullscreenControl: it expands `target` — the map's
-     * chart panel, legend included — rather than the bare canvas, and it is the
-     * same button, label and Escape behaviour as the graphs'.
+     * Fullscreen hands the wheel to the maps inside `surface`. With no page
+     * left to scroll, cooperative gestures ("Use Ctrl + scroll to zoom") only
+     * get in the way — MapLibre's own fullscreen control drops them too — and a
+     * map that never zooms on the wheel in the page (the mini maps) does in
+     * fullscreen. Leaving restores each map's own settings. A map is a map's
+     * fullscreen surface through its chart panel or block (core/fullscreen.js),
+     * never through a control on the canvas, so the legend and the facets that
+     * drive it come along.
      */
-    ns.mapFullscreenControl = function (target) {
-        var box = null;
-        var button = null;
-        return {
-            onAdd: function (map) {
-                box = document.createElement('div');
-                box.className = 'maplibregl-ctrl maplibregl-ctrl-group';
-                button = ns.fullscreenButton(target || map.getContainer(), {
-                    className: 'rv-map-fullscreen',
-                    onChange: function () {
-                        requestAnimationFrame(function () {
-                            try { map.resize(); } catch (e) { /* removed */ }
-                        });
-                    }
-                });
-                box.appendChild(button);
-                return box;
-            },
-            onRemove: function () {
-                if (button && button.rvDispose) button.rvDispose();
-                if (box && box.parentNode) box.parentNode.removeChild(box);
-            }
-        };
+    ns.stageMaps = function (surface, on) {
+        ns._allMaps.forEach(function (entry) {
+            if (entry.el && surface.contains(entry.el)) stageMap(entry, on);
+        });
     };
+
+    function stageMap(entry, on) {
+        var map = entry.map;
+        try {
+            if (on && !entry.staged) {
+                entry.staged = {
+                    cooperative: map.cooperativeGestures.isEnabled(),
+                    scroll: map.scrollZoom.isEnabled()
+                };
+                map.cooperativeGestures.disable();
+                map.scrollZoom.enable();
+            } else if (!on && entry.staged) {
+                if (entry.staged.cooperative) map.cooperativeGestures.enable();
+                if (!entry.staged.scroll) map.scrollZoom.disable();
+                entry.staged = null;
+            }
+            // MapLibre observes its container, but a refit in the next frame
+            // costs nothing and covers a browser without ResizeObserver.
+            requestAnimationFrame(function () {
+                try { map.resize(); } catch (e) { /* removed */ }
+            });
+        } catch (e) { /* removed */ }
+    }
 
     /**
      * Standard MapLibre map bootstrap shared by the map chart builders: themed
@@ -127,7 +135,6 @@
         });
         if (!map) return null;
         if (opts.nav !== false) map.addControl(ns.navControl(), 'top-right');
-        map.addControl(ns.mapFullscreenControl(el.closest('.chart-panel') || el.parentNode), 'top-right');
         if (opts.globe !== false && maplibregl.GlobeControl) {
             map.addControl(new maplibregl.GlobeControl(), 'top-right');
         }
@@ -140,7 +147,11 @@
      * same container; it is invoked on theme change.
      */
     ns.trackMap = function (map, rebuild) {
-        ns._allMaps.push({ map: map, rebuild: rebuild, el: map.getContainer() });
+        var entry = { map: map, rebuild: rebuild, el: map.getContainer() };
+        ns._allMaps.push(entry);
+        // A map re-created while its surface is expanded (a light/dark switch)
+        // starts with the wheel the fullscreen surface gives it.
+        if (entry.el.closest && entry.el.closest('.rv-fullscreen')) stageMap(entry, true);
         map.on('remove', function () {
             ns._allMaps = ns._allMaps.filter(function (entry) { return entry.map !== map; });
         });

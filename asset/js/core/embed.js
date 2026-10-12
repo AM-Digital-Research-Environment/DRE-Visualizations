@@ -134,9 +134,10 @@
 
     /**
      * Per-chart embed buttons for an embeddable dashboard. Adds one button to each
-     * chart panel's toolbar — creating the toolbar for map panels that have none
-     * (attachToolbar only runs for ECharts charts). No-op off the live site or for
-     * a non-embeddable dashboard (no data-embed-slug).
+     * chart panel's toolbar, in the embed slot (core/toolbar.js): after the export
+     * buttons and before fullscreen, whichever of them the panel already has — a
+     * panel built as it nears the viewport gets those later. No-op off the live
+     * site or for a non-embeddable dashboard (no data-embed-slug).
      */
     ns.addEmbedButtons = function (container) {
         if (!container || !container.classList || (document.body && document.body.classList.contains('dre-embed-body'))) return;
@@ -156,16 +157,8 @@
                 var h3 = panel.querySelector('h3');
                 if (!cc || !h3) return;
                 var key = cc.getAttribute('data-chart');
-                var heading = panel.querySelector('.rv-chart-heading');
-                var bar = panel.querySelector('.rv-chart-toolbar');
-                if (!bar) {
-                    bar = document.createElement('div');
-                    bar.className = 'rv-chart-toolbar';
-                    bar.setAttribute('role', 'toolbar');
-                    bar.setAttribute('aria-label', ns.t('chartActions', 'Chart actions') + ': ' + (h3.textContent || '').trim());
-                    if (heading) heading.appendChild(bar);
-                }
-                bar.appendChild(ns.makeEmbedButton({
+                if (panel.querySelector('.rv-chart-toolbar .rv-embed-btn')) return;
+                ns.addToChartToolbar(panel, 'embed', ns.makeEmbedButton({
                     src: ns.embedUrl(siteBase, slug, key),
                     title: ns.chartLabel ? ns.chartLabel(key) : ((ns.CHART_LABELS && ns.CHART_LABELS[key]) || key),
                     height: 520
@@ -175,10 +168,19 @@
     };
 
     /**
-     * Whole-block embed button for the single-visualization blocks (entity
-     * network, spatial map, network explorer, compare, project explorer, what's
-     * new). Mounted on the stable outer .resource-vis-block wrapper — never the
-     * inner container, which the block's own controller rebuilds on render.
+     * The block actions of the single-visualization blocks (entity network,
+     * spatial map, semantic map, network explorer, compare, project explorer,
+     * what's new): "Embed this", then fullscreen. Mounted on the stable outer
+     * .resource-vis-block wrapper — never the inner container, which the
+     * block's own controller rebuilds on render.
+     *
+     * Fullscreen expands the WHOLE block, because these blocks keep their
+     * controls outside any one chart panel — the spatial exploration's picker,
+     * the semantic map's colour and search controls, the compare selectors, the
+     * network and what's-new tabs, the project explorer's project list — and
+     * a fullscreen view without them could not be driven. A block that already
+     * carries its own fullscreen in its toolbar (the entity network) says so
+     * with data-fullscreen="own" on its container.
      */
     ns.setupBlockEmbedButtons = function () {
         if (document.body && document.body.classList.contains('dre-embed-body')) return;
@@ -196,6 +198,9 @@
                     height: 600,
                     label: ns.t('embedThis', 'Embed this')
                 }));
+                if (host.getAttribute('data-fullscreen') !== 'own') {
+                    bar.appendChild(ns.fullscreenButton(wrap, { className: 'rv-toolbar-btn' }));
+                }
                 wrap.insertBefore(bar, wrap.firstChild);
             })(hosts[i]);
         }

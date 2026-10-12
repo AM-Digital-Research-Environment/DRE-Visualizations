@@ -100,6 +100,9 @@
         var mapEl = ns.el('div', 'rv-item-map-container');
         wrapper.appendChild(mapEl);
         host.appendChild(wrapper);
+        // The same panel fullscreen as a dashboard map: the panel, legend
+        // included, fills the screen, and the wheel zooms while it does.
+        ns.attachPanelFullscreen(wrapper);
 
         ns.ensureLibs({ maplibre: true })
             .then(function () { render(mapEl, itemMap, siteBase); })

@@ -45,6 +45,29 @@
             return { name: c, itemStyle: { color: categoryColor(c) } };
         });
 
+        // A circle's area follows its count, against the largest in this
+        // network: a fixed px-per-item scale put nearly everyone in a
+        // collection-wide network at the cap, one size of large circle.
+        var nodeSize = ns.networkNodeSize(data.nodes, 8, 32);
+        // Laid out to fit the panel (ns.layoutNetwork): ECharts' force layout
+        // ran a collection-wide network past the frame. Without d3 the series keeps that force
+        // layout.
+        var layout = ns.layoutNetwork ? ns.layoutNetwork(el, data.nodes.map(function (nd) {
+            return { name: nd.name, size: nodeSize(nd), fixed: !!nd.isSelf };
+        }), data.links) : null;
+        var placement = layout
+            ? layout.option
+            : {
+                layout: 'force',
+                force: {
+                    repulsion: n > 20 ? 500 : 300,
+                    gravity: n > 20 ? 0.05 : 0.08,
+                    edgeLength: [50, 180],
+                    friction: 0.85,
+                    layoutAnimation: !ns.prefersReducedMotion()
+                }
+            };
+
         chart.setOption({
             tooltip: {
                 confine: true,
@@ -68,17 +91,19 @@
                 bottom: 5,
                 textStyle: { fontSize: THEME.fontSize }
             }] : [],
-            series: [{
-                type: 'graph', layout: 'force',
+            series: [Object.assign({
+                type: 'graph',
                 categories: cats,
                 scaleLimit: { min: 0.3, max: 5 },
                 data: data.nodes.map(function (nd, i) {
                     var isSelf = !!nd.isSelf;
                     var catIdx = (data.categories || []).indexOf(nd.category);
                     var catColor = categoryColor(nd.category);
-                    var size = isSelf ? 45 : Math.max(10, Math.min(35, nd.value * 2.5));
                     return {
-                        name: nd.name, symbolSize: size, value: nd.value,
+                        name: nd.name, value: nd.value,
+                        symbolSize: Math.round(nodeSize(nd) * (layout ? layout.scale : 1)),
+                        x: layout ? layout.positions[i][0] : undefined,
+                        y: layout ? layout.positions[i][1] : undefined,
                         category: catIdx >= 0 ? catIdx : 0,
                         itemId: nd.itemId,
                         itemStyle: isSelf
@@ -99,17 +124,10 @@
                         lineStyle: { width: Math.max(1, Math.min(5, l.value)), curveness: 0.15, opacity: 0.4 }
                     };
                 }),
-                force: {
-                    repulsion: n > 20 ? 500 : 300,
-                    gravity: n > 20 ? 0.05 : 0.08,
-                    edgeLength: [50, 180],
-                    friction: 0.85,
-                    layoutAnimation: !ns.prefersReducedMotion()
-                },
                 roam: true, draggable: true,
                 emphasis: { focus: 'adjacency', lineStyle: { width: 4, opacity: 0.9 } },
                 blur: { itemStyle: { opacity: 0.15 }, lineStyle: { opacity: 0.08 } }
-            }]
+            }, placement)]
         });
 
         chart.on('click', function (p) {

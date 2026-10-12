@@ -1305,6 +1305,10 @@ msgstr ""
 msgid "People, organisations, places, subjects and tags are linked here when they are recorded on the same research item. The more often two of them appear together, the closer they sit, so the map falls into groups of entities that share a research context. Drag to pan and scroll to zoom; hover over an entity to pick out its links, or click it for a summary and a link to its page."
 msgstr ""
 
+#: config/client-strings.json:whatsNewPeriod
+msgid "Period"
+msgstr ""
+
 #: config/client-strings.json:compareNounPerson
 #: config/client-strings.json:rolePerson
 msgid "person"

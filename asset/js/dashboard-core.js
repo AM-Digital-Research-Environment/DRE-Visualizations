@@ -1357,6 +1357,112 @@
     };
 
     /**
+     * Node diameters for a network chart: the circle's AREA follows the
+     * node's `value`, scaled against the largest in the network, between `min`
+     * and `max` px. The page's own entity (`isSelf`) is drawn at 45px.
+     *
+     * @returns {function(Object): number}
+     */
+    ns.networkNodeSize = function (nodes, min, max) {
+        var top = nodes.reduce(function (m, nd) {
+            return nd.isSelf ? m : Math.max(m, Number(nd.value) || 0);
+        }, 0) || 1;
+        return function (nd) {
+            if (nd.isSelf) return 45;
+            return Math.round(min + (max - min) * Math.sqrt(Math.max(0, Number(nd.value) || 0) / top));
+        };
+    };
+
+    /** One d3-force settle: [x, y] per node, in the frame's proportions. */
+    function settle(d3, nodes, edges, aspect, scale) {
+        var byName = {};
+        var sim = nodes.map(function (node) {
+            var entry = { id: node.name, r: node.size * scale / 2 + 4 };
+            if (node.fixed) { entry.fx = 0; entry.fy = 0; }
+            byName[node.name] = entry;
+            return entry;
+        });
+        var links = edges.filter(function (link) {
+            return byName[link.source] && byName[link.target] && link.source !== link.target;
+        }).map(function (link) { return { source: link.source, target: link.target }; });
+        // The pull to the centre is weaker across than down, by the square of
+        // the aspect, so the settled shape is about as wide as the frame.
+        var pull = 0.08;
+        var simulation = d3.forceSimulation(sim)
+            .force('link', d3.forceLink(links).id(function (d) { return d.id; })
+                .distance(function (link) { return link.source.r + link.target.r + 18; }).strength(0.6))
+            .force('charge', d3.forceManyBody().strength(-40).distanceMax(220))
+            .force('collide', d3.forceCollide(function (d) { return d.r; }).iterations(2))
+            .force('x', d3.forceX(0).strength(pull / (aspect * aspect)))
+            .force('y', d3.forceY(0).strength(pull))
+            .stop();
+        var ticks = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()));
+        for (var i = 0; i < ticks; i++) simulation.tick();
+        return sim.map(function (d) { return [d.x, d.y]; });
+    }
+
+    /**
+     * How much ECharts will scale a settled network to draw it: a
+     * `layout: 'none'` graph is fitted into 80% of the frame's limiting side,
+     * its proportions kept.
+     */
+    function fitOf(positions, w, h) {
+        var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        positions.forEach(function (p) {
+            minX = Math.min(minX, p[0]); maxX = Math.max(maxX, p[0]);
+            minY = Math.min(minY, p[1]); maxY = Math.max(maxY, p[1]);
+        });
+        return 0.8 * Math.min(w / Math.max(1, maxX - minX), h / Math.max(1, maxY - minY));
+    }
+
+    /**
+     * Lay out an ECharts node-link chart before it is drawn, so the whole
+     * network is in view. ECharts' own force layout spreads the nodes out in
+     * pixels from the centre and never fits the result to the frame: a
+     * project's handful of contributors happens to fit, but a collection-wide
+     * network of 150 people runs far past every edge and opens zoomed in.
+     *
+     * Here d3-force settles the network into a compact shape with the frame's
+     * proportions — nodes kept apart by their drawn size, unconnected groups
+     * held together, `fixed` nodes (the page's own entity) at the centre — and
+     * the chart draws it with `layout: 'none'`, which ECharts scales to the
+     * frame on every resize and in fullscreen. Node sizes stay in px while the
+     * layout scales, so when a network is too big for its frame (150 people
+     * on a phone) the circles are drawn smaller and the network is settled
+     * again, until it fits or the circles reach 40% of their size. A small
+     * network is not blown up to fill the frame: the zoom keeps its links
+     * within twice their settled length. d3-force seeds its own randomness,
+     * so a network lays out the same on every load.
+     *
+     * Without d3 it returns null, and the caller keeps ECharts' force layout.
+     *
+     * @param {HTMLElement} el  the chart container
+     * @param {Array<{name: string, size: number, fixed?: boolean}>} nodes
+     *        `size` is the drawn diameter in px; names are unique
+     * @param {Array<{source: string, target: string}>} links  by node name
+     * @returns {{positions: Array<Array<number>>, scale: number, option: Object}|null}
+     *        [x, y] per node in `nodes` order; `scale` multiplies every
+     *        node's size; `option` goes into the graph series
+     */
+    ns.layoutNetwork = function (el, nodes, links) {
+        var d3 = window.d3;
+        if (!d3 || typeof d3.forceSimulation !== 'function' || !nodes.length) return null;
+        var w = el.clientWidth || 600;
+        var h = el.clientHeight || 350;
+        var aspect = Math.min(3, Math.max(0.6, w / Math.max(1, h)));
+        var scale = 1;
+        var positions = null;
+        var fit = 1;
+        for (var pass = 0; pass < 3; pass++) {
+            positions = settle(d3, nodes, links, aspect, scale);
+            fit = fitOf(positions, w, h);
+            if (fit >= 1 || scale <= 0.4 || pass === 2) break;
+            scale = Math.max(0.4, scale * fit);
+        }
+        return { positions: positions, scale: scale, option: { layout: 'none', zoom: fit > 2 ? 2 / fit : 1 } };
+    };
+
+    /**
      * Track a renderer that owns its own canvas — neither an ECharts instance nor
      * a MapLibre map, so neither of the two lists above can re-theme it. The
      * knowledge graph is the one such surface: it paints nodes and edges itself,
@@ -1602,35 +1708,43 @@
     };
 
     /**
-     * The shared fullscreen button (core/fullscreen.js) as a MapLibre control,
-     * in place of MapLibre's FullscreenControl: it expands `target` — the map's
-     * chart panel, legend included — rather than the bare canvas, and it is the
-     * same button, label and Escape behaviour as the graphs'.
+     * Fullscreen hands the wheel to the maps inside `surface`. With no page
+     * left to scroll, cooperative gestures ("Use Ctrl + scroll to zoom") only
+     * get in the way — MapLibre's own fullscreen control drops them too — and a
+     * map that never zooms on the wheel in the page (the mini maps) does in
+     * fullscreen. Leaving restores each map's own settings. A map is a map's
+     * fullscreen surface through its chart panel or block (core/fullscreen.js),
+     * never through a control on the canvas, so the legend and the facets that
+     * drive it come along.
      */
-    ns.mapFullscreenControl = function (target) {
-        var box = null;
-        var button = null;
-        return {
-            onAdd: function (map) {
-                box = document.createElement('div');
-                box.className = 'maplibregl-ctrl maplibregl-ctrl-group';
-                button = ns.fullscreenButton(target || map.getContainer(), {
-                    className: 'rv-map-fullscreen',
-                    onChange: function () {
-                        requestAnimationFrame(function () {
-                            try { map.resize(); } catch (e) { /* removed */ }
-                        });
-                    }
-                });
-                box.appendChild(button);
-                return box;
-            },
-            onRemove: function () {
-                if (button && button.rvDispose) button.rvDispose();
-                if (box && box.parentNode) box.parentNode.removeChild(box);
-            }
-        };
+    ns.stageMaps = function (surface, on) {
+        ns._allMaps.forEach(function (entry) {
+            if (entry.el && surface.contains(entry.el)) stageMap(entry, on);
+        });
     };
+
+    function stageMap(entry, on) {
+        var map = entry.map;
+        try {
+            if (on && !entry.staged) {
+                entry.staged = {
+                    cooperative: map.cooperativeGestures.isEnabled(),
+                    scroll: map.scrollZoom.isEnabled()
+                };
+                map.cooperativeGestures.disable();
+                map.scrollZoom.enable();
+            } else if (!on && entry.staged) {
+                if (entry.staged.cooperative) map.cooperativeGestures.enable();
+                if (!entry.staged.scroll) map.scrollZoom.disable();
+                entry.staged = null;
+            }
+            // MapLibre observes its container, but a refit in the next frame
+            // costs nothing and covers a browser without ResizeObserver.
+            requestAnimationFrame(function () {
+                try { map.resize(); } catch (e) { /* removed */ }
+            });
+        } catch (e) { /* removed */ }
+    }
 
     /**
      * Standard MapLibre map bootstrap shared by the map chart builders: themed
@@ -1655,7 +1769,6 @@
         });
         if (!map) return null;
         if (opts.nav !== false) map.addControl(ns.navControl(), 'top-right');
-        map.addControl(ns.mapFullscreenControl(el.closest('.chart-panel') || el.parentNode), 'top-right');
         if (opts.globe !== false && maplibregl.GlobeControl) {
             map.addControl(new maplibregl.GlobeControl(), 'top-right');
         }
@@ -1668,7 +1781,11 @@
      * same container; it is invoked on theme change.
      */
     ns.trackMap = function (map, rebuild) {
-        ns._allMaps.push({ map: map, rebuild: rebuild, el: map.getContainer() });
+        var entry = { map: map, rebuild: rebuild, el: map.getContainer() };
+        ns._allMaps.push(entry);
+        // A map re-created while its surface is expanded (a light/dark switch)
+        // starts with the wheel the fullscreen surface gives it.
+        if (entry.el.closest && entry.el.closest('.rv-fullscreen')) stageMap(entry, true);
         map.on('remove', function () {
             ns._allMaps = ns._allMaps.filter(function (entry) { return entry.map !== map; });
         });
@@ -1908,8 +2025,9 @@
 
 /* ---- js/core/toolbar.js ---- */
 /**
- * Dashboard core: the per-chart toolbar — save as image, download as CSV, and
- * the fill-pattern (decal) toggle every chart shares.
+ * Dashboard core: the per-chart toolbar — save as image, download as CSV, the
+ * fill-pattern (decal) toggle every chart shares, and the slots the embed
+ * (core/embed.js) and fullscreen (core/fullscreen.js) buttons take in it.
  *
  * Source file of the generated asset/js/dashboard-core.js (see base.js).
  */
@@ -2079,12 +2197,79 @@
         return heading;
     }
 
+    // The toolbar's slots, in the order they read: what the chart can export,
+    // then the embed code, then fullscreen — always last, as on the graphs.
+    var SLOTS = ['export', 'embed', 'fullscreen'];
+
+    /**
+     * The panel's ONE `.rv-chart-toolbar`, created on first use. Its controls
+     * arrive in no fixed order — a dashboard gives every panel its embed button
+     * at once, but a chart built as it nears the viewport gets its export
+     * buttons later — so each goes in at its slot instead of being appended,
+     * and a panel can never grow a second toolbar that pushes the first one
+     * away from the title.
+     *
+     * @param {HTMLElement} panel
+     * @param {string} slot      one of SLOTS
+     * @param {Node|Node[]} controls
+     * @returns {HTMLElement} the toolbar
+     */
+    ns.addToChartToolbar = function (panel, slot, controls) {
+        var heading = chartHeading(panel);
+        var bar = heading.querySelector('.rv-chart-toolbar');
+        if (!bar) {
+            var title = panel.querySelector('h3');
+            var panelTitle = title ? (title.textContent || '').trim() : '';
+            var toolbarLabel = ns.t('chartActions', 'Chart actions');
+            bar = document.createElement('div');
+            bar.className = 'rv-chart-toolbar';
+            bar.setAttribute('role', 'toolbar');
+            bar.setAttribute('aria-label', panelTitle ? toolbarLabel + ': ' + panelTitle : toolbarLabel);
+            heading.appendChild(bar);
+        }
+        var rank = SLOTS.indexOf(slot);
+        var before = null;
+        for (var i = 0; i < bar.children.length && !before; i++) {
+            if (SLOTS.indexOf(bar.children[i].getAttribute('data-slot')) > rank) before = bar.children[i];
+        }
+        [].concat(controls).forEach(function (control) {
+            control.setAttribute('data-slot', slot);
+            bar.insertBefore(control, before);
+        });
+        return bar;
+    };
+
+    /**
+     * Fullscreen for one chart panel, last in its toolbar. The panel is the
+     * surface because everything that drives the chart lives in it: the
+     * description, a word cloud's slider and languages, a map's legend, the
+     * data table. Never inside an embed, whose frame is already the chart.
+     */
+    ns.attachPanelFullscreen = function (panel) {
+        if (!panel || (document.body && document.body.classList.contains('dre-embed-body'))) return;
+        var heading = panel.querySelector('.rv-chart-heading');
+        if (heading && heading.querySelector('.rv-fullscreen-btn')) return;
+        ns.addToChartToolbar(panel, 'fullscreen', ns.fullscreenButton(panel, { className: 'rv-toolbar-btn' }));
+    };
+
     /** One shared glyph (core/icons.js) as markup for the toolbar string below. */
     function icon(body) { return ns.iconSvg(body).outerHTML; }
 
-    /** Attach HTML-level toolbar (image, CSV, and pattern controls). */
-    ns.attachToolbar = function (panel, chart) {
-        if (!panel || !chart || !chart.getDataURL) return;
+    /**
+     * The chart panel's toolbar: save as image, download the data, the fill
+     * patterns — for a chart that can export — and fullscreen, which every
+     * chart gets (maps included) unless `opts.fullscreen` is false: a block
+     * whose controls sit outside its panels expands as a whole instead
+     * (core/embed.js ns.setupBlockEmbedButtons).
+     */
+    ns.attachToolbar = function (panel, chart, opts) {
+        if (!panel || !chart) return;
+        if (typeof chart.getDataURL === 'function') attachExports(panel, chart);
+        if (!opts || opts.fullscreen !== false) ns.attachPanelFullscreen(panel);
+    };
+
+    function attachExports(panel, chart) {
+        if (panel.querySelector('.rv-chart-toolbar [data-action="save"]')) return;
         // A dashboard rebuild (light/dark switch) replaces the ECharts instance
         // in the same container; the buttons act on whichever one is live.
         var dom = typeof chart.getDom === 'function' ? chart.getDom() : null;
@@ -2101,13 +2286,9 @@
         var hasCsv = ns.chartCsvRows(chart).length > 1;
         var title = panel.querySelector('h3');
         var panelTitle = title ? (title.textContent || '').trim() : '';
-        var toolbarLabel = ns.t('chartActions', 'Chart actions');
-        var bar = document.createElement('div');
-        bar.className = 'rv-chart-toolbar';
-        bar.setAttribute('role', 'toolbar');
-        bar.setAttribute('aria-label', panelTitle ? toolbarLabel + ': ' + panelTitle : toolbarLabel);
+        var buttons = document.createElement('div');
         // eslint-disable-next-line no-unsanitized/property -- icon constants + escaped titles
-        bar.innerHTML = (showDecal
+        buttons.innerHTML = (showDecal
             ? '<button type="button" class="rv-toolbar-btn' + (ns._decalEnabled ? ' rv-toolbar-btn-active' : '') + '" data-action="decal" title="' + ns.escapeHtml(decalTitle) + '" aria-label="' + ns.escapeHtml(decalTitle) + '">'
             + icon(ns.ICONS.patterns)
             + '</button>'
@@ -2119,13 +2300,14 @@
                 ? '<button type="button" class="rv-toolbar-btn" data-action="csv" title="' + ns.escapeHtml(csvTitle) + '" aria-label="' + ns.escapeHtml(csvTitle) + '">'
                 + icon(ns.ICONS.csv) + '</button>'
                 : '');
-        chartHeading(panel).appendChild(bar);
+        var exports = Array.prototype.slice.call(buttons.children);
+        ns.addToChartToolbar(panel, 'export', exports);
         if (hasCsv && !chart._noDataTable) {
             ns.attachDataTable(panel, function () { return ns.chartCsvRows(live()); }, panelTitle);
         }
-        bar.addEventListener('click', function (e) {
-            var btn = e.target.closest('[data-action]');
-            if (!btn) return;
+        exports.forEach(function (btn) { btn.addEventListener('click', onExport); });
+        function onExport(e) {
+            var btn = e.currentTarget;
             var name = panelTitle || 'chart';
             if (btn.dataset.action === 'save') {
                 var url = live().getDataURL({ pixelRatio: 2, backgroundColor: ns.exportBg() });
@@ -2138,8 +2320,8 @@
             } else if (btn.dataset.action === 'decal') {
                 ns.toggleDecals();
             }
-        });
-    };
+        }
+    }
 })();
 ;
 
@@ -2280,9 +2462,10 @@
 
     /**
      * Per-chart embed buttons for an embeddable dashboard. Adds one button to each
-     * chart panel's toolbar — creating the toolbar for map panels that have none
-     * (attachToolbar only runs for ECharts charts). No-op off the live site or for
-     * a non-embeddable dashboard (no data-embed-slug).
+     * chart panel's toolbar, in the embed slot (core/toolbar.js): after the export
+     * buttons and before fullscreen, whichever of them the panel already has — a
+     * panel built as it nears the viewport gets those later. No-op off the live
+     * site or for a non-embeddable dashboard (no data-embed-slug).
      */
     ns.addEmbedButtons = function (container) {
         if (!container || !container.classList || (document.body && document.body.classList.contains('dre-embed-body'))) return;
@@ -2302,16 +2485,8 @@
                 var h3 = panel.querySelector('h3');
                 if (!cc || !h3) return;
                 var key = cc.getAttribute('data-chart');
-                var heading = panel.querySelector('.rv-chart-heading');
-                var bar = panel.querySelector('.rv-chart-toolbar');
-                if (!bar) {
-                    bar = document.createElement('div');
-                    bar.className = 'rv-chart-toolbar';
-                    bar.setAttribute('role', 'toolbar');
-                    bar.setAttribute('aria-label', ns.t('chartActions', 'Chart actions') + ': ' + (h3.textContent || '').trim());
-                    if (heading) heading.appendChild(bar);
-                }
-                bar.appendChild(ns.makeEmbedButton({
+                if (panel.querySelector('.rv-chart-toolbar .rv-embed-btn')) return;
+                ns.addToChartToolbar(panel, 'embed', ns.makeEmbedButton({
                     src: ns.embedUrl(siteBase, slug, key),
                     title: ns.chartLabel ? ns.chartLabel(key) : ((ns.CHART_LABELS && ns.CHART_LABELS[key]) || key),
                     height: 520
@@ -2321,10 +2496,19 @@
     };
 
     /**
-     * Whole-block embed button for the single-visualization blocks (entity
-     * network, spatial map, network explorer, compare, project explorer, what's
-     * new). Mounted on the stable outer .resource-vis-block wrapper — never the
-     * inner container, which the block's own controller rebuilds on render.
+     * The block actions of the single-visualization blocks (entity network,
+     * spatial map, semantic map, network explorer, compare, project explorer,
+     * what's new): "Embed this", then fullscreen. Mounted on the stable outer
+     * .resource-vis-block wrapper — never the inner container, which the
+     * block's own controller rebuilds on render.
+     *
+     * Fullscreen expands the WHOLE block, because these blocks keep their
+     * controls outside any one chart panel — the spatial exploration's picker,
+     * the semantic map's colour and search controls, the compare selectors, the
+     * network and what's-new tabs, the project explorer's project list — and
+     * a fullscreen view without them could not be driven. A block that already
+     * carries its own fullscreen in its toolbar (the entity network) says so
+     * with data-fullscreen="own" on its container.
      */
     ns.setupBlockEmbedButtons = function () {
         if (document.body && document.body.classList.contains('dre-embed-body')) return;
@@ -2342,6 +2526,9 @@
                     height: 600,
                     label: ns.t('embedThis', 'Embed this')
                 }));
+                if (host.getAttribute('data-fullscreen') !== 'own') {
+                    bar.appendChild(ns.fullscreenButton(wrap, { className: 'rv-toolbar-btn' }));
+                }
                 wrap.insertBefore(bar, wrap.firstChild);
             })(hosts[i]);
         }
@@ -2351,17 +2538,24 @@
 
 /* ---- js/core/fullscreen.js ---- */
 /**
- * Dashboard core: the one fullscreen control every surface uses — the
- * knowledge graph, the entity network and the maps (DESIGN-INTEGRATION.md
- * "Shared widgets": one icon button per surface, aria-pressed reflecting the
- * state, a label swapping between "Fullscreen" and "Exit fullscreen", and the
- * fullscreen layer at --z-stage).
+ * Dashboard core: the one fullscreen control every surface uses — each chart
+ * panel, the single-visualization blocks, the knowledge graph and the entity
+ * network (DESIGN-INTEGRATION.md "Shared widgets": one icon button per
+ * surface, aria-pressed reflecting the state, a label swapping between
+ * "Fullscreen" and "Exit fullscreen", and the fullscreen layer at --z-stage).
  *
  * It expands the surface IN the page (the `.rv-fullscreen` class, laid out by
  * the stylesheet at --rv-z-stage) rather than through the browser Fullscreen
- * API: a block's toolbar, sidebar, legend and text alternative are how a reader
- * drives it, and the API would take the canvas out from under them. That is
- * also why maps no longer use MapLibre's own FullscreenControl.
+ * API: a block's toolbar, sidebar, facets, legend and text alternative are how
+ * a reader drives it, and the API would take the canvas out from under them.
+ * So the surface that expands is always the smallest one holding the picture
+ * AND its controls — the chart panel when they sit inside it (a word cloud's
+ * slider, a map's legend), the whole block when they sit outside every panel
+ * (the spatial exploration's picker, the compare selectors). That is also why
+ * maps no longer use MapLibre's own FullscreenControl.
+ *
+ * Surfaces can nest — a chart panel inside the expanded project explorer — so
+ * Escape always leaves the innermost one first.
  *
  * Source file of the generated asset/js/dashboard-core.js (see base.js).
  */
@@ -2370,22 +2564,60 @@
 
     var ns = window.RV = window.RV || {};
 
+    // ONE key listener for every surface, in the bubble phase on purpose: a
+    // surface whose own Escape clears a selection or closes a list stops (or
+    // claims, with preventDefault) the event there, so only a second Escape
+    // leaves fullscreen. Document order puts an expanded block before the
+    // expanded panel inside it, so the last open surface is the innermost.
+    document.addEventListener('keydown', function (ev) {
+        if (ev.key !== 'Escape' || ev.defaultPrevented) return;
+        var open = document.querySelectorAll('.rv-fullscreen');
+        for (var i = open.length - 1; i >= 0; i--) {
+            if (typeof open[i]._rvSetFullscreen === 'function') {
+                open[i]._rvSetFullscreen(false);
+                ev.preventDefault();
+                return;
+            }
+        }
+    });
+
+    /**
+     * Keep `target`'s place in the page while it is lifted out of the flow, so
+     * the grid or column it left does not close up behind it: the charts
+     * beneath do not reflow and resize, and leaving fullscreen puts the reader
+     * back exactly where they were on the page.
+     */
+    function holdPlace(target) {
+        if (!target.parentNode) return null;
+        var style = window.getComputedStyle(target);
+        var spacer = document.createElement('div');
+        spacer.className = 'rv-fullscreen-placeholder';
+        spacer.setAttribute('aria-hidden', 'true');
+        spacer.style.height = target.offsetHeight + 'px';
+        spacer.style.marginTop = style.marginTop;
+        spacer.style.marginBottom = style.marginBottom;
+        spacer.style.gridColumn = style.gridColumn;
+        target.parentNode.insertBefore(spacer, target.nextSibling);
+        return spacer;
+    }
+
     /**
      * A fullscreen toggle for `target`.
      *
-     * @param {HTMLElement} target  the element that expands (the whole block)
+     * @param {HTMLElement} target  the element that expands (a chart panel or a block)
      * @param {Object} [opts] {
      *     onChange:  (on) => void  — refit canvases after each toggle;
-     *     className: string        — replaces the default `.rv-btn` skin (a map
-     *                                control styles its own button)
+     *     className: string        — replaces the default `.rv-btn` skin (a chart
+     *                                toolbar uses `.rv-toolbar-btn`)
      * }
-     * @returns {HTMLButtonElement} with `rvDispose()` to drop its key listener
+     * @returns {HTMLButtonElement}
      */
     ns.fullscreenButton = function (target, opts) {
         opts = opts || {};
         var btn = ns.iconButton(ns.ICONS.expand, ns.t('fullscreen', 'Fullscreen'));
         if (opts.className) btn.className = opts.className;
         btn.classList.add('rv-fullscreen-btn');
+        var spacer = null;
 
         function sync(on) {
             var label = on ? ns.t('exitFullscreen', 'Exit fullscreen') : ns.t('fullscreen', 'Fullscreen');
@@ -2397,24 +2629,29 @@
         }
 
         function apply(on) {
+            if (on === target.classList.contains('rv-fullscreen')) return;
+            if (on) spacer = holdPlace(target);
             target.classList.toggle('rv-fullscreen', on);
+            if (!on && spacer) {
+                if (spacer.parentNode) spacer.parentNode.removeChild(spacer);
+                spacer = null;
+            }
             sync(on);
+            // Maps inside take the wheel while the surface fills the screen.
+            if (ns.stageMaps) ns.stageMaps(target, on);
             if (typeof opts.onChange === 'function') opts.onChange(on);
+            // For a picture whose size is not only its box (the word cloud
+            // sets its type in pixels): it re-lays itself out on this.
+            target.dispatchEvent(new CustomEvent('rv-fullscreenchange', { detail: { fullscreen: on } }));
         }
 
         btn.addEventListener('click', function () {
             apply(!target.classList.contains('rv-fullscreen'));
         });
-        // Bubble phase on purpose: a surface whose own Escape clears a selection
-        // first stops the event there, so only a second Escape leaves fullscreen.
-        function onKey(ev) {
-            if (ev.key === 'Escape' && target.classList.contains('rv-fullscreen')) apply(false);
-        }
-        document.addEventListener('keydown', onKey);
-        btn.rvDispose = function () { document.removeEventListener('keydown', onKey); };
+        target._rvSetFullscreen = apply;
 
-        // A control rebuilt while its surface is expanded (a map re-created on
-        // a light/dark switch) starts in the state the surface is in.
+        // A control rebuilt while its surface is expanded starts in the state
+        // the surface is in.
         sync(target.classList.contains('rv-fullscreen'));
         return btn;
     };

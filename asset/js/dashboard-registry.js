@@ -31,6 +31,8 @@
         var result = {};
         var maps = [c.buildMiniMap, c.buildMap, c.buildChoropleth, c.buildClusterMap, c.buildAffiliationMap];
         var force = [c.buildCommunities];
+        // ECharts networks that d3-force lays out first (ns.layoutNetwork).
+        var settled = [c.buildContributorNetwork, c.buildAffiliationNetwork, c.buildCollabNetwork];
         keys = Array.isArray(keys) ? keys.filter(function (key) { return data[key]; })
             : (ns.planDashboard ? ns.planDashboard(data, host).keys
                 : Object.keys(data).filter(function (key) { return data[key]; }));
@@ -39,6 +41,7 @@
             if (!builder) return;
             var lib = maps.indexOf(builder) >= 0 ? 'maplibre' : (force.indexOf(builder) >= 0 ? 'd3' : 'echarts');
             result[lib] = true;
+            if (settled.indexOf(builder) >= 0) result.d3 = true;
             if (builder === c.buildWordCloud) result.wordcloud = true;
         });
         return result;

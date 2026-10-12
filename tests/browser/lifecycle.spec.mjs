@@ -7,7 +7,8 @@
  *     handling; lazy library loading (dashboards);
  *   - the shared interaction contract: no serious or critical axe violation on
  *     any fixture surface in light or dark; a visible focus outline in forced
- *     colours; no horizontal overflow at 320px; the fullscreen control and the
+ *     colours; no horizontal overflow at 320px; fullscreen (a chart panel, a
+ *     whole block, the two nested, and the chart toolbar's slot order) and the
  *     translated map controls.
  */
 import { test, expect } from '@playwright/test';
@@ -220,30 +221,90 @@ test.describe('interaction contract', () => {
     expect(unringed).toEqual([]);
   });
 
-  test('the map fullscreen control toggles aria-pressed and its label, and Escape leaves', async ({ page }) => {
+  test('a chart panel expands with its legend, frees the map wheel, and Escape leaves', async ({ page }) => {
     await stubData(page, fullData);
     await openSurface(page, 'dashboard');
-    const button = page.locator('.rv-map-fullscreen');
+    const panel = page.locator('.chart-panel', { has: page.locator('.maplibregl-map') });
+    const button = panel.locator('.rv-chart-toolbar .rv-fullscreen-btn');
     await button.waitFor();
+    // The panel's own toolbar carries it; the map draws no second one.
+    await expect(panel.locator('.maplibregl-ctrl .rv-fullscreen-btn')).toHaveCount(0);
     await expect(button).toHaveAttribute('aria-pressed', 'false');
     await expect(button).toHaveAccessibleName('Fullscreen');
+    const gestures = () => page.evaluate(() => window.RV._allMaps[0].map.cooperativeGestures.isEnabled());
+    expect(await gestures()).toBe(true);
     await button.click();
     await expect(button).toHaveAttribute('aria-pressed', 'true');
     await expect(button).toHaveAccessibleName('Exit fullscreen');
-    const panel = page.locator('.chart-panel.rv-fullscreen');
-    await expect(panel).toHaveCount(1);
-    const layer = await panel.evaluate((el) => getComputedStyle(el).zIndex);
+    await expect(page.locator('.chart-panel.rv-fullscreen')).toHaveCount(1);
+    const layer = await page.locator('.chart-panel.rv-fullscreen').evaluate((el) => getComputedStyle(el).zIndex);
     expect(layer).toBe('290'); // --z-stage
+    // The page keeps the panel's place while it is lifted out.
+    await expect(page.locator('.rv-fullscreen-placeholder')).toHaveCount(1);
+    expect(await gestures()).toBe(false);
     await page.keyboard.press('Escape');
     await expect(button).toHaveAttribute('aria-pressed', 'false');
     await expect(page.locator('.chart-panel.rv-fullscreen')).toHaveCount(0);
+    await expect(page.locator('.rv-fullscreen-placeholder')).toHaveCount(0);
+    expect(await gestures()).toBe(true);
+  });
+
+  test('chart toolbar controls keep their slots whatever order they arrive in', async ({ page }) => {
+    await stubData(page, fullData);
+    await openSurface(page, 'dashboard');
+    const order = await page.evaluate(() => {
+      const ns = window.RV;
+      const panel = document.createElement('div');
+      panel.className = 'chart-panel';
+      panel.innerHTML = '<h3>Late chart</h3><div class="chart-container"></div>';
+      document.body.appendChild(panel);
+      const button = (name) => { const b = document.createElement('button'); b.textContent = name; return b; };
+      // A lazily built panel: embed first, then fullscreen, then the exports.
+      ns.addToChartToolbar(panel, 'embed', button('embed'));
+      ns.addToChartToolbar(panel, 'fullscreen', button('fullscreen'));
+      ns.addToChartToolbar(panel, 'export', [button('save'), button('csv')]);
+      const bars = panel.querySelectorAll('.rv-chart-toolbar');
+      const names = [...bars[0].children].map((b) => b.textContent);
+      panel.remove();
+      return { bars: bars.length, names };
+    });
+    expect(order).toEqual({ bars: 1, names: ['save', 'csv', 'embed', 'fullscreen'] });
+  });
+
+  test('a block expands whole with its controls; Escape leaves the innermost surface first', async ({ page }) => {
+    await stubData(page, fullData);
+    await openSurface(page, 'semantic');
+    const actions = page.locator('.semantic-map-block > .rv-embed-block-toolbar');
+    await expect(actions.getByRole('button')).toHaveText(['Embed this', '']);
+    const button = actions.locator('.rv-fullscreen-btn');
+    await expect(button).toHaveAccessibleName('Fullscreen');
+    // The block owns fullscreen: its chart panel does not get a second one.
+    await expect(page.locator('.semantic-map-panel .rv-fullscreen-btn')).toHaveCount(0);
+    await button.click();
+    const block = page.locator('.semantic-map-block.rv-fullscreen');
+    await expect(block).toHaveCount(1);
+    await expect(block.locator('.semantic-map-toolbar')).toBeVisible();
+    await expect(block.locator('.semantic-map-chart')).toBeVisible();
+    // A surface opened inside the expanded block (a panel of the project
+    // explorer) closes first; a second Escape leaves the block.
+    await page.evaluate(() => {
+      const panel = document.querySelector('.semantic-map-panel');
+      panel.appendChild(window.RV.fullscreenButton(panel)).click();
+    });
+    await expect(page.locator('.rv-fullscreen')).toHaveCount(2);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.rv-fullscreen')).toHaveCount(1);
+    await expect(block).toHaveCount(1);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.rv-fullscreen')).toHaveCount(0);
+    await expect(button).toHaveAttribute('aria-pressed', 'false');
   });
 
   test('map controls speak the page language', async ({ page }) => {
     await stubData(page, fullData);
     await openSurface(page, 'dashboard', { i18n: { mapZoomIn: 'Vergrößern', fullscreen: 'Vollbild' } });
     await expect(page.locator('.maplibregl-ctrl-zoom-in')).toHaveAttribute('title', 'Vergrößern');
-    await expect(page.locator('.rv-map-fullscreen')).toHaveAccessibleName('Vollbild');
+    await expect(page.locator('.chart-panel .rv-fullscreen-btn').first()).toHaveAccessibleName('Vollbild');
     // One navigation preset everywhere: zoom in / out, no compass.
     await expect(page.locator('.maplibregl-ctrl-compass')).toHaveCount(0);
   });

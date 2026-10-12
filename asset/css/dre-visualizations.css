@@ -1356,13 +1356,15 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     font-weight: 600;
 }
 
-/* Right-aligned strip holding a single-widget block's whole-block embed button.
-   Mounted on the outer .resource-vis-block wrapper, above the visualization, so
-   the block's own controller (which rebuilds the inner container) never wipes it
-   and it never overlaps a map's own controls. */
+/* Right-aligned strip holding a single-widget block's actions: "Embed this",
+   then fullscreen for the whole block. Mounted on the outer .resource-vis-block
+   wrapper, above the visualization, so the block's own controller (which
+   rebuilds the inner container) never wipes it and it never overlaps a map's
+   own controls. Same gap as a chart toolbar. */
 .rv-embed-block-toolbar {
     display: flex;
     justify-content: flex-end;
+    gap: var(--rv-space-1);
     margin-bottom: var(--rv-space-2);
 }
 
@@ -1644,32 +1646,43 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     }
 }
 
-/* The shared fullscreen button as a MapLibre control (ns.mapFullscreenControl).
-   It rides MapLibre's own control-group geometry, so it lines up with the zoom
-   buttons above it and takes the same 44px size on touch. */
-.maplibregl-ctrl-group button.rv-map-fullscreen {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* MapLibre's control group stays white in both modes and draws its own
-       glyphs in a fixed #333, so this one matches them rather than following
-       the theme ink, which turns near-white in dark mode (a third-party-chrome
-       exception, DESIGN-INTEGRATION.md "Data-color contract"). */
-    color: #333;
-}
 /* MapLibre marks keyboard focus on its controls with a box-shadow only, which
    forced-colours mode drops: give every map control the module's outline
    (inset, since the control group clips its overflow). */
 .maplibregl-ctrl button:focus-visible,
-.maplibregl-ctrl summary:focus-visible,
-.maplibregl-ctrl-group button.rv-map-fullscreen:focus-visible {
+.maplibregl-ctrl summary:focus-visible {
     outline: 2px solid var(--rv-focus-color);
     outline-offset: -2px;
 }
 
-/* A map's chart panel in fullscreen: the panel, legend included, fills the
-   viewport at the theme's stage layer, like the graphs' fullscreen blocks. */
-.chart-panel.rv-fullscreen {
+/* ------------------------------------------------------------------ */
+/*  Fullscreen surfaces (core/fullscreen.js)                           */
+/* ------------------------------------------------------------------ */
+
+/* The surface that expands is the smallest one holding the picture AND its
+   controls: a chart panel (its slider, languages, legend and data table
+   travel with it), or a whole single-visualization block whose picker, tabs
+   or selectors sit outside every panel. Either fills the viewport at the
+   theme's stage layer, like the graphs' fullscreen blocks above. A scroll
+   that reaches the layer's end stays in the layer instead of moving the page
+   hidden underneath. */
+.rv-fullscreen {
+    overscroll-behavior: contain;
+}
+
+/* Holds the expanded surface's place in the page (core/fullscreen.js), so
+   nothing beneath reflows and leaving returns the reader to the same spot. */
+.rv-fullscreen-placeholder {
+    pointer-events: none;
+}
+
+/* A chart panel: the heading row and the controls take what they need, the
+   chart takes the rest. flex-basis 0, not auto, so height flows one way —
+   the panel decides, the canvas follows — and a chart's ResizeObserver has
+   no cycle to amplify (the knowledge graph's rule). When the data table is
+   open the panel scrolls rather than squeezing the chart below 20rem. */
+.chart-panel.rv-fullscreen,
+.rv-item-map-panel.rv-fullscreen {
     position: fixed;
     inset: 0;
     z-index: var(--rv-z-stage);
@@ -1677,16 +1690,111 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     flex-direction: column;
     gap: var(--rv-space-3);
     margin: 0;
-    padding: var(--rv-space-4);
+    padding: var(--rv-space-4) var(--rv-space-5) var(--rv-space-5);
+    border: 0;
     border-radius: 0;
     background: var(--rv-bg);
     overflow: auto;
 }
+.chart-panel.rv-fullscreen > *,
+.rv-item-map-panel.rv-fullscreen > * {
+    flex: 0 0 auto;
+    margin-top: 0;
+    margin-bottom: 0;
+}
 .chart-panel.rv-fullscreen > [data-chart],
-.chart-panel.rv-fullscreen > .chart-container {
-    flex: 1 1 auto;
+.chart-panel.rv-fullscreen > .chart-container,
+.rv-item-map-panel.rv-fullscreen > .rv-item-map-container {
+    flex: 1 1 0;
     height: auto;
     min-height: 20rem;
+}
+/* The title becomes the stage's title: one step up, still the panel's h3. */
+.chart-panel.rv-fullscreen > .rv-chart-heading h3,
+.rv-item-map-panel.rv-fullscreen > .rv-chart-heading h3 {
+    font-size: var(--rv-text-base);
+}
+.rv-item-map-panel .rv-chart-heading h3 {
+    margin: 0;
+}
+
+/* A whole block. Its own header, controls and facets stay where the page put
+   them; the block simply gets the screen, and scrolls when it is taller
+   (compare, the project explorer, what's new). The block actions — "Embed
+   this" and the button that brought the reader here — stay pinned to the top
+   so leaving is always one click away. */
+.resource-vis-block.rv-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: var(--rv-z-stage);
+    margin: 0;
+    padding: 0 var(--rv-space-5) var(--rv-space-5);
+    background: var(--rv-bg);
+    overflow: auto;
+}
+.resource-vis-block.rv-fullscreen > .rv-embed-block-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    margin: 0 calc(-1 * var(--rv-space-5)) var(--rv-space-2);
+    padding: var(--rv-space-3) var(--rv-space-5);
+    background: var(--rv-bg);
+}
+/* The network explorer's one graph grows with the screen; its tabs and
+   counts stay above it. */
+.network-explorer-block.rv-fullscreen .chart-container-tall {
+    height: max(420px, calc(100dvh - 16rem));
+}
+
+/* The semantic map fills the screen like the graphs: header, colour and
+   search controls on top, the map taking the rest. The intro prose and the
+   record list are reading aids for the page (the graphs drop theirs too); the
+   count and the note on faint points stay, they are part of reading the map. */
+.semantic-map-block.rv-fullscreen {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.semantic-map-block.rv-fullscreen > .semantic-map-container,
+.semantic-map-block.rv-fullscreen .semantic-map-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+}
+.semantic-map-block.rv-fullscreen .semantic-map-panel {
+    margin-top: var(--rv-space-3);
+}
+.semantic-map-block.rv-fullscreen .chart-container.semantic-map-chart {
+    flex: 1 1 0;
+    height: auto;
+    min-height: 16rem;
+}
+.semantic-map-block.rv-fullscreen .semantic-map-intro,
+.semantic-map-block.rv-fullscreen .semantic-map-list {
+    display: none;
+}
+
+/* The spatial exploration fills the screen the same way: the picker sidebar
+   and the map column share whatever the header leaves. Below 768px the stage
+   stacks (see its own media query) and the block scrolls instead. */
+@media (min-width: 768px) {
+    .spatial-exploration-block.rv-fullscreen {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    .spatial-exploration-block.rv-fullscreen > .dre-spatial-exploration {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 0;
+        min-height: 0;
+    }
+    .spatial-exploration-block.rv-fullscreen .rv-spatial-stage {
+        flex: 1 1 0;
+        height: auto;
+        min-height: 20rem;
+    }
 }
 
 /* "Data table" — the collapsed textual alternative under every chart
@@ -4136,12 +4244,10 @@ body.photo-lightbox-open {
     /* Tabs that name what printed keep that name, as text: the active one
        stays, unstyled; the others go. */
     .compare-type-btn:not(.is-active),
-    .whats-new-window-btn:not(.rv-btn-active),
     .photo-view-btn:not(.is-active) {
         display: none !important;
     }
     .compare-type-btn.is-active,
-    .whats-new-window-btn.rv-btn-active,
     .photo-view-btn.is-active {
         display: inline !important;
         border: 0;

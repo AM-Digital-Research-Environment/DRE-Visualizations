@@ -265,7 +265,8 @@
         };
         toolbar.appendChild(modeControl(chart, items));
         toolbar.appendChild(searchControl(items, container.getAttribute('data-site-base') || ''));
-        ns.attachToolbar(chartPanel, chart);
+        // No panel fullscreen: the block expands whole, colour and search included.
+        ns.attachToolbar(chartPanel, chart, { fullscreen: false });
         chartPanel.appendChild(recordList(items, container.getAttribute('data-site-base') || ''));
         ns.setupBlockEmbedButtons();
     }

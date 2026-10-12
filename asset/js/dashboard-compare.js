@@ -510,7 +510,8 @@
             charts.forEach(function (p) {
                 if (p.el.isConnected && ns.CHART_MAP && ns.CHART_MAP[p.key]) {
                     var chart = ns.buildChart(function () { return ns.CHART_MAP[p.key](p.el, p.data, p.siteBase); });
-                    if (chart) ns.attachToolbar(p.panel, chart);
+                    // No panel fullscreen: the block expands whole, selectors included.
+                    if (chart) ns.attachToolbar(p.panel, chart, { fullscreen: false });
                 }
             });
             pendingCharts = [];

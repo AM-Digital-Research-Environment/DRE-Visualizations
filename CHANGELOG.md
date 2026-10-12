@@ -13,6 +13,26 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.33.0] - 2026-10-12
+
+### Added
+
+- **Every visualization can go fullscreen, with its controls.** A dashboard chart gets a *Fullscreen* button, last in its toolbar; the panel fills the screen with its description, word-count slider and languages, legend and data table. The single-view blocks (Spatial Exploration, Semantic Map, Network Explorer, Compare, Project Explorer, What's New) get one beside *Embed this* that expands the whole block, so the picker, tabs, selectors and search come along. The item page's location map has one too. The knowledge graph and the entity network keep the button they had.
+- In fullscreen a map zooms on a plain scroll, and a word cloud scales its type to the larger stage. Escape leaves the innermost surface first (a chart opened inside the expanded Project Explorer, then the explorer). The page keeps the expanded surface's place, so leaving returns the reader to the same spot.
+
+### Changed
+
+- A map's fullscreen moved from a button on the map to its chart toolbar, like every other chart's.
+
+### Fixed
+
+- **The Network Explorer opens with the whole network in view.** Its People and projects, People and institutions, and Institutions tabs used ECharts' force layout, which spreads nodes out in pixels from the centre and never fits them to the frame: on the collection-wide data (157, 200 and 80 nodes) the graph opened zoomed in, with most of it off the panel. These networks are now laid out with d3-force before they are drawn, in the panel's proportions, and ECharts fits the result to the panel, on resize and in fullscreen too. On a phone the circles are drawn smaller so the network still fits without overlapping. The same builders draw the contributor, affiliation and collaboration networks on project and institution pages, which get the same fit. Without d3 they fall back to the old layout.
+- In those networks a circle's area now follows its count against the largest in the network. The old fixed scale (2.5 px per item, capped at 35 px) put nearly everyone in a collection-wide network at the cap, so the size said nothing.
+- **What's New period buttons are readable.** "Last 3 months", "Last 6 months" and "Last 12 months" used the square icon-button style, which squeezed each label into a 36 px box with the text spilling over its neighbours. They are now the same text pills as the Compare and Network Explorer switchers, grouped under a "Period" label, and the selected period is announced (`aria-pressed`).
+- **The copy-embed-code button sits with the other chart actions again.** On a chart drawn as it scrolled into view (every chart after the fourth), the embed button made a toolbar of its own before the chart's arrived, and the two split the heading row, leaving the embed button stranded mid-panel. A chart panel now has one toolbar, and each button takes a fixed place in it: export buttons, then embed, then fullscreen.
+
+**Upgrade:** no regeneration needed; the changes are all in the front end.
+
 ## [2.32.1] - 2026-10-11
 
 ### Fixed

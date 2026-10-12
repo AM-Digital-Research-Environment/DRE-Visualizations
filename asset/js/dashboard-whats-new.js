@@ -24,17 +24,26 @@
             + escapeHtml(ns.fill(ns.t('whatsNewUpTo', 'up to {date}'), { date: data.reference })) + '</span>';
         container.appendChild(header);
 
+        // The period buttons are text pills, the same control as Compare's
+        // type switcher — NOT the square icon button (.rv-btn), which squeezed
+        // "Last 3 months" into a 36px box with the label spilling out.
         var sw = document.createElement('div');
         sw.className = 'compare-type-switcher whats-new-windows';
+        sw.setAttribute('role', 'group');
+        sw.setAttribute('aria-label', ns.t('whatsNewPeriod', 'Period'));
         windows.forEach(function (w) {
             var btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'rv-btn whats-new-window-btn' + (w === active ? ' rv-btn-active' : '');
+            btn.className = 'compare-type-btn whats-new-window-btn' + (w === active ? ' is-active' : '');
+            btn.setAttribute('aria-pressed', w === active ? 'true' : 'false');
             btn.textContent = ns.t('whatsNewLast', 'Last') + ' ' + ns.plural(w.months, 'month', 'month', 'months', true);
             btn.addEventListener('click', function () {
+                if (w === active) return;
                 active = w;
                 Array.prototype.forEach.call(sw.children, function (b, i) {
-                    b.classList.toggle('rv-btn-active', windows[i] === active);
+                    var on = windows[i] === active;
+                    b.classList.toggle('is-active', on);
+                    b.setAttribute('aria-pressed', on ? 'true' : 'false');
                 });
                 renderBody();
             });
@@ -60,7 +69,8 @@
                 if (ns.CHART_MAP && ns.CHART_MAP.topProjects) {
                     var projects = active.topProjects;
                     var chart = ns.buildChart(function () { return ns.CHART_MAP.topProjects(el, projects, siteBase); });
-                    if (chart) ns.attachToolbar(panel, chart);
+                    // No panel fullscreen: the block expands whole, period tabs included.
+                    if (chart) ns.attachToolbar(panel, chart, { fullscreen: false });
                 }
             }
 

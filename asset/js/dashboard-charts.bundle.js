@@ -540,9 +540,16 @@
         // scales with them so words still don't collide after the bump.
         function wordCloudOption(count) {
             var slice = entries.slice(0, count);
-            var minFont = count > 100 ? 12 : count > 50 ? 14 : 16;
-            var maxFont = count > 100 ? 72 : count > 50 ? 84 : (count > 10 ? 96 : 110);
-            var grid = count > 100 ? 6 : count > 50 ? 8 : 10;
+            // The type is set in pixels, so a cloud in a fullscreen panel would
+            // stay its page size in the middle of the stage. There it scales
+            // with the stage's area over a wide panel's (1100 × 350), up to
+            // 1.8×; on the page it is exactly as it was.
+            var scale = el.closest('.rv-fullscreen')
+                ? Math.min(1.8, Math.max(1, Math.sqrt(el.clientWidth * el.clientHeight / (1100 * 350))))
+                : 1;
+            var minFont = Math.round((count > 100 ? 12 : count > 50 ? 14 : 16) * scale);
+            var maxFont = Math.round((count > 100 ? 72 : count > 50 ? 84 : (count > 10 ? 96 : 110)) * scale);
+            var grid = Math.round((count > 100 ? 6 : count > 50 ? 8 : 10) * scale);
             return {
                 tooltip: {
                     confine: true,
@@ -592,6 +599,14 @@
 
         var panel = el.closest('.chart-panel');
         if (!panel) return chart;
+        // Entering or leaving fullscreen changes the scale above: lay the cloud
+        // out again once the panel has its new size.
+        panel.addEventListener('rv-fullscreenchange', function () {
+            if (chart.isDisposed()) return;
+            requestAnimationFrame(function () {
+                if (!chart.isDisposed()) chart._rvRebuild();
+            });
+        });
         var desc = panel.querySelector('.chart-description');
         var anchor = desc ? desc.nextSibling : el;
 
@@ -1601,7 +1616,6 @@
         });
         if (!map) return;
         map.addControl(ns.navControl(), 'top-right');
-        map.addControl(ns.mapFullscreenControl(el.closest('.chart-panel') || el.parentNode), 'top-right');
         new maplibregl.Marker({ color: THEME.accent })
             .setLngLat([data.lon, data.lat])
             .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML('<strong>' + esc(data.name || '') + '</strong>'))
@@ -1864,6 +1878,28 @@
         chart._noDecal = true;
         var n = data.nodes.length;
 
+        // A circle's area follows its count, against the largest in this
+        // network (see ns.networkNodeSize).
+        var nodeSize = ns.networkNodeSize(data.nodes, 10, 32);
+        // Laid out to fit the panel (ns.layoutNetwork): ECharts' force layout
+        // ran the collection-wide institution network past the frame. Without d3 the series keeps that force
+        // layout.
+        var layout = ns.layoutNetwork ? ns.layoutNetwork(el, data.nodes.map(function (nd) {
+            return { name: nd.name, size: nodeSize(nd), fixed: !!nd.isSelf };
+        }), data.links) : null;
+        var placement = layout
+            ? layout.option
+            : {
+                layout: 'force',
+                force: {
+                    repulsion: n > 15 ? 400 : 250,
+                    gravity: n > 15 ? 0.06 : 0.1,
+                    edgeLength: [60, 200],
+                    friction: 0.85,
+                    layoutAnimation: !ns.prefersReducedMotion()
+                }
+            };
+
         chart.setOption({
             tooltip: {
                 confine: true,
@@ -1883,14 +1919,16 @@
                 }
             },
             aria: { enabled: true },
-            series: [{
-                type: 'graph', layout: 'force',
+            series: [Object.assign({
+                type: 'graph',
                 scaleLimit: { min: 0.3, max: 5 },
                 data: data.nodes.map(function (nd, i) {
                     var isSelf = !!nd.isSelf;
-                    var size = isSelf ? 45 : Math.max(12, Math.min(35, nd.value * 3));
                     return {
-                        name: nd.name, symbolSize: size, value: nd.value,
+                        name: nd.name, value: nd.value,
+                        symbolSize: Math.round(nodeSize(nd) * (layout ? layout.scale : 1)),
+                        x: layout ? layout.positions[i][0] : undefined,
+                        y: layout ? layout.positions[i][1] : undefined,
                         isSelf: isSelf, itemId: nd.itemId,
                         itemStyle: isSelf
                             ? { color: THEME.accent, borderColor: THEME.text, borderWidth: 3 }
@@ -1910,17 +1948,10 @@
                         lineStyle: { width: Math.max(1, Math.min(6, l.value)), curveness: 0.15, opacity: 0.5 }
                     };
                 }),
-                force: {
-                    repulsion: n > 15 ? 400 : 250,
-                    gravity: n > 15 ? 0.06 : 0.1,
-                    edgeLength: [60, 200],
-                    friction: 0.85,
-                    layoutAnimation: !ns.prefersReducedMotion()
-                },
                 roam: true, draggable: true,
                 emphasis: { focus: 'adjacency', lineStyle: { width: 4, opacity: 0.9 } },
                 blur: { itemStyle: { opacity: 0.15 }, lineStyle: { opacity: 0.08 } }
-            }]
+            }, placement)]
         });
 
         chart.on('click', function (p) {
@@ -1979,6 +2010,29 @@
             return { name: c, itemStyle: { color: categoryColor(c) } };
         });
 
+        // A circle's area follows its count, against the largest in this
+        // network: a fixed px-per-item scale put nearly everyone in a
+        // collection-wide network at the cap, one size of large circle.
+        var nodeSize = ns.networkNodeSize(data.nodes, 8, 32);
+        // Laid out to fit the panel (ns.layoutNetwork): ECharts' force layout
+        // ran a collection-wide network past the frame. Without d3 the series keeps that force
+        // layout.
+        var layout = ns.layoutNetwork ? ns.layoutNetwork(el, data.nodes.map(function (nd) {
+            return { name: nd.name, size: nodeSize(nd), fixed: !!nd.isSelf };
+        }), data.links) : null;
+        var placement = layout
+            ? layout.option
+            : {
+                layout: 'force',
+                force: {
+                    repulsion: n > 20 ? 500 : 300,
+                    gravity: n > 20 ? 0.05 : 0.08,
+                    edgeLength: [50, 180],
+                    friction: 0.85,
+                    layoutAnimation: !ns.prefersReducedMotion()
+                }
+            };
+
         chart.setOption({
             tooltip: {
                 confine: true,
@@ -2002,17 +2056,19 @@
                 bottom: 5,
                 textStyle: { fontSize: THEME.fontSize }
             }] : [],
-            series: [{
-                type: 'graph', layout: 'force',
+            series: [Object.assign({
+                type: 'graph',
                 categories: cats,
                 scaleLimit: { min: 0.3, max: 5 },
                 data: data.nodes.map(function (nd, i) {
                     var isSelf = !!nd.isSelf;
                     var catIdx = (data.categories || []).indexOf(nd.category);
                     var catColor = categoryColor(nd.category);
-                    var size = isSelf ? 45 : Math.max(10, Math.min(35, nd.value * 2.5));
                     return {
-                        name: nd.name, symbolSize: size, value: nd.value,
+                        name: nd.name, value: nd.value,
+                        symbolSize: Math.round(nodeSize(nd) * (layout ? layout.scale : 1)),
+                        x: layout ? layout.positions[i][0] : undefined,
+                        y: layout ? layout.positions[i][1] : undefined,
                         category: catIdx >= 0 ? catIdx : 0,
                         itemId: nd.itemId,
                         itemStyle: isSelf
@@ -2033,17 +2089,10 @@
                         lineStyle: { width: Math.max(1, Math.min(5, l.value)), curveness: 0.15, opacity: 0.4 }
                     };
                 }),
-                force: {
-                    repulsion: n > 20 ? 500 : 300,
-                    gravity: n > 20 ? 0.05 : 0.08,
-                    edgeLength: [50, 180],
-                    friction: 0.85,
-                    layoutAnimation: !ns.prefersReducedMotion()
-                },
                 roam: true, draggable: true,
                 emphasis: { focus: 'adjacency', lineStyle: { width: 4, opacity: 0.9 } },
                 blur: { itemStyle: { opacity: 0.15 }, lineStyle: { opacity: 0.08 } }
-            }]
+            }, placement)]
         });
 
         chart.on('click', function (p) {
@@ -3202,6 +3251,8 @@
         var result = {};
         var maps = [c.buildMiniMap, c.buildMap, c.buildChoropleth, c.buildClusterMap, c.buildAffiliationMap];
         var force = [c.buildCommunities];
+        // ECharts networks that d3-force lays out first (ns.layoutNetwork).
+        var settled = [c.buildContributorNetwork, c.buildAffiliationNetwork, c.buildCollabNetwork];
         keys = Array.isArray(keys) ? keys.filter(function (key) { return data[key]; })
             : (ns.planDashboard ? ns.planDashboard(data, host).keys
                 : Object.keys(data).filter(function (key) { return data[key]; }));
@@ -3210,6 +3261,7 @@
             if (!builder) return;
             var lib = maps.indexOf(builder) >= 0 ? 'maplibre' : (force.indexOf(builder) >= 0 ? 'd3' : 'echarts');
             result[lib] = true;
+            if (settled.indexOf(builder) >= 0) result.d3 = true;
             if (builder === c.buildWordCloud) result.wordcloud = true;
         });
         return result;

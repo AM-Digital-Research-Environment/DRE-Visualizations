@@ -225,7 +225,8 @@
             var chart = ns.buildChart(function () { return builder(el, graph, siteBase); });
             if (chart) {
                 container._rvNetworkChart = chart;
-                ns.attachToolbar(panel, chart);
+                // No panel fullscreen: the block expands whole, network tabs included.
+                ns.attachToolbar(panel, chart, { fullscreen: false });
             }
         });
     }

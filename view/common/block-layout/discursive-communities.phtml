@@ -25,6 +25,8 @@ $this->dashboardAssets(['graph' => true]);
         'class' => 'dre-entity-graph',
         'data' => [
             'embed-slug' => 'discursive-communities',
+            // The graph toolbar carries its own fullscreen (entity-graph-ui.js).
+            'fullscreen' => 'own',
         ],
     ]) ?>
 </div>

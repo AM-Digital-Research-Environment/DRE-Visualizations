@@ -140,7 +140,7 @@ A collection-wide **entity network**: people, organisations, places, subjects an
 
 ### Network Explorer
 
-Collection-wide relationship networks in one tabbed block — **Contributors ↔ Projects** (who contributed items to which project), **Co-authorship** (people who worked on the same items), **People ↔ Institutions** (affiliations), and **Institution collaborations** (organisations connected through shared people) — each with its own summary stats. Added as a **site-page block** (Admin > Sites > [site] > Pages), it loads `asset/data/network-explorer.json` (rebuilt by "Regenerate now") and renders through the shared network chart builders.
+Collection-wide relationship networks in one tabbed block — **Contributors ↔ Projects** (who contributed items to which project), **Co-authorship** (people who worked on the same items), **People ↔ Institutions** (affiliations), and **Institution collaborations** (organisations connected through shared people) — each with its own summary stats. Added as a **site-page block** (Admin > Sites > [site] > Pages), it loads `asset/data/network-explorer.json` (rebuilt by "Regenerate now") and renders through the shared network chart builders. The three ECharts networks are laid out with d3-force before they are drawn, in the frame's proportions, so the whole network opens in view at any size (on a phone the circles are drawn smaller rather than overlapping); a circle's area follows its count against the largest in the network.
 
 ### Spatial Exploration
 
@@ -235,7 +235,8 @@ Inline dashboard for item set pages with server-side aggregation.
 - **Word count slider**: Adjust the number of words displayed in the word cloud (5 to max)
 - **DataZoom**: Interactive slider on timeline charts with >15 data points
 - **ARIA**: Screen reader descriptions on all charts; global decal pattern toggle for accessibility (excluded on wordcloud, chord, heatmap, and sankey where patterns are not meaningful)
-- **Cooperative gestures**: Main maps require Ctrl+scroll to zoom (prevents scroll hijacking)
+- **Cooperative gestures**: Main maps require Ctrl+scroll to zoom (prevents scroll hijacking); in fullscreen a plain scroll zooms
+- **Fullscreen**: every visualization has one fullscreen button, and what expands is the smallest surface holding the picture *and* its controls. A dashboard chart expands its panel (last button in the chart toolbar), so a word cloud's slider and languages, a map's legend and the data table come along; the single-view blocks (Spatial Exploration, Semantic Map, Network Explorer, Compare, Project Explorer, What's New) expand as a whole, next to *Embed this*, so their picker, tabs, selectors and search stay in reach. Escape leaves the innermost surface first, and the page keeps its place underneath
 - **Globe projection**: Main maps default to globe view with a toggle control
 - **Scale control**: Metric scale bar on all maps
 
@@ -248,7 +249,7 @@ Each site exposes a **snippet gallery** at `/s/<site-slug>/dre-embed` (also link
 - **Whole block** — `/s/<site-slug>/dre-embed/<block>`, e.g. `…/dre-embed/publications`. Renders the exact on-page block.
 - **Single chart** (dashboard blocks only) — `/s/<site-slug>/dre-embed/<block>/<chart>`, e.g. `…/dre-embed/publications/coAuthorNetwork`. Renders one chart full-bleed, without the dashboard header/accordion. The gallery lists each dashboard's available charts, enumerated live from the layout definitions and filtered to the charts that actually carry data.
 
-You can also grab the code **without leaving the page**: every embeddable visualization on the live site carries a small **copy-embed-code** button — one per chart in the dashboards' toolbars (next to *Save as image*), and one per block on the single-view maps/networks — that copies the matching snippet to the clipboard. It reuses the chart toolbar styling, follows light/dark, and never appears inside an embed itself.
+You can also grab the code **without leaving the page**: every embeddable visualization on the live site carries a small **copy-embed-code** button — one per chart in the dashboards' toolbars (after *Save as image* and *Download data*, before *Fullscreen*), and one per block on the single-view maps/networks — that copies the matching snippet to the clipboard. It reuses the chart toolbar styling, follows light/dark, and never appears inside an embed itself.
 
 Embeddable blocks: **Collection Overview**, **Collection Dashboard**, **Publications**, **YouTube**, **Podcasts** (these five also support single-chart embeds), **Discursive Communities**, **Spatial Exploration**, **Network Explorer**, **Compare (any entity)**, **Compare Genres**, **Project Explorer**, **What's New**.
 
