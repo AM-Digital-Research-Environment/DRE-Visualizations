@@ -40,7 +40,7 @@ profileCheck(count($embeddingCorpora) === 6
         'label' => 'Podcast',
         'selector' => 'itemSet',
         'selectorId' => $profile->itemSet('podcasts'),
-        'textFields' => ['dcterms:abstract', 'bibo:content'],
+        'textFields' => ['dcterms:abstract'],
     ]
     && ($embeddingCorpora[5]['selector'] ?? null) === 'template'
     && ($embeddingCorpora[5]['selectorId'] ?? null) === $profile->template('researchItems'),
@@ -66,6 +66,9 @@ $invalidCases = [
     'duplicate corpus id' => static function (array &$data): void { $data['wordcloudCorpora'][1]['id'] = $data['wordcloudCorpora'][0]['id']; },
     'embedding corpus with both selectors' => static function (array &$data): void { $data['embeddingCorpora'][0]['templateKey'] = 'projects'; },
     'embedding corpus with no text fields' => static function (array &$data): void { $data['embeddingCorpora'][0]['textFields'] = []; },
+    'embedding corpus over an authority template' => static function (array &$data): void { unset($data['embeddingCorpora'][3]['templateKey']); $data['embeddingCorpora'][3]['templateKey'] = 'persons'; },
+    'embedding corpus over an authority item set' => static function (array &$data): void { unset($data['embeddingCorpora'][0]['itemSetKey']); $data['embeddingCorpora'][0]['itemSetKey'] = 'subject'; },
+    'embedding corpus reading full text' => static function (array &$data): void { $data['embeddingCorpora'][0]['textFields'][] = 'bibo:content'; },
     'duplicate embedding corpus id' => static function (array &$data): void { $data['embeddingCorpora'][1]['id'] = $data['embeddingCorpora'][0]['id']; },
     'duplicate featured collection slug' => static function (array &$data): void { $data['featuredCollections'][1]['slug'] = $data['featuredCollections'][0]['slug']; },
     'unknown featured item-set key' => static function (array &$data): void { $data['featuredCollections'][0]['itemSetKey'] = 'missing'; },

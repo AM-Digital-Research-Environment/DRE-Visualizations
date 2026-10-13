@@ -139,19 +139,19 @@
       "id": "podcasts",
       "label": "Podcast",
       "itemSetKey": "podcasts",
-      "textFields": ["dcterms:abstract", "bibo:content"]
+      "textFields": ["dcterms:abstract"]
     },
     {
       "id": "youtube",
       "label": "YouTube video",
       "itemSetKey": "youtube",
-      "textFields": ["dcterms:abstract", "bibo:content"]
+      "textFields": ["dcterms:abstract"]
     },
     {
       "id": "publications",
       "label": "Publication",
       "itemSetKey": "publications",
-      "textFields": ["bibo:abstract", "bibo:content"]
+      "textFields": ["bibo:abstract"]
     },
     {
       "id": "projects",

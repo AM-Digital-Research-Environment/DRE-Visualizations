@@ -1,10 +1,12 @@
 name: Build semantic embeddings
 
-# Manual because the Gemini call is a paid, secret-backed precompute. Ordinary
-# pull-request CI tests every pure contract without a key; this workflow fetches
-# only the unauthenticated public Omeka API, incrementally refreshes vectors,
-# opens a bot PR for the compact artifacts, and publishes full vectors as a
-# versioned GitHub Release rather than committing them.
+# Manual because a full re-embed is a long CPU precompute. The open-weights
+# EmbeddingGemma 2 model runs on the runner itself: no API key, no secret, and
+# nothing heavy on the Omeka server, which only reads the compact outputs.
+# Ordinary pull-request CI tests every pure contract without the model; this
+# workflow fetches only the unauthenticated public Omeka API, incrementally
+# refreshes vectors, opens a bot PR for the compact artifacts, and publishes
+# full vectors as a versioned GitHub Release rather than committing them.
 on:
   workflow_dispatch:
     inputs:
@@ -36,13 +38,14 @@ concurrency:
 env:
   DRE_EMBEDDING_WORK_DIR: ${{ github.workspace }}/.cache/embeddings
   OMEKA_SITE_URL: ${{ vars.OMEKA_SITE_URL }}
-  GEMINI_EMBEDDING_MODEL: gemini-embedding-2
-  GEMINI_EMBEDDING_DIMS: '768'
+  # Keep in step with MODEL_REVISION in build_embeddings.py (checked below).
+  EMBEDDING_MODEL_REVISION: 914f7f89142e33e77833254d9c9b90c3cef7303b
+  HF_HUB_DISABLE_TELEMETRY: '1'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 120  # a full re-embed (scope: all) is the long case
+    timeout-minutes: 240  # a full CPU re-embed (scope: all) is the long case
     steps:
       # actions/checkout v7.0.1, verified upstream 2026-07-31.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -52,19 +55,29 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-          cache-dependency-path: tools/embeddings/requirements.txt
+          cache-dependency-path: tools/embeddings/requirements-model.txt
 
       # actions/cache v6.1.0, verified upstream 2026-07-31. A unique write key
-      # restores the newest compatible prefix and persists the refreshed cache.
+      # restores the newest prefix and persists the refreshed cache; the cache
+      # file records model, revision, dimensions, prefix and dtype, and the
+      # builder discards one that does not match.
       - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: .cache/embeddings/cache.json
-          key: embeddings-${{ runner.os }}-${{ env.GEMINI_EMBEDDING_MODEL }}-${{ env.GEMINI_EMBEDDING_DIMS }}-${{ github.run_id }}
+          key: embeddings-v2-${{ runner.os }}-${{ github.run_id }}
           restore-keys: |
-            embeddings-${{ runner.os }}-${{ env.GEMINI_EMBEDDING_MODEL }}-${{ env.GEMINI_EMBEDDING_DIMS }}-
+            embeddings-v2-${{ runner.os }}-
+
+      # The pinned model snapshot (~1.5 GB) is immutable per revision.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: ~/.cache/huggingface/hub
+          key: hf-embeddinggemma-2-${{ env.EMBEDDING_MODEL_REVISION }}
 
       - name: Install pinned dependencies
-        run: python -m pip install -r tools/embeddings/requirements.txt
+        run: |
+          grep -q "$EMBEDDING_MODEL_REVISION" tools/embeddings/build_embeddings.py
+          python -m pip install -r tools/embeddings/requirements-model.txt
 
       - name: Run embedding contract tests
         run: |
@@ -72,21 +85,19 @@ jobs:
           python -m unittest discover -s tools/embeddings/tests -v
 
       - name: Build public semantic artifacts
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python tools/embeddings/build_embeddings.py --scope "${{ inputs.scope }}"
 
       - name: Validate generated artifact set
         run: python tools/embeddings/build_embeddings.py --validate-artifacts
 
-      # Save even when a later API batch fails: build_embeddings.py flushes each
-      # paid successful batch, so the next run can resume instead of rebilling it.
+      # Save even when a later batch fails or the job times out: the builder
+      # flushes finished batches, so the next run resumes instead of restarting.
       - name: Persist the incremental embedding cache
         if: always()
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: .cache/embeddings/cache.json
-          key: embeddings-${{ runner.os }}-${{ env.GEMINI_EMBEDDING_MODEL }}-${{ env.GEMINI_EMBEDDING_DIMS }}-${{ github.run_id }}
+          key: embeddings-v2-${{ runner.os }}-${{ github.run_id }}
 
       - name: Open bot PR for derived map and recommendations
         env:
@@ -119,6 +130,6 @@ jobs:
             .cache/embeddings/release/ids.json \
             .cache/embeddings/release/manifest.json \
             --target "$GITHUB_SHA" \
-            --title "AMIRA semantic embeddings v1 · build ${GITHUB_RUN_NUMBER}" \
+            --title "AMIRA semantic embeddings v1 · EmbeddingGemma 2 · build ${GITHUB_RUN_NUMBER}" \
             --notes "Public AMIRA vectors. Read manifest.json before indexing; embedding spaces are model-specific." \
             --latest=false

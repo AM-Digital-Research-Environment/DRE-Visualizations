@@ -3,7 +3,8 @@
 
 The source is the unauthenticated public Omeka API. Six profile-declared
 corpora are converted to comparable, length-bounded archival cards, embedded
-in one multilingual Gemini space, then projected with UMAP. Full vectors stay
+locally with the open-weights EmbeddingGemma 2 text encoder, then projected
+with UMAP. Full vectors stay
 in a gitignored incremental cache and release bundle; only compact derived JSON
 is committed under ``asset/data/embeddings``.
 """
@@ -15,7 +16,6 @@ import hashlib
 import json
 import math
 import os
-import random
 import re
 import sys
 import time
@@ -43,14 +43,15 @@ RELEASE_DIR = WORK_DIR / "release"
 API_BASE = os.environ.get(
     "OMEKA_API_BASE", "https://data.africamultiple.uni-bayreuth.de"
 ).rstrip("/")
-MODEL = os.environ.get("GEMINI_EMBEDDING_MODEL", "gemini-embedding-2")
-OUTPUT_DIMS = int(os.environ.get("GEMINI_EMBEDDING_DIMS", "768"))
-TASK_PREFIX = os.environ.get(
-    "GEMINI_EMBEDDING_TASK_PREFIX", "task: sentence similarity | query: "
-)
-BATCH_SIZE = int(os.environ.get("GEMINI_EMBEDDING_BATCH", "32"))
-INTER_BATCH_DELAY_S = float(os.environ.get("GEMINI_EMBEDDING_DELAY_S", "0.5"))
-FLUSH_EVERY_BATCHES = int(os.environ.get("GEMINI_EMBEDDING_FLUSH_EVERY", "5"))
+MODEL = "google/embeddinggemma-2"
+# Pinned Hub commit: a new revision is a new vector space, like a new model.
+MODEL_REVISION = "914f7f89142e33e77833254d9c9b90c3cef7303b"
+OUTPUT_DIMS = 768
+TASK_PREFIX = "task: sentence similarity | query: "
+# float16 overflows this model and yields NaN or silently degraded vectors.
+INFERENCE_DTYPE = "float32"
+BATCH_SIZE = int(os.environ.get("DRE_EMBEDDING_BATCH", "16"))
+FLUSH_EVERY_BATCHES = int(os.environ.get("DRE_EMBEDDING_FLUSH_EVERY", "10"))
 
 CARD_MAX_WORDS = 900
 LOW_SIGNAL_THRESHOLD = 100
@@ -59,6 +60,20 @@ UMAP_NEIGHBORS = 15
 UMAP_MIN_DIST = 0.1
 UMAP_SEED = 42
 SCHEMA_VERSION = 1
+
+# Authority records (people, institutions, subjects, places, controlled
+# vocabularies) are never embedded: they are fixed in MongoDB and enter cards
+# only as the labels of the records that cite them.
+AUTHORITY_ITEM_SETS = frozenset(
+    {"genre", "language", "resourceType", "targetAudience", "person", "institution", "subject"}
+)
+AUTHORITY_TEMPLATES = frozenset({"organisation", "location", "persons", "authority"})
+# Full text and transcripts are far longer than the card budget, and their
+# opening words describe a record poorly. Cards use abstracts and descriptions;
+# full text is reserved for a separate layer.
+FULLTEXT_FIELDS = frozenset({"bibo:content"})
+# Placeholder titles say nothing about a record and do not count as signal.
+GENERIC_TITLES = frozenset({"untitled", "ohne titel", "sans titre", "sem título", "no title"})
 
 TERM_RE = re.compile(r"^[a-z][a-z0-9]*:[A-Za-z][A-Za-z0-9]*$")
 ID_RE = re.compile(r"^[a-z][a-z0-9-]*$")
@@ -88,6 +103,7 @@ class Card:
     truncated: bool
     low_signal: bool
     languages: list[str]
+    signal_chars: int = 0
 
 
 def utc_now() -> str:
@@ -147,7 +163,13 @@ def load_profile(path: Path = PROFILE_PATH) -> tuple[dict[str, Any], list[Corpus
             or any(not isinstance(field, str) or not TERM_RE.fullmatch(field) for field in fields)
         ):
             raise ValueError(f"Invalid embedding corpus configuration: {raw!r}")
-        selector = "item_set_id" if has_item_set else "resource_template_id"
+        if (item_set_key if has_item_set else None) in AUTHORITY_ITEM_SETS or (
+            template_key if has_template else None
+        ) in AUTHORITY_TEMPLATES:
+            raise ValueError(f"Authority records are never embedded: {raw!r}")
+        if FULLTEXT_FIELDS.intersection(fields):
+            raise ValueError(f"Cards use abstracts and descriptions, not full text: {raw!r}")
+        selector ="item_set_id" if has_item_set else "resource_template_id"
         selector_id = item_sets[item_set_key] if has_item_set else templates[template_key]
         if not isinstance(selector_id, int) or selector_id < 1:
             raise ValueError(f"Invalid embedding selector id: {raw!r}")
@@ -306,6 +328,12 @@ def build_card(
         label = "Abstract" if "abstract" in narrative_field.lower() else "Description"
         parts.append(f"{label}: {narrative}")
 
+    # Low signal is judged on what the record says about itself. The inherited
+    # project and section lines are shared by hundreds of siblings, so a card
+    # carried by them alone would only recommend those siblings.
+    own_title = "" if title.casefold() in GENERIC_TITLES or title == f"Item {item_id}" else title
+    signal_chars = len(" ".join(filter(None, [own_title, narrative, *subjects, *places])))
+
     full_text = "\n".join(parts).strip()
     words = full_text.split()
     truncated = len(words) > max_words
@@ -323,8 +351,9 @@ def build_card(
         input_chars=input_chars,
         input_words=input_words,
         truncated=truncated,
-        low_signal=input_chars < low_signal_threshold,
+        low_signal=signal_chars < low_signal_threshold,
         languages=languages,
+        signal_chars=signal_chars,
     )
 
 
@@ -382,8 +411,10 @@ def empty_cache() -> dict[str, Any]:
     return {
         "schemaVersion": SCHEMA_VERSION,
         "model": MODEL,
+        "modelRevision": MODEL_REVISION,
         "dims": OUTPUT_DIMS,
         "taskPrefix": TASK_PREFIX,
+        "inferenceDtype": INFERENCE_DTYPE,
         "items": {},
     }
 
@@ -398,59 +429,48 @@ def load_cache(path: Path = CACHE_PATH) -> dict[str, Any]:
     compatible = (
         cache.get("schemaVersion") == SCHEMA_VERSION
         and cache.get("model") == MODEL
+        and cache.get("modelRevision") == MODEL_REVISION
         and cache.get("dims") == OUTPUT_DIMS
         and cache.get("taskPrefix") == TASK_PREFIX
+        and cache.get("inferenceDtype") == INFERENCE_DTYPE
         and isinstance(cache.get("items"), dict)
     )
     return cache if compatible else empty_cache()
 
 
-class GeminiEmbedder:
-    def __init__(self, api_key: str):
-        from google import genai
+class GemmaEmbedder:
+    """EmbeddingGemma 2 text encoder on CPU; vision and audio stay unloaded."""
 
-        self._client = genai.Client(api_key=api_key)
+    def __init__(self):
+        import torch
+        from sentence_transformers import SentenceTransformer
 
-    def close(self) -> None:
-        self._client.close()
+        self._model = SentenceTransformer(
+            MODEL,
+            revision=MODEL_REVISION,
+            device="cpu",
+            config_kwargs={"vision_config": None, "audio_config": None},
+            model_kwargs={"dtype": getattr(torch, INFERENCE_DTYPE)},
+        )
+        # The checkpoint declares no limit; cards stay far below the 8K window.
+        self._model.max_seq_length = 8192
 
-    def __call__(self, texts: Sequence[str], retries: int = 5) -> list[list[float]]:
-        from google.genai import types
-        from google.genai.errors import APIError
+    def __call__(self, texts: Sequence[str]) -> list[list[float]]:
+        import numpy as np
 
-        contents = [
-            types.Content(
-                role="user",
-                parts=[types.Part.from_text(text=TASK_PREFIX + text)],
-            )
-            for text in texts
-        ]
-        delay = 2.0
-        for attempt in range(retries):
-            try:
-                response = self._client.models.embed_content(
-                    model=MODEL,
-                    contents=contents,
-                    config=types.EmbedContentConfig(
-                        output_dimensionality=OUTPUT_DIMS,
-                        auto_truncate=False,
-                    ),
-                )
-                vectors = [list(embedding.values or []) for embedding in response.embeddings or []]
-                if len(vectors) != len(texts):
-                    raise RuntimeError(
-                        f"Gemini returned {len(vectors)} vectors for {len(texts)} Content objects"
-                    )
-                if any(len(vector) != OUTPUT_DIMS for vector in vectors):
-                    raise RuntimeError("Gemini returned an unexpected embedding dimension")
-                return vectors
-            except APIError as error:
-                status = getattr(error, "status_code", None) or getattr(error, "code", None)
-                if status not in (429, 500, 502, 503, 504) or attempt == retries - 1:
-                    raise
-                time.sleep(delay + random.random())
-                delay = min(delay * 2, 60)
-        raise AssertionError("unreachable")
+        vectors = self._model.encode(
+            list(texts),
+            prompt=TASK_PREFIX,
+            batch_size=BATCH_SIZE,
+            normalize_embeddings=True,
+            convert_to_numpy=True,
+            show_progress_bar=False,
+        )
+        if vectors.shape != (len(texts), OUTPUT_DIMS):
+            raise RuntimeError(f"EmbeddingGemma returned shape {vectors.shape}")
+        if not np.isfinite(vectors).all():
+            raise RuntimeError("EmbeddingGemma returned non-finite values; check the inference dtype")
+        return vectors.astype(np.float32).tolist()
 
 
 def update_cache(
@@ -473,37 +493,56 @@ def update_cache(
         or str(card.id) not in items
         or items[str(card.id)].get("hash") != card.content_hash
     ]
-    reused = len(cards) - len(pending)
+    # Identical cards (a series sharing one title and subject set) share one
+    # vector, so the model sees each distinct text once.
+    vectors_by_hash: dict[str, list[float]] = {} if scope == "all" else {
+        entry["hash"]: entry["vector"]
+        for entry in items.values()
+        if isinstance(entry, dict) and "hash" in entry and "vector" in entry
+    }
+    texts: dict[str, str] = {}
+    for card in pending:
+        if card.content_hash not in vectors_by_hash:
+            texts.setdefault(card.content_hash, card.text)
+    queue = list(texts.items())
+
+    def assign() -> None:
+        for card in pending:
+            vector = vectors_by_hash.get(card.content_hash)
+            if vector is not None:
+                items[str(card.id)] = {"hash": card.content_hash, "vector": vector}
+
     batches_since_flush = 0
     try:
-        for offset in range(0, len(pending), BATCH_SIZE):
-            batch = pending[offset : offset + BATCH_SIZE]
-            started = time.time()
-            vectors = embed([card.text for card in batch])
+        for offset in range(0, len(queue), BATCH_SIZE):
+            batch = queue[offset : offset + BATCH_SIZE]
+            vectors = embed([text for _, text in batch])
             if len(vectors) != len(batch):
                 raise RuntimeError("Embedding provider returned the wrong batch size")
-            for card, vector in zip(batch, vectors):
+            for (content_hash, _), vector in zip(batch, vectors):
                 if len(vector) != OUTPUT_DIMS:
-                    raise RuntimeError(f"Item {card.id} has {len(vector)} dimensions, expected {OUTPUT_DIMS}")
-                items[str(card.id)] = {
-                    "hash": card.content_hash,
-                    "vector": vector,
-                }
+                    raise RuntimeError(f"A card has {len(vector)} dimensions, expected {OUTPUT_DIMS}")
+                vectors_by_hash[content_hash] = vector
             batches_since_flush += 1
-            print(f"  embedded {min(offset + len(batch), len(pending))}/{len(pending)}")
+            print(f"  embedded {min(offset + len(batch), len(queue))}/{len(queue)}")
             if batches_since_flush >= FLUSH_EVERY_BATCHES:
+                assign()
                 compact_json(cache_path, cache)
                 batches_since_flush = 0
-            elapsed = time.time() - started
-            if INTER_BATCH_DELAY_S > elapsed and offset + BATCH_SIZE < len(pending):
-                time.sleep(INTER_BATCH_DELAY_S - elapsed)
     except BaseException:
-        # Preserve paid-for successful batches across API failures and Ctrl-C.
+        # Keep finished batches across failures and Ctrl-C so a rerun resumes.
+        assign()
         compact_json(cache_path, cache)
         raise
 
+    assign()
     compact_json(cache_path, cache)
-    return {"embedded": len(pending), "reused": reused, "staleRemoved": len(stale)}
+    return {
+        "embedded": len(queue),
+        "reused": len(cards) - len(pending),
+        "sharedWithIdenticalCard": len(pending) - len(queue),
+        "staleRemoved": len(stale),
+    }
 
 
 def vector_matrix(cards: Sequence[Card], cache: dict[str, Any]):
@@ -554,8 +593,12 @@ def similar_items(cards: Sequence[Card], matrix, top_k: int = SIMILAR_TOP_K) -> 
     if len(eligible) < 2:
         return {}
     eligible_matrix = matrix[eligible]
+    eligible_hashes = [cards[index].content_hash for index in eligible]
     output: dict[str, list[dict[str, Any]]] = {}
-    k = min(top_k, len(eligible) - 1)
+    # Identical cards score 1.0 against each other and would crowd out every
+    # real neighbour, so widen the candidate pool by the largest identical group.
+    widest_group = max(Counter(eligible_hashes).values())
+    k = min(top_k + widest_group, len(eligible) - 1)
     for start in range(0, len(eligible), 256):
         source_indices = eligible[start : start + 256]
         scores = matrix[source_indices] @ eligible_matrix.T
@@ -566,15 +609,17 @@ def similar_items(cards: Sequence[Card], matrix, top_k: int = SIMILAR_TOP_K) -> 
             candidate_positions = candidate_positions[
                 np.argsort(-scores[row_index, candidate_positions])
             ]
-            output[str(cards[source_index].id)] = [
-                {
-                    "id": cards[eligible[position]].id,
-                    "score": round(float(scores[row_index, position]), 6),
-                }
-                for position in candidate_positions
-                if math.isfinite(float(scores[row_index, position]))
-                and float(scores[row_index, position]) > 0
-            ]
+            seen_hashes = {eligible_hashes[source_position]}
+            neighbours: list[dict[str, Any]] = []
+            for position in candidate_positions:
+                score = float(scores[row_index, position])
+                if not math.isfinite(score) or score <= 0 or eligible_hashes[position] in seen_hashes:
+                    continue
+                seen_hashes.add(eligible_hashes[position])
+                neighbours.append({"id": cards[eligible[position]].id, "score": round(score, 6)})
+                if len(neighbours) == top_k:
+                    break
+            output[str(cards[source_index].id)] = neighbours
     return output
 
 
@@ -661,6 +706,8 @@ def write_release(matrix, cards: Sequence[Card], generated_at: str, scope: dict 
         "dtype": "float32-le",
         "normalization": "l2",
         "count": len(cards),
+        "modelRevision": MODEL_REVISION,
+        "inferenceDtype": INFERENCE_DTYPE,
         "taskPrefix": TASK_PREFIX,
         "rowOrder": "ids.json",
         "vectors": "vectors.f32",
@@ -743,9 +790,13 @@ def write_derived(
         "model": MODEL,
         "dimensions": OUTPUT_DIMS,
         "taskPrefix": TASK_PREFIX,
+        "modelRevision": MODEL_REVISION,
+        "inferenceDtype": INFERENCE_DTYPE,
         "cardPolicy": {
             "maxWords": CARD_MAX_WORDS,
             "lowSignalThresholdChars": LOW_SIGNAL_THRESHOLD,
+            "lowSignalMeasures": "own title, abstract or description, subjects and places",
+            "fullTextEmbedded": False,
             "allItemsShareTheSameLengthBudget": True,
         },
         "corpora": corpus_counts,
@@ -796,6 +847,8 @@ def validate_artifacts(out_dir: Path = OUT_DIR, release_dir: Path = RELEASE_DIR)
         raise ValueError("Semantic artifacts do not share the expected schema version.")
     if any(payload.get("model") != MODEL for payload in (map_data, similar_data, report, manifest)):
         raise ValueError("Semantic artifacts do not share the configured embedding model.")
+    if any(payload.get("modelRevision") != MODEL_REVISION for payload in (report, manifest)):
+        raise ValueError("Semantic artifacts do not share the pinned model revision.")
     if any(payload.get("dimensions") != OUTPUT_DIMS for payload in (map_data, similar_data, report, manifest)):
         raise ValueError("Semantic artifacts do not share the configured vector dimensions.")
 
@@ -910,16 +963,10 @@ def main() -> int:
     if args.dry_run:
         return 0
 
-    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        print("GEMINI_API_KEY (or GOOGLE_API_KEY) is required.", file=sys.stderr)
-        return 2
-
-    embedder = GeminiEmbedder(api_key)
-    try:
-        cache_stats = update_cache(cards, cache, embedder, args.scope)
-    finally:
-        embedder.close()
+    print(f"Loading {MODEL}@{MODEL_REVISION[:12]} ({INFERENCE_DTYPE}, CPU, text only)...")
+    started = time.time()
+    cache_stats = update_cache(cards, cache, GemmaEmbedder(), args.scope)
+    print(f"Embedding finished in {time.time() - started:.0f} s.")
     matrix = vector_matrix(cards, cache)
     coords, clusters, cluster_count = project_and_cluster(matrix)
     recommendations = similar_items(cards, matrix)

@@ -1,0 +1,11 @@
+# The EmbeddingGemma 2 stack, installed only by the Build semantic embeddings
+# workflow; pull-request CI tests the contracts without it. CPU-only torch
+# keeps the runner download small. The model's processor imports Pillow and
+# torchvision even when only text is embedded.
+--extra-index-url https://download.pytorch.org/whl/cpu
+-r requirements.txt
+torch==2.14.1+cpu
+torchvision==0.29.1+cpu
+pillow==12.3.0
+transformers==5.19.0
+sentence-transformers==6.1.0

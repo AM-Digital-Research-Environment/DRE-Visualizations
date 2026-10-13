@@ -8,6 +8,13 @@ use RuntimeException;
 /** Validated single source for AMIRA installation-local record identifiers. */
 final class AmiraProfile
 {
+    /**
+     * Authority records are never embedded: they are fixed in MongoDB and
+     * reach semantic cards only as labels. Mirrors tools/embeddings.
+     */
+    private const AUTHORITY_ITEM_SETS = ['genre', 'language', 'resourceType', 'targetAudience', 'person', 'institution', 'subject'];
+    private const AUTHORITY_TEMPLATES = ['organisation', 'location', 'persons', 'authority'];
+
     private function __construct(private readonly array $data)
     {
         $this->validate();
@@ -251,9 +258,15 @@ final class AmiraProfile
                 || !is_array($textFields) || !$textFields) {
                 throw new RuntimeException('AMIRA profile has an invalid embedding corpus.');
             }
+            if (in_array($itemSetKey, self::AUTHORITY_ITEM_SETS, true) || in_array($templateKey, self::AUTHORITY_TEMPLATES, true)) {
+                throw new RuntimeException('AMIRA profile embeds authority records, which are never embedded.');
+            }
             foreach ($textFields as $field) {
                 if (!is_string($field) || !preg_match('/^[a-z][a-z0-9]*:[A-Za-z][A-Za-z0-9]*$/', $field)) {
                     throw new RuntimeException('AMIRA profile has an invalid embedding corpus text field.');
+                }
+                if ($field === 'bibo:content') {
+                    throw new RuntimeException('AMIRA profile embeds full text; cards use abstracts and descriptions.');
                 }
             }
             $hasItemSet ? $this->itemSet($itemSetKey) : $this->template($templateKey);

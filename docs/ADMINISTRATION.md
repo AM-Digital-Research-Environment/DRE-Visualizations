@@ -104,5 +104,6 @@ variable for the manual workflows. The installed and builder profiles must be
 identical. Rebuild offline inputs after edits, deploy their guarded files under
 `data/`, then regenerate in Omeka. Inputs without matching revision metadata
 are ignored: word clouds use the PHP fallback and semantic blocks show an
-unavailable state or stay hidden. Semantic refresh still requires the existing
-`GEMINI_API_KEY` secret; PHP regeneration needs no model access.
+unavailable state or stay hidden. The semantic refresh runs the open
+EmbeddingGemma 2 model on the GitHub runner and needs no API key or secret; PHP
+regeneration needs no model access.

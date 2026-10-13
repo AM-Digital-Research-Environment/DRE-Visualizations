@@ -58,6 +58,34 @@ class EmbeddingBuildTests(unittest.TestCase):
             self.assertTrue(path.read_text().startswith(scoped_source.PREFIX))
             self.assertEqual(expected, emb.read_json(path)["scope"])
 
+    def test_profile_rejects_authority_corpora_and_full_text(self):
+        import copy
+
+        profile = emb.read_json(emb.PROFILE_PATH)
+        cases = []
+        authority_template = copy.deepcopy(profile)
+        authority_template["embeddingCorpora"][3] = {
+            "id": "persons", "label": "Person", "templateKey": "persons", "textFields": ["dcterms:description"],
+        }
+        cases.append(authority_template)
+        authority_set = copy.deepcopy(profile)
+        authority_set["embeddingCorpora"][0]["itemSetKey"] = "subject"
+        cases.append(authority_set)
+        full_text = copy.deepcopy(profile)
+        full_text["embeddingCorpora"][2]["textFields"].append("bibo:content")
+        cases.append(full_text)
+        for case in cases:
+            with tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / "profile.json"
+                path.write_text(json.dumps(case), encoding="utf-8")
+                with self.assertRaises(ValueError):
+                    emb.load_profile(path)
+
+    def test_repository_cards_read_abstracts_not_full_text(self):
+        _, corpora = emb.load_profile()
+        for corpus in corpora:
+            self.assertNotIn("bibo:content", corpus.text_fields, corpus.id)
+
     def test_value_precedence_and_public_fetch_pagination(self):
         self.assertEqual("Linked title", emb.value_text({
             "display_title": "Linked title", "@value": "Literal", "@id": "https://example.test"
@@ -98,6 +126,34 @@ class EmbeddingBuildTests(unittest.TestCase):
         self.assertTrue(card.truncated)
         self.assertEqual(25, card.input_words)
 
+    def test_low_signal_ignores_inherited_project_context(self):
+        section = item(20, "Knowledges and their long research-section name")
+        project = item(10, "A project title that is long enough to fill a card on its own", **{
+            "dcterms:isPartOf": [value("Knowledges", 20)]
+        })
+        corpus = emb.CorpusConfig(
+            "research-items", "Research item", "resource_template_id", 10,
+            ("dcterms:description",),
+        )
+        thin = item(1, "BA-0014/f", **{
+            "dcterms:isPartOf": [value("Project", 10)],
+            "dcterms:subject": [value("Youth")],
+            "dcterms:description": [{"@value": "scanned document"}],
+        })
+        card = emb.build_card(thin, corpus, {10: project}, {20: section})
+        self.assertGreater(card.input_chars, emb.LOW_SIGNAL_THRESHOLD)
+        self.assertTrue(card.low_signal)
+
+        placeholder = item(2, "Untitled", **{
+            "dcterms:description": [{"@value": "x" * 90}],
+        })
+        self.assertTrue(emb.build_card(placeholder, corpus, {}, {}).low_signal)
+
+        described = item(3, "Interview with a griot", **{
+            "dcterms:description": [{"@value": "Recorded in Bamako about praise songs, patronage and the memory of the Mande empire."}],
+        })
+        self.assertFalse(emb.build_card(described, corpus, {}, {}).low_signal)
+
     def test_nonpublic_records_never_become_cards(self):
         corpus = emb.CorpusConfig("projects", "Project", "resource_template_id", 5, ("dcterms:abstract",))
 
@@ -115,8 +171,8 @@ class EmbeddingBuildTests(unittest.TestCase):
         self.assertEqual(1, counts["projects"]["nonPublicSkipped"])
 
     def test_incremental_cache_embeds_only_changed_cards_and_drops_stale(self):
-        old_dims, old_batch, old_delay = emb.OUTPUT_DIMS, emb.BATCH_SIZE, emb.INTER_BATCH_DELAY_S
-        emb.OUTPUT_DIMS, emb.BATCH_SIZE, emb.INTER_BATCH_DELAY_S = 3, 2, 0
+        old_dims, old_batch = emb.OUTPUT_DIMS, emb.BATCH_SIZE
+        emb.OUTPUT_DIMS, emb.BATCH_SIZE = 3, 2
         try:
             cards = [
                 emb.Card(1, "a", "A", "One", "one", "h1", 3, 1, False, True, []),
@@ -137,10 +193,35 @@ class EmbeddingBuildTests(unittest.TestCase):
             with tempfile.TemporaryDirectory() as directory:
                 stats = emb.update_cache(cards, cache, fake_embed, "missing", Path(directory) / "cache.json")
             self.assertEqual([["two"]], batches)
-            self.assertEqual({"embedded": 1, "reused": 1, "staleRemoved": 1}, stats)
+            self.assertEqual({"embedded": 1, "reused": 1, "sharedWithIdenticalCard": 0, "staleRemoved": 1}, stats)
             self.assertNotIn("99", cache["items"])
         finally:
-            emb.OUTPUT_DIMS, emb.BATCH_SIZE, emb.INTER_BATCH_DELAY_S = old_dims, old_batch, old_delay
+            emb.OUTPUT_DIMS, emb.BATCH_SIZE = old_dims, old_batch
+
+    def test_identical_cards_are_embedded_once(self):
+        old_dims = emb.OUTPUT_DIMS
+        emb.OUTPUT_DIMS = 2
+        try:
+            cards = [
+                emb.Card(1, "research-items", "Research item", "News", "same", "h", 4, 1, False, False, []),
+                emb.Card(2, "research-items", "Research item", "News", "same", "h", 4, 1, False, False, []),
+                emb.Card(3, "research-items", "Research item", "Other", "other", "o", 5, 1, False, False, []),
+            ]
+            cache = emb.empty_cache()
+            batches = []
+
+            def fake_embed(texts):
+                batches.append(list(texts))
+                return [[1.0, 0.0] for _ in texts]
+
+            with tempfile.TemporaryDirectory() as directory:
+                stats = emb.update_cache(cards, cache, fake_embed, "missing", Path(directory) / "cache.json")
+            self.assertEqual([["same", "other"]], batches)
+            self.assertEqual(2, stats["embedded"])
+            self.assertEqual(1, stats["sharedWithIdenticalCard"])
+            self.assertEqual({"1", "2", "3"}, set(cache["items"]))
+        finally:
+            emb.OUTPUT_DIMS = old_dims
 
     def test_similarity_excludes_low_signal_sources_and_neighbours(self):
         import numpy as np
@@ -156,6 +237,25 @@ class EmbeddingBuildTests(unittest.TestCase):
         self.assertEqual({"1", "2"}, set(similar))
         self.assertEqual(2, similar["1"][0]["id"])
         self.assertNotIn(3, [row["id"] for neighbours in similar.values() for row in neighbours])
+
+    def test_similarity_skips_identical_cards(self):
+        import numpy as np
+
+        cards = [
+            emb.Card(1, "research-items", "Research item", "News", "", "same", 200, 20, False, False, []),
+            emb.Card(2, "research-items", "Research item", "News", "", "same", 200, 20, False, False, []),
+            emb.Card(3, "research-items", "Research item", "News", "", "same", 200, 20, False, False, []),
+            emb.Card(4, "publications", "Publication", "Article", "", "a", 200, 20, False, False, []),
+            emb.Card(5, "podcasts", "Podcast", "Episode", "", "b", 200, 20, False, False, []),
+        ]
+        matrix = np.asarray(
+            [[1.0, 0.0], [1.0, 0.0], [1.0, 0.0], [0.9, 0.1], [0.5, 0.5]], dtype=np.float32
+        )
+        matrix /= np.linalg.norm(matrix, axis=1, keepdims=True)
+        similar = emb.similar_items(cards, matrix, top_k=2)
+        self.assertEqual([4, 5], [row["id"] for row in similar["1"]])
+        # One card per distinct text: the twins of 1 appear once in 4's list.
+        self.assertEqual(1, sum(row["id"] in (1, 2, 3) for row in similar["4"]))
 
     def test_two_record_projection_does_not_enter_invalid_umap_mode(self):
         import numpy as np

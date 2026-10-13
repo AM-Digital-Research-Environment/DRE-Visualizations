@@ -13,6 +13,17 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.35.0] - 2026-10-13
+
+**Upgrading:** the semantic corpora in the installation profile changed, so semantic inputs built against an earlier profile no longer match it. After deploying, run **Actions → Build semantic embeddings** with scope `all`, merge its pull request, deploy, then **Regenerate now**. Until then the Semantic Map shows its unavailable state and Similar Items stays hidden. The `GEMINI_API_KEY` secret is no longer used.
+
+### Changed
+
+- **The semantic map and Similar Items are built with EmbeddingGemma 2**, Google's open-weights embedding model, pinned to one revision and run on the GitHub runner, instead of the paid `gemini-embedding-2` API. The build needs no API key or secret, and the Omeka server still only reads the precomputed map and recommendations. The vector release records the model revision and inference dtype, which consumers check along with the model.
+- Semantic cards read a record's abstract or description, never its full text or transcript. A podcast, video or publication without an abstract is described by its title and metadata alone.
+- A record is low-signal (kept on the map, left out of recommendations) when its own title, abstract or description, subjects and places come to fewer than 100 characters. The project and research-section lines it inherits no longer count, so a research item with only a shelf mark and its collection's context no longer recommends its siblings. Identical cards are embedded once, and a recommendation list never shows a record identical to the one on the page.
+- Authority records (people, institutions, subjects, places, vocabularies) are never embedded; the profile validators reject a semantic corpus that selects them.
+
 ## [2.34.0] - 2026-10-12
 
 ### Added
