@@ -13,6 +13,10 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.36.0] - 2026-10-13
+
+**Upgrading:** install this release, then **Regenerate now**. The Publications dashboard then shows *Publications by similarity*.
+
 ### Added
 
 - **Publications by similarity** on the Publications dashboard: each publication is a dot placed by what it is about, so publications whose titles, abstracts and keywords are close in meaning sit together, whatever their language. Colour shows the publication type, faint dots are publications too lightly described to place reliably, and a click opens the publication. The data table lists the publications by type. The panel appears once a semantic build matches the site.
