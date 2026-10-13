@@ -13,6 +13,18 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.35.1] - 2026-10-13
+
+**Upgrading:** install this release, then **Regenerate now**. It is the first archive that carries the semantic inputs, so the Semantic Map and Similar Items have data after regeneration.
+
+### Added
+
+- The first EmbeddingGemma 2 semantic inputs (`data/embeddings/`): 4,637 public records, 3,212 of them with recommendations. Their full vectors are the `semantic-embeddings-v1-3` release. 2.35.0 was cut before this build, so its archive had none.
+
+### Fixed
+
+- The Build semantic embeddings and Build word clouds workflows no longer fail when the organisation forbids GitHub Actions to open pull requests. They push the bot branch and link to it in the job summary, and the vector release is published before that step.
+
 ## [2.35.0] - 2026-10-13
 
 **Upgrading:** the semantic corpora in the installation profile changed, so semantic inputs built against an earlier profile no longer match it. After deploying, run **Actions → Build semantic embeddings** with scope `all`, merge its pull request, deploy, then **Regenerate now**. Until then the Semantic Map shows its unavailable state and Similar Items stays hidden. The `GEMINI_API_KEY` secret is no longer used.
