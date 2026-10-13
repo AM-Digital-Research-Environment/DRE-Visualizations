@@ -62,8 +62,15 @@ jobs:
             git switch -c "$branch"
             git commit -m "Word clouds: regenerate lemmatised frequencies"
             git push --set-upstream origin "$branch"
-            gh pr create --base main --head "$branch" \
+            # The organisation does not let GitHub Actions open pull requests,
+            # so a refused PR is not a failure: the branch is pushed, and a
+            # maintainer opens the PR from the link in the job summary.
+            compare="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/main...${branch}?expand=1"
+            if ! gh pr create --base main --head "$branch" \
               --title "Word clouds: regenerate lemmatised frequencies" \
-              --body "Automated word-cloud refresh from workflow run ${GITHUB_RUN_ID}."
+              --body "Automated word-cloud refresh from workflow run ${GITHUB_RUN_ID}."; then
+              echo "::warning::Pushed $branch but could not open its pull request; open it from $compare"
+              echo "Open the pull request for \`$branch\`: $compare" >> "$GITHUB_STEP_SUMMARY"
+            fi
             gh workflow run ci.yml --ref "$branch"
           fi

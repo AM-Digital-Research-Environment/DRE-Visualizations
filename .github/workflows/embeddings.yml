@@ -99,26 +99,6 @@ jobs:
           path: .cache/embeddings/cache.json
           key: embeddings-v2-${{ runner.os }}-${{ github.run_id }}
 
-      - name: Open bot PR for derived map and recommendations
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/embeddings/map.php data/embeddings/similar.php data/embeddings/report.php
-          if git diff --staged --quiet; then
-            echo "No semantic artifact changes."
-          else
-            branch="automation/embeddings-${GITHUB_RUN_ID}"
-            git switch -c "$branch"
-            git commit -m "Semantic embeddings: refresh public derived artifacts"
-            git push --set-upstream origin "$branch"
-            gh pr create --base main --head "$branch" \
-              --title "Semantic embeddings: refresh public artifacts" \
-              --body "Automated public-only semantic-map and recommendation refresh from workflow run ${GITHUB_RUN_ID}."
-            gh workflow run ci.yml --ref "$branch"
-          fi
-
       - name: Publish versioned full-vector release
         if: ${{ inputs.publish_vectors }}
         env:
@@ -133,3 +113,30 @@ jobs:
             --title "AMIRA semantic embeddings v1 · EmbeddingGemma 2 · build ${GITHUB_RUN_NUMBER}" \
             --notes "Public AMIRA vectors. Read manifest.json before indexing; embedding spaces are model-specific." \
             --latest=false
+
+      - name: Open bot PR for derived map and recommendations
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/embeddings/map.php data/embeddings/similar.php data/embeddings/report.php
+          if git diff --staged --quiet; then
+            echo "No semantic artifact changes."
+          else
+            branch="automation/embeddings-${GITHUB_RUN_ID}"
+            git switch -c "$branch"
+            git commit -m "Semantic embeddings: refresh public derived artifacts"
+            git push --set-upstream origin "$branch"
+            # The organisation does not let GitHub Actions open pull requests,
+            # so a refused PR is not a failure: the branch is pushed, and a
+            # maintainer opens the PR from the link in the job summary.
+            compare="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/main...${branch}?expand=1"
+            if ! gh pr create --base main --head "$branch" \
+              --title "Semantic embeddings: refresh public artifacts" \
+              --body "Automated public-only semantic-map and recommendation refresh from workflow run ${GITHUB_RUN_ID}."; then
+              echo "::warning::Pushed $branch but could not open its pull request; open it from $compare"
+              echo "Open the pull request for \`$branch\`: $compare" >> "$GITHUB_STEP_SUMMARY"
+            fi
+            gh workflow run ci.yml --ref "$branch"
+          fi

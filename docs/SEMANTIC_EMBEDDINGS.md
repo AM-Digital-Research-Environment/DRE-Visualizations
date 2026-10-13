@@ -94,9 +94,10 @@ for the normal incremental refresh or `all` to force every card through the
 model. The model runs on the GitHub runner: no API key or secret is needed, and
 the Omeka server only reads the compact outputs during regeneration. The
 workflow caches the pinned model download, runs the contract suite, fetches
-only public records, opens a bot pull request for changed compact artifacts,
-and optionally publishes a new vector release. Review `report.json` before
-merging, especially:
+only public records, optionally publishes a new vector release, and pushes the
+changed compact artifacts to an `automation/embeddings-<run>` branch. The
+organisation does not let GitHub Actions open pull requests, so open it from
+the link in the job summary. Review `report.json` before merging, especially:
 
 - unexpected corpus-count drops;
 - non-public skip counts;
