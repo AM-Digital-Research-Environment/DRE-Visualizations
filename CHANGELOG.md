@@ -13,6 +13,12 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.37.1] - 2026-10-13
+
+### Changed
+
+- Plainer wording around the semantic map and the similarity panels: the Semantic Map's introduction, panel title, record count and notes, the three *by similarity* descriptions and the Similar Items introduction now say in short, everyday sentences what a dot is, what closeness means and how to zoom.
+
 ## [2.37.0] - 2026-10-13
 
 **Upgrading:** install this release, then **Regenerate now**. The Podcasts and YouTube dashboards then show their similarity panels.

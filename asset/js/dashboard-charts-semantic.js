@@ -71,7 +71,7 @@
         // type instead of series/category/value rows of x | y pairs.
         chart.csvRows = function () {
             var rows = [[ns.t('semanticType', 'Resource type'), ns.t('title', 'Title'),
-                ns.t('semanticLowSignalColumn', 'Lightly described')]];
+                ns.t('semanticLowSignalColumn', 'Little description')]];
             points.slice().sort(function (a, b) {
                 return a[3] - b[3] || String(a[5] || '').localeCompare(String(b[5] || ''), ns.locale);
             }).forEach(function (p) {

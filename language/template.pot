@@ -57,10 +57,6 @@ msgstr ""
 msgid "A graph of everything this record is connected to. Use the arrow keys to move between connected entities and Enter to select one."
 msgstr ""
 
-#: config/client-strings.json:semanticMapAria
-msgid "A map of the public records in the collection. Records placed close together are similar in what they are about."
-msgstr ""
-
 #: config/client-strings.json:chartDescription.radar
 msgid "A profile across six measures: items, languages, subjects, people, resource types and year span. Each is scaled against the largest of its kind."
 msgstr ""
@@ -103,6 +99,10 @@ msgstr ""
 
 #: config/client-strings.json:degAllClusters
 msgid "All groups"
+msgstr ""
+
+#: config/client-strings.json:semanticSharedSpace
+msgid "All public records"
 msgstr ""
 
 #: config/client-strings.json:kgResourceSharedBy
@@ -468,7 +468,11 @@ msgid "Each dot is a project. Its position marks the start year; its size shows 
 msgstr ""
 
 #: config/client-strings.json:chartDescription.similarity
-msgid "Each dot is a record, placed by what it is about: records whose descriptions, keywords and places are close in meaning sit close together, whatever their language. Click a dot to open the record. Zoom with the buttons above the chart or Ctrl + scroll, and drag to move around."
+msgid "Each dot is a record. Records about similar topics appear close to each other, even when they are in different languages. Click a dot to open the record. To zoom, use the buttons above the chart or hold Ctrl and scroll. Drag to move around."
+msgstr ""
+
+#: config/client-strings.json:semanticMapIntro
+msgid "Each dot on this map is a public record from the collection: a project, a research item, a publication, a podcast episode or a video. Records about similar topics appear close to each other, even when they are in different languages. Only the distance between dots matters. The axes have no meaning."
 msgstr ""
 
 #: view/dre-visualizations/admin/maintenance/index.phtml:82
@@ -537,10 +541,6 @@ msgstr ""
 
 #: config/client-strings.json:spatialDescription
 msgid "Every place the research items refer to, shown as a bubble sized by the number of items that mention it. Places are split between where items come from and where they are held today. Use the legend to show or hide either layer, pick a project or person on the left to see only its places, choose a country to zoom in, or click a bubble to open that place’s page."
-msgstr ""
-
-#: config/client-strings.json:semanticMapIntro
-msgid "Every public record in the collection is placed on this map by what it is about. Records whose subjects, places and descriptions are close in meaning sit close together, whatever their language or resource type. Distance is the only thing the map shows: there is no north or south, and the axes carry no units."
 msgstr ""
 
 #: config/client-strings.json:exitFullscreen
@@ -949,10 +949,6 @@ msgstr ""
 msgid "Light basemap style URL"
 msgstr ""
 
-#: config/client-strings.json:semanticLowSignalColumn
-msgid "Lightly described"
-msgstr ""
-
 #: config/client-strings.json:kgMaxNeighboursHelp
 msgid "Limit how much the graph draws at once"
 msgstr ""
@@ -975,6 +971,10 @@ msgstr ""
 
 #: config/client-strings.json:semanticRecordList
 msgid "List of the records on the map"
+msgstr ""
+
+#: config/client-strings.json:semanticLowSignalColumn
+msgid "Little description"
 msgstr ""
 
 #: config/client-strings.json:loading
@@ -1006,6 +1006,10 @@ msgstr ""
 
 #: config/client-strings.json:spatialMapLabel
 msgid "Map of the places the collection refers to"
+msgstr ""
+
+#: config/client-strings.json:semanticMapAria
+msgid "Map of the public records in the collection. Records about similar topics appear close to each other."
 msgstr ""
 
 #: config/client-strings.json:mapReady
@@ -1183,10 +1187,6 @@ msgstr ""
 msgid "of all records"
 msgstr ""
 
-#: config/client-strings.json:semanticLowSignalCount
-msgid "only lightly described"
-msgstr ""
-
 #: src/Form/ConfigForm.php:30
 msgid "Only public items assigned to this public site enter generated JSON. Regeneration fails closed until a site is selected."
 msgstr ""
@@ -1281,6 +1281,10 @@ msgstr ""
 
 #: config/client-strings.json:pagesOf
 msgid "Pages: {title}"
+msgstr ""
+
+#: config/client-strings.json:semanticLowSignal
+msgid "Pale dots are records with little or no description, so their position is less reliable."
 msgstr ""
 
 #: config/client-strings.json:compareNounPeople
@@ -1541,6 +1545,10 @@ msgstr ""
 
 #: config/client-strings.json:semanticRecordOther
 msgid "records"
+msgstr ""
+
+#: view/common/resource-page-block-layout/similar-items.phtml:22
+msgid "Records about similar topics, from anywhere in the collection and in any language. The percentage shows how closely each one matches this record."
 msgstr ""
 
 #: config/client-strings.json:chartLabel.templates
@@ -1938,10 +1946,6 @@ msgstr ""
 msgid "The comparison could not be loaded."
 msgstr ""
 
-#: config/client-strings.json:semanticLowSignal
-msgid "The faint points are records with too little description for the map to place them reliably."
-msgstr ""
-
 #: src/Site/BlockLayout/CollectionDashboard.php:29
 msgid "The full set of aggregate visualisations across the entire collection. For a curated, home-page-friendly subset use the \"Collection Overview\" block instead. No configuration needed."
 msgstr ""
@@ -2024,10 +2028,6 @@ msgstr ""
 msgid "The visualisation could not be loaded."
 msgstr ""
 
-#: config/client-strings.json:semanticSharedSpace
-msgid "The whole collection at a glance"
-msgstr ""
-
 #: config/client-strings.json:chartDescription.transcriptWordcloud
 msgid "The words that come up most often across the episode transcripts."
 msgstr ""
@@ -2062,10 +2062,6 @@ msgstr ""
 
 #: config/client-strings.json:networkEmpty
 msgid "There is nothing to show in this network yet."
-msgstr ""
-
-#: view/common/resource-page-block-layout/similar-items.phtml:22
-msgid "These records share subjects and descriptions with this one, even where the language or the resource type is different. The percentage shows how close the match is."
 msgstr ""
 
 #: config/client-strings.json:kgSharedOne
@@ -2127,6 +2123,10 @@ msgstr ""
 
 #: config/client-strings.json:title
 msgid "Title"
+msgstr ""
+
+#: config/client-strings.json:semanticZoomHint
+msgid "To zoom, use the buttons above the map or hold Ctrl and scroll. Drag to move around."
 msgstr ""
 
 #: config/client-strings.json:mapToggleAttribution
@@ -2281,6 +2281,10 @@ msgstr ""
 msgid "Whole collection"
 msgstr ""
 
+#: config/client-strings.json:semanticLowSignalCount
+msgid "with little description"
+msgstr ""
+
 #: view/dre-visualizations/admin/maintenance/index.phtml:71
 msgid "Withdraw published data"
 msgstr ""
@@ -2314,8 +2318,4 @@ msgstr ""
 
 #: config/client-strings.json:spatialZoomToCountry
 msgid "Zoom to country"
-msgstr ""
-
-#: config/client-strings.json:semanticZoomHint
-msgid "Zoom with the buttons above the map or Ctrl + scroll, and drag to move around."
 msgstr ""

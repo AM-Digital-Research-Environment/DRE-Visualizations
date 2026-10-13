@@ -223,20 +223,20 @@
 
         var heading = node('h2', '', ns.t('semanticMapTitle', 'Records by similarity'));
         var intro = node('p', 'semantic-map-intro',
-            ns.t('semanticMapIntro', 'Every public record in the collection is placed on this map by what it is about. Records whose subjects, places and descriptions are close in meaning sit close together, whatever their language or resource type. Distance is the only thing the map shows: there is no north or south, and the axes carry no units.'));
+            ns.t('semanticMapIntro', 'Each dot on this map is a public record from the collection: a project, a research item, a publication, a podcast episode or a video. Records about similar topics appear close to each other, even when they are in different languages. Only the distance between dots matters. The axes have no meaning.'));
         var toolbar = node('div', 'semantic-map-toolbar');
         var chartPanel = node('section', 'chart-panel chart-panel-wide semantic-map-panel');
-        var chartHeading = node('h3', '', ns.t('semanticSharedSpace', 'The whole collection at a glance'));
+        var chartHeading = node('h3', '', ns.t('semanticSharedSpace', 'All public records'));
         var chartEl = node('div', 'chart-container semantic-map-chart');
-        var chartLabel = ns.t('semanticMapAria', 'A map of the public records in the collection. Records placed close together are similar in what they are about.');
+        var chartLabel = ns.t('semanticMapAria', 'Map of the public records in the collection. Records about similar topics appear close to each other.');
         chartEl.setAttribute('role', 'img');
         chartEl.setAttribute('aria-label', chartLabel);
         var status = node('p', 'semantic-map-status');
         var lowSignal = items.filter(function (item) { return item.lowSignal; }).length;
         status.textContent = ns.plural(items.length, 'semanticRecord', 'record', 'records', true)
-            + ' · ' + ns.formatNumber(lowSignal) + ' ' + ns.t('semanticLowSignalCount', 'only lightly described');
-        var note = node('p', 'semantic-map-note', ns.t('semanticLowSignal', 'The faint points are records with too little description for the map to place them reliably.')
-            + ' ' + ns.t('semanticZoomHint', 'Zoom with the buttons above the map or Ctrl + scroll, and drag to move around.'));
+            + ' · ' + ns.formatNumber(lowSignal) + ' ' + ns.t('semanticLowSignalCount', 'with little description');
+        var note = node('p', 'semantic-map-note', ns.t('semanticLowSignal', 'Pale dots are records with little or no description, so their position is less reliable.')
+            + ' ' + ns.t('semanticZoomHint', 'To zoom, use the buttons above the map or hold Ctrl and scroll. Drag to move around.'));
 
         chartPanel.appendChild(chartHeading);
         chartPanel.appendChild(chartEl);

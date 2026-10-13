@@ -165,7 +165,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'subjects' => 'The keywords assigned to these publications most often.',
             'subjectTrends' => 'How the most frequent keywords rise and fall over the years.',
             'abstractWordcloud' => 'The words that come up most often across the publication abstracts. Words are reduced to their base form, and everyday words such as "the" and "of" are left out.',
-            'similarity' => 'Each dot is a publication, placed by what it is about: publications whose titles, abstracts and keywords are close in meaning sit close together, whatever their language. The colour shows the publication type. Faint dots are publications with too little description to place reliably. Click a dot to open the publication. Zoom with the buttons above the chart or Ctrl + scroll, and drag to move around.',
+            'similarity' => 'Each dot is a publication. Publications about similar topics appear close to each other, even when they are in different languages. Colours show the type of publication. Pale dots are publications with little or no abstract, so their position is less reliable. Click a dot to open the publication. To zoom, use the buttons above the chart or hold Ctrl and scroll. Drag to move around.',
         ];
 
         $dashboard['resourceType'] = 'publications';
@@ -241,7 +241,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'contributors' => 'The people credited as speakers in the videos.',
             'transcriptWordcloud' => 'The words that come up most often in the video captions. Everyday words and filler such as "um" are left out.',
             'speakerNetwork' => 'People are linked when they appear in the same video, and colour marks groups who appear together often. The picture fills out as more speaker credits are added.',
-            'similarity' => 'Each dot is a video, placed by what it is about: videos whose titles and descriptions are close in meaning sit close together, whatever their language. The colour shows the playlist. Faint dots are videos with too little description to place reliably. Click a dot to open the video. Zoom with the buttons above the chart or Ctrl + scroll, and drag to move around.',
+            'similarity' => 'Each dot is a video. Videos about similar topics appear close to each other, even when they are in different languages. Colours show the playlist. Pale dots are videos with little or no description, so their position is less reliable. Click a dot to open the video. To zoom, use the buttons above the chart or hold Ctrl and scroll. Drag to move around.',
         ];
 
         $dashboard['resourceType'] = 'youtube';
@@ -367,7 +367,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'subjectTrends' => 'How the most frequent subjects change from one year of episodes to the next.',
             'locations' => 'The places the episodes are associated with.',
             'choropleth' => 'Episodes counted by the country of the places they are associated with.',
-            'similarity' => 'Each dot is an episode, placed by what it is about: episodes whose titles and summaries are close in meaning sit close together, whatever their language. The colour shows the series. Faint dots are episodes with too little description to place reliably. Click a dot to open the episode. Zoom with the buttons above the chart or Ctrl + scroll, and drag to move around.',
+            'similarity' => 'Each dot is an episode. Episodes about similar topics appear close to each other, even when they are in different languages. Colours show the series. Pale dots are episodes with little or no summary, so their position is less reliable. Click a dot to open the episode. To zoom, use the buttons above the chart or hold Ctrl and scroll. Drag to move around.',
         ];
 
         $dashboard['resourceType'] = 'podcasts';

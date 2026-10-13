@@ -208,7 +208,7 @@
         'series':              'Episodes counted by the series they belong to.',
         'transcriptWordcloud': 'The words that come up most often across the episode transcripts.',
         'abstractWordcloud':   'The words that come up most often across the publication abstracts.',
-        'similarity':          'Each dot is a record, placed by what it is about: records whose descriptions, keywords and places are close in meaning sit close together, whatever their language. Click a dot to open the record. Zoom with the buttons above the chart or Ctrl + scroll, and drag to move around.',
+        'similarity':          'Each dot is a record. Records about similar topics appear close to each other, even when they are in different languages. Click a dot to open the record. To zoom, use the buttons above the chart or hold Ctrl and scroll. Drag to move around.',
         'coAuthorNetwork':     'Authors are linked when they appear on the same publication. Colour marks groups who publish together.',
         'speakerNetwork':      'People are linked when they feature on the same episode. Colour marks groups who appear together often.',
         'boxplot':             'How widely project sizes vary within each research section: the smallest and largest project, the middle value, and the quarter marks in between.',
