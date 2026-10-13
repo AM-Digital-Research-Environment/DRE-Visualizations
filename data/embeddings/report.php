@@ -6,7 +6,7 @@
     "profile": "7c4045eddba07aadec418a8ed1711a04e953715bb852e33bb105a2cc7b05aafe"
   },
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T09:41:49Z",
+  "generatedAt": "2026-10-13T10:17:40Z",
   "source": "https://data.africamultiple.uni-bayreuth.de",
   "model": "google/embeddinggemma-2",
   "dimensions": 768,
@@ -84,7 +84,7 @@
     "staleRemoved": 0
   },
   "artifactBytes": {
-    "map": 857486,
+    "map": 876632,
     "similar": 1828148
   },
   "recommendations": {
@@ -244,13 +244,13 @@
     "rowOrder": "ids.json",
     "vectors": "vectors.f32",
     "vectorsSha256": "2e9b4fd788745380e79ad7bfbb71fd84e98a2a757aadf16f0b43407bcf2e0ced",
-    "generatedAt": "2026-10-13T09:41:49Z",
+    "generatedAt": "2026-10-13T10:17:40Z",
     "source": "https://data.africamultiple.uni-bayreuth.de",
     "scope": {
       "siteId": 1,
       "revision": "c25ace69c821d1a09fa7e4cd798b3c32",
       "profile": "7c4045eddba07aadec418a8ed1711a04e953715bb852e33bb105a2cc7b05aafe"
     },
-    "sourceCommit": "e30692f8c3896987833c37f718dc272328a13203"
+    "sourceCommit": "32361ee110a2fc62527448cfad3854708955df84"
   }
 }
