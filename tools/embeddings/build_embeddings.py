@@ -60,6 +60,10 @@ UMAP_NEIGHBORS = 15
 UMAP_MIN_DIST = 0.1
 UMAP_SEED = 42
 SCHEMA_VERSION = 1
+# Corpora whose dashboards show their own "by similarity" panel. In the shared
+# map one corpus occupies a small patch, so each gets a layout of its own,
+# projected from its vectors alone.
+LAYOUT_CORPORA = ("publications", "podcasts", "youtube")
 
 # Authority records (people, institutions, subjects, places, controlled
 # vocabularies) are never embedded: they are fixed in MongoDB and enter cards
@@ -586,6 +590,21 @@ def project_and_cluster(matrix):
     return coords, clusters, cluster_count
 
 
+def corpus_layouts(cards: Sequence[Card], matrix, corpora: Sequence[str] = LAYOUT_CORPORA) -> dict[str, list[list[float]]]:
+    """Per-corpus 2-D layouts as [id, x, y] rows, for the dashboard panels."""
+    layouts: dict[str, list[list[float]]] = {}
+    for corpus in corpora:
+        indices = [index for index, card in enumerate(cards) if card.corpus == corpus]
+        if len(indices) < 3:
+            continue
+        coords, _, _ = project_and_cluster(matrix[indices])
+        layouts[corpus] = [
+            [cards[index].id, round(float(coords[row][0]), 6), round(float(coords[row][1]), 6)]
+            for row, index in enumerate(indices)
+        ]
+    return layouts
+
+
 def similar_items(cards: Sequence[Card], matrix, top_k: int = SIMILAR_TOP_K) -> dict[str, list[dict[str, Any]]]:
     import numpy as np
 
@@ -731,6 +750,7 @@ def write_derived(
     corpus_counts: dict[str, dict[str, int]],
     cache_stats: dict[str, int],
     scope: dict | None = None,
+    layouts: dict[str, list[list[float]]] | None = None,
 ) -> dict[str, Any]:
     generated_at = utc_now()
     counts = Counter(card.corpus for card in cards)
@@ -763,6 +783,7 @@ def write_derived(
             }
             for index, card in enumerate(cards)
         ],
+        "corpusLayouts": layouts or {},
     }
     map_path = OUT_DIR / "map.php"
     similar_path = OUT_DIR / "similar.php"
@@ -868,6 +889,22 @@ def validate_artifacts(out_dir: Path = OUT_DIR, release_dir: Path = RELEASE_DIR)
     if set(map_ids) != set(catalog_ids) or map_ids != vector_ids:
         raise ValueError("Map, recommendation catalog, and vector row IDs disagree.")
 
+    map_types = {str(row.get("id")): row.get("type") for row in map_items}
+    layouts = map_data.get("corpusLayouts", {})
+    if not isinstance(layouts, dict):
+        raise ValueError("Semantic map corpusLayouts must be an object.")
+    for corpus, rows in layouts.items():
+        if not isinstance(rows, list) or any(
+            not isinstance(row, list)
+            or len(row) != 3
+            or map_types.get(str(row[0])) != corpus
+            or not all(isinstance(v, (int, float)) and math.isfinite(v) for v in row[1:])
+            for row in rows
+        ):
+            raise ValueError(f"Invalid corpus layout: {corpus}")
+        if len({row[0] for row in rows}) != sum(1 for t in map_types.values() if t == corpus):
+            raise ValueError(f"Corpus layout {corpus} does not cover every record of that corpus.")
+
     low_signal_ids = {str(row["id"]) for row in map_items if row.get("lowSignal") is True}
     for source_id, neighbours in recommendations.items():
         if source_id not in catalog or source_id in low_signal_ids or not isinstance(neighbours, list):
@@ -970,6 +1007,7 @@ def main() -> int:
     matrix = vector_matrix(cards, cache)
     coords, clusters, cluster_count = project_and_cluster(matrix)
     recommendations = similar_items(cards, matrix)
+    layouts = corpus_layouts(cards, matrix)
     verify_scope(scope, fetch_json, API_BASE, PROFILE_PATH)
     report = write_derived(
         cards,
@@ -981,6 +1019,7 @@ def main() -> int:
         corpus_counts,
         cache_stats,
         scope=scope,
+        layouts=layouts,
     )
     print(
         f"Wrote map/similar/report for {report['totals']['cards']} public items; "

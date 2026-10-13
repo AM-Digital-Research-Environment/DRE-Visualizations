@@ -467,6 +467,10 @@ msgstr ""
 msgid "Each dot is a project. Its position marks the start year; its size shows the number of research items."
 msgstr ""
 
+#: config/client-strings.json:chartDescription.similarity
+msgid "Each dot is a record, placed by what it is about: records whose descriptions, keywords and places are close in meaning sit close together, whatever their language. Click a dot to open the record."
+msgstr ""
+
 #: view/dre-visualizations/admin/maintenance/index.phtml:82
 msgid "Each site has a public embed gallery with copy-paste iframe snippets for every visualisation block — and, for dashboards, for each individual chart. Open it to preview a block and grab its code."
 msgstr ""
@@ -943,6 +947,10 @@ msgstr ""
 
 #: src/Form/ConfigForm.php:41
 msgid "Light basemap style URL"
+msgstr ""
+
+#: config/client-strings.json:semanticLowSignalColumn
+msgid "Lightly described"
 msgstr ""
 
 #: config/client-strings.json:kgMaxNeighboursHelp
@@ -1539,6 +1547,7 @@ msgstr ""
 msgid "Records by description template"
 msgstr ""
 
+#: config/client-strings.json:chartLabel.similarity
 #: config/client-strings.json:semanticMapTitle
 #: src/Controller/Site/EmbedController.php:106
 msgid "Records by similarity"
@@ -2112,6 +2121,10 @@ msgstr ""
 msgid "Timeline"
 msgstr ""
 
+#: config/client-strings.json:title
+msgid "Title"
+msgstr ""
+
 #: config/client-strings.json:mapToggleAttribution
 msgid "Toggle attribution"
 msgstr ""
@@ -2274,6 +2287,10 @@ msgstr ""
 
 #: config/client-strings.json:chartLabel.transcriptWordcloud
 msgid "Words in the transcripts"
+msgstr ""
+
+#: config/client-strings.json:yes
+msgid "Yes"
 msgstr ""
 
 #: src/Controller/Site/EmbedController.php:82

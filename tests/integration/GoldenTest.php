@@ -347,10 +347,20 @@ function writeScopedInputs(string $dir): array
                 'fr' => [['name' => 'savoir', 'value' => 5], ['name' => 'archive', 'value' => 3]],
             ],
         ],
+        // The real map.json row shape. Four publication rows (one low-signal, one
+        // for a record outside the corpus) feed the Publications "by similarity"
+        // panel; the research-item row must not.
         'embeddings/map.php' => [
-            'generated_utc' => '2026-10-01T00:00:00Z', 'scope' => $scope,
-            'corpora' => ['publications', 'research-items'],
-            'points' => [[2100, 0.125, -0.5, 0], [2101, -0.75, 0.3333333, 0], [1000, 0.0, 0.9999999, 1]],
+            'generated_utc' => '2026-10-01T00:00:00Z', 'scope' => $scope, 'schemaVersion' => 1,
+            'items' => [
+                ['id' => 2100, 'x' => 0.125, 'y' => -0.5, 'type' => 'publications', 'typeLabel' => 'Publication', 'cluster' => 0, 'lowSignal' => false, 'title' => 'Map title 2100'],
+                ['id' => 2101, 'x' => -0.75, 'y' => 0.3333333, 'type' => 'publications', 'typeLabel' => 'Publication', 'cluster' => 0, 'lowSignal' => false, 'title' => 'Map title 2101'],
+                ['id' => 2102, 'x' => 0.5, 'y' => 0.25, 'type' => 'publications', 'typeLabel' => 'Publication', 'cluster' => 1, 'lowSignal' => true, 'title' => 'Map title 2102'],
+                ['id' => 9999, 'x' => 1.0, 'y' => 1.0, 'type' => 'publications', 'typeLabel' => 'Publication', 'cluster' => 1, 'lowSignal' => false, 'title' => 'Not in the corpus'],
+                ['id' => 1000, 'x' => 0.0, 'y' => 0.9999999, 'type' => 'research-items', 'typeLabel' => 'Research item', 'cluster' => 1, 'lowSignal' => false, 'title' => 'Research item'],
+            ],
+            // The panel takes the corpus's own layout over the shared coordinates.
+            'corpusLayouts' => ['publications' => [[2100, 1.5, 2.5], [2101, -1.5, 0.5], [2102, 0.0, -2.0], [9999, 3.0, 3.0]]],
         ],
     ];
     foreach ($inputs as $path => $payload) {
@@ -486,6 +496,12 @@ try {
     verify($explorer === ['affiliations', 'collaboration', 'contributors', 'institutions'], 'Network explorer carries all four graphs (has: ' . implode(', ', $explorer) . ')');
     $publications = $decode('item-dashboards/publications.json');
     verify(isset($publications['coAuthorNetwork'], $publications['topAuthors'], $publications['topJournals'], $publications['topSeries'], $publications['topPublishers'], $publications['funders'], $publications['abstractWordcloud'], $publications['locations'], $publications['publicationCountries']), 'Publications dashboard carries its bibliography charts');
+    $similarIds = array_column($publications['similarity']['points'] ?? [], 0);
+    sort($similarIds);
+    $faint = array_column(array_filter($publications['similarity']['points'] ?? [], fn ($p) => $p[4] === 1), 0);
+    $first = array_values(array_filter($publications['similarity']['points'] ?? [], fn ($p) => $p[0] === 2100))[0] ?? [];
+    verify($similarIds === [2100, 2101, 2102] && $faint === [2102] && ($first[1] ?? null) == 1.5 && ($first[2] ?? null) == 2.5,
+        'Publications by similarity keeps only the corpus\'s publications, on their own layout, and marks the lightly described one');
     $journal = $decode('item-dashboards/3100.json');
     $series = $decode('item-dashboards/3111.json');
     verify(($journal['resourceType'] ?? '') === 'venue' && ($series['resourceType'] ?? '') === 'venue'

@@ -81,6 +81,11 @@ final class MediaDashboardGenerator extends DashboardGenerator
         if ($absWc) {
             $dashboard['abstractWordcloud'] = $absWc;
         }
+        // The publications' place in the shared semantic map, from the offline
+        // embeddings build; absent until a build matches this site's revision.
+        if ($v = $this->similarityPoints($pubs, 'publications')) {
+            $dashboard['similarity'] = $v;
+        }
 
         // Summary stat cards: total publications, distinct publication types
         // (dcterms:type), languages, and the people credited as authors or editors
@@ -141,6 +146,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'subjects' => 'Keywords',
             'subjectTrends' => 'Keywords over time',
             'abstractWordcloud' => 'Words in the abstracts',
+            'similarity' => 'Publications by similarity',
         ];
         $dashboard['descriptions'] = [
             'types' => 'The mix of publication types: article, book, chapter, thesis, and so on.',
@@ -157,6 +163,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'subjects' => 'The keywords assigned to these publications most often.',
             'subjectTrends' => 'How the most frequent keywords rise and fall over the years.',
             'abstractWordcloud' => 'The words that come up most often across the publication abstracts. Words are reduced to their base form, and everyday words such as "the" and "of" are left out.',
+            'similarity' => 'Each dot is a publication, placed by what it is about: publications whose titles, abstracts and keywords are close in meaning sit close together, whatever their language. The colour shows the publication type. Faint dots are publications with too little description to place reliably. Click a dot to open the publication.',
         ];
 
         $dashboard['resourceType'] = 'publications';
@@ -422,6 +429,73 @@ final class MediaDashboardGenerator extends DashboardGenerator
         }
         $languages = $json['languages'] ?? array_keys($byLang);
         return ['languages' => array_values($languages), 'byLang' => $byLang];
+    }
+
+    /**
+     * One corpus's records at their place in the shared semantic map, grouped
+     * by resource type (the record's first dcterms:type, else its template),
+     * for the dashboard's "by similarity" panel. Reads the offline map input,
+     * which counts only when it was built for this site, profile and revision.
+     * Points are [id, x, y, group, faint, title].
+     */
+    protected function similarityPoints(array $ids, string $corpus): ?array
+    {
+        $map = ScopedInput::read($this->paths->embeddingsInputDir() . '/map.php', $this->sourceScope);
+        $rows = is_array($map) && is_array($map['items'] ?? null) ? $map['items'] : [];
+        // The corpus's own layout, projected from its vectors alone, spreads the
+        // records over the panel; the shared map squeezes them into one patch.
+        // Builds without one fall back to the shared coordinates.
+        $own = [];
+        foreach ((is_array($map) ? $map['corpusLayouts'][$corpus] ?? [] : []) as $row) {
+            if (is_array($row) && is_int($row[0] ?? null) && is_numeric($row[1] ?? null) && is_numeric($row[2] ?? null)) {
+                $own[$row[0]] = [$row[1], $row[2]];
+            }
+        }
+        $wanted = array_flip($ids);
+        $groups = [];
+        $points = [];
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $id = $row['id'] ?? null;
+            if (($row['type'] ?? null) !== $corpus || !is_int($id) || !isset($wanted[$id])
+                || !is_numeric($row['x'] ?? null) || !is_numeric($row['y'] ?? null)) {
+                continue;
+            }
+            $group = null;
+            foreach ($this->links[$id] ?? [] as [$term, , $target]) {
+                if ($term === 'dcterms:type' && isset($this->items[$target]['title'])) {
+                    $group = (string) $this->items[$target]['title'];
+                    break;
+                }
+            }
+            $group ??= $this->templateLabels[$this->items[$id]['template_id'] ?? 0] ?? 'Other';
+            [$x, $y] = $own ? ($own[$id] ?? [null, null]) : [$row['x'], $row['y']];
+            if ($x === null) {
+                continue;
+            }
+            $groups[$group] ??= count($groups);
+            $points[] = [$id, round((float) $x, 4), round((float) $y, 4), $groups[$group],
+                !empty($row['lowSignal']) ? 1 : 0, (string) ($this->items[$id]['title'] ?? $row['title'] ?? '')];
+        }
+        if (count($points) < 3) {
+            return null;
+        }
+        // Largest group first, so it takes the first palette colour.
+        $sizes = array_fill(0, count($groups), 0);
+        foreach ($points as $p) {
+            $sizes[$p[3]]++;
+        }
+        $names = array_keys($groups);
+        $order = array_keys($sizes);
+        usort($order, fn ($a, $b) => $sizes[$b] <=> $sizes[$a] ?: strcmp($names[$a], $names[$b]));
+        $remap = array_flip($order);
+        foreach ($points as &$p) {
+            $p[3] = $remap[$p[3]];
+        }
+        unset($p);
+        return ['groups' => array_map(fn ($i) => $names[$i], $order), 'points' => $points];
     }
 
     protected function loadTextValues(array $ids, string $term): array

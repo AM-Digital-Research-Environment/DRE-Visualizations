@@ -280,7 +280,8 @@
       "chord",
       "subjects",
       "subjectTrends",
-      "abstractWordcloud"
+      "abstractWordcloud",
+      "similarity"
     ],
     "youtube": [
       "transcriptWordcloud",

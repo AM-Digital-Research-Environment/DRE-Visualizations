@@ -13,6 +13,11 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Added
+
+- **Publications by similarity** on the Publications dashboard: each publication is a dot placed by what it is about, so publications whose titles, abstracts and keywords are close in meaning sit together, whatever their language. Colour shows the publication type, faint dots are publications too lightly described to place reliably, and a click opens the publication. The data table lists the publications by type. The panel appears once a semantic build matches the site.
+- The embeddings build lays out publications, podcasts and YouTube videos each from their own vectors (`corpusLayouts` in `map.json`). In the shared map a corpus fills a small patch; its own layout spreads it over the panel.
+
 ## [2.35.1] - 2026-10-13
 
 **Upgrading:** install this release, then **Regenerate now**. It is the first archive that carries the semantic inputs, so the Semantic Map and Similar Items have data after regeneration.

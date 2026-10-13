@@ -1,10 +1,20 @@
 {
-  "corpora": ["publications","research-items"],
+  "corpusLayouts": {
+    "publications": [
+      [2100,1.5,2.5],
+      [2101,-1.5,0.5],
+      [2102,0,-2],
+      [9999,3,3]
+    ]
+  },
   "generated_utc": "2026-10-01T00:00:00Z",
-  "points": [
-    [2100,0.125,-0.5,0],
-    [2101,-0.75,0.333333,0],
-    [1000,0,1,1]
+  "items": [
+    {"cluster":0,"id":2100,"lowSignal":false,"title":"Map title 2100","type":"publications","typeLabel":"Publication","x":0.125,"y":-0.5},
+    {"cluster":0,"id":2101,"lowSignal":false,"title":"Map title 2101","type":"publications","typeLabel":"Publication","x":-0.75,"y":0.333333},
+    {"cluster":1,"id":2102,"lowSignal":true,"title":"Map title 2102","type":"publications","typeLabel":"Publication","x":0.5,"y":0.25},
+    {"cluster":1,"id":9999,"lowSignal":false,"title":"Not in the corpus","type":"publications","typeLabel":"Publication","x":1,"y":1},
+    {"cluster":1,"id":1000,"lowSignal":false,"title":"Research item","type":"research-items","typeLabel":"Research item","x":0,"y":1}
   ],
+  "schemaVersion": 1,
   "scope": {"profile":"golden-profile","revision":"golden-revision-0001","siteId":1}
 }

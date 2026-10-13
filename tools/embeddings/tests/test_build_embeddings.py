@@ -257,6 +257,55 @@ class EmbeddingBuildTests(unittest.TestCase):
         # One card per distinct text: the twins of 1 appear once in 4's list.
         self.assertEqual(1, sum(row["id"] in (1, 2, 3) for row in similar["4"]))
 
+    def test_corpus_layouts_cover_each_dashboard_corpus_alone(self):
+        import numpy as np
+
+        cards = [
+            emb.Card(i, "publications", "Publication", f"P{i}", "", f"p{i}", 200, 20, False, False, [])
+            for i in range(1, 6)
+        ] + [
+            emb.Card(9, "projects", "Project", "Project", "", "x", 200, 20, False, False, []),
+            emb.Card(10, "podcasts", "Podcast", "Episode", "", "y", 200, 20, False, False, []),
+        ]
+        matrix = np.random.default_rng(7).normal(size=(len(cards), 6)).astype(np.float32)
+        matrix /= np.linalg.norm(matrix, axis=1, keepdims=True)
+        layouts = emb.corpus_layouts(cards, matrix)
+        # Projects have no dashboard panel; one podcast is too few to lay out.
+        self.assertEqual(["publications"], list(layouts))
+        self.assertEqual([1, 2, 3, 4, 5], [row[0] for row in layouts["publications"]])
+        self.assertTrue(all(np.isfinite(row[1:]).all() for row in np.asarray(layouts["publications"])))
+
+    def test_artifact_validation_rejects_an_incomplete_corpus_layout(self):
+        import numpy as np
+
+        old_out, old_release, old_dims = emb.OUT_DIR, emb.RELEASE_DIR, emb.OUTPUT_DIMS
+        try:
+            with tempfile.TemporaryDirectory() as directory:
+                emb.OUT_DIR = Path(directory)
+                emb.RELEASE_DIR = Path(directory) / "release"
+                emb.OUTPUT_DIMS = 2
+                cards = [
+                    emb.Card(1, "publications", "Publication", "One", "", "a", 200, 20, False, False, []),
+                    emb.Card(2, "publications", "Publication", "Two", "", "b", 200, 20, False, False, []),
+                ]
+                args = (
+                    cards,
+                    np.asarray([[1.0, 0.0], [0.8, 0.2]], dtype=np.float32),
+                    np.asarray([[-1.0, 0.0], [1.0, 0.0]], dtype=np.float32),
+                    np.asarray([0, 1], dtype=np.int32),
+                    2,
+                    {"1": [{"id": 2, "score": 0.8}], "2": [{"id": 1, "score": 0.8}]},
+                    {},
+                    {"embedded": 2, "reused": 0, "staleRemoved": 0},
+                )
+                emb.write_derived(*args, layouts={"publications": [[1, 0.0, 0.0], [2, 1.0, 1.0]]})
+                emb.validate_artifacts(emb.OUT_DIR, emb.RELEASE_DIR)
+                emb.write_derived(*args, layouts={"publications": [[1, 0.0, 0.0]]})
+                with self.assertRaisesRegex(ValueError, "does not cover"):
+                    emb.validate_artifacts(emb.OUT_DIR, emb.RELEASE_DIR)
+        finally:
+            emb.OUT_DIR, emb.RELEASE_DIR, emb.OUTPUT_DIMS = old_out, old_release, old_dims
+
     def test_two_record_projection_does_not_enter_invalid_umap_mode(self):
         import numpy as np
 

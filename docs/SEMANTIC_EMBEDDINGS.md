@@ -70,7 +70,11 @@ Compact inputs are committed beneath `data/embeddings/` as PHP-denied `.php` env
 Input payloads:
 
 - `map.json`: schema/model metadata plus `{id, x, y, type, typeLabel, cluster,
-  lowSignal, title}` rows;
+  lowSignal, title}` rows, and `corpusLayouts`: for publications, podcasts and
+  YouTube, an `[id, x, y]` layout projected from that corpus's vectors alone.
+  In the shared map one corpus fills a small patch; its own layout spreads it
+  over a dashboard panel. The Publications dashboard's *Publications by
+  similarity* panel reads it, coloured by publication type;
 - `similar.json`: a display catalog and up to 12 cosine neighbours per eligible
   source, each `{id, score}`;
 - `report.json`: corpus/publicity counts, low-signal and truncation totals, cache
