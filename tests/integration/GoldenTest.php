@@ -358,9 +358,20 @@ function writeScopedInputs(string $dir): array
                 ['id' => 2102, 'x' => 0.5, 'y' => 0.25, 'type' => 'publications', 'typeLabel' => 'Publication', 'cluster' => 1, 'lowSignal' => true, 'title' => 'Map title 2102'],
                 ['id' => 9999, 'x' => 1.0, 'y' => 1.0, 'type' => 'publications', 'typeLabel' => 'Publication', 'cluster' => 1, 'lowSignal' => false, 'title' => 'Not in the corpus'],
                 ['id' => 1000, 'x' => 0.0, 'y' => 0.9999999, 'type' => 'research-items', 'typeLabel' => 'Research item', 'cluster' => 1, 'lowSignal' => false, 'title' => 'Research item'],
+                // Podcast episodes in both series, and videos in two playlists and none.
+                ['id' => 2200, 'x' => 0.1, 'y' => 0.1, 'type' => 'podcasts', 'typeLabel' => 'Podcast', 'cluster' => 0, 'lowSignal' => false, 'title' => 'Episode'],
+                ['id' => 2201, 'x' => 0.2, 'y' => 0.1, 'type' => 'podcasts', 'typeLabel' => 'Podcast', 'cluster' => 0, 'lowSignal' => false, 'title' => 'Episode'],
+                ['id' => 2207, 'x' => 0.3, 'y' => 0.2, 'type' => 'podcasts', 'typeLabel' => 'Podcast', 'cluster' => 0, 'lowSignal' => false, 'title' => 'Episode'],
+                ['id' => 2300, 'x' => -0.25, 'y' => 0.75, 'type' => 'youtube', 'typeLabel' => 'YouTube video', 'cluster' => 1, 'lowSignal' => false, 'title' => 'Video'],
+                ['id' => 2301, 'x' => 0.5, 'y' => -0.125, 'type' => 'youtube', 'typeLabel' => 'YouTube video', 'cluster' => 1, 'lowSignal' => false, 'title' => 'Video'],
+                ['id' => 2311, 'x' => 0.875, 'y' => 0.5, 'type' => 'youtube', 'typeLabel' => 'YouTube video', 'cluster' => 1, 'lowSignal' => true, 'title' => 'Video'],
             ],
-            // The panel takes the corpus's own layout over the shared coordinates.
-            'corpusLayouts' => ['publications' => [[2100, 1.5, 2.5], [2101, -1.5, 0.5], [2102, 0.0, -2.0], [9999, 3.0, 3.0]]],
+            // The panel takes the corpus's own layout over the shared coordinates;
+            // YouTube has none here, so its panel falls back to the shared map.
+            'corpusLayouts' => [
+                'publications' => [[2100, 1.5, 2.5], [2101, -1.5, 0.5], [2102, 0.0, -2.0], [9999, 3.0, 3.0]],
+                'podcasts' => [[2200, -1.0, 0.0], [2201, 0.0, 1.0], [2207, 1.0, 0.0]],
+            ],
         ],
     ];
     foreach ($inputs as $path => $payload) {
@@ -502,6 +513,13 @@ try {
     $first = array_values(array_filter($publications['similarity']['points'] ?? [], fn ($p) => $p[0] === 2100))[0] ?? [];
     verify($similarIds === [2100, 2101, 2102] && $faint === [2102] && ($first[1] ?? null) == 1.5 && ($first[2] ?? null) == 2.5,
         'Publications by similarity keeps only the corpus\'s publications, on their own layout, and marks the lightly described one');
+    $podcasts = $decode('item-dashboards/podcasts.json')['similarity'] ?? [];
+    $youtube = $decode('item-dashboards/youtube.json')['similarity'] ?? [];
+    $videoAt = array_column($youtube['points'] ?? [], null, 0);
+    verify(($podcasts['groups'] ?? null) === ['Africa Multiple Voices', 'Knowledge Talks']
+        && ($youtube['groups'] ?? null) === ['Cluster Lectures', 'Field Stories', 'Not in a playlist']
+        && ($videoAt[2311][3] ?? null) === 2 && ($videoAt[2300][1] ?? null) == -0.25,
+        'Episodes and videos by similarity are coloured by series and playlist, videos on the shared map without a layout');
     $journal = $decode('item-dashboards/3100.json');
     $series = $decode('item-dashboards/3111.json');
     verify(($journal['resourceType'] ?? '') === 'venue' && ($series['resourceType'] ?? '') === 'venue'

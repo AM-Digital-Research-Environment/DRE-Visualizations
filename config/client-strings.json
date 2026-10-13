@@ -51,7 +51,7 @@
     "chartDescription.sectionsBar": "Research projects counted by thematic research section.",
     "chartDescription.sectionUniversity": "Research items counted by research section and university.",
     "chartDescription.series": "Episodes counted by the series they belong to.",
-    "chartDescription.similarity": "Each dot is a record, placed by what it is about: records whose descriptions, keywords and places are close in meaning sit close together, whatever their language. Click a dot to open the record.",
+    "chartDescription.similarity": "Each dot is a record, placed by what it is about: records whose descriptions, keywords and places are close in meaning sit close together, whatever their language. Click a dot to open the record. Zoom with the buttons above the chart or Ctrl + scroll, and drag to move around.",
     "chartDescription.speakerNetwork": "People are linked when they feature on the same episode. Colour marks groups who appear together often.",
     "chartDescription.stackedTimeline": "Items collected each year, split by resource type.",
     "chartDescription.subjects": "The subjects and tags used most often. Controlled subject headings and free-text tags are counted together.",
@@ -416,6 +416,7 @@
     "semanticSharedSpace": "The whole collection at a glance",
     "semanticSimilarity": "match",
     "semanticType": "Resource type",
+    "semanticZoomHint": "Zoom with the buttons above the map or Ctrl + scroll, and drag to move around.",
     "series": "Series",
     "sharedItemOne": "shared item",
     "sharedItemOther": "shared items",
@@ -480,6 +481,9 @@
     "whatsNewTopProjects": "Projects that added the most",
     "whatsNewUpTo": "up to {date}",
     "words": "Number of words",
-    "yes": "Yes"
+    "yes": "Yes",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "zoomReset": "Show everything again"
   }
 }

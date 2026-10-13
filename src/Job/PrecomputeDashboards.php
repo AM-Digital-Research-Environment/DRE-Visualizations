@@ -34,6 +34,10 @@ class PrecomputeDashboards extends AbstractJob
     public const QUIET_SECONDS_WITHDRAWN = 60;
     /** How often a manual run retries when an edit lands mid-read. */
     private const MANUAL_ATTEMPTS = 3;
+    /** Seconds between writes of the running log, so /admin/job/{id}/log follows the run. */
+    private const LOG_EVERY_SECONDS = 3.0;
+
+    private float $logWrittenAt = 0.0;
 
     public function perform(): void
     {
@@ -137,8 +141,28 @@ class PrecomputeDashboards extends AbstractJob
         return $store->reading(fn (): bool => $store->refreshAllowed() && !$store->isFresh());
     }
 
+    /**
+     * Write the log gathered so far to the job row. Omeka keeps a job's log on
+     * the entity and saves it only when something flushes the entity manager,
+     * which this job never does (it reads through DBAL), so without this the
+     * job page shows "[No log]" until the run ends.
+     */
+    private function persistLog(bool $force = false): void
+    {
+        if (!$force && microtime(true) - $this->logWrittenAt < self::LOG_EVERY_SECONDS) return;
+        $this->logWrittenAt = microtime(true);
+        try {
+            $this->getServiceLocator()->get('Omeka\Connection')->executeStatement(
+                'UPDATE job SET log = ? WHERE id = ?', [$this->job->getLog(), $this->job->getId()]
+            );
+        } catch (Throwable) {
+            // A progress view is best effort; the final flush still saves the log.
+        }
+    }
+
     private function pause(int $seconds): void
     {
+        $this->persistLog(true);
         if ($this->shouldStop()) throw new GenerationCancelled('Automatic refresh stopped.');
         sleep(max(1, $seconds));
     }
@@ -154,6 +178,7 @@ class PrecomputeDashboards extends AbstractJob
         $dataDir = SnapshotStore::defaultDirectory();
         $lastCheck = 0.0;
         $checkpoint = function (bool $force = false) use (&$lastCheck, $siteId, $services): void {
+            $this->persistLog();
             if (!$force && microtime(true) - $lastCheck < 0.5) return;
             $lastCheck = microtime(true);
             if ($this->shouldStop()) throw new GenerationCancelled('Generation stopped before publication.');
@@ -172,6 +197,7 @@ class PrecomputeDashboards extends AbstractJob
         $logger->info('DreVisualizations: starting dashboard precompute', [
             'job_id' => $this->job->getId(),
         ]);
+        $this->persistLog(true);
 
         $moduleConfig = parse_ini_file($moduleRoot . '/config/module.ini');
         $moduleVersion = is_array($moduleConfig) ? (string) ($moduleConfig['version'] ?? '') : '';

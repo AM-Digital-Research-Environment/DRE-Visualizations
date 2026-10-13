@@ -79,7 +79,8 @@ class MaintenanceController extends AbstractActionController
 
         $job = $this->jobDispatcher()->dispatch(PrecomputeDashboards::class);
 
-        $jobUrl = $this->url()->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]);
+        // Straight to the log, which the job writes as it runs.
+        $jobUrl = $this->url()->fromRoute('admin/id', ['controller' => 'job', 'action' => 'log', 'id' => $job->getId()]);
         $message = new Message(
             'Dashboard regeneration queued — rebuilds every precomputed visualisation (entities, overviews, communities). Track progress: %1$sjob #%2$d%3$s', // @translate
             sprintf('<a href="%s">', htmlspecialchars($jobUrl, ENT_QUOTES, 'UTF-8')),

@@ -236,10 +236,12 @@
         // until speakers are curated). timeline + languages pair on one row.
         youtube: {
             order: ['transcriptWordcloud', 'playlists', 'timeline', 'languages',
-                    'languageTimeline', 'speakerNetwork', 'contributors'],
+                    'languageTimeline', 'speakerNetwork', 'contributors',
+                    'similarity'],
             wide:  ['transcriptWordcloud', 'playlists', 'languageTimeline',
-                    'speakerNetwork'],
-            tall:  ['transcriptWordcloud', 'playlists', 'speakerNetwork']
+                    'speakerNetwork', 'similarity'],
+            tall:  ['transcriptWordcloud', 'playlists', 'speakerNetwork',
+                    'similarity']
         },
         // Cluster podcast episodes (podcasts.json). The headline is a word cloud
         // built from the AI-generated transcripts; then the most frequent
@@ -248,11 +250,11 @@
         podcasts: {
             order: ['transcriptWordcloud', 'speakerNetwork', 'contributors',
                     'subjects', 'chord', 'subjectTrends', 'locations',
-                    'choropleth', 'duration', 'timeline', 'series'],
+                    'choropleth', 'duration', 'timeline', 'series', 'similarity'],
             wide:  ['transcriptWordcloud', 'speakerNetwork', 'subjects', 'chord',
-                    'subjectTrends', 'locations', 'choropleth'],
+                    'subjectTrends', 'locations', 'choropleth', 'similarity'],
             tall:  ['transcriptWordcloud', 'speakerNetwork', 'chord',
-                    'subjectTrends', 'locations', 'choropleth']
+                    'subjectTrends', 'locations', 'choropleth', 'similarity']
         }
     };
 
@@ -3381,6 +3383,7 @@
             });
         });
 
+        chart._zoomable = true;   // zoom buttons in the panel toolbar (core/toolbar.js)
         chart.setOption({
             tooltip: {
                 trigger: 'item',
@@ -3754,7 +3757,7 @@
         'series':              'Episodes counted by the series they belong to.',
         'transcriptWordcloud': 'The words that come up most often across the episode transcripts.',
         'abstractWordcloud':   'The words that come up most often across the publication abstracts.',
-        'similarity':          'Each dot is a record, placed by what it is about: records whose descriptions, keywords and places are close in meaning sit close together, whatever their language. Click a dot to open the record.',
+        'similarity':          'Each dot is a record, placed by what it is about: records whose descriptions, keywords and places are close in meaning sit close together, whatever their language. Click a dot to open the record. Zoom with the buttons above the chart or Ctrl + scroll, and drag to move around.',
         'coAuthorNetwork':     'Authors are linked when they appear on the same publication. Colour marks groups who publish together.',
         'speakerNetwork':      'People are linked when they feature on the same episode. Colour marks groups who appear together often.',
         'boxplot':             'How widely project sizes vary within each research section: the smallest and largest project, the middle value, and the quarter marks in between.',

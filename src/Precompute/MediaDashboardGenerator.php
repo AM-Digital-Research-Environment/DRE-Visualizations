@@ -83,7 +83,9 @@ final class MediaDashboardGenerator extends DashboardGenerator
         }
         // The publications' place in the shared semantic map, from the offline
         // embeddings build; absent until a build matches this site's revision.
-        if ($v = $this->similarityPoints($pubs, 'publications')) {
+        $typeOf = fn (int $id): ?string => $this->firstLinkedTitle($id, 'dcterms:type')
+            ?? ($this->templateLabels[$this->items[$id]['template_id'] ?? 0] ?? null);
+        if ($v = $this->similarityPoints($pubs, 'publications', $typeOf, 'Other')) {
             $dashboard['similarity'] = $v;
         }
 
@@ -163,7 +165,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'subjects' => 'The keywords assigned to these publications most often.',
             'subjectTrends' => 'How the most frequent keywords rise and fall over the years.',
             'abstractWordcloud' => 'The words that come up most often across the publication abstracts. Words are reduced to their base form, and everyday words such as "the" and "of" are left out.',
-            'similarity' => 'Each dot is a publication, placed by what it is about: publications whose titles, abstracts and keywords are close in meaning sit close together, whatever their language. The colour shows the publication type. Faint dots are publications with too little description to place reliably. Click a dot to open the publication.',
+            'similarity' => 'Each dot is a publication, placed by what it is about: publications whose titles, abstracts and keywords are close in meaning sit close together, whatever their language. The colour shows the publication type. Faint dots are publications with too little description to place reliably. Click a dot to open the publication. Zoom with the buttons above the chart or Ctrl + scroll, and drag to move around.',
         ];
 
         $dashboard['resourceType'] = 'publications';
@@ -200,6 +202,12 @@ final class MediaDashboardGenerator extends DashboardGenerator
         if ($v = $this->aggregators->buildPersonCollaborationNetwork($videos, $this->items, $this->links, 1)) {
             $dashboard['speakerNetwork'] = $v;
         }
+        // The videos' place in the semantic space, coloured by playlist.
+        $playlists = array_flip($this->itemSets[$this->profile->itemSet('youtubePlaylists')] ?? []);
+        $playlistOf = fn (int $id): ?string => $this->firstLinkedTitle($id, 'dcterms:isPartOf', $playlists);
+        if ($v = $this->similarityPoints($videos, 'youtube', $playlistOf, 'Not in a playlist')) {
+            $dashboard['similarity'] = $v;
+        }
 
         // Summary stat cards: videos, playlists, languages, and the people
         // credited as speakers (marcrel:spk — manually curated, so often empty).
@@ -224,6 +232,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
         $dashboard['labels'] = [
             'timeline' => 'Videos by year',
             'contributors' => 'Speakers',
+            'similarity' => 'Videos by similarity',
         ];
         $dashboard['descriptions'] = [
             'timeline' => 'Videos uploaded each year.',
@@ -232,6 +241,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'contributors' => 'The people credited as speakers in the videos.',
             'transcriptWordcloud' => 'The words that come up most often in the video captions. Everyday words and filler such as "um" are left out.',
             'speakerNetwork' => 'People are linked when they appear in the same video, and colour marks groups who appear together often. The picture fills out as more speaker credits are added.',
+            'similarity' => 'Each dot is a video, placed by what it is about: videos whose titles and descriptions are close in meaning sit close together, whatever their language. The colour shows the playlist. Faint dots are videos with too little description to place reliably. Click a dot to open the video. Zoom with the buttons above the chart or Ctrl + scroll, and drag to move around.',
         ];
 
         $dashboard['resourceType'] = 'youtube';
@@ -289,6 +299,11 @@ final class MediaDashboardGenerator extends DashboardGenerator
         if ($v = $this->aggregators->buildPersonCollaborationNetwork($ids, $this->items, $this->links, 1)) {
             $dashboard['speakerNetwork'] = $v;
         }
+        // The episodes' place in the semantic space, coloured by series.
+        $seriesOf = fn (int $id): ?string => $this->firstLinkedTitle($id, 'dcterms:isPartOf');
+        if ($v = $this->similarityPoints($ids, 'podcasts', $seriesOf, 'No series')) {
+            $dashboard['similarity'] = $v;
+        }
 
         // Summary stat cards: episodes, distinct series, distinct speakers
         // (marcrel:spk), total listening time (avg length in the subtitle) and
@@ -338,6 +353,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'subjectTrends' => 'Subjects over time',
             'locations' => 'Places the episodes are about',
             'choropleth' => 'Episodes by country',
+            'similarity' => 'Episodes by similarity',
         ];
         $dashboard['descriptions'] = [
             'transcriptWordcloud' => 'The words that come up most often across the episode transcripts, which are generated automatically from the audio. Audio cues, speaker names and everyday English and French words are left out.',
@@ -351,6 +367,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'subjectTrends' => 'How the most frequent subjects change from one year of episodes to the next.',
             'locations' => 'The places the episodes are associated with.',
             'choropleth' => 'Episodes counted by the country of the places they are associated with.',
+            'similarity' => 'Each dot is an episode, placed by what it is about: episodes whose titles and summaries are close in meaning sit close together, whatever their language. The colour shows the series. Faint dots are episodes with too little description to place reliably. Click a dot to open the episode. Zoom with the buttons above the chart or Ctrl + scroll, and drag to move around.',
         ];
 
         $dashboard['resourceType'] = 'podcasts';
@@ -431,14 +448,20 @@ final class MediaDashboardGenerator extends DashboardGenerator
         return ['languages' => array_values($languages), 'byLang' => $byLang];
     }
 
+    /** Colours a "by similarity" panel keeps before folding the rest into "Other". */
+    protected const SIMILARITY_GROUPS = 8;
+
     /**
-     * One corpus's records at their place in the shared semantic map, grouped
-     * by resource type (the record's first dcterms:type, else its template),
-     * for the dashboard's "by similarity" panel. Reads the offline map input,
-     * which counts only when it was built for this site, profile and revision.
-     * Points are [id, x, y, group, faint, title].
+     * One corpus's records for the dashboard's "by similarity" panel, grouped by
+     * $groupOf (a record's type, series or playlist; null for none, shown as
+     * $ungrouped). The largest SIMILARITY_GROUPS groups keep their own colour,
+     * the rest share "Other". Reads the offline map input, which counts only
+     * when it was built for this site, profile and revision. Points are
+     * [id, x, y, group, faint, title].
+     *
+     * @param callable(int): ?string $groupOf
      */
-    protected function similarityPoints(array $ids, string $corpus): ?array
+    protected function similarityPoints(array $ids, string $corpus, callable $groupOf, string $ungrouped): ?array
     {
         $map = ScopedInput::read($this->paths->embeddingsInputDir() . '/map.php', $this->sourceScope);
         $rows = is_array($map) && is_array($map['items'] ?? null) ? $map['items'] : [];
@@ -452,8 +475,8 @@ final class MediaDashboardGenerator extends DashboardGenerator
             }
         }
         $wanted = array_flip($ids);
-        $groups = [];
-        $points = [];
+        $records = [];
+        $sizes = [];
         foreach ($rows as $row) {
             if (!is_array($row)) {
                 continue;
@@ -463,39 +486,51 @@ final class MediaDashboardGenerator extends DashboardGenerator
                 || !is_numeric($row['x'] ?? null) || !is_numeric($row['y'] ?? null)) {
                 continue;
             }
-            $group = null;
-            foreach ($this->links[$id] ?? [] as [$term, , $target]) {
-                if ($term === 'dcterms:type' && isset($this->items[$target]['title'])) {
-                    $group = (string) $this->items[$target]['title'];
-                    break;
-                }
-            }
-            $group ??= $this->templateLabels[$this->items[$id]['template_id'] ?? 0] ?? 'Other';
             [$x, $y] = $own ? ($own[$id] ?? [null, null]) : [$row['x'], $row['y']];
             if ($x === null) {
                 continue;
             }
-            $groups[$group] ??= count($groups);
-            $points[] = [$id, round((float) $x, 4), round((float) $y, 4), $groups[$group],
+            $group = $groupOf($id) ?? $ungrouped;
+            $sizes[$group] = ($sizes[$group] ?? 0) + 1;
+            $records[] = [$id, round((float) $x, 4), round((float) $y, 4), $group,
                 !empty($row['lowSignal']) ? 1 : 0, (string) ($this->items[$id]['title'] ?? $row['title'] ?? '')];
         }
-        if (count($points) < 3) {
+        if (count($records) < 3) {
             return null;
         }
-        // Largest group first, so it takes the first palette colour.
-        $sizes = array_fill(0, count($groups), 0);
-        foreach ($points as $p) {
-            $sizes[$p[3]]++;
+        // Largest group first, so it takes the first palette colour; "Other"
+        // and the ungrouped records come last whatever their size.
+        $names = array_keys($sizes);
+        usort($names, fn ($a, $b) => (int) ($a === $ungrouped) <=> (int) ($b === $ungrouped)
+            ?: $sizes[$b] <=> $sizes[$a] ?: strcmp((string) $a, (string) $b));
+        $kept = array_slice(array_values(array_filter($names, fn ($n) => $n !== $ungrouped)), 0, self::SIMILARITY_GROUPS);
+        $groups = $kept;
+        if (count($kept) < count($names) - (int) isset($sizes[$ungrouped])) {
+            $groups[] = 'Other';
         }
-        $names = array_keys($groups);
-        $order = array_keys($sizes);
-        usort($order, fn ($a, $b) => $sizes[$b] <=> $sizes[$a] ?: strcmp($names[$a], $names[$b]));
-        $remap = array_flip($order);
-        foreach ($points as &$p) {
-            $p[3] = $remap[$p[3]];
+        if (isset($sizes[$ungrouped])) {
+            $groups[] = $ungrouped;
         }
-        unset($p);
-        return ['groups' => array_map(fn ($i) => $names[$i], $order), 'points' => $points];
+        // A corpus whose ungrouped records are themselves called "Other" shares one entry.
+        $groups = array_values(array_unique($groups));
+        $index = array_flip($groups);
+        foreach ($records as &$record) {
+            $record[3] = $index[$record[3]] ?? $index['Other'];
+        }
+        unset($record);
+        return ['groups' => $groups, 'points' => $records];
+    }
+
+    /** A record's first linked item title under $term, optionally only targets in $among. */
+    protected function firstLinkedTitle(int $id, string $term, ?array $among = null): ?string
+    {
+        foreach ($this->links[$id] ?? [] as [$linkTerm, , $target]) {
+            if ($linkTerm === $term && ($among === null || isset($among[$target]))
+                && ($this->items[$target]['title'] ?? '') !== '') {
+                return (string) $this->items[$target]['title'];
+            }
+        }
+        return null;
     }
 
     protected function loadTextValues(array $ids, string $term): array

@@ -13,6 +13,23 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.37.0] - 2026-10-13
+
+**Upgrading:** install this release, then **Regenerate now**. The Podcasts and YouTube dashboards then show their similarity panels.
+
+### Added
+
+- **Episodes by similarity** on the Podcasts dashboard, coloured by series, and **Videos by similarity** on the YouTube dashboard, coloured by playlist (videos in none are grouped as "Not in a playlist"). Both use the corpus's own layout from the embeddings build, like *Publications by similarity*.
+- **Zoom buttons** on the Semantic Map block and every similarity panel: zoom in, zoom out and show everything again, in the chart's toolbar. Ctrl + scroll and dragging still work, and the panel descriptions now say so.
+
+### Changed
+
+- A similarity panel keeps its eight largest groups in their own colours and folds the rest into "Other", so its legend stays short. *Publications by similarity* now shows its eight commonest publication types.
+
+### Fixed
+
+- The regeneration job's log can be read while the job runs. Omeka saves a job's log only when the job saves its record, which this job never did mid-run, so the job page showed "[No log]" until the end; the job now writes its log every few seconds. The confirmation after **Regenerate now** links straight to that log.
+
 ## [2.36.0] - 2026-10-13
 
 **Upgrading:** install this release, then **Regenerate now**. The Publications dashboard then shows *Publications by similarity*.

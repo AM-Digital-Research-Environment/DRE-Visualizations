@@ -235,7 +235,8 @@
         var lowSignal = items.filter(function (item) { return item.lowSignal; }).length;
         status.textContent = ns.plural(items.length, 'semanticRecord', 'record', 'records', true)
             + ' · ' + ns.formatNumber(lowSignal) + ' ' + ns.t('semanticLowSignalCount', 'only lightly described');
-        var note = node('p', 'semantic-map-note', ns.t('semanticLowSignal', 'The faint points are records with too little description for the map to place them reliably.'));
+        var note = node('p', 'semantic-map-note', ns.t('semanticLowSignal', 'The faint points are records with too little description for the map to place them reliably.')
+            + ' ' + ns.t('semanticZoomHint', 'Zoom with the buttons above the map or Ctrl + scroll, and drag to move around.'));
 
         chartPanel.appendChild(chartHeading);
         chartPanel.appendChild(chartEl);
@@ -247,6 +248,7 @@
         chart._semanticMode = 'type';
         chart._noDecal = true;
         chart._noDataTable = true;   // the record list below is this map's alternative
+        chart._zoomable = true;      // zoom buttons in the panel toolbar (core/toolbar.js)
         chart._semanticRestoreLabel = function () {
             chartEl.setAttribute('role', 'img');
             chartEl.setAttribute('aria-label', chartLabel);

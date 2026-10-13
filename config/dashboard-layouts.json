@@ -290,7 +290,8 @@
       "languages",
       "languageTimeline",
       "speakerNetwork",
-      "contributors"
+      "contributors",
+      "similarity"
     ],
     "podcasts": [
       "transcriptWordcloud",
@@ -303,7 +304,8 @@
       "choropleth",
       "duration",
       "timeline",
-      "series"
+      "series",
+      "similarity"
     ]
   }
 }

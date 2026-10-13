@@ -40,6 +40,7 @@
             });
         });
 
+        chart._zoomable = true;   // zoom buttons in the panel toolbar (core/toolbar.js)
         chart.setOption({
             tooltip: {
                 trigger: 'item',

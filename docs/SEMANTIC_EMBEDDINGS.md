@@ -73,8 +73,9 @@ Input payloads:
   lowSignal, title}` rows, and `corpusLayouts`: for publications, podcasts and
   YouTube, an `[id, x, y]` layout projected from that corpus's vectors alone.
   In the shared map one corpus fills a small patch; its own layout spreads it
-  over a dashboard panel. The Publications dashboard's *Publications by
-  similarity* panel reads it, coloured by publication type;
+  over a dashboard panel. The *by similarity* panels read it: publications
+  coloured by type, podcast episodes by series, YouTube videos by playlist
+  (the eight largest groups, the rest as "Other");
 - `similar.json`: a display catalog and up to 12 cosine neighbours per eligible
   source, each `{id, score}`;
 - `report.json`: corpus/publicity counts, low-signal and truncation totals, cache

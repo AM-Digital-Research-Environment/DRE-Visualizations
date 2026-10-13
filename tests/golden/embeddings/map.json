@@ -1,5 +1,10 @@
 {
   "corpusLayouts": {
+    "podcasts": [
+      [2200,-1,0],
+      [2201,0,1],
+      [2207,1,0]
+    ],
     "publications": [
       [2100,1.5,2.5],
       [2101,-1.5,0.5],
@@ -13,7 +18,13 @@
     {"cluster":0,"id":2101,"lowSignal":false,"title":"Map title 2101","type":"publications","typeLabel":"Publication","x":-0.75,"y":0.333333},
     {"cluster":1,"id":2102,"lowSignal":true,"title":"Map title 2102","type":"publications","typeLabel":"Publication","x":0.5,"y":0.25},
     {"cluster":1,"id":9999,"lowSignal":false,"title":"Not in the corpus","type":"publications","typeLabel":"Publication","x":1,"y":1},
-    {"cluster":1,"id":1000,"lowSignal":false,"title":"Research item","type":"research-items","typeLabel":"Research item","x":0,"y":1}
+    {"cluster":1,"id":1000,"lowSignal":false,"title":"Research item","type":"research-items","typeLabel":"Research item","x":0,"y":1},
+    {"cluster":0,"id":2200,"lowSignal":false,"title":"Episode","type":"podcasts","typeLabel":"Podcast","x":0.1,"y":0.1},
+    {"cluster":0,"id":2201,"lowSignal":false,"title":"Episode","type":"podcasts","typeLabel":"Podcast","x":0.2,"y":0.1},
+    {"cluster":0,"id":2207,"lowSignal":false,"title":"Episode","type":"podcasts","typeLabel":"Podcast","x":0.3,"y":0.2},
+    {"cluster":1,"id":2300,"lowSignal":false,"title":"Video","type":"youtube","typeLabel":"YouTube video","x":-0.25,"y":0.75},
+    {"cluster":1,"id":2301,"lowSignal":false,"title":"Video","type":"youtube","typeLabel":"YouTube video","x":0.5,"y":-0.125},
+    {"cluster":1,"id":2311,"lowSignal":true,"title":"Video","type":"youtube","typeLabel":"YouTube video","x":0.875,"y":0.5}
   ],
   "schemaVersion": 1,
   "scope": {"profile":"golden-profile","revision":"golden-revision-0001","siteId":1}

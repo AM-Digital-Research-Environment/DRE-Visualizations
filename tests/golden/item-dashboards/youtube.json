@@ -17,8 +17,8 @@
     {"itemId":403,"name":"Santos, Ana Clara","value":1}
   ],
   "currentLocations": [],
-  "descriptions": {"contributors":"The people credited as speakers in the videos.","languageTimeline":"How the mix of languages in the uploads shifts over time.","languages":"The languages spoken across the channel's videos.","speakerNetwork":"People are linked when they appear in the same video, and colour marks groups who appear together often. The picture fills out as more speaker credits are added.","timeline":"Videos uploaded each year.","transcriptWordcloud":"The words that come up most often in the video captions. Everyday words and filler such as \"um\" are left out."},
-  "labels": {"contributors":"Speakers","timeline":"Videos by year"},
+  "descriptions": {"contributors":"The people credited as speakers in the videos.","languageTimeline":"How the mix of languages in the uploads shifts over time.","languages":"The languages spoken across the channel's videos.","similarity":"Each dot is a video, placed by what it is about: videos whose titles and descriptions are close in meaning sit close together, whatever their language. The colour shows the playlist. Faint dots are videos with too little description to place reliably. Click a dot to open the video. Zoom with the buttons above the chart or Ctrl + scroll, and drag to move around.","speakerNetwork":"People are linked when they appear in the same video, and colour marks groups who appear together often. The picture fills out as more speaker credits are added.","timeline":"Videos uploaded each year.","transcriptWordcloud":"The words that come up most often in the video captions. Everyday words and filler such as \"um\" are left out."},
+  "labels": {"contributors":"Speakers","similarity":"Videos by similarity","timeline":"Videos by year"},
   "languageTimeline": {
     "series": [
       {
@@ -52,6 +52,14 @@
     {"itemId":846,"name":"Field Stories","value":4}
   ],
   "resourceType": "youtube",
+  "similarity": {
+    "groups": ["Cluster Lectures","Field Stories","Not in a playlist"],
+    "points": [
+      [2300,-0.25,0.75,1,0,"Video 1: Sound sound"],
+      [2301,0.5,-0.125,0,0,"Video 2: Memory memory"],
+      [2311,0.875,0.5,2,1,"Video 12: Multiple lecture"]
+    ]
+  },
   "speakerNetwork": {
     "communities": [
       {"anchor":"Achieng, Grace","id":1,"size":4},

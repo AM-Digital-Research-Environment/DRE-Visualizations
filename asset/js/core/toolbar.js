@@ -171,9 +171,10 @@
         return heading;
     }
 
-    // The toolbar's slots, in the order they read: what the chart can export,
-    // then the embed code, then fullscreen — always last, as on the graphs.
-    var SLOTS = ['export', 'embed', 'fullscreen'];
+    // The toolbar's slots, in the order they read: zoom, for a chart that pans
+    // and zooms, what the chart can export, then the embed code, then
+    // fullscreen — always last, as on the graphs.
+    var SLOTS = ['zoom', 'export', 'embed', 'fullscreen'];
 
     /**
      * The panel's ONE `.rv-chart-toolbar`, created on first use. Its controls
@@ -238,9 +239,52 @@
      */
     ns.attachToolbar = function (panel, chart, opts) {
         if (!panel || !chart) return;
+        if (chart._zoomable && typeof chart.dispatchAction === 'function') attachZoom(panel, chart);
         if (typeof chart.getDataURL === 'function') attachExports(panel, chart);
         if (!opts || opts.fullscreen !== false) ns.attachPanelFullscreen(panel);
     };
+
+    /**
+     * Zoom in, zoom out and reset for an ECharts chart whose `dataZoom` pans
+     * and zooms it (the semantic scatters). Ctrl + scroll and dragging still
+     * work; the buttons make zooming discoverable and work without a wheel.
+     * Each step halves or doubles the visible window around its centre.
+     */
+    function attachZoom(panel, chart) {
+        if (panel.querySelector('.rv-chart-toolbar [data-action="zoom-in"]')) return;
+        var dom = typeof chart.getDom === 'function' ? chart.getDom() : null;
+        var live = function () {
+            var current = dom && window.echarts && echarts.getInstanceByDom(dom);
+            return current && !current.isDisposed() ? current : chart;
+        };
+        function step(factor) {
+            var target = live();
+            (target.getOption().dataZoom || []).forEach(function (zoom, index) {
+                var start = zoom.start == null ? 0 : zoom.start;
+                var end = zoom.end == null ? 100 : zoom.end;
+                var half = Math.min(50, Math.max(0.5, (end - start) / 2 * factor));
+                var mid = Math.min(100 - half, Math.max(half, (start + end) / 2));
+                target.dispatchAction({ type: 'dataZoom', dataZoomIndex: index, start: mid - half, end: mid + half });
+            });
+        }
+        var buttons = [
+            ['zoom-in', ns.ICONS.zoomIn, ns.t('zoomIn', 'Zoom in'), function () { step(0.5); }],
+            ['zoom-out', ns.ICONS.zoomOut, ns.t('zoomOut', 'Zoom out'), function () { step(2); }],
+            ['zoom-reset', ns.ICONS.reset, ns.t('zoomReset', 'Show everything again'), function () {
+                var target = live();
+                (target.getOption().dataZoom || []).forEach(function (zoom, index) {
+                    target.dispatchAction({ type: 'dataZoom', dataZoomIndex: index, start: 0, end: 100 });
+                });
+            }]
+        ].map(function (config) {
+            var btn = ns.iconButton(config[1], config[2]);
+            btn.className = 'rv-toolbar-btn';
+            btn.setAttribute('data-action', config[0]);
+            btn.addEventListener('click', config[3]);
+            return btn;
+        });
+        ns.addToChartToolbar(panel, 'zoom', buttons);
+    }
 
     function attachExports(panel, chart) {
         if (panel.querySelector('.rv-chart-toolbar [data-action="save"]')) return;

@@ -234,6 +234,11 @@
         check: '<polyline points="20 6 9 17 4 12"/>',
         close: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
         reset: '<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>',
+        // Zoom a chart in / out (a magnifier with plus / minus).
+        zoomIn: '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'
+            + '<line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>',
+        zoomOut: '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'
+            + '<line x1="8" y1="11" x2="14" y2="11"/>',
         pin: '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/>'
             + '<circle cx="12" cy="10" r="3"/>',
         book: '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5'
@@ -2202,9 +2207,10 @@
         return heading;
     }
 
-    // The toolbar's slots, in the order they read: what the chart can export,
-    // then the embed code, then fullscreen — always last, as on the graphs.
-    var SLOTS = ['export', 'embed', 'fullscreen'];
+    // The toolbar's slots, in the order they read: zoom, for a chart that pans
+    // and zooms, what the chart can export, then the embed code, then
+    // fullscreen — always last, as on the graphs.
+    var SLOTS = ['zoom', 'export', 'embed', 'fullscreen'];
 
     /**
      * The panel's ONE `.rv-chart-toolbar`, created on first use. Its controls
@@ -2269,9 +2275,52 @@
      */
     ns.attachToolbar = function (panel, chart, opts) {
         if (!panel || !chart) return;
+        if (chart._zoomable && typeof chart.dispatchAction === 'function') attachZoom(panel, chart);
         if (typeof chart.getDataURL === 'function') attachExports(panel, chart);
         if (!opts || opts.fullscreen !== false) ns.attachPanelFullscreen(panel);
     };
+
+    /**
+     * Zoom in, zoom out and reset for an ECharts chart whose `dataZoom` pans
+     * and zooms it (the semantic scatters). Ctrl + scroll and dragging still
+     * work; the buttons make zooming discoverable and work without a wheel.
+     * Each step halves or doubles the visible window around its centre.
+     */
+    function attachZoom(panel, chart) {
+        if (panel.querySelector('.rv-chart-toolbar [data-action="zoom-in"]')) return;
+        var dom = typeof chart.getDom === 'function' ? chart.getDom() : null;
+        var live = function () {
+            var current = dom && window.echarts && echarts.getInstanceByDom(dom);
+            return current && !current.isDisposed() ? current : chart;
+        };
+        function step(factor) {
+            var target = live();
+            (target.getOption().dataZoom || []).forEach(function (zoom, index) {
+                var start = zoom.start == null ? 0 : zoom.start;
+                var end = zoom.end == null ? 100 : zoom.end;
+                var half = Math.min(50, Math.max(0.5, (end - start) / 2 * factor));
+                var mid = Math.min(100 - half, Math.max(half, (start + end) / 2));
+                target.dispatchAction({ type: 'dataZoom', dataZoomIndex: index, start: mid - half, end: mid + half });
+            });
+        }
+        var buttons = [
+            ['zoom-in', ns.ICONS.zoomIn, ns.t('zoomIn', 'Zoom in'), function () { step(0.5); }],
+            ['zoom-out', ns.ICONS.zoomOut, ns.t('zoomOut', 'Zoom out'), function () { step(2); }],
+            ['zoom-reset', ns.ICONS.reset, ns.t('zoomReset', 'Show everything again'), function () {
+                var target = live();
+                (target.getOption().dataZoom || []).forEach(function (zoom, index) {
+                    target.dispatchAction({ type: 'dataZoom', dataZoomIndex: index, start: 0, end: 100 });
+                });
+            }]
+        ].map(function (config) {
+            var btn = ns.iconButton(config[1], config[2]);
+            btn.className = 'rv-toolbar-btn';
+            btn.setAttribute('data-action', config[0]);
+            btn.addEventListener('click', config[3]);
+            return btn;
+        });
+        ns.addToChartToolbar(panel, 'zoom', buttons);
+    }
 
     function attachExports(panel, chart) {
         if (panel.querySelector('.rv-chart-toolbar [data-action="save"]')) return;

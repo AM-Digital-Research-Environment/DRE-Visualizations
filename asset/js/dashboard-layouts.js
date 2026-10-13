@@ -230,10 +230,12 @@
         // until speakers are curated). timeline + languages pair on one row.
         youtube: {
             order: ['transcriptWordcloud', 'playlists', 'timeline', 'languages',
-                    'languageTimeline', 'speakerNetwork', 'contributors'],
+                    'languageTimeline', 'speakerNetwork', 'contributors',
+                    'similarity'],
             wide:  ['transcriptWordcloud', 'playlists', 'languageTimeline',
-                    'speakerNetwork'],
-            tall:  ['transcriptWordcloud', 'playlists', 'speakerNetwork']
+                    'speakerNetwork', 'similarity'],
+            tall:  ['transcriptWordcloud', 'playlists', 'speakerNetwork',
+                    'similarity']
         },
         // Cluster podcast episodes (podcasts.json). The headline is a word cloud
         // built from the AI-generated transcripts; then the most frequent
@@ -242,11 +244,11 @@
         podcasts: {
             order: ['transcriptWordcloud', 'speakerNetwork', 'contributors',
                     'subjects', 'chord', 'subjectTrends', 'locations',
-                    'choropleth', 'duration', 'timeline', 'series'],
+                    'choropleth', 'duration', 'timeline', 'series', 'similarity'],
             wide:  ['transcriptWordcloud', 'speakerNetwork', 'subjects', 'chord',
-                    'subjectTrends', 'locations', 'choropleth'],
+                    'subjectTrends', 'locations', 'choropleth', 'similarity'],
             tall:  ['transcriptWordcloud', 'speakerNetwork', 'chord',
-                    'subjectTrends', 'locations', 'choropleth']
+                    'subjectTrends', 'locations', 'choropleth', 'similarity']
         }
     };
 

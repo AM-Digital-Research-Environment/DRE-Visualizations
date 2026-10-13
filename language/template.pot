@@ -427,7 +427,7 @@ msgstr ""
 msgid "Dark basemap style URL"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:84
+#: src/Controller/Admin/MaintenanceController.php:85
 msgid "Dashboard regeneration queued — rebuilds every precomputed visualisation (entities, overviews, communities). Track progress: %1$sjob #%2$d%3$s"
 msgstr ""
 
@@ -468,7 +468,7 @@ msgid "Each dot is a project. Its position marks the start year; its size shows 
 msgstr ""
 
 #: config/client-strings.json:chartDescription.similarity
-msgid "Each dot is a record, placed by what it is about: records whose descriptions, keywords and places are close in meaning sit close together, whatever their language. Click a dot to open the record."
+msgid "Each dot is a record, placed by what it is about: records whose descriptions, keywords and places are close in meaning sit close together, whatever their language. Click a dot to open the record. Zoom with the buttons above the chart or Ctrl + scroll, and drag to move around."
 msgstr ""
 
 #: view/dre-visualizations/admin/maintenance/index.phtml:82
@@ -766,7 +766,7 @@ msgstr ""
 msgid "Institutions with the most items"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:114
+#: src/Controller/Admin/MaintenanceController.php:115
 msgid "Invalid form submission. Please reload the page and try again."
 msgstr ""
 
@@ -1511,7 +1511,7 @@ msgstr ""
 msgid "Published here"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:99
+#: src/Controller/Admin/MaintenanceController.php:100
 msgid "Published visualizations withdrawn. They stay hidden until you regenerate."
 msgstr ""
 
@@ -1754,6 +1754,10 @@ msgstr ""
 
 #: config/client-strings.json:kgLabelsLabel
 msgid "Show every label"
+msgstr ""
+
+#: config/client-strings.json:zoomReset
+msgid "Show everything again"
 msgstr ""
 
 #: config/client-strings.json:kgHalosLabel
@@ -2299,13 +2303,19 @@ msgid "YouTube"
 msgstr ""
 
 #: config/client-strings.json:mapZoomIn
+#: config/client-strings.json:zoomIn
 msgid "Zoom in"
 msgstr ""
 
 #: config/client-strings.json:mapZoomOut
+#: config/client-strings.json:zoomOut
 msgid "Zoom out"
 msgstr ""
 
 #: config/client-strings.json:spatialZoomToCountry
 msgid "Zoom to country"
+msgstr ""
+
+#: config/client-strings.json:semanticZoomHint
+msgid "Zoom with the buttons above the map or Ctrl + scroll, and drag to move around."
 msgstr ""
