@@ -107,3 +107,16 @@ are ignored: word clouds use the PHP fallback and semantic blocks show an
 unavailable state or stay hidden. The semantic refresh runs the open
 EmbeddingGemma 2 model on the GitHub runner and needs no API key or secret; PHP
 regeneration needs no model access.
+
+## Item pages
+
+The Visualisations block (`dreLinkedItemsDashboard`) must sit on item pages:
+research projects, sections, people and the other entities show their
+dashboards there, and a project's item-set pages redirect to its item page.
+Omeka shows a site's saved resource-page blocks only, ignoring every default,
+once the site has saved **Theme → Configure resource pages**. Installing the
+module and upgrading to 2.38.0 add the block to each such saved item page that
+lacks it (after the record's own blocks, before *Linked resources*), and the
+maintenance page lists each site's state with a button that repeats the repair
+for the sites you may edit. The repair only adds the block: it never removes or
+reorders a block, and skips a site where the block is in any item-page region.

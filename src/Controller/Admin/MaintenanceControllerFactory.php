@@ -11,6 +11,6 @@ final class MaintenanceControllerFactory implements FactoryInterface
 {
     public function __invoke(ContainerInterface $services, $requestedName, ?array $options = null): MaintenanceController
     {
-        return new MaintenanceController($services->get(CanonicalSite::class));
+        return new MaintenanceController($services->get(CanonicalSite::class), $services->get('Omeka\Connection'));
     }
 }

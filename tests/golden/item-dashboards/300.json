@@ -82,6 +82,9 @@
     {"count":1,"country":"Senegal"},
     {"count":1,"country":"Uganda"}
   ],
+  "collections": [
+    {"id":60001,"items":25,"title":"Sahel Sound Collection"}
+  ],
   "contributorNetwork": {
     "categories": ["person","project"],
     "links": [

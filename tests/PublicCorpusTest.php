@@ -45,6 +45,10 @@ $snapshot = [
     'templateLabels' => [1 => 'Template'],
     'literals' => [1 => ['dcterms:spatial' => ['Safe']], 3 => ['dcterms:spatial' => ['Secret']]],
     'primaryMedia' => [1 => ['storage' => 'public'], 3 => ['storage' => 'private']],
+    'itemSetRecords' => [
+        10 => ['title' => 'Project set', 'dreId' => 'P-1', 'partOf' => [2, 4, 5]],
+        11 => ['title' => 'Cross-site set', 'dreId' => null, 'partOf' => [2]],
+    ],
 ];
 
 $corpus = (new PublicCorpus(7))->project($snapshot, [1, 2, 3, 6]);
@@ -61,6 +65,9 @@ corpusCheck(array_keys($corpus['itemYear']) === [1] && array_keys($corpus['prima
     'item-keyed values and media are scoped');
 corpusCheck(($corpus['scope']['siteId'] ?? null) === 7 && ($corpus['scope']['itemCount'] ?? null) === 2,
     'scope metadata declares the canonical site and count');
+corpusCheck(($corpus['itemSetRecords'][10]['partOf'] ?? null) === [2],
+    'an item set names only scoped items as its project');
+corpusCheck(!isset($corpus['itemSetRecords'][11]), 'an item set without scoped members has no record');
 
 // Public-to-private transition: an id still present in the earlier site query
 // is rejected by the current item visibility flag.

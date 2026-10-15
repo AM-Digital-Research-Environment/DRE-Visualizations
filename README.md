@@ -49,7 +49,9 @@ For a research item that belongs to a project, a compact sparkline of the projec
 
 ### Visualizations Dashboard (Item Pages)
 
-Contextual charts adapted per entity type. All chart elements are clickable, linking to the corresponding Omeka S item page. ~2,500 dashboards pre-computed across all entity types. The whole dashboard sits in a collapsible `<details>` header (matching the Knowledge Graph and the theme's *Linked resources* accordion); charts re-fit when a collapsed section is re-opened.
+Contextual charts adapted per entity type. All chart elements are clickable, linking to the corresponding Omeka S item page. ~2,500 dashboards pre-computed across all entity types. The whole dashboard sits in a collapsible `<details>` header (matching the Knowledge Graph and the theme's *Linked resources* accordion); charts re-fit when a collapsed section is re-opened. The block (**Visualisations**, `dreLinkedItemsDashboard`) places itself on item pages — see [Configure Resource Pages](#configure-resource-pages) — and stays hidden on any record without a dashboard.
+
+**Research projects: the project item page comes first.** A research project is an item (template *Projects*, `foaf:Project`) and usually also an item set holding its records. The project item page is the one page for both: its Visualisations block shows the project dashboard, and the project's item-set pages redirect to it (DRE SEO). The dashboard opens with what it covers: the number of records, the project's collections ("Collection: *title* (*n* records)", not linked, since their pages redirect back here) and, when the site has a page with the [Project Explorer](#project-explorer) block, a link to the same project there (`?project=ID`). A collection belongs to a project when its `dcterms:isPartOf` links the project item (written by the sync) or, for a project with no such link, when it shares the project's `dre:id`. The precompute writes the same `collections` list (`[{id, title, items}]`) into the project's dashboard JSON and its `projects-index.json` entry.
 
 #### Charts by Entity Type
 
@@ -236,7 +238,7 @@ The gallery is **precomputed** per item set (like every other dataset — see [P
 
 ### Item Set Dashboard
 
-Inline dashboard for item set pages with server-side aggregation.
+Inline dashboard for item set pages with server-side aggregation. Every public item set with public records gets one — authority sets, Publications, YouTube, the featured collections — except a research project's own collections: their pages redirect to the project item, whose Visualisations block shows the project dashboard instead (see [Research projects](#visualizations-dashboard-item-pages)).
 
 #### Chart Features
 
@@ -285,12 +287,18 @@ Then activate in **Admin > Modules**.
 
 ### Configure Resource Pages
 
-Go to **Admin > Sites > [site] > Theme > Configure resource pages**:
+The **Visualisations** block is placed on item pages for you:
 
-- **Item page**: add "Knowledge Graph" and "Visualizations" blocks
-- **Item set page**: add "Item Set Dashboard" block (optional)
+- A site that never saved its resource pages (**Admin > Sites > [site] > Theme > Configure resource pages**) shows it by default: the module registers it as a default item-page block, which Omeka appends to the theme's own defaults.
+- Once a site has saved that screen, Omeka shows only the blocks saved there and ignores every default. Installing the module, and upgrading to 2.38.0, therefore add the block to each such site's saved item page: in the main region, right after the last block that shows the record itself (*Media embeds*, *Values*, *Item sets*, *Media list*, Mirador, *Media render*), or before *Linked resources* when there is none. Nothing else is removed or reordered, and a site where the block already sits in any item-page region is left alone.
+- **Admin → DRE Visualizations** lists, per site, whether item pages show the block, and **Add the Visualisations block to item pages** runs the same repair again — for instance after the block was removed by mistake. It changes only the sites you may edit. Later upgrades do not put back a block an administrator removed.
 
-The Journal and Series dashboards render through the same **Visualisations** block (Linked Items Dashboard). Omeka configures resource pages per resource type, not per resource template, so Journal and Series records use the item page's blocks: on amira, check that the block is on the item page (Admin → Sites → amira → Theme → Configure resource pages → Item page). It stays hidden on any record without a dashboard.
+The other blocks stay opt-in. In **Configure resource pages**:
+
+- **Item page**: add "Knowledge Graph" (and, if wanted, "Similar Items" and "Sibling Items Sparkline")
+- **Item set page**: add "Item Set Dashboard" (optional)
+
+Omeka configures resource pages per resource type, not per resource template, so every item — research projects, sections, people, institutions, places, subjects, journals and series — shares the item page's blocks; the Visualisations block stays hidden on any record without a dashboard.
 
 ## Pre-computing Data
 
@@ -337,6 +345,7 @@ DreVisualizations/
 │   ├── KnowledgeGraph.php              # Item pages — graph block
 │   ├── LinkedItemsDashboard.php        # Item pages — visualizations block
 │   └── ItemSetDashboard.php            # Item set pages — dashboard block
+├── src/Site/ResourcePagePlacement.php  # Adds the visualizations block to saved item-page configurations
 ├── view/common/resource-page-block-layout/
 │   ├── knowledge-graph.phtml           # Lightweight async container
 │   ├── linked-items-dashboard.phtml    # Lightweight async container
@@ -411,6 +420,7 @@ DreVisualizations/
 │                                       #   youtube/whats-new/spatial-exploration artifacts
 ├── src/Precompute/                     # PHP precompute engine (admin "Regenerate now")
 │   ├── DataLoader.php                  # Items/links/literals/geo via Omeka\Connection
+│   ├── ProjectCollections.php          # A research project's item sets (isPartOf, then dre:id)
 │   ├── Aggregators.php                 # Facade: composes the trait builders + shared constants (unit-tested)
 │   ├── Aggregators/                    # Builders split by concern (one trait per file)
 │   │   ├── SupportTrait.php            # sort/lookup + PageRank/Louvain primitives

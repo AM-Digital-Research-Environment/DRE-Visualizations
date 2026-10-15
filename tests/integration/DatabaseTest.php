@@ -77,6 +77,21 @@ for ($i=100; $i<=700; $i++) {
  $conn->insert('media',['id'=>10000+$i,'item_id'=>$i,'storage_id'=>'photo'.$i,'extension'=>'jpg','has_thumbnails'=>1,'has_original'=>1,'position'=>1]);
  $conn->insert('value',['id'=>10000+$i,'resource_id'=>$i,'property_id'=>7,'value'=>($i===700?'ORIXAFGM':'APMESTRENO').$i,'is_public'=>1]);
 }
+// An item set's own values: what ties a collection to its research project.
+$conn->insert('vocabulary', ['id'=>4, 'prefix'=>'dre']);
+$conn->insert('property', ['id'=>8, 'vocabulary_id'=>1, 'local_name'=>'isPartOf', 'label'=>'Is Part Of']);
+$conn->insert('property', ['id'=>9, 'vocabulary_id'=>4, 'local_name'=>'id', 'label'=>'DRE ID']);
+foreach ([[30000,6,null,'PRIVATE set title',0],[30001,6,null,'Museu Afro-Digital',1],[30002,9,null,'UBT_Museu',1],
+          [30003,8,1,null,1],[30004,8,9001,null,1],[30005,8,3,null,0]] as [$id,$pid,$target,$literal,$public]) {
+ $conn->insert('value', ['id'=>$id, 'resource_id'=>6295, 'property_id'=>$pid, 'value_resource_id'=>$target, 'value'=>$literal, 'is_public'=>$public]);
+}
+$conn->insert('value', ['id'=>30006, 'resource_id'=>77, 'property_id'=>6, 'value'=>'PRIVATE set', 'is_public'=>1]);
+$conn->insert('value', ['id'=>30007, 'resource_id'=>1, 'property_id'=>9, 'value'=>'UBT_Museu', 'is_public'=>1]);
+$s = (new DataLoader($conn, 1))->load();
+verify(($s->itemSetRecords[6295] ?? null) === ['title'=>'Museu Afro-Digital', 'dreId'=>'UBT_Museu', 'partOf'=>[1]],
+ 'Item-set records keep the public title, dre:id and scoped public isPartOf targets only');
+verify(!isset($s->itemSetRecords[77]), 'A private item set has no record');
+verify(($s->literals[1]['dre:id'] ?? null) === ['UBT_Museu'], 'An item\'s dre:id is loaded for the collection fallback');
 $root=sys_get_temp_dir().'/dre-integration-'.bin2hex(random_bytes(6));
 $module=dirname(__DIR__,2);
 $profile=\DreVisualizations\Precompute\AmiraProfile::fromFile($module.'/config/amira-profile.json');

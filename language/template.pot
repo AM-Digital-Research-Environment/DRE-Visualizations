@@ -65,6 +65,14 @@ msgstr ""
 msgid "A project selector that retunes a full dashboard beneath it. No configuration needed."
 msgstr ""
 
+#: view/dre-visualizations/admin/maintenance/index.phtml:106
+msgid "Add the Visualisations block to item pages"
+msgstr ""
+
+#: src/Controller/Admin/MaintenanceController.php:128
+msgid "Added the Visualisations block to the item pages of these sites: %s."
+msgstr ""
+
 #: config/client-strings.json:chartDescription.affiliationMap
 msgid "Affiliated institutions whose location is known."
 msgstr ""
@@ -110,7 +118,7 @@ msgstr ""
 msgid "Also on"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:53
+#: view/dre-visualizations/admin/maintenance/index.phtml:54
 msgid "An edit made something private, so the visualisations are hidden. They are regenerated automatically once edits have been quiet for a minute."
 msgstr ""
 
@@ -296,6 +304,10 @@ msgstr ""
 msgid "Collection-wide network explorer for contributors, co-authorship, people-institution affiliations, and institution collaborations. No configuration needed."
 msgstr ""
 
+#: config/client-strings.json:projectCollection
+msgid "Collection: {title} ({records})"
+msgstr ""
+
 #: config/client-strings.json:degColorBy
 #: config/client-strings.json:semanticColorBy
 msgid "Colour by"
@@ -337,6 +349,10 @@ msgstr ""
 msgid "Compare Genres"
 msgstr ""
 
+#: config/client-strings.json:projectExplorerLink
+msgid "Compare it with other projects in the Project explorer"
+msgstr ""
+
 #: src/Controller/Site/EmbedController.php:121
 msgid "Compare two genres"
 msgstr ""
@@ -349,7 +365,7 @@ msgstr ""
 msgid "Comparison ready."
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:75
+#: src/Controller/Admin/MaintenanceController.php:86
 msgid "Configure a canonical public site in the DRE Visualizations module settings before regenerating data."
 msgstr ""
 
@@ -427,7 +443,7 @@ msgstr ""
 msgid "Dark basemap style URL"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:85
+#: src/Controller/Admin/MaintenanceController.php:96
 msgid "Dashboard regeneration queued — rebuilds every precomputed visualisation (entities, overviews, communities). Track progress: %1$sjob #%2$d%3$s"
 msgstr ""
 
@@ -455,7 +471,7 @@ msgstr ""
 msgid "Download data (CSV)"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:22
+#: view/dre-visualizations/admin/maintenance/index.phtml:23
 msgid "DRE Visualizations: maintenance"
 msgstr ""
 
@@ -475,7 +491,7 @@ msgstr ""
 msgid "Each dot on this map is a public record from the collection: a project, a research item, a publication, a podcast episode or a video. Records about similar topics appear close to each other, even when they are in different languages. Only the distance between dots matters. The axes have no meaning."
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:82
+#: view/dre-visualizations/admin/maintenance/index.phtml:115
 msgid "Each site has a public embed gallery with copy-paste iframe snippets for every visualisation block — and, for dashboards, for each individual chart. Open it to preview a block and grab its code."
 msgstr ""
 
@@ -491,7 +507,7 @@ msgstr ""
 msgid "Embed this"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:80
+#: view/dre-visualizations/admin/maintenance/index.phtml:113
 msgid "Embed visualisations"
 msgstr ""
 
@@ -541,6 +557,10 @@ msgstr ""
 
 #: config/client-strings.json:spatialDescription
 msgid "Every place the research items refer to, shown as a bubble sized by the number of items that mention it. Places are split between where items come from and where they are held today. Use the legend to show or hide either layer, pick a project or person on the left to see only its places, choose a country to zoom in, or click a bubble to open that place’s page."
+msgstr ""
+
+#: src/Controller/Admin/MaintenanceController.php:132
+msgid "Every site you can edit already shows the Visualisations block on item pages."
 msgstr ""
 
 #: config/client-strings.json:exitFullscreen
@@ -766,7 +786,7 @@ msgstr ""
 msgid "Institutions with the most items"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:115
+#: src/Controller/Admin/MaintenanceController.php:148
 msgid "Invalid form submission. Please reload the page and try again."
 msgstr ""
 
@@ -788,6 +808,18 @@ msgstr ""
 
 #: config/client-strings.json:totalItemOne
 msgid "item in total"
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:91
+msgid "Item pages are configured without the Visualisations."
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:90
+msgid "Item pages show the Visualisations."
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:92
+msgid "Item pages use the default blocks, which include the Visualisations."
 msgstr ""
 
 #: src/Site/BlockLayout/PhotoBrowse.php:85
@@ -1125,7 +1157,7 @@ msgstr ""
 msgid "Next page"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:41
+#: view/dre-visualizations/admin/maintenance/index.phtml:42
 msgid "No canonical public site is configured. Open this module’s configuration, select a public site, and save before regenerating data."
 msgstr ""
 
@@ -1142,7 +1174,7 @@ msgstr ""
 msgid "No section"
 msgstr ""
 
-#: view/common/block-layout/partials/dashboard-async.phtml:45
+#: view/common/block-layout/partials/dashboard-async.phtml:48
 #: view/dre-visualizations/embed/block.phtml:38
 msgid "No visualisations are available."
 msgstr ""
@@ -1155,7 +1187,7 @@ msgstr ""
 msgid "Nothing has been added recently."
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:55
+#: view/dre-visualizations/admin/maintenance/index.phtml:56
 msgid "Nothing is published yet. Click Regenerate now to publish the visualisations."
 msgstr ""
 
@@ -1191,11 +1223,11 @@ msgstr ""
 msgid "Only public items assigned to this public site enter generated JSON. Regeneration fails closed until a site is selected."
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:37
+#: view/dre-visualizations/admin/maintenance/index.phtml:38
 msgid "Only public items assigned to this public site, including relationship targets and media, enter generated JSON."
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:64
+#: view/dre-visualizations/admin/maintenance/index.phtml:65
 msgid "Only when you want the visualisations updated straight away. After an edit or import, the published data stays online and refreshes in the background once edits have been quiet for five minutes. Making an item, medium, item set or value private hides the visualisations until that refresh."
 msgstr ""
 
@@ -1478,11 +1510,11 @@ msgstr ""
 msgid "publication"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:34
+#: view/dre-visualizations/admin/maintenance/index.phtml:35
 msgid "Publication scope:"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:54
+#: view/dre-visualizations/admin/maintenance/index.phtml:55
 msgid "Publication was withdrawn. The visualisations stay hidden until you click Regenerate now."
 msgstr ""
 
@@ -1503,11 +1535,11 @@ msgstr ""
 msgid "Publications per country"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:51
+#: view/dre-visualizations/admin/maintenance/index.phtml:52
 msgid "Published data is up to date (generated %s)."
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:52
+#: view/dre-visualizations/admin/maintenance/index.phtml:53
 msgid "Published data was generated %1$s and stays online. Edits since %2$s are not in it yet; it refreshes automatically once edits have been quiet for five minutes."
 msgstr ""
 
@@ -1515,7 +1547,7 @@ msgstr ""
 msgid "Published here"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:100
+#: src/Controller/Admin/MaintenanceController.php:111
 msgid "Published visualizations withdrawn. They stay hidden until you regenerate."
 msgstr ""
 
@@ -1531,7 +1563,7 @@ msgstr ""
 msgid "Q3"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:26
+#: view/dre-visualizations/admin/maintenance/index.phtml:27
 msgid "Rebuild all precomputed visualisation data directly from the Omeka database — no shell access or external tools required. Runs as a background job; track progress in the Jobs admin page."
 msgstr ""
 
@@ -1539,10 +1571,12 @@ msgstr ""
 msgid "Recent additions and the most-active projects, in 3 / 6 / 12-month windows. No configuration needed."
 msgstr ""
 
+#: config/client-strings.json:projectRecordOne
 #: config/client-strings.json:semanticRecordOne
 msgid "record"
 msgstr ""
 
+#: config/client-strings.json:projectRecordOther
 #: config/client-strings.json:semanticRecordOther
 msgid "records"
 msgstr ""
@@ -1569,15 +1603,15 @@ msgstr ""
 msgid "Records on similar topics"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:31
+#: view/dre-visualizations/admin/maintenance/index.phtml:32
 msgid "Regenerate dashboard data"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:69
+#: view/dre-visualizations/admin/maintenance/index.phtml:70
 msgid "Regenerate now"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:45
+#: view/dre-visualizations/admin/maintenance/index.phtml:46
 msgid "Regenerates every precomputed artefact: per-entity dashboards (sections, projects, people, institutions, locations, subjects), category overviews, the collection overview, the Discursive Communities graph, and the per-country choropleth index."
 msgstr ""
 
@@ -1647,6 +1681,10 @@ msgstr ""
 msgid "Resume the layout"
 msgstr ""
 
+#: view/dre-visualizations/admin/maintenance/index.phtml:102
+msgid "Run this again after removing the block by mistake. It changes only sites you can edit, leaves every other block where it is, and does nothing where the block is already present."
+msgstr ""
+
 #: config/client-strings.json:saveImage
 msgid "Save this chart as an image"
 msgstr ""
@@ -1696,7 +1734,7 @@ msgstr ""
 msgid "See these entities as a list"
 msgstr ""
 
-#: Module.php:120
+#: Module.php:131
 msgid "Select a public canonical site."
 msgstr ""
 
@@ -1833,7 +1871,7 @@ msgstr ""
 msgid "Start:"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:59
+#: view/dre-visualizations/admin/maintenance/index.phtml:60
 msgid "Status:"
 msgstr ""
 
@@ -2023,9 +2061,13 @@ msgid "The subjects that appear alongside this one most often."
 msgstr ""
 
 #: config/client-strings.json:visualizationLoadError
-#: view/common/block-layout/partials/dashboard-async.phtml:46
+#: view/common/block-layout/partials/dashboard-async.phtml:49
 #: view/dre-visualizations/embed/block.phtml:39
 msgid "The visualisation could not be loaded."
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:83
+msgid "The Visualisations block shows a dashboard on the page of every item that has one: research projects, sections, people, institutions, places and subjects. A site whose item pages were never configured shows it by default. Once a site saves its Resource pages settings, only the blocks listed there appear; this module adds the Visualisations to that list when it is installed or upgraded, after the record’s own blocks."
 msgstr ""
 
 #: config/client-strings.json:chartDescription.transcriptWordcloud
@@ -2062,6 +2104,10 @@ msgstr ""
 
 #: config/client-strings.json:networkEmpty
 msgid "There is nothing to show in this network yet."
+msgstr ""
+
+#: config/client-strings.json:projectIntro
+msgid "These charts draw on the {records} of this research project."
 msgstr ""
 
 #: config/client-strings.json:kgSharedOne
@@ -2210,8 +2256,12 @@ msgstr ""
 msgid "Visualisations"
 msgstr ""
 
+#: view/dre-visualizations/admin/maintenance/index.phtml:81
+msgid "Visualisations on item pages"
+msgstr ""
+
 #: config/client-strings.json:visualizationsReady
-#: view/common/block-layout/partials/dashboard-async.phtml:44
+#: view/common/block-layout/partials/dashboard-async.phtml:47
 #: view/dre-visualizations/embed/block.phtml:37
 msgid "Visualisations ready."
 msgstr ""
@@ -2241,7 +2291,7 @@ msgstr ""
 msgid "What's New"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:63
+#: view/dre-visualizations/admin/maintenance/index.phtml:64
 msgid "When to run:"
 msgstr ""
 
@@ -2285,7 +2335,7 @@ msgstr ""
 msgid "with little description"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:71
+#: view/dre-visualizations/admin/maintenance/index.phtml:72
 msgid "Withdraw published data"
 msgstr ""
 

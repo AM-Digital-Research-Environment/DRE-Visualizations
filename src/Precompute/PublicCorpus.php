@@ -95,6 +95,18 @@ final class PublicCorpus
             }
         }
         $projected['itemSets'] = $itemSets;
+        // An item set's own record follows its membership: kept only while it
+        // holds scoped items, and naming only scoped items as its project.
+        $itemSetRecords = [];
+        foreach ($data['itemSetRecords'] ?? [] as $setId => $record) {
+            if (!isset($itemSets[(int) $setId]) || !is_array($record)) {
+                continue;
+            }
+            $record['partOf'] = array_values(array_filter(array_map('intval', (array) ($record['partOf'] ?? [])),
+                static fn (int $itemId): bool => isset($allowed[$itemId])));
+            $itemSetRecords[(int) $setId] = $record;
+        }
+        $projected['itemSetRecords'] = $itemSetRecords;
         $projected['scope'] = [
             'type' => 'canonical-site',
             'siteId' => $this->siteId,

@@ -1214,6 +1214,23 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     word-break: break-word;
 }
 
+/* Opening lines of a research project's dashboard (dashboard.js projectIntro):
+   coverage, the project's collections and the Project explorer link. */
+.rv-dashboard-intro {
+    margin: 0 0 var(--rv-space-4);
+    font-size: var(--rv-text-sm);
+    color: var(--rv-text-color);
+    line-height: var(--rv-leading-snug);
+}
+
+.rv-dashboard-intro p {
+    margin: 0 0 var(--rv-space-1);
+}
+
+.rv-dashboard-intro a {
+    color: var(--rv-accent);
+}
+
 .chart-description {
     font-size: var(--rv-text-xs);
     color: var(--rv-text-color);

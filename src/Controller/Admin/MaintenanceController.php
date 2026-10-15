@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 namespace DreVisualizations\Controller\Admin;
 
+use Doctrine\DBAL\Connection;
 use DreVisualizations\Form\MaintenanceForm;
 use DreVisualizations\Job\PrecomputeDashboards;
 use DreVisualizations\Listener\SnapshotInvalidation;
 use DreVisualizations\Precompute\SnapshotStore;
 use DreVisualizations\Service\CanonicalSite;
+use DreVisualizations\Site\ResourcePagePlacement;
 use Laminas\Http\Response;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
@@ -28,11 +30,19 @@ use Omeka\Stdlib\Message;
  *     Stops serving the published snapshot until the next manual regeneration;
  *     the automatic refresh after edits does not republish it.
  *
+ *   placeBlockAction  POST  /admin/dre-visualizations/maintenance/place-block
+ *     Adds the Visualisations block to the saved item-page configuration of
+ *     every site the user may edit that lacks it (Site\ResourcePagePlacement),
+ *     the same repair install and the 2.38.0 upgrade run.
+ *
  * ACL: editor + site-admin + global-admin (granted in Module::onBootstrap).
  */
 class MaintenanceController extends AbstractActionController
 {
-    public function __construct(private readonly CanonicalSite $canonicalSite) {}
+    public function __construct(
+        private readonly CanonicalSite $canonicalSite,
+        private readonly Connection $connection,
+    ) {}
 
     public function indexAction(): ViewModel
     {
@@ -40,6 +50,7 @@ class MaintenanceController extends AbstractActionController
             'form' => $this->getForm(MaintenanceForm::class),
             'scopeSite' => $this->canonicalSite->publicSite(),
             'publication' => self::publicationStatus(SnapshotStore::tryDefault()),
+            'placements' => ResourcePagePlacement::states($this->connection),
         ]);
     }
 
@@ -98,6 +109,28 @@ class MaintenanceController extends AbstractActionController
         if ($this->validPost()) {
             SnapshotInvalidation::withdraw();
             $this->messenger()->addSuccess('Published visualizations withdrawn. They stay hidden until you regenerate.'); // @translate
+        }
+        return $this->backToIndex();
+    }
+
+    public function placeBlockAction(): Response
+    {
+        if ($this->validPost()) {
+            // Only the sites whose settings this user may change.
+            $titles = [];
+            foreach ($this->api()->search('sites')->getContent() as $site) {
+                if ($site->userIsAllowed('update')) $titles[(int) $site->id()] = (string) $site->title();
+            }
+            $changed = $titles ? ResourcePagePlacement::repair($this->connection, array_keys($titles)) : [];
+            $changedTitles = array_map(static fn (int $id): string => $titles[$id], $changed);
+            if ($changed) {
+                $this->messenger()->addSuccess(new Message(
+                    'Added the Visualisations block to the item pages of these sites: %s.', // @translate
+                    implode(', ', $changedTitles)
+                ));
+            } else {
+                $this->messenger()->addSuccess('Every site you can edit already shows the Visualisations block on item pages.'); // @translate
+            }
         }
         return $this->backToIndex();
     }

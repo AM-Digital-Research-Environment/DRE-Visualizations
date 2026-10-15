@@ -67,6 +67,9 @@
     {"count":1,"country":"Kenya"},
     {"count":1,"country":"Uganda"}
   ],
+  "collections": [
+    {"id":60002,"items":19,"title":"East African Field Recordings"}
+  ],
   "contributorNetwork": {
     "categories": ["person","project"],
     "links": [

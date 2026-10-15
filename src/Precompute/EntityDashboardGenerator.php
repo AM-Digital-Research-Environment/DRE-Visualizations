@@ -97,6 +97,10 @@ final class EntityDashboardGenerator extends DashboardGenerator
             }
         }
         $radarMax = $this->aggregators->profileMaxima(array_values($radarProfiles));
+        // The project's own item sets (its collections), shown on the project
+        // item page, which their item-set pages redirect to.
+        $collections = ProjectCollections::resolve($this->items, $this->literals, $this->itemSets,
+            $this->itemSetRecords, $this->profile->template('projects'));
 
         $projectIndex = [];
         foreach ($projects as $pid => $pinfo) {
@@ -110,7 +114,8 @@ final class EntityDashboardGenerator extends DashboardGenerator
                     $sectionNames[] = $this->items[$vrid]['title'];
                 }
             }
-            $projectIndex[] = ['id' => $pid, 'name' => $pinfo['title'], 'items' => count($itemIds), 'sections' => $sectionNames];
+            $projectIndex[] = ['id' => $pid, 'name' => $pinfo['title'], 'items' => count($itemIds), 'sections' => $sectionNames,
+                'collections' => $collections[$pid] ?? []];
 
             $dashboard = $this->aggregators->aggregateItems($itemIds, $this->items, $this->links, $this->itemYear, $this->geo);
             $this->addStandardCharts($dashboard, $pid, $pinfo['title'], $itemIds);
@@ -121,6 +126,9 @@ final class EntityDashboardGenerator extends DashboardGenerator
             }
             if ($radar = $this->aggregators->buildRadar($radarProfiles[$pid] ?? null, $radarMax)) {
                 $dashboard['radar'] = $radar;
+            }
+            if (isset($collections[$pid])) {
+                $dashboard['collections'] = $collections[$pid];
             }
             $dashboard['resourceType'] = $this->profile->templateResourceType($this->items[$pid]['template_id'] ?? null) ?? 'project';
             $this->save($pid, $dashboard);

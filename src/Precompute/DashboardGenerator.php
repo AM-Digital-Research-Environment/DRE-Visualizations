@@ -20,6 +20,7 @@ abstract class DashboardGenerator
     protected array $literals = [];
     protected array $primaryMedia = [];
     protected array $mediaItems = [];
+    protected array $itemSetRecords = [];
     protected $checkpoint;
     protected array $countryIndex = [];
 
@@ -85,7 +86,7 @@ abstract class DashboardGenerator
         $this->logFn = $logFn;
         $this->artifacts = new JsonArtifactWriter();
         $this->statCounts = $statCounts;
-        foreach (['items', 'links', 'reverseLinks', 'childrenOf', 'itemYear', 'itemDate', 'temporal', 'geo', 'itemSets', 'templateLabels', 'literals', 'primaryMedia', 'mediaItems'] as $key) $this->{$key} = $corpus->{$key};
+        foreach (['items', 'links', 'reverseLinks', 'childrenOf', 'itemYear', 'itemDate', 'temporal', 'geo', 'itemSets', 'templateLabels', 'literals', 'primaryMedia', 'mediaItems', 'itemSetRecords'] as $key) $this->{$key} = $corpus->{$key};
         $this->outputDir = $paths->outputDir;
         $this->communitiesDir = $paths->communitiesDir;
         $this->countriesGeojson = $paths->countriesGeojson;

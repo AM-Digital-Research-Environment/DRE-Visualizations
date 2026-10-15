@@ -115,6 +115,40 @@ test('one failing chart does not erase other charts or announce full success', a
     assert.match(result.content.innerHTML, /data-chart="second"/);
 });
 
+// The project introduction, run through the real orchestrator and the real
+// text helpers (plural, fill, escaping) from core/base.js.
+function projectIntro(data, dataset = {}) {
+    const ns = { t: (_key, fallback) => fallback, plural: base.plural, fill: base.fill,
+        formatNumber: base.formatNumber, escapeHtml: base.escapeHtml };
+    vm.runInNewContext(source, {
+        window: { RV: ns },
+        document: { readyState: 'complete', createElement: element, querySelectorAll: () => [] },
+        console,
+    });
+    return ns.projectIntro(data, { dataset });
+}
+
+test('a project dashboard opens with its records, collections and explorer link', () => {
+    const html = projectIntro({
+        resourceType: 'project', totalItems: 25,
+        collections: [{ id: 60001, title: 'Sahel <Sound>', items: 1 }, { id: 60002, title: 'East Africa', items: 19 }],
+    }, { explorerUrl: '/s/amira/page/projects?project=300' });
+    assert.match(html, /^<div class="rv-dashboard-intro">/);
+    assert.match(html, /These charts draw on the 25 records of this research project\./);
+    assert.match(html, /Collection: Sahel &lt;Sound&gt; \(1 record\)/);
+    assert.match(html, /Collection: East Africa \(19 records\)/);
+    assert.doesNotMatch(html, /item-set|item_sets|60001/, 'collections are not linked: their pages redirect to the project');
+    assert.match(html, /<a href="\/s\/amira\/page\/projects\?project=300">Compare it with other projects in the Project explorer<\/a>/);
+});
+
+test('the project introduction leaves other dashboards and unsafe links alone', () => {
+    assert.equal(projectIntro({ resourceType: 'person', totalItems: 4, collections: [{ title: 'X', items: 1 }] },
+        { explorerUrl: '/s/amira/page/projects?project=1' }), '');
+    const html = projectIntro({ resourceType: 'project', totalItems: 3 }, { explorerUrl: 'javascript:alert(1)' });
+    assert.doesNotMatch(html, /<a |Collection:/);
+    assert.match(html, /3 records/);
+});
+
 function dataLoader(respond) {
     const calls = [];
     // Execute the production data loader, with HTTP as its only stub; the
