@@ -25,6 +25,8 @@ class DashboardAssets extends AbstractHelper
 {
     private bool $mapConfigInjected = false;
     private bool $i18nInjected = false;
+    /** Whether this request's head already carries RV_LIBS and dashboard-core.js. */
+    private bool $preludeInjected = false;
 
     // Vendored under asset/vendor/ — self-hosted for same-origin delivery (the
     // Omeka server gzips them to the same wire size jsDelivr served), server-side
@@ -353,6 +355,7 @@ class DashboardAssets extends AbstractHelper
                     'd3'             => array_map($asset, self::D3_SCRIPTS),
                 ]) . ', window.RV_LIBS||{});');
                 $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
+                $this->preludeInjected = true;
             } else {
                 // The Network Explorer and What's New blocks render as soon as
                 // their data arrives, so load their libraries eagerly (deferred)
@@ -377,10 +380,23 @@ class DashboardAssets extends AbstractHelper
                     $headScript->appendFile($asset($script), 'text/javascript', $defer);
                 }
                 $headScript->appendFile($asset('js/dashboard-core.js'), 'text/javascript', $defer);
+                $this->preludeInjected = true;
             }
         }
 
         if (!empty($options['preludeOnly'])) return $this;
+
+        // A resource-page block calls this without the prelude: it counts on
+        // Module::addAssets, which listens to `view.show.before`. A theme that
+        // renders its blocks before triggering that event (DRE-theme splits the
+        // item page's blocks around its rail) would then put the builders below
+        // dashboard-core.js, and every deferred script would run before the
+        // namespace it extends exists ("ns.t is not a function"). Emit the
+        // prelude first; the listener's later dashboard-core.js is de-duplicated
+        // by src.
+        if (!$this->preludeInjected) {
+            $this->__invoke(['cdn' => true, 'controller' => '', 'preludeOnly' => true]);
+        }
 
         // The d3-force renderer the co-occurrence network builders draw with. Before
         // the bundle, so ns.GraphCanvas / ns.ForceGraph / ns.graphChrome are
