@@ -4,9 +4,10 @@
  * Source of truth: DRE-theme/scripts/lib/token-rules.mjs
  * Refresh with:    (in DRE-theme) npm run vendor:lint
  *
- * The design-token rules are shared across DRE-theme, DRE-Visualizations and
- * DRESearch so the three cannot drift apart again. Repo-specific paths and
- * allowlists belong in this repo's scripts/check-design-tokens.mjs, not here.
+ * The design-token rules are shared across DRE-theme, DRE-Visualizations,
+ * DRESearch and DRE-LinkedData so they cannot drift apart again. Repo-specific
+ * paths and allowlists belong in this repo's scripts/check-design-tokens.mjs,
+ * not here.
  */
 /**
  * The shared design-token rules — ONE rule set for DRE-theme, DRE-Visualizations
