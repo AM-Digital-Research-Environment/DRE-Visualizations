@@ -13,6 +13,8 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.38.0] - 2026-10-15
+
 **Upgrading:** install this release, then **Regenerate now**. The upgrade adds the Visualisations block to the item pages of every site that saved its resource pages without it; regeneration then writes the project collections and drops the dashboards of item sets that belong to a project.
 
 ### Added
