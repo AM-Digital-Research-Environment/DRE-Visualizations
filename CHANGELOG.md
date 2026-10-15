@@ -13,6 +13,8 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.38.1] - 2026-10-15
+
 ### Fixed
 
 - The Visualisations block broke on item pages (2.38.0, live on project 1797): "dashboard-core.js must load before graph-canvas.js", then `ns.t is not a function` and `ns.mountWhenVisible is not a function`, and no chart drew. An item-page block asked for its scripts before `Module::addAssets` added the shared prelude, because DRE-theme renders the blocks before it triggers `view.show.before`. The deferred scripts therefore ran ahead of the namespace they extend. A block now emits the prelude (`RV_LIBS` and `dashboard-core.js`) itself when it is not there yet, whatever the theme's order; the listener's later copy is dropped as a duplicate.
