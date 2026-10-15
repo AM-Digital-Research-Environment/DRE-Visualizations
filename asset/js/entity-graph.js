@@ -552,7 +552,7 @@
             var node = data.nodes[Number(f.properties.i)];
             if (!node) return;
             if (!hoverPopup) {
-                hoverPopup = new window.maplibregl.Popup({
+                hoverPopup = ns.mapPopup({
                     closeButton: false, closeOnClick: false, offset: 12, className: 'rv-map-popup'
                 });
             }

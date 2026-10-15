@@ -90,6 +90,10 @@
                     var size = p.category === emphasised ? 18 : 13;
                     var dot = document.createElement('div');
                     dot.className = 'rv-cluster-marker';
+                    // MapLibre makes a marker with a popup focusable and opens
+                    // it on Enter; give that tab stop a name and a role.
+                    dot.setAttribute('role', 'button');
+                    dot.setAttribute('aria-label', p.label + (labelFor[p.category] ? ' (' + labelFor[p.category] + ')' : ''));
                     dot.style.width = size + 'px';
                     dot.style.height = size + 'px';
                     dot.style.backgroundColor = colorFor[p.category] || ns.COLORS[0];
@@ -103,10 +107,10 @@
                     var html = '<div class="rv-popup-content"><strong>' + title + '</strong>'
                         + (p.sublabel ? '<div class="rv-popup-sub">' + esc(p.sublabel) + '</div>' : '')
                         + '</div>';
-                    marker.setPopup(new maplibregl.Popup({
+                    marker.addTo(map);
+                    marker.setPopup(ns.mapPopup({
                         offset: 14, closeButton: false, maxWidth: '280px', className: 'rv-map-popup'
                     }).setHTML(html));
-                    marker.addTo(map);
                     markers.push(marker);
                 });
                 if (fit) fitToVisible();

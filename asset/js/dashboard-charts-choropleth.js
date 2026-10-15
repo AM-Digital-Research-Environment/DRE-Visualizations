@@ -187,7 +187,7 @@
                         var props = e.features[0].properties || {};
                         var name = countryName(props);
                         if (!activePopup) {
-                            activePopup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 8, className: 'rv-map-popup' });
+                            activePopup = ns.mapPopup({ closeButton: false, closeOnClick: false, offset: 8, className: 'rv-map-popup' });
                         }
                         activePopup.setLngLat(e.lngLat);
                         if (name === activeCountry && activePopup.isOpen()) return;

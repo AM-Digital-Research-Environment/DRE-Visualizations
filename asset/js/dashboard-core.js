@@ -1778,6 +1778,12 @@
             cooperativeGestures: true
         });
         if (!map) return null;
+        // MapLibre names every canvas region "Map"; two maps on one page would
+        // then be two landmarks with the same name. Add the chart's title.
+        var panel = el.closest && el.closest('.chart-panel');
+        var heading = panel && panel.querySelector('h3');
+        var title = heading && heading.textContent.trim();
+        if (title) map.getCanvas().setAttribute('aria-label', ns.t('mapTitle', 'Map') + ': ' + title);
         if (opts.nav !== false) map.addControl(ns.navControl(), 'top-right');
         if (opts.globe !== false && maplibregl.GlobeControl) {
             map.addControl(new maplibregl.GlobeControl(), 'top-right');
@@ -1802,6 +1808,47 @@
         ns.attachMapAttribution(map);
         return map;
     };
+
+    /**
+     * Every map popup is made here, so Escape can close it (WCAG 1.4.13: a
+     * hover popup has no close button, and a pinned one should not need the
+     * pointer). Open popups are tracked through MapLibre's own open / close
+     * events, so a popup reused across hovers or toggled by its marker is
+     * counted while it shows and dropped when it closes.
+     *
+     * Give a marker its popup AFTER marker.addTo(map): addTo() starts with
+     * remove(), which drops the Enter / Space listener setPopup() attached,
+     * and the popup then opens only on a click.
+     */
+    var openPopups = [];
+
+    ns.mapPopup = function (options) {
+        var popup = new maplibregl.Popup(options);
+        popup.on('open', function () {
+            if (openPopups.indexOf(popup) === -1) openPopups.push(popup);
+        });
+        popup.on('close', function () {
+            openPopups = openPopups.filter(function (p) { return p !== popup; });
+        });
+        return popup;
+    };
+
+    // Capture phase, so a popup closes before the fullscreen surface it sits
+    // in: the first Escape closes the popup, the next one leaves fullscreen.
+    // Focus inside a closing popup (its link or close button) returns to the
+    // map, not to the top of the page.
+    document.addEventListener('keydown', function (ev) {
+        if (ev.key !== 'Escape' || ev.defaultPrevented || !openPopups.length) return;
+        openPopups.slice().forEach(function (popup) {
+            var el = popup.getElement();
+            var mapEl = el && el.closest('.maplibregl-map');
+            var hadFocus = el && el.contains(document.activeElement);
+            popup.remove();
+            var canvas = hadFocus && mapEl && mapEl.querySelector('.maplibregl-canvas');
+            if (canvas) canvas.focus();
+        });
+        ev.preventDefault();
+    }, true);
 
     /* ------------------------------------------------------------------ */
     /*  Legend and export                                                  */

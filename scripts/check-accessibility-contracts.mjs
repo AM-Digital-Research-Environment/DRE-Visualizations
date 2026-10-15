@@ -144,6 +144,24 @@ requireFragment(
   'touch popups must reserve content space for the enlarged close control',
 );
 
+// Map popups: every one comes from ns.mapPopup (core/maps.js), which closes it
+// on Escape, and a marker gets its popup only after addTo() (MapLibre's addTo
+// drops the Enter / Space listener an earlier setPopup attached).
+requireFragment(core, 'ns.mapPopup = function', 'core/maps.js must provide ns.mapPopup');
+const mapsCore = read('asset/js/core/maps.js');
+for (const file of readdirSync(join(ROOT, 'asset/js'), { recursive: true })) {
+  const path = 'asset/js/' + String(file).replace(/\\/g, '/');
+  if (!path.endsWith('.js') || path.endsWith('.bundle.js') || path.endsWith('dashboard-core.js')) continue;
+  const source = read(path);
+  const own = source === mapsCore ? source.replace('new maplibregl.Popup(options)', '') : source;
+  if (/new (window\.)?maplibregl\.Popup\(/.test(own)) {
+    failures.push(`${path} constructs a MapLibre popup directly; use ns.mapPopup so Escape closes it`);
+  }
+  if (/\.setPopup\([^;]*?\)\s*\.addTo\(/s.test(source) || /\.setPopup\([\s\S]{0,300}?\);\s*\w+\.addTo\(/.test(source)) {
+    failures.push(`${path} sets a marker popup before addTo(); the popup would not open from the keyboard`);
+  }
+}
+
 if (failures.length) {
   console.error(`Accessibility contracts: ${failures.length} finding(s)`);
   for (const message of failures) console.error(`  ${message}`);
@@ -151,5 +169,5 @@ if (failures.length) {
 }
 
 console.log(
-  'Accessibility contracts: clean (headings, toolbars, async status, and map touch targets).',
+  'Accessibility contracts: clean (headings, toolbars, async status, map touch targets, and map popups).',
 );

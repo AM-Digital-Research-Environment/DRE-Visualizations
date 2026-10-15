@@ -284,7 +284,7 @@
             var activePopup = null;
             function showPopup(lngLat, html) {
                 if (activePopup) activePopup.remove();
-                activePopup = new maplibregl.Popup({ offset: 12, maxWidth: '320px', className: 'rv-map-popup' })
+                activePopup = ns.mapPopup({ offset: 12, maxWidth: '320px', className: 'rv-map-popup' })
                     .setLngLat(lngLat)
                     .setHTML(html)
                     .addTo(map);
@@ -531,8 +531,8 @@
         map.addControl(ns.navControl(), 'top-right');
         new maplibregl.Marker({ color: THEME.accent })
             .setLngLat([data.lon, data.lat])
-            .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML('<strong>' + esc(data.name || '') + '</strong>'))
-            .addTo(map);
+            .addTo(map)
+            .setPopup(ns.mapPopup({ offset: 12 }).setHTML('<strong>' + esc(data.name || '') + '</strong>'));
         ns.trackMap(map, create);
         return { resize: function () { map.resize(); } };
         }

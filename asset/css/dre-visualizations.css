@@ -1232,8 +1232,10 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
 
 .rv-word-slider label {
     display: inline-flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--rv-space-2);
+    max-width: 100%;
 }
 
 .rv-word-slider-caption {
@@ -1941,7 +1943,6 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
 .rv-map-legend-caption {
     margin-top: 2px;
     color: var(--rv-text-color);
-    opacity: 0.75;
 }
 
 /* Co-author network relationship key — the colour legend for the edges, mounted

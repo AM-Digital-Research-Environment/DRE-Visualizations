@@ -298,7 +298,7 @@
             var p = placeById[f.properties.id];
             if (!p) return;
             if (!hoverPopup) {
-                hoverPopup = new window.maplibregl.Popup({
+                hoverPopup = ns.mapPopup({
                     closeButton: false, closeOnClick: false, offset: 12, className: 'rv-map-popup'
                 });
             }
@@ -317,7 +317,7 @@
         function openPinned(p, lngLat, oc, cc) {
             hideHover();
             if (pinnedPopup) pinnedPopup.remove();
-            pinnedPopup = new window.maplibregl.Popup({ offset: 12, maxWidth: '300px', className: 'rv-map-popup' })
+            pinnedPopup = ns.mapPopup({ offset: 12, maxWidth: '300px', className: 'rv-map-popup' })
                 .setLngLat(lngLat)
                 .setHTML(pinnedHtml(p, oc, cc))
                 .addTo(map);

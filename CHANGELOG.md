@@ -13,6 +13,21 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.37.2] - 2026-10-15
+
+### Fixed
+
+- Map popups close with Escape: the hover popups on the maps, which had no close button, and the pinned ones. Inside a fullscreen chart, the first Escape closes the popup and the next leaves fullscreen; focus inside a closing popup goes back to the map.
+- Map markers open their popup with Enter or Space (partner institutions, affiliations, item locations). Giving a marker its popup before adding it to the map dropped MapLibre's key listener, so the popup opened only on a click.
+- The partner-institution markers on the collection overview are now buttons named after the institution and its category, not unnamed tab stops.
+- Each dashboard map is named after its chart ("Map: …"), so two maps on one page no longer share the name "Map".
+- The map legend caption ("Items per country") is no longer faded below the contrast minimum in the light theme.
+- The word cloud's "Number of words" slider wraps on narrow screens instead of running past the edge.
+
+### Changed
+
+- `npm run check:a11y` fails when a file builds a MapLibre popup directly or sets a marker's popup before adding the marker to the map.
+
 ## [2.37.1] - 2026-10-13
 
 ### Changed

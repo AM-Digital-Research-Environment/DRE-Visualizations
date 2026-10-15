@@ -50,8 +50,8 @@
                         + ns.escapeHtml(ns.t('viewLocation', 'View location')) + '</a>';
                     new maplibregl.Marker({ color: color })
                         .setLngLat([loc.lon, loc.lat])
-                        .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML(popupHtml))
-                        .addTo(map);
+                        .addTo(map)
+                        .setPopup(ns.mapPopup({ offset: 12 }).setHTML(popupHtml));
                 });
             }
 

@@ -46,8 +46,8 @@
                     }
                     new maplibregl.Marker({ color: THEME.accent })
                         .setLngLat([org.lon, org.lat])
-                        .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML(html))
-                        .addTo(map);
+                        .addTo(map)
+                        .setPopup(ns.mapPopup({ offset: 12 }).setHTML(html));
                 });
 
                 if (data.length > 1) {

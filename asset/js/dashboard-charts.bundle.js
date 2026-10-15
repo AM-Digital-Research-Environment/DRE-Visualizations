@@ -1580,7 +1580,7 @@
             var activePopup = null;
             function showPopup(lngLat, html) {
                 if (activePopup) activePopup.remove();
-                activePopup = new maplibregl.Popup({ offset: 12, maxWidth: '320px', className: 'rv-map-popup' })
+                activePopup = ns.mapPopup({ offset: 12, maxWidth: '320px', className: 'rv-map-popup' })
                     .setLngLat(lngLat)
                     .setHTML(html)
                     .addTo(map);
@@ -1827,8 +1827,8 @@
         map.addControl(ns.navControl(), 'top-right');
         new maplibregl.Marker({ color: THEME.accent })
             .setLngLat([data.lon, data.lat])
-            .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML('<strong>' + esc(data.name || '') + '</strong>'))
-            .addTo(map);
+            .addTo(map)
+            .setPopup(ns.mapPopup({ offset: 12 }).setHTML('<strong>' + esc(data.name || '') + '</strong>'));
         ns.trackMap(map, create);
         return { resize: function () { map.resize(); } };
         }
@@ -1930,6 +1930,10 @@
                     var size = p.category === emphasised ? 18 : 13;
                     var dot = document.createElement('div');
                     dot.className = 'rv-cluster-marker';
+                    // MapLibre makes a marker with a popup focusable and opens
+                    // it on Enter; give that tab stop a name and a role.
+                    dot.setAttribute('role', 'button');
+                    dot.setAttribute('aria-label', p.label + (labelFor[p.category] ? ' (' + labelFor[p.category] + ')' : ''));
                     dot.style.width = size + 'px';
                     dot.style.height = size + 'px';
                     dot.style.backgroundColor = colorFor[p.category] || ns.COLORS[0];
@@ -1943,10 +1947,10 @@
                     var html = '<div class="rv-popup-content"><strong>' + title + '</strong>'
                         + (p.sublabel ? '<div class="rv-popup-sub">' + esc(p.sublabel) + '</div>' : '')
                         + '</div>';
-                    marker.setPopup(new maplibregl.Popup({
+                    marker.addTo(map);
+                    marker.setPopup(ns.mapPopup({
                         offset: 14, closeButton: false, maxWidth: '280px', className: 'rv-map-popup'
                     }).setHTML(html));
-                    marker.addTo(map);
                     markers.push(marker);
                 });
                 if (fit) fitToVisible();
@@ -2043,8 +2047,8 @@
                     }
                     new maplibregl.Marker({ color: THEME.accent })
                         .setLngLat([org.lon, org.lat])
-                        .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML(html))
-                        .addTo(map);
+                        .addTo(map)
+                        .setPopup(ns.mapPopup({ offset: 12 }).setHTML(html));
                 });
 
                 if (data.length > 1) {
@@ -2703,7 +2707,7 @@
                         var props = e.features[0].properties || {};
                         var name = countryName(props);
                         if (!activePopup) {
-                            activePopup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 8, className: 'rv-map-popup' });
+                            activePopup = ns.mapPopup({ closeButton: false, closeOnClick: false, offset: 8, className: 'rv-map-popup' });
                         }
                         activePopup.setLngLat(e.lngLat);
                         if (name === activeCountry && activePopup.isOpen()) return;
