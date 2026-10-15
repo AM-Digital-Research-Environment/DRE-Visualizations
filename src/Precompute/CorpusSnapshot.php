@@ -29,6 +29,11 @@ final readonly class CorpusSnapshot
         public array $primaryMedia,
         public array $scope,
         public array $mediaItems = [],
+        /**
+         * Public item sets holding scoped items: set id => [title, dreId,
+         * partOf (scoped item ids)]. Read by ProjectCollections.
+         */
+        public array $itemSetRecords = [],
     ) {
         $this->validate();
     }
@@ -61,6 +66,7 @@ final readonly class CorpusSnapshot
             $data['primaryMedia'],
             $data['scope'],
             $data['mediaItems'] ?? [],
+            $data['itemSetRecords'] ?? [],
         );
     }
 
@@ -127,6 +133,16 @@ final readonly class CorpusSnapshot
             foreach ($itemIds as $itemId) {
                 if (!isset($allowed[(int) $itemId])) {
                     throw new InvalidArgumentException('Item-set membership contains an out-of-scope item.');
+                }
+            }
+        }
+        foreach ($this->itemSetRecords as $setId => $record) {
+            if (!isset($this->itemSets[$setId]) || !is_string($record['title'] ?? null)) {
+                throw new InvalidArgumentException('Item-set record names an item set with no scoped items.');
+            }
+            foreach ($record['partOf'] ?? [] as $itemId) {
+                if (!isset($allowed[(int) $itemId])) {
+                    throw new InvalidArgumentException('Item-set record links an out-of-scope item.');
                 }
             }
         }

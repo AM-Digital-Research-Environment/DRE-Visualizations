@@ -181,7 +181,7 @@ final class GoldenCorpus
             'marcrel:pht' => 'Photographer', 'marcrel:spk' => 'Speaker', 'marcrel:hst' => 'Host',
             'marcrel:pup' => 'Publication place', 'marcrel:prn' => 'Production company', 'marcrel:ctb' => 'Contributor (role)',
             'fabio:hasDateCollected' => 'Has Date Collected',
-            'dre:series' => 'Series',
+            'dre:series' => 'Series', 'dre:id' => 'DRE ID',
         ];
         $id = 0;
         foreach ($props as $term => $label) {
@@ -371,6 +371,28 @@ final class GoldenCorpus
         // Last, and drawing nothing from the seeded generator, so every record
         // above keeps the values it had before journals and series were linked.
         $this->publicationVenues();
+        // Also last and unseeded: the item sets' own values, which tie a
+        // collection to its research project (ProjectCollections).
+        $this->projectCollections();
+    }
+
+    /**
+     * Sahel Sound is linked to project 300 by dcterms:isPartOf (the sync's
+     * contract); East African Field Recordings shares project 301's dre:id (the
+     * fallback); the Afro-Brazilian Archive names no project, so it stays an
+     * ordinary item set with its own dashboard.
+     */
+    private function projectCollections(): void
+    {
+        foreach ([self::SET_SAHEL_SOUND => 'Sahel Sound Collection', self::SET_EAST_AFRICA => 'East African Field Recordings',
+            self::SET_BRAZIL => 'Afro-Brazilian Archive'] as $set => $title) {
+            $this->literal($set, 'dcterms:title', $title);
+        }
+        $this->link(self::SET_SAHEL_SOUND, 'dcterms:isPartOf', 300);
+        $this->literal(self::SET_EAST_AFRICA, 'dre:id', 'UBT_EastAfrica2019');
+        $this->literal(301, 'dre:id', 'UBT_EastAfrica2019');
+        // A private title never reaches a project dashboard.
+        $this->literal(self::SET_BRAZIL, 'dcterms:title', 'PRIVATE archive title', false);
     }
 
     /** @return array<string,int> key => organisation id */

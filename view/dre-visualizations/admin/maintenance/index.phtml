@@ -11,6 +11,7 @@
  * @var \DreVisualizations\Form\MaintenanceForm $form
  * @var array{id:int,title:string,slug:string}|null $scopeSite
  * @var array{state:string,createdAt:?string,changedAt:int} $publication
+ * @var array<int,string> $placements Site id => ResourcePagePlacement::STATE_*
  */
 
 $translate = $this->plugin('translate');
@@ -75,6 +76,38 @@ echo $this->pageTitle($translate('DRE Visualizations: maintenance'), 1);
 
 <?php $sites = $this->api()->search('sites')->getContent(); ?>
 <?php if ($sites): ?>
+<div style="margin-top:1.5rem;max-width:640px;">
+    <section style="border:1px solid #ddd;border-radius:6px;padding:1.5rem;background:#fff;">
+        <h3 style="margin-top:0;"><?= $translate('Visualisations on item pages') ?></h3>
+        <p>
+            <?= $translate('The Visualisations block shows a dashboard on the page of every item that has one: research projects, sections, people, institutions, places and subjects. A site whose item pages were never configured shows it by default. Once a site saves its Resource pages settings, only the blocks listed there appear; this module adds the Visualisations to that list when it is installed or upgraded, after the record’s own blocks.') ?>
+        </p>
+        <ul>
+            <?php foreach ($sites as $site): ?>
+                <?php
+                $placement = $placements[$site->id()] ?? 'default';
+                $placementText = match ($placement) {
+                    'present' => $translate('Item pages show the Visualisations.'),
+                    'missing' => $translate('Item pages are configured without the Visualisations.'),
+                    default => $translate('Item pages use the default blocks, which include the Visualisations.'),
+                };
+                ?>
+                <li style="margin-bottom:0.35rem;">
+                    <a href="<?= $this->escapeHtmlAttr($this->url('admin/site/slug/action', ['site-slug' => $site->slug(), 'action' => 'theme-resource-pages'])) ?>"><?= $this->escapeHtml($site->title()) ?></a>:
+                    <?= $this->escapeHtml($placementText) ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+        <p>
+            <?= $translate('Run this again after removing the block by mistake. It changes only sites you can edit, leaves every other block where it is, and does nothing where the block is already present.') ?>
+        </p>
+        <?= $this->form()->openTag($form) ?>
+            <?= $this->formCollection($form) ?>
+            <button type="submit" formaction="<?= $this->escapeHtmlAttr($this->url('admin/dre-visualizations/maintenance-place-block')) ?>"><?= $translate('Add the Visualisations block to item pages') ?></button>
+        <?= $this->form()->closeTag() ?>
+    </section>
+</div>
+
 <div style="margin-top:1.5rem;max-width:640px;">
     <section style="border:1px solid #ddd;border-radius:6px;padding:1.5rem;background:#fff;">
         <h3 style="margin-top:0;"><?= $translate('Embed visualisations') ?></h3>

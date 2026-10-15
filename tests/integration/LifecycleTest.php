@@ -46,15 +46,75 @@ try {
     };
     $services = new Laminas\ServiceManager\ServiceManager();
     $services->setService('Omeka\Settings', $settings);
+    // The slice of Omeka's schema the 2.38.0 placement of the Visualisations
+    // block reads and writes (Site\ResourcePagePlacement).
+    $connection = Doctrine\DBAL\DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
+    // Doctrine's PDOSqlite driver registers its SQL functions through the PHP
+    // 8.5-deprecated sqliteCreateFunction(); that notice is core's vendor, not ours.
+    $reporting = error_reporting(error_reporting() & ~E_DEPRECATED);
+    try {
+        $connection->connect();
+    } finally {
+        error_reporting($reporting);
+    }
+    $connection->executeStatement('CREATE TABLE site (id INTEGER PRIMARY KEY, theme TEXT, is_public INTEGER)');
+    $connection->executeStatement('CREATE TABLE site_setting (id TEXT, site_id INTEGER, value TEXT)');
+    $services->setService('Omeka\Connection', $connection);
     $module = new DreVisualizations\Module();
     if ($hook === 'upgrade') {
         $put($moduleDir . '/asset/data/geo/countries.geojson');
         $put($moduleDir . '/asset/data/item-dashboards/projects-index.json');
         $put($moduleDir . '/asset/data/generations/old/network-explorer.json');
         $put($moduleDir . '/asset/data/current.json');
+        $themeDefaults = [
+            'items' => ['left' => [], 'main' => ['mediaEmbeds', 'values', 'itemSets', 'sitePages', 'mediaList', 'linkedResources'], 'right' => []],
+            'item_sets' => ['main' => ['values']],
+            'media' => ['main' => ['mediaRender', 'values']],
+        ];
+        $withBlockOnTheRight = $themeDefaults;
+        $withBlockOnTheRight['items']['right'] = ['dreLinkedItemsDashboard'];
+        $sites = [
+            // [theme, setting id => saved value]
+            1 => ['DRE-theme', ['theme_settings_dre-theme' => ['logo' => 7, 'resource_page_blocks' => $themeDefaults]]],
+            2 => ['DRE-theme', []],
+            3 => ['DRE-theme', ['theme_settings_dre-theme' => ['resource_page_blocks' => $withBlockOnTheRight]]],
+            4 => ['DRE-theme', ['theme_settings_default' => ['resource_page_blocks' => $themeDefaults]]],
+            5 => ['default', ['theme_settings_default' => ['accent' => '#000', 'resource_page_blocks' => []]]],
+        ];
+        foreach ($sites as $id => [$theme, $saved]) {
+            $connection->insert('site', ['id' => $id, 'theme' => $theme, 'is_public' => 1]);
+            foreach ($saved as $key => $value) {
+                $connection->insert('site_setting', ['id' => $key, 'site_id' => $id, 'value' => json_encode($value)]);
+            }
+        }
+        $stored = static fn (int $site, string $key): mixed => json_decode((string) $connection->fetchOne(
+            'SELECT value FROM site_setting WHERE site_id = ? AND id = ?', [$site, $key]), true);
+        $before = $connection->fetchAllAssociative('SELECT * FROM site_setting WHERE site_id <> 1 ORDER BY site_id, id');
+
         $module->upgrade('2.28.5', '2.29.1', $services);
         $check(array_values(array_diff(scandir($moduleDir . '/asset/data'), ['.', '..'])) === ['geo'],
             'Upgrade purges old public outputs and keeps static geography');
+        $site1 = $stored(1, 'theme_settings_dre-theme');
+        $check($site1['resource_page_blocks']['items']['main'] === ['mediaEmbeds', 'values', 'itemSets', 'sitePages',
+            'mediaList', 'dreLinkedItemsDashboard', 'linkedResources'],
+            'Upgrade adds the Visualisations block to a saved item-page configuration, after the record blocks');
+        $check($site1['logo'] === 7 && $site1['resource_page_blocks']['media'] === $themeDefaults['media'],
+            'Upgrade keeps every other theme setting and resource');
+        $check($connection->fetchAllAssociative('SELECT * FROM site_setting WHERE site_id <> 1 ORDER BY site_id, id') === $before,
+            'Upgrade leaves unsaved, already-placed, inactive-theme and empty configurations alone');
+        $afterFirst = $connection->fetchAllAssociative('SELECT * FROM site_setting ORDER BY site_id, id');
+        $module->upgrade('2.37.2', '2.38.0', $services);
+        $check($connection->fetchAllAssociative('SELECT * FROM site_setting ORDER BY site_id, id') === $afterFirst,
+            'Placing the block again changes nothing');
+        // An administrator then removes it; a later upgrade does not put it back.
+        $connection->update('site_setting', ['value' => json_encode(['resource_page_blocks' => $themeDefaults])],
+            ['site_id' => 1, 'id' => 'theme_settings_dre-theme']);
+        $module->upgrade('2.38.0', '2.38.1', $services);
+        $check(!in_array('dreLinkedItemsDashboard', $stored(1, 'theme_settings_dre-theme')['resource_page_blocks']['items']['main'], true),
+            'Upgrades from 2.38.0 on respect an administrator who removed the block');
+        $check(DreVisualizations\Site\ResourcePagePlacement::repair($connection, [2, 3, 4, 5]) === []
+            && DreVisualizations\Site\ResourcePagePlacement::repair($connection, [1]) === [1],
+            'The maintenance repair touches only the sites it is given');
     } elseif ($hook === 'upgrade-compatible') {
         // A release that keeps the artifact schema keeps serving the snapshot.
         // The 'upgrade' run proves the unloaded case; here the fixture itself

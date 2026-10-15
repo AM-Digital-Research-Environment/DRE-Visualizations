@@ -12,6 +12,10 @@
    EntityDashboardGenerator, OverviewDashboardGenerator, MediaDashboardGenerator,
    CollectionGalleryGenerator, ItemSetDashboardGenerator and KnowledgeGraphGenerator
    services. Aggregators hold immutable installation context per instance.
+   ProjectCollections ties item sets to research projects (the sets' own
+   `dcterms:isPartOf`, then a shared `dre:id`, both loaded by DataLoader as
+   `itemSetRecords`): the project dashboards list them, and
+   ItemSetDashboardGenerator skips them, since their pages redirect to the project.
 5. SnapshotPublisher owns the destination-wide generation lock. A separate short
    policy lock coordinates withdrawal, protected reads and the final revision/site
    check. An additional source-write guard prevents revision capture or publication

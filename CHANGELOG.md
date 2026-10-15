@@ -13,6 +13,18 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+**Upgrading:** install this release, then **Regenerate now**. The upgrade adds the Visualisations block to the item pages of every site that saved its resource pages without it; regeneration then writes the project collections and drops the dashboards of item sets that belong to a project.
+
+### Added
+
+- The **Visualisations** block places itself on item pages. Sites that never saved their resource pages get it as a module default; installing the module and upgrading to 2.38.0 add it to every saved item-page configuration that lacks it, right after the blocks that show the record (before *Linked resources* when there are none), without removing or reordering anything. The maintenance page shows, per site, whether item pages carry the block, and **Add the Visualisations block to item pages** repeats the repair for the sites you may edit. Until now no item page on amira showed a dashboard, because its saved configuration predated the block.
+- A research project's dashboard opens with what it covers: its number of records, its collections ("Collection: *title* (*n* records)") and, when the site has a Project explorer page, a link to the project there.
+- The precompute finds each research project's collections: the item sets whose `dcterms:isPartOf` links the project item or, for a project with no such link, the item set that shares its `dre:id`. The project's dashboard and its `projects-index.json` entry carry them as `collections: [{id, title, items}]`.
+
+### Changed
+
+- Item sets that belong to a research project no longer get an item-set dashboard: their pages redirect to the project item, whose Visualisations block shows the project dashboard. Every other item set keeps its dashboard.
+
 ## [2.37.2] - 2026-10-15
 
 ### Fixed

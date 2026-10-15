@@ -16,10 +16,11 @@ final class DataLoader
      */
     public const LITERAL_TERMS = ['bibo:authorList', 'bibo:editorList', 'dcterms:isPartOf', 'dcterms:publisher',
         'dcterms:spatial', 'dcterms:extent', 'bibo:content', 'dcterms:abstract', 'bibo:abstract',
-        'dcterms:identifier', 'dcterms:description', 'bibo:doi'];
+        'dcterms:identifier', 'dcterms:description', 'bibo:doi', 'dre:id'];
     public const DATE_TERMS = ['dcterms:issued', 'dcterms:created', 'dcterms:date', 'fabio:hasDateCollected'];
     /** Literal properties read for structure rather than kept as text. */
     private const STRUCTURAL_TERMS = ['dcterms:title', 'geo:lat', 'geo:long', 'dcterms:temporal'];
+    private const ITEM_SET_TYPE = 'Omeka\Entity\ItemSet';
 
     private $checkpoint;
     public function __construct(private readonly Connection $connection, private readonly int $siteId, ?callable $checkpoint = null)
@@ -117,6 +118,7 @@ final class DataLoader
             . ' AND set_resource.is_public = 1 ORDER BY membership.item_set_id, membership.item_id') as $r) {
             $itemSets[(int) $r[1]][] = (int) $r[0];
         }
+        $itemSetRecords = $this->itemSetRecords($properties, $itemSets, $items);
         foreach ($this->query('SELECT id, label FROM resource_template ORDER BY id') as $r) $templateLabels[(int) $r[0]] = (string) $r[1];
         $primaryMedia = $mediaItems = $seen = [];
         foreach ($this->query('SELECT m.item_id, m.storage_id, m.extension, m.has_thumbnails, m.has_original, m.id, i.primary_media_id'
@@ -133,7 +135,61 @@ final class DataLoader
             'items' => $items, 'links' => $links, 'reverseLinks' => [], 'childrenOf' => [],
             'itemYear' => $selected['itemYear'], 'itemDate' => $selected['itemDate'], 'temporal' => $temporal,
             'geo' => $geo, 'itemSets' => $itemSets, 'templateLabels' => $templateLabels, 'literals' => $literals,
-            'primaryMedia' => $primaryMedia, 'mediaItems' => $mediaItems,
+            'primaryMedia' => $primaryMedia, 'mediaItems' => $mediaItems, 'itemSetRecords' => $itemSetRecords,
         ], array_keys($items)));
+    }
+
+    /**
+     * Title, dre:id and dcterms:isPartOf targets of the public item sets that
+     * hold scoped items: what ProjectCollections needs to tie a collection to
+     * its research project. One query over the item sets' own values (item
+     * sets are not in item_site, so the item query above never reads them).
+     *
+     * @param array<int,array{0:string,1:string}> $properties
+     * @param array<int,list<int>> $itemSets
+     * @param array<int,array<string,mixed>> $items
+     * @return array<int,array{title:string,dreId:?string,partOf:list<int>}>
+     */
+    private function itemSetRecords(array $properties, array $itemSets, array $items): array
+    {
+        if (!$itemSets) return [];
+        $records = $titleProperties = [];
+        foreach ($this->query('SELECT r.id, rt.title_property_id FROM resource r'
+            . ' LEFT JOIN resource_template rt ON rt.id = r.resource_template_id'
+            . ' WHERE r.resource_type = ? AND r.is_public = 1 ORDER BY r.id', [self::ITEM_SET_TYPE]) as $r) {
+            $id = (int) $r[0];
+            if (!isset($itemSets[$id])) continue;
+            $records[$id] = ['title' => 'Item set ' . $id, 'dreId' => null, 'partOf' => []];
+            $titleProperties[$id] = $r[1] ? (int) $r[1] : null;
+        }
+        if (!$records) return [];
+        $propertyIds = array_fill_keys(array_filter($titleProperties), true);
+        foreach ($properties as $propertyId => [$term]) {
+            if (in_array($term, ['dcterms:title', 'dcterms:isPartOf', 'dre:id'], true)) $propertyIds[$propertyId] = true;
+        }
+        $titled = [];
+        foreach ($this->query('SELECT v.resource_id, v.property_id, v.value_resource_id, v.value FROM value v'
+            . ' JOIN resource r ON r.id = v.resource_id AND r.resource_type = ? AND r.is_public = 1'
+            . ' WHERE v.is_public = 1 AND v.property_id IN (' . implode(',', array_map('intval', array_keys($propertyIds))) . ')'
+            . ' ORDER BY v.resource_id, v.id', [self::ITEM_SET_TYPE]) as $r) {
+            $id = (int) $r[0];
+            if (!isset($records[$id], $properties[(int) $r[1]])) continue;
+            $term = $properties[(int) $r[1]][0];
+            if ($r[2] !== null) {
+                // Only a public item of this site can be the collection's project.
+                if ($term === 'dcterms:isPartOf' && isset($items[(int) $r[2]])) $records[$id]['partOf'][] = (int) $r[2];
+                continue;
+            }
+            $value = trim((string) $r[3]);
+            if ($value === '') continue;
+            if (!isset($titled[$id]) && ($titleProperties[$id] ? (int) $r[1] === $titleProperties[$id] : $term === 'dcterms:title')) {
+                $records[$id]['title'] = $value;
+                $titled[$id] = true;
+            }
+            if ($term === 'dre:id' && $records[$id]['dreId'] === null) $records[$id]['dreId'] = $value;
+        }
+        foreach ($records as &$record) $record['partOf'] = array_values(array_unique($record['partOf']));
+        unset($record);
+        return $records;
     }
 }

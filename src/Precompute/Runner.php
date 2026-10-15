@@ -83,7 +83,9 @@ final class Runner
             ($this->checkpoint)();
             if ($this->logFn) ($this->logFn)($message);
         };
-        $count += (new ItemSetDashboardGenerator($this->artifacts, $this->itemSetDashboardsDir, $log))->generate($data);
+        $projectSetIds = ProjectCollections::setIds(ProjectCollections::resolve($data->items, $data->literals,
+            $data->itemSets, $data->itemSetRecords, $this->profile->template('projects')));
+        $count += (new ItemSetDashboardGenerator($this->artifacts, $this->itemSetDashboardsDir, $log, $projectSetIds))->generate($data);
         $count += (new KnowledgeGraphGenerator($this->artifacts, $this->knowledgeGraphsDir, $log))->generate($data);
         return ['files' => $count, 'sourceCounts' => $data->sourceCounts(), 'warnings' => []];
     }

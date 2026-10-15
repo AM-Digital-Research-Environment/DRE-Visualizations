@@ -38,12 +38,17 @@ class Module extends AbstractModule
 
     public function install(ServiceLocatorInterface $serviceLocator)
     {
-        $ids = $serviceLocator->get('Omeka\Connection')->executeQuery(
+        self::registerAutoloader();
+        $connection = $serviceLocator->get('Omeka\Connection');
+        $ids = $connection->executeQuery(
             'SELECT id FROM site WHERE is_public = 1 ORDER BY id ASC'
         )->fetchFirstColumn();
         if (count($ids) === 1) {
             $serviceLocator->get('Omeka\Settings')->set(self::SETTING_SITE_ID, (int) $ids[0]);
         }
+        // A site whose item-page blocks were saved ignores the module default
+        // (config resource_page_blocks_default): add the Visualisations there.
+        Site\ResourcePagePlacement::repair($connection);
     }
 
     public function upgrade($oldVersion, $newVersion, ServiceLocatorInterface $serviceLocator)
@@ -57,6 +62,12 @@ class Module extends AbstractModule
             // directory and bypassed the manifest; nothing may serve it now.
             Precompute\LegacyPublicOutputs::purge(__DIR__ . '/asset/data');
             SnapshotInvalidation::withdraw();
+        }
+        if (version_compare((string) $oldVersion, '2.38.0', '<')) {
+            // Project dashboards live on the project item page, so the
+            // Visualisations block must be there on every site, including those
+            // whose saved Resource pages configuration predates it.
+            Site\ResourcePagePlacement::repair($serviceLocator->get('Omeka\Connection'));
         }
     }
 

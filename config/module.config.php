@@ -59,6 +59,17 @@ return [
             'dreSimilarItems' => Site\ResourcePageBlockLayout\SimilarItems::class,
         ],
     ],
+    // Used only by sites that never saved their Resource pages configuration
+    // (core appends it to the theme's blocks); Module::install()/upgrade() and
+    // the maintenance page add it to saved configurations
+    // (Site\ResourcePagePlacement). The registered name, as the admin stores it
+    // (a literal: reading the class constant here would autoload the class
+    // while Omeka merges module configs).
+    'resource_page_blocks_default' => [
+        'items' => [
+            'main' => ['dreLinkedItemsDashboard'],
+        ],
+    ],
     'view_manager' => [
         'template_path_stack' => [
             dirname(__DIR__) . '/view',
@@ -71,6 +82,7 @@ return [
         ],
         'factories' => [
             'dreFileUrl' => View\Helper\FileUrlFactory::class,
+            'dreProjectExplorerUrl' => View\Helper\ProjectExplorerUrlFactory::class,
         ],
     ],
     'service_manager' => [
@@ -126,6 +138,16 @@ return [
                                     'defaults' => [
                                         'controller' => Controller\Admin\MaintenanceController::class,
                                         'action' => 'regenerate',
+                                    ],
+                                ],
+                            ],
+                            'maintenance-place-block' => [
+                                'type' => \Laminas\Router\Http\Literal::class,
+                                'options' => [
+                                    'route' => '/maintenance/place-block',
+                                    'defaults' => [
+                                        'controller' => Controller\Admin\MaintenanceController::class,
+                                        'action' => 'place-block',
                                     ],
                                 ],
                             ],

@@ -69,6 +69,42 @@
     ns.planDashboard = planDashboard;
     ns.builderFor = builderFor;
 
+    /**
+     * Opening lines of a research project's dashboard: what the charts draw on,
+     * the project's own collections (item sets, from the precompute's
+     * `collections`; their pages redirect to the project, so they are not
+     * linked) and, on the project item page, a link to the same project in the
+     * Project explorer (data-explorer-url, stamped only when the site has a page
+     * with that block). Every other resource type gets nothing.
+     */
+    function projectIntro(data, host) {
+        if (!data || data.resourceType !== 'project') return '';
+        var esc = ns.escapeHtml;
+        var records = function (count) { return ns.plural(count, 'projectRecord', 'record', 'records', true); };
+        var fill = ns.fill;
+        var html = '';
+        var total = Number(data.totalItems) || 0;
+        if (total) {
+            html += '<p>' + esc(fill(ns.t('projectIntro', 'These charts draw on the {records} of this research project.'),
+                { records: records(total) })) + '</p>';
+        }
+        var collections = Array.isArray(data.collections) ? data.collections : [];
+        collections.forEach(function (collection) {
+            if (!collection || !collection.title) return;
+            html += '<p class="rv-project-collection">' + esc(fill(ns.t('projectCollection', 'Collection: {title} ({records})'),
+                { title: collection.title, records: records(Number(collection.items) || 0) })) + '</p>';
+        });
+        var explorerUrl = host && host.dataset ? host.dataset.explorerUrl : '';
+        if (explorerUrl && /^(\/|https?:\/\/)/.test(explorerUrl)) {
+            html += '<p><a href="' + esc(explorerUrl) + '">'
+                + esc(ns.t('projectExplorerLink', 'Compare it with other projects in the Project explorer'))
+                + '</a></p>';
+        }
+        return html ? '<div class="rv-dashboard-intro">' + html + '</div>' : '';
+    }
+
+    ns.projectIntro = projectIntro;
+
     // Panels past the first few are built as they approach the viewport: a
     // section dashboard holds ~20 ECharts instances and several WebGL maps, and
     // building them all in one task blocks the page for hundreds of milliseconds.
@@ -100,6 +136,8 @@
         // Collection Dashboard, Publications, YouTube — keeps its cards.
         var statsHtml = (!chartOnly && ns.renderStatCards && data.stats && plan.layoutKey !== 'collectionOverview')
             ? ns.renderStatCards(data.stats) : '';
+        // A project dashboard opens with what it covers (projectIntro).
+        var introHtml = chartOnly ? '' : projectIntro(data, host);
 
         // Header title. Defaults to "Visualisations" (Publications, YouTube,
         // Collection Dashboard, item-page dashboards) unless the block template
@@ -142,6 +180,7 @@
                 + '<span class="rv-collapsible__chevron" aria-hidden="true"></span>'
                 + '</summary>'
                 + '<div class="rv-collapsible__panel">'
+                + introHtml
                 + statsHtml
                 + chartsHtml
                 + '</div>'
@@ -150,6 +189,7 @@
             // eslint-disable-next-line no-unsanitized/property -- escaped heading, labels and descriptions
             container.innerHTML = statsHtml
                 + (chartOnly ? '' : '<div class="dashboard-header">' + headInner + '</div>')
+                + introHtml
                 + chartsHtml;
         }
 
