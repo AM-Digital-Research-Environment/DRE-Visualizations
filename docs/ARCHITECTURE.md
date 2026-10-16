@@ -36,8 +36,10 @@
 
 Generated groups include dashboards, communities, graphs, galleries, featured
 collections, item contexts, the network explorer and validated semantic inputs.
-Static geography stays in asset/data/geo. Offline word-cloud and embedding inputs
-under data/ carry PHP-denied envelopes and source-revision metadata. The semantic
+Static geography stays in asset/data/geo. Offline word-cloud inputs under data/
+and semantic inputs downloaded from GitHub releases (Precompute\EmbeddingInputs,
+into the snapshot store's embedding-inputs/) carry PHP-denied envelopes and
+source-revision metadata. The semantic
 builder still uses shared multilingual vectors and UMAP; only validated derived
 inputs enter a current snapshot.
 

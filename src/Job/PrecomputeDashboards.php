@@ -7,6 +7,8 @@ use DreVisualizations\Module;
 use Omeka\Job\AbstractJob;
 use DreVisualizations\Precompute\Runner;
 use DreVisualizations\Precompute\SnapshotPublisher;
+use DreVisualizations\Precompute\EmbeddingInputs;
+use DreVisualizations\Precompute\ScopedInput;
 use DreVisualizations\Precompute\AmiraProfile;
 use Throwable;
 use DreVisualizations\Precompute\SnapshotStore;
@@ -74,7 +76,7 @@ class PrecomputeDashboards extends AbstractJob
         $revision = $store->reading(fn (): ?string => $store->readRevision());
         for ($attempt = 1; ; $attempt++) {
             try {
-                $this->publishOnce($siteId);
+                $this->publishOnce($siteId, EmbeddingInputs::CHECK_AT_MOST_EVERY);
                 return;
             } catch (SourceChanged $e) {
                 $withdrawn = $store->reading(fn (): bool => $store->readRevision() !== $revision && $store->withdrawnByHand());
@@ -167,7 +169,8 @@ class PrecomputeDashboards extends AbstractJob
         sleep(max(1, $seconds));
     }
 
-    private function publishOnce(int $siteId): void
+    /** @param int $checkEvery Seconds since the last look at GitHub before looking for semantic inputs again. */
+    private function publishOnce(int $siteId, int $checkEvery = EmbeddingInputs::CHECK_EVERY): void
     {
         $services = $this->getServiceLocator();
         $logger = $services->get('Omeka\Logger');
@@ -208,8 +211,20 @@ class PrecomputeDashboards extends AbstractJob
             : null;
         $started = time();
         // The revision is filled in by the publisher once it holds the generation lock.
-        $sourceScope = ['siteId' => $siteId, 'profile' => hash('sha256', str_replace("\r\n", "\n", (string) file_get_contents($moduleRoot . '/config/amira-profile.json'))),
-            'revision' => ''];
+        $sourceScope = ['siteId' => $siteId, 'profile' => ScopedInput::profileHash(), 'revision' => ''];
+        // The semantic-map inputs are this repository's GitHub releases: install
+        // the newest one built for the current revision. A failed look leaves
+        // the installed build, which the Runner still ignores unless it matches.
+        $embeddings = EmbeddingInputs::forStore($dataDir, EmbeddingInputs::httpFetcher($services->get('Omeka\HttpClient')));
+        $store = new SnapshotStore($dataDir);
+        $revision = $store->reading(fn (): ?string => $store->readRevision());
+        if ($revision !== null) {
+            $scope = ['revision' => $revision] + $sourceScope;
+            $result = $embeddings->refresh($scope, $checkEvery);
+            $status = $embeddings->status($scope);
+            $logger->info(sprintf('DreVisualizations: semantic inputs %s (%s)%s', $status['tag'] ?? 'none', $result,
+                $result === 'error' ? ': ' . $status['error'] : ''));
+        }
         $publisher = new SnapshotPublisher($dataDir, $siteId, $moduleVersion);
         $manifest = $publisher->publish(static function (string $generationDir, string $revision, callable $loaded) use (
             $connection,
@@ -220,7 +235,8 @@ class PrecomputeDashboards extends AbstractJob
             $corpusStats,
             $moduleRoot,
             $checkpoint,
-            $sourceScope
+            $sourceScope,
+            $embeddings
         ): array {
             $sourceScope['revision'] = $revision;
             $runner = new Runner(
@@ -240,7 +256,8 @@ class PrecomputeDashboards extends AbstractJob
                 $checkpoint,
                 $sourceScope,
                 $dataDir . '/layout-cache',
-                \Closure::fromCallable($loaded)
+                \Closure::fromCallable($loaded),
+                $embeddings->currentDirectory()
             );
             return $runner->run();
         }, static fn () => $checkpoint(true));

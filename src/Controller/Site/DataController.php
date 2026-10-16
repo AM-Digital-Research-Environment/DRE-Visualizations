@@ -3,8 +3,11 @@ declare(strict_types=1);
 namespace DreVisualizations\Controller\Site;
 
 use DreVisualizations\Module;
+use DreVisualizations\Precompute\EmbeddingInputs;
 use DreVisualizations\Precompute\PublishedSnapshot;
+use DreVisualizations\Precompute\ScopedInput;
 use DreVisualizations\Precompute\SnapshotStore;
+use DreVisualizations\Service\AutomaticRefresh;
 use Laminas\Http\Response\Stream;
 use Laminas\Mvc\Controller\AbstractActionController;
 
@@ -16,20 +19,24 @@ final class DataController extends AbstractActionController
         $response = $this->getResponse();
         $this->addHeaders($response);
         $response->setStatusCode(404)->setContent('{"error":"Snapshot unavailable"}');
-        if (!$this->getRequest()->isGet() && !$this->getRequest()->isHead()) return $response->setStatusCode(405);
+        $path = (string) $this->params()->fromRoute('path');
+        $ping = $path === 'embeddings-refresh';
+        if ($ping ? !$this->getRequest()->isPost() : !$this->getRequest()->isGet() && !$this->getRequest()->isHead()) {
+            return $response->setStatusCode(405);
+        }
         $site = $this->currentSite();
         $siteId = (int) $this->settings()->get(Module::SETTING_SITE_ID, 0);
         if (!$site || !$site->isPublic() || $site->id() !== $siteId) return $response;
         $store = SnapshotStore::tryDefault();
         if ($store === null) return $response;
-        $path = (string) $this->params()->fromRoute('path');
+        if ($ping) return $this->refreshEmbeddings($response, $store, $siteId);
 
         if ($path === 'source.json') {
             // Exclusive: the first request on a fresh store creates the revision.
             return $this->json($response, $store->locked(fn (): string => json_encode([
                 'siteId' => $siteId,
                 'revision' => $store->revision(),
-                'profile' => hash('sha256', str_replace("\r\n", "\n", (string) file_get_contents(dirname(__DIR__, 3) . '/config/amira-profile.json'))),
+                'profile' => ScopedInput::profileHash(),
             ], JSON_THROW_ON_ERROR)));
         }
 
@@ -61,6 +68,30 @@ final class DataController extends AbstractActionController
         $stream->setContentLength($resolved['size']);
         $stream->setCleanup(false);
         return $stream->setStatusCode(200);
+    }
+
+    /**
+     * POST embeddings-refresh: the embeddings workflow's ping after it publishes
+     * a build. Anyone may send it, so it only makes the site look at GitHub
+     * (at most once a minute) and install a build made for this revision; a
+     * new one queues the automatic refresh that puts it in the snapshot.
+     */
+    private function refreshEmbeddings($response, SnapshotStore $store, int $siteId)
+    {
+        $revision = $store->reading(fn (): ?string => $store->readRevision());
+        if ($revision === null) return $response;
+        $services = $this->getEvent()->getApplication()->getServiceManager();
+        $inputs = EmbeddingInputs::forStore($store->directory, EmbeddingInputs::httpFetcher($services->get('Omeka\HttpClient')));
+        $result = $inputs->refresh([
+            'siteId' => $siteId,
+            'revision' => $revision,
+            'profile' => ScopedInput::profileHash(),
+        ], EmbeddingInputs::CHECK_AT_MOST_EVERY);
+        if ($result === 'installed') {
+            $store->markChanged();
+            AutomaticRefresh::request($services);
+        }
+        return $this->json($response, json_encode(['status' => $result], JSON_THROW_ON_ERROR));
     }
 
     private function json($response, string $json)

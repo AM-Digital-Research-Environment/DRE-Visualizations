@@ -100,13 +100,27 @@ automatic refresh waits for edits to settle.
 
 Optional word-cloud and semantic builders require `OMEKA_SITE_URL` (for example,
 `https://your-host/s/your-canonical-site`). Set it as a repository Actions
-variable for the manual workflows. The installed and builder profiles must be
-identical. Rebuild offline inputs after edits, deploy their guarded files under
-`data/`, then regenerate in Omeka. Inputs without matching revision metadata
-are ignored: word clouds use the PHP fallback and semantic blocks show an
-unavailable state or stay hidden. The semantic refresh runs the open
-EmbeddingGemma 2 model on the GitHub runner and needs no API key or secret; PHP
-regeneration needs no model access.
+variable for the workflows. The installed and builder profiles must be
+identical. Inputs without matching revision metadata are ignored: word clouds
+use the PHP fallback and semantic blocks show an unavailable state or stay
+hidden.
+
+Word-cloud inputs ship under `data/wordclouds`: rebuild them after edits,
+release the module, then regenerate. Semantic inputs need no module release.
+The embeddings workflow checks the site every night and, when it changed since
+the last build (a new revision, a new snapshot or another profile), builds a
+`semantic-inputs-<n>` GitHub release and pings the site
+(`POST /s/<site>/dre-data/embeddings-refresh`). The module downloads the newest
+release built for its current revision into the snapshot store and refreshes
+in the background; every regeneration looks for one too (at most every ten
+minutes, every minute for **Regenerate now**). So after something is made
+private, the semantic map is hidden until the next night, or until someone runs
+the workflow by hand and the site is refreshed. The maintenance page shows the
+installed build, whether it fits the current data, and the last failed look at
+GitHub. The server must reach `api.github.com` and `github.com` release
+downloads. The semantic build runs the open EmbeddingGemma 2 model on the
+GitHub runner and needs no API key or secret; PHP regeneration needs no model
+access.
 
 ## Item pages
 

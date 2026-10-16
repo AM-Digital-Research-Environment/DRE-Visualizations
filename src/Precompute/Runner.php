@@ -34,6 +34,8 @@ final class Runner
         // Runs once every database read is done (SnapshotPublisher's check
         // that no Omeka write landed mid-read); nothing below queries again.
         private readonly ?\Closure $loaded = null,
+        // The installed semantic-input build; null reads the module's data/embeddings.
+        private readonly ?string $embeddingsDir = null,
     ) {
         $this->checkpoint = $checkpoint ?? static function (): void {};
         $this->logFn = $logFn;
@@ -49,6 +51,7 @@ final class Runner
             $this->outputDir, $this->communitiesDir, $this->countriesGeojson, $this->knowledgeGraphsDir,
             $this->galleriesDir, $this->featuredDir, $this->itemSetDashboardsDir, $this->wordcloudsDir,
             $this->layoutCacheDir ?? dirname($this->outputDir, 3) . '/layout-cache',
+            $this->embeddingsDir,
         );
         foreach (['map', 'similar', 'report'] as $name) {
             $input = ScopedInput::read($paths->embeddingsInputDir() . '/' . $name . '.php', $this->sourceScope);

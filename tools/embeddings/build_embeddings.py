@@ -5,8 +5,9 @@ The source is the unauthenticated public Omeka API. Six profile-declared
 corpora are converted to comparable, length-bounded archival cards, embedded
 locally with the open-weights EmbeddingGemma 2 text encoder, then projected
 with UMAP. Full vectors stay
-in a gitignored incremental cache and release bundle; only compact derived JSON
-is committed under ``asset/data/embeddings``.
+in a gitignored incremental cache and release bundle; the compact derived
+inputs are written to ``data/embeddings`` (gitignored) and published by the
+workflow as a ``semantic-inputs-*`` release, which the module downloads.
 """
 
 from __future__ import annotations
