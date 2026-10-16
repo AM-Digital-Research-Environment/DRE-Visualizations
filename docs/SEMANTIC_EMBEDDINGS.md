@@ -65,7 +65,7 @@ count, or checksum does not match its configured index.
 
 ## Published artifacts
 
-Compact inputs are committed beneath `data/embeddings/` as PHP-denied `.php` envelopes (the JSON schemas below remain the same). Set `OMEKA_SITE_URL` to the canonical site; builders check its site, profile hash and source revision before/after harvesting. Only a matching input is copied into the protected runtime snapshot during regeneration. The revision changes only when publication is withdrawn (a privatising write, a manual withdrawal, a canonical-site change), so ordinary edits keep a build valid; records deleted since the build stay in it until the next one. Existing unscoped inputs require a new build. Browser clients use `RV.fetchDataJson`.
+Compact inputs are PHP-denied `.php` envelopes (the JSON schemas below remain the same), published as the assets of a `semantic-inputs-<n>` GitHub Release together with `source-state.json`, the site state the build was made from. They are not committed and do not ship in the module zip. Set `OMEKA_SITE_URL` to the canonical site; builders check its site, profile hash and source revision before/after harvesting. The module (`src/Precompute/EmbeddingInputs.php`) downloads the newest release into its private snapshot store when all three files match its site, profile and revision, and only a matching input is copied into the protected runtime snapshot during regeneration. The revision changes only when publication is withdrawn (a privatising write, a manual withdrawal, a canonical-site change), so ordinary edits keep a build valid; records deleted since the build stay in it until the next one. Browser clients use `RV.fetchDataJson`.
 
 Input payloads:
 
@@ -94,15 +94,30 @@ backup. Deleting it is safe but causes a full re-embed.
 
 ## Refresh procedure
 
-Run **Actions → Build semantic embeddings → Run workflow**. Choose `missing`
-for the normal incremental refresh or `all` to force every card through the
-model. The model runs on the GitHub runner: no API key or secret is needed, and
-the Omeka server only reads the compact outputs during regeneration. The
-workflow caches the pinned model download, runs the contract suite, fetches
-only public records, optionally publishes a new vector release, and pushes the
-changed compact artifacts to an `automation/embeddings-<run>` branch. The
-organisation does not let GitHub Actions open pull requests, so open it from
-the link in the job summary. Review `report.json` before merging, especially:
+The workflow runs every night at 01:23 UTC. Its first job reads the site's
+public `source.json` and `current.json` and compares them with the
+`source-state.json` of the newest `semantic-inputs-*` release; it builds only
+when the revision, the published snapshot or the profile changed. While the
+site runs another profile than `main` (a profile change not yet deployed) it
+waits. GitHub disables scheduled workflows in a repository with no activity
+for 60 days; re-enable it under Actions if that happens.
+
+To build at once, run **Actions → Build semantic embeddings → Run workflow**.
+Choose `missing` for the normal incremental refresh or `all` to force every
+card through the model. The model runs on the GitHub runner: no API key or
+secret is needed. The workflow caches the pinned model download, runs the
+contract suite, fetches only public records, publishes a new vector release
+(optional for a manual run), publishes the `semantic-inputs-<n>` release
+(keeping the ten newest), and pings `POST <site>/dre-data/embeddings-refresh`.
+The site then looks at GitHub (at most once a minute, whoever asks), installs
+the build if it matches the current revision, and refreshes its snapshot once
+edits have been quiet for five minutes. A missed ping costs nothing: every
+regeneration looks for a new build as well.
+
+The incremental cache expires after seven days without a build, after which the
+next build re-embeds every card (about 45 minutes instead of five).
+
+Review `report.php` in a release, especially after a profile change:
 
 - unexpected corpus-count drops;
 - non-public skip counts;

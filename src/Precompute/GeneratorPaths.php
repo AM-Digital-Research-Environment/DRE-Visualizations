@@ -6,8 +6,9 @@ namespace DreVisualizations\Precompute;
 /**
  * Where one generation's artifacts go and where its static inputs come from.
  * The output directories live inside the publisher's staging directory; the
- * inputs (country outlines, word-cloud and embedding inputs) ship with the
- * module; the layout cache persists between generations in the private store.
+ * country outlines and word-cloud inputs ship with the module, the embedding
+ * inputs are downloaded into the private store (EmbeddingInputs), and the
+ * layout cache persists between generations in that store too.
  */
 final readonly class GeneratorPaths
 {
@@ -21,6 +22,9 @@ final readonly class GeneratorPaths
         public string $itemSetDashboardsDir,
         public string $wordcloudsDir,
         public ?string $layoutCacheDir = null,
+        // The installed semantic-input build (EmbeddingInputs); null reads the
+        // module's own data/embeddings, as the golden tests do.
+        public ?string $embeddingsDir = null,
     ) {}
 
     /** The generation root: every output directory is one level below it. */
@@ -29,9 +33,9 @@ final readonly class GeneratorPaths
         return dirname($this->outputDir);
     }
 
-    /** Scoped semantic-map inputs, committed next to the word-cloud inputs. */
+    /** Scoped semantic-map inputs: the downloaded build, else the module's data/embeddings. */
     public function embeddingsInputDir(): string
     {
-        return dirname($this->wordcloudsDir) . '/embeddings';
+        return $this->embeddingsDir ?? dirname($this->wordcloudsDir) . '/embeddings';
     }
 }

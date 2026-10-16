@@ -7,6 +7,8 @@ use Doctrine\DBAL\Connection;
 use DreVisualizations\Form\MaintenanceForm;
 use DreVisualizations\Job\PrecomputeDashboards;
 use DreVisualizations\Listener\SnapshotInvalidation;
+use DreVisualizations\Precompute\EmbeddingInputs;
+use DreVisualizations\Precompute\ScopedInput;
 use DreVisualizations\Precompute\SnapshotStore;
 use DreVisualizations\Service\CanonicalSite;
 use DreVisualizations\Site\ResourcePagePlacement;
@@ -46,12 +48,29 @@ class MaintenanceController extends AbstractActionController
 
     public function indexAction(): ViewModel
     {
+        $scopeSite = $this->canonicalSite->publicSite();
+        $store = SnapshotStore::tryDefault();
         return new ViewModel([
             'form' => $this->getForm(MaintenanceForm::class),
-            'scopeSite' => $this->canonicalSite->publicSite(),
-            'publication' => self::publicationStatus(SnapshotStore::tryDefault()),
+            'scopeSite' => $scopeSite,
+            'publication' => self::publicationStatus($store),
+            'embeddings' => self::embeddingStatus($store, $scopeSite === null ? 0 : (int) $scopeSite['id']),
             'placements' => ResourcePagePlacement::states($this->connection),
         ]);
+    }
+
+    /**
+     * The installed semantic-map build and whether it was made for the current
+     * revision; null before anything was published.
+     *
+     * @return array{tag:?string,matches:bool,checkedAt:int,error:?string}|null
+     */
+    public static function embeddingStatus(?SnapshotStore $store, int $siteId): ?array
+    {
+        $revision = $store?->reading(fn (): ?string => $store->readRevision());
+        if ($store === null || $revision === null || $siteId < 1) return null;
+        return EmbeddingInputs::forStore($store->directory, static fn (): ?string => null)
+            ->status(['siteId' => $siteId, 'revision' => $revision, 'profile' => ScopedInput::profileHash()]);
     }
 
     /**

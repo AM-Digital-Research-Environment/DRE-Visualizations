@@ -1,13 +1,22 @@
 name: Build semantic embeddings
 
-# Manual because a full re-embed is a long CPU precompute. The open-weights
-# EmbeddingGemma 2 model runs on the runner itself: no API key, no secret, and
-# nothing heavy on the Omeka server, which only reads the compact outputs.
-# Ordinary pull-request CI tests every pure contract without the model; this
-# workflow fetches only the unauthenticated public Omeka API, incrementally
-# refreshes vectors, opens a bot PR for the compact artifacts, and publishes
-# full vectors as a versioned GitHub Release rather than committing them.
+# The open-weights EmbeddingGemma 2 model runs on the runner itself: no API
+# key, no secret, and nothing heavy on the Omeka server. This workflow fetches
+# only the unauthenticated public Omeka API, refreshes vectors incrementally,
+# and publishes two kinds of GitHub Release:
+#
+# - `semantic-inputs-<n>`: the compact map/similar/report inputs. The module
+#   downloads the newest one built for the site's current revision before it
+#   regenerates (src/Precompute/EmbeddingInputs.php), so a new build reaches the
+#   site without a module release. The site is pinged once the release exists.
+# - `semantic-embeddings-v1-<n>`: the full vectors, for downstream indexes.
+#
+# Every night it builds only when the site changed since the last
+# semantic-inputs release (tools/embeddings/source_state.py). Ordinary
+# pull-request CI tests every pure contract without the model.
 on:
+  schedule:
+    - cron: '23 1 * * *'
   workflow_dispatch:
     inputs:
       scope:
@@ -26,10 +35,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
-  # A PR opened with GITHUB_TOKEN triggers no pull_request workflows, so CI is
-  # dispatched on the bot branch explicitly (gh workflow run, below).
-  actions: write
 
 concurrency:
   group: semantic-embeddings
@@ -43,7 +48,37 @@ env:
   HF_HUB_DISABLE_TELEMETRY: '1'
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      build: ${{ steps.decide.outputs.build }}
+    steps:
+      # actions/checkout v7.0.1, verified upstream 2026-07-31.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      # A manual run always builds; a scheduled one only when the site changed
+      # since the newest semantic-inputs release.
+      - name: Compare the site with the last build
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" != schedule ]; then
+            echo "build=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          tag=$(gh release list --limit 100 --json tagName,createdAt \
+            -q '[.[] | select(.tagName | startswith("semantic-inputs-"))] | sort_by(.createdAt) | last | .tagName // ""')
+          if [ -n "$tag" ]; then
+            gh release download "$tag" --pattern source-state.json --dir "$RUNNER_TEMP/previous" || true
+          fi
+          python tools/embeddings/source_state.py "$RUNNER_TEMP/state.json" \
+            --previous "$RUNNER_TEMP/previous/source-state.json" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: check
+    if: needs.check.outputs.build == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 240  # a full CPU re-embed (scope: all) is the long case
     steps:
@@ -84,8 +119,13 @@ jobs:
           python tools/embeddings/build_embeddings.py --validate-profile
           python -m unittest discover -s tools/embeddings/tests -v
 
+      # Recorded before harvesting: an edit during the build is then seen as a
+      # change by the next night's check, never lost.
+      - name: Record the site's state
+        run: python tools/embeddings/source_state.py "$RUNNER_TEMP/source-state.json"
+
       - name: Build public semantic artifacts
-        run: python tools/embeddings/build_embeddings.py --scope "${{ inputs.scope }}"
+        run: python tools/embeddings/build_embeddings.py --scope "${{ inputs.scope || 'missing' }}"
 
       - name: Validate generated artifact set
         run: python tools/embeddings/build_embeddings.py --validate-artifacts
@@ -100,7 +140,7 @@ jobs:
           key: embeddings-v2-${{ runner.os }}-${{ github.run_id }}
 
       - name: Publish versioned full-vector release
-        if: ${{ inputs.publish_vectors }}
+        if: ${{ github.event_name == 'schedule' || inputs.publish_vectors }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -114,29 +154,32 @@ jobs:
             --notes "Public AMIRA vectors. Read manifest.json before indexing; embedding spaces are model-specific." \
             --latest=false
 
-      - name: Open bot PR for derived map and recommendations
+      # Never the Latest release: the server's deploy pins that one as the module.
+      - name: Publish the map inputs the module downloads
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/embeddings/map.php data/embeddings/similar.php data/embeddings/report.php
-          if git diff --staged --quiet; then
-            echo "No semantic artifact changes."
+          tag="semantic-inputs-${GITHUB_RUN_NUMBER}"
+          gh release create "$tag" \
+            data/embeddings/map.php \
+            data/embeddings/similar.php \
+            data/embeddings/report.php \
+            "$RUNNER_TEMP/source-state.json" \
+            --target "$GITHUB_SHA" \
+            --title "AMIRA semantic map inputs · build ${GITHUB_RUN_NUMBER}" \
+            --notes "Scoped semantic-map inputs for the DRE Visualizations module, which downloads the newest build made for its current publication revision." \
+            --latest=false
+          # Keep the ten newest; the module only ever reads the newest.
+          gh release list --limit 200 --json tagName,createdAt \
+            -q '[.[] | select(.tagName | startswith("semantic-inputs-"))] | sort_by(.createdAt) | reverse | .[10:] | .[].tagName' |
+            while read -r old; do gh release delete "$old" --cleanup-tag --yes; done
+
+      # The site installs the build and refreshes its snapshot in the background.
+      # Not fatal: the next regeneration downloads it anyway.
+      - name: Tell the site a new build is out
+        run: |
+          if ! answer=$(curl -fsS -X POST "${OMEKA_SITE_URL%/}/dre-data/embeddings-refresh"); then
+            echo "::warning::The site did not take the ping; its next regeneration downloads the build."
           else
-            branch="automation/embeddings-${GITHUB_RUN_ID}"
-            git switch -c "$branch"
-            git commit -m "Semantic embeddings: refresh public derived artifacts"
-            git push --set-upstream origin "$branch"
-            # The organisation does not let GitHub Actions open pull requests,
-            # so a refused PR is not a failure: the branch is pushed, and a
-            # maintainer opens the PR from the link in the job summary.
-            compare="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/main...${branch}?expand=1"
-            if ! gh pr create --base main --head "$branch" \
-              --title "Semantic embeddings: refresh public artifacts" \
-              --body "Automated public-only semantic-map and recommendation refresh from workflow run ${GITHUB_RUN_ID}."; then
-              echo "::warning::Pushed $branch but could not open its pull request; open it from $compare"
-              echo "Open the pull request for \`$branch\`: $compare" >> "$GITHUB_STEP_SUMMARY"
-            fi
-            gh workflow run ci.yml --ref "$branch"
+            echo "Site answered: $answer"
           fi

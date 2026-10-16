@@ -36,10 +36,20 @@ The semantic builder is a separate public-only pipeline: it calls the
 unauthenticated Omeka API and rejects every record whose `o:is_public` value is
 not exactly `true`. It also sends explicit `site_id` and `is_public` filters.
 Set `OMEKA_SITE_URL` to the canonical site. Builders check its revision before
-and after harvesting, and store site/revision/profile metadata. Committed inputs
-are PHP-denied envelopes under `data/`, read as text, never included by PHP.
-Only inputs matching the source revision enter a new snapshot. PHP handling must
-be configured for the module directory, as for Omeka itself.
+and after harvesting, and store site/revision/profile metadata. Word-cloud
+inputs are committed as PHP-denied envelopes under `data/`; semantic inputs are
+the same envelopes, published as `semantic-inputs-*` GitHub releases of this
+public repository. Both are read as text, never included by PHP. Only inputs
+matching the source revision enter a new snapshot. PHP handling must be
+configured for the module directory, as for Omeka itself.
+
+The module downloads semantic inputs over Omeka's HTTP client from
+`api.github.com` and this repository's release downloads only; asset URLs from
+anywhere else are refused, and a download is installed only when it carries the
+current site, revision and profile. `POST <site>/dre-data/embeddings-refresh`
+is public and unauthenticated: it can only make the site look at GitHub, at
+most once a minute, so a stranger can neither choose what is installed nor
+force a regeneration.
 
 Downloaded pages, files and public vector releases cannot be recalled. Purge
 cached old `asset/data/` URLs during the 2.29 upgrade. Preserve no-store on the

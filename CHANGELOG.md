@@ -13,6 +13,20 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.39.0] - 2026-10-16
+
+**Upgrading:** the server must reach `api.github.com` and GitHub release downloads. Install this release, then **Regenerate now**, and check the new *Semantic map* line on the maintenance page.
+
+### Changed
+
+- The semantic map, the "by similarity" panels and the similar items no longer ship in the module. The embeddings workflow publishes each build as a `semantic-inputs-<n>` GitHub release, and the module downloads the newest one made for its current revision before each regeneration. A new build reaches the site without a pull request, a module release or a deploy.
+- The embeddings workflow runs every night and builds only when the site changed since the last build: a new revision (a record made private, publication withdrawn), a new published snapshot, or another profile. After a build it pings the site (`POST /s/<site>/dre-data/embeddings-refresh`), which installs the build and refreshes in the background. Until now a record made private hid the semantic map until someone rebuilt the inputs, merged them and released the module.
+- The workflow no longer pushes an `automation/embeddings-*` branch, and `data/embeddings/` is no longer committed.
+
+### Added
+
+- The maintenance page says which semantic build is installed, whether it fits the current data, and when a look at GitHub last failed.
+
 ## [2.38.2] - 2026-10-16
 
 **Upgrading:** install this release, then **Regenerate now**.
