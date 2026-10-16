@@ -13,6 +13,14 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.38.2] - 2026-10-16
+
+**Upgrading:** install this release, then **Regenerate now**.
+
+### Fixed
+
+- The semantic map, the "by similarity" panels and the similar items were missing ("This map is not available yet"). An edit had made a record private, which changes the publication revision, and the semantic inputs shipped with 2.38.1 were built for the previous one, so regeneration rightly ignored them. This release carries a build made for the current revision (4,644 public records).
+
 ## [2.38.1] - 2026-10-15
 
 ### Fixed
