@@ -2,11 +2,11 @@
 {
   "scope": {
     "siteId": 1,
-    "revision": "c25ace69c821d1a09fa7e4cd798b3c32",
+    "revision": "b529088b4690196231468fd75e0e73c7",
     "profile": "7c4045eddba07aadec418a8ed1711a04e953715bb852e33bb105a2cc7b05aafe"
   },
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T10:17:40Z",
+  "generatedAt": "2026-10-16T11:51:05Z",
   "source": "https://data.africamultiple.uni-bayreuth.de",
   "model": "google/embeddinggemma-2",
   "dimensions": 768,
@@ -38,19 +38,19 @@
       "truncated": 0
     },
     "publications": {
-      "fetched": 555,
-      "public": 555,
+      "fetched": 563,
+      "public": 563,
       "nonPublicSkipped": 0,
-      "cards": 555,
-      "lowSignal": 138,
+      "cards": 563,
+      "lowSignal": 141,
       "truncated": 7
     },
     "projects": {
-      "fetched": 93,
-      "public": 93,
+      "fetched": 92,
+      "public": 92,
       "nonPublicSkipped": 0,
-      "cards": 93,
-      "lowSignal": 18,
+      "cards": 92,
+      "lowSignal": 17,
       "truncated": 0
     },
     "sections": {
@@ -71,27 +71,27 @@
     }
   },
   "totals": {
-    "cards": 4637,
-    "lowSignal": 1425,
-    "recommendable": 3212,
+    "cards": 4644,
+    "lowSignal": 1427,
+    "recommendable": 3217,
     "truncated": 11,
     "maximumInputWords": 900
   },
   "cache": {
-    "embedded": 0,
-    "reused": 4637,
+    "embedded": 108,
+    "reused": 4536,
     "sharedWithIdenticalCard": 0,
-    "staleRemoved": 0
+    "staleRemoved": 1
   },
   "artifactBytes": {
-    "map": 876632,
-    "similar": 1828148
+    "map": 878449,
+    "similar": 1831382
   },
   "recommendations": {
-    "sources": 3212,
-    "sourcesWithCrossTypeNeighbour": 587,
-    "sourcesWithCrossLanguageNeighbour": 585,
-    "meanSimilarity": 0.928564,
+    "sources": 3217,
+    "sourcesWithCrossTypeNeighbour": 592,
+    "sourcesWithCrossLanguageNeighbour": 588,
+    "meanSimilarity": 0.928464,
     "crossLanguageExamples": [
       {
         "source": 7717,
@@ -237,20 +237,20 @@
     "dimensions": 768,
     "dtype": "float32-le",
     "normalization": "l2",
-    "count": 4637,
+    "count": 4644,
     "modelRevision": "914f7f89142e33e77833254d9c9b90c3cef7303b",
     "inferenceDtype": "float32",
     "taskPrefix": "task: sentence similarity | query: ",
     "rowOrder": "ids.json",
     "vectors": "vectors.f32",
-    "vectorsSha256": "2e9b4fd788745380e79ad7bfbb71fd84e98a2a757aadf16f0b43407bcf2e0ced",
-    "generatedAt": "2026-10-13T10:17:40Z",
+    "vectorsSha256": "bb9d1052924c103b56f2f25d9473fa28835a3f948911399bb5b9009039b8cd30",
+    "generatedAt": "2026-10-16T11:51:05Z",
     "source": "https://data.africamultiple.uni-bayreuth.de",
     "scope": {
       "siteId": 1,
-      "revision": "c25ace69c821d1a09fa7e4cd798b3c32",
+      "revision": "b529088b4690196231468fd75e0e73c7",
       "profile": "7c4045eddba07aadec418a8ed1711a04e953715bb852e33bb105a2cc7b05aafe"
     },
-    "sourceCommit": "32361ee110a2fc62527448cfad3854708955df84"
+    "sourceCommit": "67049e6d3640c537a2befbb220a9e8e58594dcc8"
   }
 }
