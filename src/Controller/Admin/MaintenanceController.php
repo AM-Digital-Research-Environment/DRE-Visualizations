@@ -63,7 +63,7 @@ class MaintenanceController extends AbstractActionController
      * The installed semantic-map build and whether it was made for the current
      * revision; null before anything was published.
      *
-     * @return array{tag:?string,matches:bool,checkedAt:int,error:?string}|null
+     * @return array{tag:?string,matches:bool,installedAt:int,checkedAt:int,error:?string}|null
      */
     public static function embeddingStatus(?SnapshotStore $store, int $siteId): ?array
     {

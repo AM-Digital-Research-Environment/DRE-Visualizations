@@ -14,6 +14,7 @@ use Laminas\ServiceManager\ServiceLocatorInterface;
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Module\AbstractModule;
 use Omeka\Permissions\Acl;
+use Omeka\Stdlib\Message;
 
 /**
  * Module wiring only: lifecycle hooks, configuration, ACL and listeners. The
@@ -26,8 +27,10 @@ class Module extends AbstractModule
     public const SETTING_BASEMAP_DARK = 'dre_visualizations_basemap_dark';
     public const SETTING_MAP_GLYPHS = 'dre_visualizations_map_glyphs';
     public const SETTING_BASEMAP_ATTRIBUTION = 'dre_visualizations_basemap_attribution';
+    /** Lets the configuration page start the embeddings workflow; never rendered back. */
+    public const SETTING_GITHUB_TOKEN = 'dre_visualizations_github_token';
     public const SETTINGS = [self::SETTING_SITE_ID, self::SETTING_BASEMAP_LIGHT, self::SETTING_BASEMAP_DARK,
-        self::SETTING_MAP_GLYPHS, self::SETTING_BASEMAP_ATTRIBUTION];
+        self::SETTING_MAP_GLYPHS, self::SETTING_BASEMAP_ATTRIBUTION, self::SETTING_GITHUB_TOKEN];
 
     private ?SnapshotInvalidation $invalidation = null;
 
@@ -115,11 +118,29 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings');
         $values = [];
-        foreach (self::SETTINGS as $key) {
+        foreach (array_diff(self::SETTINGS, [self::SETTING_GITHUB_TOKEN]) as $key) {
             $values[$key] = (string) $settings->get($key, '');
         }
-        $form = new ConfigForm($services->get(CanonicalSite::class)->publicSiteOptions(), $values);
-        return $renderer->render('dre-visualizations/config-form', ['form' => $form]);
+        $workflow = $this->embeddingWorkflow();
+        $form = new ConfigForm($services->get(CanonicalSite::class)->publicSiteOptions(), $values, $workflow->hasToken());
+        $site = $services->get(CanonicalSite::class)->publicSite();
+        return $renderer->render('dre-visualizations/config-form', [
+            'form' => $form,
+            'hasToken' => $workflow->hasToken(),
+            'latest' => $workflow->latestRun(),
+            'embeddings' => Controller\Admin\MaintenanceController::embeddingStatus(
+                Precompute\SnapshotStore::tryDefault(), $site === null ? 0 : (int) $site['id']
+            ),
+        ]);
+    }
+
+    private function embeddingWorkflow(): Precompute\EmbeddingWorkflow
+    {
+        $services = $this->getServiceLocator();
+        return new Precompute\EmbeddingWorkflow(
+            Precompute\EmbeddingWorkflow::httpSender($services->get('Omeka\HttpClient')),
+            (string) $services->get('Omeka\Settings')->get(self::SETTING_GITHUB_TOKEN, '')
+        );
     }
 
     public function handleConfigForm(AbstractController $controller)
@@ -143,6 +164,27 @@ class Module extends AbstractModule
         $settings->set(self::SETTING_SITE_ID, $values->siteId);
         foreach ($values->settings as $key => $value) {
             $settings->set($key, $value);
+        }
+        if ($values->githubToken === '') {
+            $settings->delete(self::SETTING_GITHUB_TOKEN);
+        } elseif ($values->githubToken !== null) {
+            $settings->set(self::SETTING_GITHUB_TOKEN, $values->githubToken);
+        }
+
+        if ($values->rebuild) {
+            $error = $this->embeddingWorkflow()->dispatch();
+            if ($error === null) {
+                $message = new Message(
+                    'GitHub is rebuilding the semantic embeddings. It takes about five minutes; the site then downloads the build and refreshes the semantic map by itself. %1$sFollow the build on GitHub%2$s.', // @translate
+                    sprintf('<a href="%s" target="_blank" rel="noopener">', htmlspecialchars(Precompute\EmbeddingWorkflow::PAGE, ENT_QUOTES, 'UTF-8')),
+                    '</a>'
+                );
+                $message->setEscapeHtml(false);
+                $controller->messenger()->addSuccess($message);
+            } else {
+                // The settings are saved; only the build did not start.
+                $controller->messenger()->addError(new Message('The semantic embeddings were not rebuilt: %s', $error)); // @translate
+            }
         }
         return true;
     }

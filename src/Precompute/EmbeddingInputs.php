@@ -89,7 +89,7 @@ final class EmbeddingInputs
      * What the maintenance page reports: the installed build, whether it was
      * made for $scope, and the last look at GitHub.
      *
-     * @return array{tag:?string,matches:bool,checkedAt:int,error:?string}
+     * @return array{tag:?string,matches:bool,installedAt:int,checkedAt:int,error:?string}
      */
     public function status(array $scope): array
     {
@@ -98,6 +98,7 @@ final class EmbeddingInputs
         return [
             'tag' => $dir === null ? null : basename($dir),
             'matches' => $dir !== null && ScopedInput::read($dir . '/report.php', $scope) !== null,
+            'installedAt' => $dir === null ? 0 : (int) ($state['installedAt'] ?? 0),
             'checkedAt' => (int) ($state['checkedAt'] ?? 0),
             'error' => is_string($state['error'] ?? null) ? $state['error'] : null,
         ];

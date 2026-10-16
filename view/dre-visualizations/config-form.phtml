@@ -1,4 +1,92 @@
 <?php
-/** @var \Laminas\Form\Form $form */
+/**
+ * Module configuration: the settings form, then the semantic embeddings panel.
+ * Omeka wraps this in its own CSRF-protected form, so the rebuild button is a
+ * second submit button: it saves the settings like Submit, then starts the
+ * embeddings workflow on GitHub (Module::handleConfigForm).
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Laminas\Form\Form $form
+ * @var bool $hasToken
+ * @var array{run:?array{status:string,conclusion:?string,event:string,createdAt:string,url:string},error:?string} $latest
+ * @var array{tag:?string,matches:bool,installedAt:int,checkedAt:int,error:?string}|null $embeddings
+ */
+
+use DreVisualizations\Form\ConfigValues;
+use DreVisualizations\Precompute\EmbeddingWorkflow;
+
+$translate = $this->plugin('translate');
+$when = fn (int $timestamp): string => $this->i18n()->dateFormat((new DateTime())->setTimestamp($timestamp), 'medium', 'short');
+
 $form->prepare();
 echo $this->formCollection($form);
+
+$run = $latest['run'];
+$runText = null;
+if ($run !== null) {
+    $started = $when((int) strtotime($run['createdAt']));
+    $how = match ($run['event']) {
+        'schedule' => $translate('nightly check'),
+        'workflow_dispatch' => $translate('started by hand'),
+        default => $run['event'],
+    };
+    $runText = match (true) {
+        $run['status'] !== 'completed' => sprintf($translate('Running since %1$s (%2$s).'), $started, $how),
+        $run['conclusion'] === 'success' => sprintf($translate('Succeeded, started %1$s (%2$s).'), $started, $how),
+        default => sprintf($translate('Did not succeed (%1$s), started %2$s (%3$s).'), (string) $run['conclusion'], $started, $how),
+    };
+}
+?>
+<fieldset id="dre-visualizations-embeddings">
+    <legend><?= $translate('Semantic embeddings') ?></legend>
+    <p>
+        <?= $translate('The semantic map and the similar items are built on GitHub, not on this server. GitHub looks every night at 01:23 UTC and rebuilds when the data changed. Edits made today reach the semantic map after that build, or after you rebuild now. A build takes about five minutes; the site then downloads it and refreshes the map by itself.') ?>
+    </p>
+    <ul>
+        <li>
+            <strong><?= $translate('Connection to GitHub:') ?></strong>
+            <?php if ($latest['error'] !== null): ?>
+                <?= $this->escapeHtml(sprintf($translate('Not working. %s'), $latest['error'])) ?>
+            <?php elseif ($hasToken): ?>
+                <?= $translate('Working. GitHub recognises the saved token.') ?>
+            <?php else: ?>
+                <?= $translate('Working (read only: no token is saved).') ?>
+            <?php endif; ?>
+        </li>
+        <?php if ($runText !== null): ?>
+            <li>
+                <strong><?= $translate('Last build on GitHub:') ?></strong>
+                <?= $this->escapeHtml($runText) ?>
+                <a href="<?= $this->escapeHtmlAttr($run['url']) ?>" target="_blank" rel="noopener"><?= $translate('Open it on GitHub') ?></a>
+            </li>
+        <?php endif; ?>
+        <?php if ($embeddings !== null): ?>
+            <li>
+                <strong><?= $translate('On this site:') ?></strong>
+                <?php if ($embeddings['tag'] === null): ?>
+                    <?= $translate('No build downloaded yet.') ?>
+                <?php else: ?>
+                    <?= $this->escapeHtml(sprintf(
+                        $embeddings['matches']
+                            ? $translate('%1$s, downloaded %2$s, made for the current data.')
+                            : $translate('%1$s, downloaded %2$s. It was made before a record became private or publication was withdrawn, so the semantic map stays hidden until the next build.'),
+                        $embeddings['tag'],
+                        $embeddings['installedAt'] ? $when($embeddings['installedAt']) : '—'
+                    )) ?>
+                <?php endif; ?>
+                <?php if ($embeddings['error'] !== null): ?>
+                    <br><?= $this->escapeHtml(sprintf($translate('The site’s last download attempt (%1$s) failed: %2$s'), $when($embeddings['checkedAt']), $embeddings['error'])) ?>
+                <?php endif; ?>
+            </li>
+        <?php endif; ?>
+    </ul>
+    <button type="submit" name="<?= ConfigValues::REBUILD ?>" value="1">
+        <?= $translate('Save and rebuild the semantic embeddings') ?>
+    </button>
+    <?php if (!$hasToken): ?>
+        <p>
+            <?= $translate('This button needs a GitHub token: paste one above, then click it. Without a token, start a build on GitHub:') ?>
+            <a href="<?= $this->escapeHtmlAttr(EmbeddingWorkflow::PAGE) ?>" target="_blank" rel="noopener"><?= $translate('Build semantic embeddings → Run workflow') ?></a>.
+        </p>
+    <?php endif; ?>
+</fieldset>

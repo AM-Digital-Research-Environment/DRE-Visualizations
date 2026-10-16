@@ -13,6 +13,15 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.40.0] - 2026-10-16
+
+**Upgrading:** to use the new button, create a fine-grained GitHub token for the `AM-Digital-Research-Environment/DRE-Visualizations` repository only, with *Actions: Read and write*, and paste it into the module configuration.
+
+### Added
+
+- The module configuration has a *Semantic embeddings* panel. It checks the connection to GitHub each time it opens, shows the last build on GitHub and the build this site downloaded, and says when a token has expired or the server cannot reach GitHub.
+- **Save and rebuild the semantic embeddings** starts the embeddings workflow on GitHub (scope `missing`) with the saved token, so edits reach the semantic map without waiting for the nightly check. The token is never shown again; leave the field blank to keep it, or tick *Forget the saved GitHub token*.
+
 ## [2.39.1] - 2026-10-16
 
 ### Fixed
