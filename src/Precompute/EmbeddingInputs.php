@@ -56,8 +56,12 @@ final class EmbeddingInputs
     {
         return static function (string $url) use ($client): ?string {
             try {
+                // A fresh Request rather than resetParameters(), which re-applies
+                // the shared client's empty URI and trips a null-scheme deprecation.
                 $request = clone $client;
-                $request->resetParameters(true);
+                $request->setRequest(new \Laminas\Http\Request());
+                $request->clearCookies();
+                $request->clearAuth();
                 $request->setOptions(['timeout' => 30, 'maxredirects' => 5]);
                 $request->setUri($url);
                 $request->setMethod('GET');

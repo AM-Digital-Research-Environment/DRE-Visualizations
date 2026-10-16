@@ -13,6 +13,12 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.39.1] - 2026-10-16
+
+### Fixed
+
+- Regenerating printed "Using null as the key parameter for array_key_exists() is deprecated" from `laminas-uri`. The semantic-input download reset Omeka's shared HTTP client, which re-applied its empty URI; it now starts from a fresh request.
+
 ## [2.39.0] - 2026-10-16
 
 **Upgrading:** the server must reach `api.github.com` and GitHub release downloads. Install this release, then **Regenerate now**, and check the new *Semantic map* line on the maintenance page.
