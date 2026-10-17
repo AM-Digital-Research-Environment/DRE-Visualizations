@@ -13,6 +13,14 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.41.0] - 2026-10-17
+
+### Changed
+
+- Making a record private no longer takes the semantic map, the "by similarity" panels and the similar items offline until the next build. The site keeps the installed build, without the records hidden since and without anything that left the public corpus. Positions and neighbours of the remaining records still come from that build until a new one arrives. Each withdrawal now records what it hid (`revisions.json` in the snapshot store); a withdrawal that cannot say (a manual one, a canonical-site change, a write whose earlier state was unknown) still hides the map until a build for the current data arrives.
+- With a GitHub token saved, the refresh that follows such a write asks GitHub for a new build straight away (once per revision) instead of waiting for the nightly check. Without a token, the job log says the nightly check will build it.
+- The maintenance page and the module configuration say when the map is being served from an earlier build.
+
 ## [2.40.0] - 2026-10-16
 
 **Upgrading:** to use the new button, create a fine-grained GitHub token for the `AM-Digital-Research-Environment/DRE-Visualizations` repository only, with *Actions: Read and write*, and paste it into the module configuration.

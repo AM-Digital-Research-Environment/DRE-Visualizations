@@ -36,6 +36,9 @@ final class Runner
         private readonly ?\Closure $loaded = null,
         // The installed semantic-input build; null reads the module's data/embeddings.
         private readonly ?string $embeddingsDir = null,
+        // SnapshotStore::hiddenSince(): lets a build for an earlier revision be
+        // served without what was hidden since (SemanticCarry). Null: never.
+        private readonly ?\Closure $hiddenSince = null,
     ) {
         $this->checkpoint = $checkpoint ?? static function (): void {};
         $this->logFn = $logFn;
@@ -47,11 +50,18 @@ final class Runner
         $this->artifacts->ensureDirectory($this->outputDir);
         $data = (new DataLoader($this->connection, $this->siteId, $this->checkpoint))->load($this->logFn);
         if ($this->loaded) ($this->loaded)();
+        $semantic = $this->embeddingsDir === null
+            ? ['dir' => null, 'state' => 'none']
+            : SemanticCarry::resolve($this->embeddingsDir, dirname($this->embeddingsDir) . '/carried', $this->sourceScope,
+                $this->hiddenSince ?? static fn (): ?array => null, static fn (int $id): bool => isset($data->items[$id]));
+        if ($semantic['state'] === 'carried' && $this->logFn) {
+            ($this->logFn)('Semantic map kept from an earlier build, without the records made private since');
+        }
         $paths = new GeneratorPaths(
             $this->outputDir, $this->communitiesDir, $this->countriesGeojson, $this->knowledgeGraphsDir,
             $this->galleriesDir, $this->featuredDir, $this->itemSetDashboardsDir, $this->wordcloudsDir,
             $this->layoutCacheDir ?? dirname($this->outputDir, 3) . '/layout-cache',
-            $this->embeddingsDir,
+            $semantic['dir'],
         );
         foreach (['map', 'similar', 'report'] as $name) {
             $input = ScopedInput::read($paths->embeddingsInputDir() . '/' . $name . '.php', $this->sourceScope);
@@ -90,6 +100,6 @@ final class Runner
             $data->itemSets, $data->itemSetRecords, $this->profile->template('projects')));
         $count += (new ItemSetDashboardGenerator($this->artifacts, $this->itemSetDashboardsDir, $log, $projectSetIds))->generate($data);
         $count += (new KnowledgeGraphGenerator($this->artifacts, $this->knowledgeGraphsDir, $log))->generate($data);
-        return ['files' => $count, 'sourceCounts' => $data->sourceCounts(), 'warnings' => []];
+        return ['files' => $count, 'sourceCounts' => $data->sourceCounts(), 'warnings' => [], 'semantic' => $semantic['state']];
     }
 }

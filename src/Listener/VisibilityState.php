@@ -99,16 +99,33 @@ final class VisibilityState
      */
     public static function privatised(array $before, array $after): bool
     {
+        return self::privatisedIds($before, $after) !== [];
+    }
+
+    /**
+     * The resources privatised() holds the write responsible for: each one
+     * that turned private, lost a public value, or (for an item) a public medium.
+     *
+     * @param array<int,State> $before
+     * @param array<int,State> $after
+     * @return list<int>
+     */
+    public static function privatisedIds(array $before, array $after): array
+    {
+        $ids = [];
         foreach ($after as $id => $now) {
             $was = $before[$id] ?? null;
             if ($was === null || !$was['public']) continue;
-            if (!$now['public']) return true;
+            $hidMedia = false;
             foreach ($was['media'] as $media => $public) {
-                if ($public && ($now['media'][$media] ?? null) === false) return true;
+                if ($public && ($now['media'][$media] ?? null) === false) $hidMedia = true;
             }
-            if ($now['private'] > $was['private'] && array_diff_key($was['values'], $now['values'])) return true;
+            if (!$now['public'] || $hidMedia
+                || ($now['private'] > $was['private'] && array_diff_key($was['values'], $now['values']))) {
+                $ids[] = (int) $id;
+            }
         }
-        return false;
+        return $ids;
     }
 
     private static function fingerprint(mixed ...$parts): string

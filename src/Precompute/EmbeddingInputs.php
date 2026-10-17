@@ -87,17 +87,22 @@ final class EmbeddingInputs
 
     /**
      * What the maintenance page reports: the installed build, whether it was
-     * made for $scope, and the last look at GitHub.
+     * made for $scope or can be carried to it (SemanticCarry), and the last
+     * look at GitHub.
      *
-     * @return array{tag:?string,matches:bool,installedAt:int,checkedAt:int,error:?string}
+     * @param (callable(string):?array)|null $hiddenSince SnapshotStore::hiddenSince()
+     * @return array{tag:?string,matches:bool,carried:bool,installedAt:int,checkedAt:int,error:?string}
      */
-    public function status(array $scope): array
+    public function status(array $scope, ?callable $hiddenSince = null): array
     {
         $state = $this->state();
         $dir = $this->currentDirectory();
+        $matches = $dir !== null && ScopedInput::read($dir . '/report.php', $scope) !== null;
+        $older = $matches || $dir === null || $hiddenSince === null ? null : SemanticCarry::readOtherRevision($dir . '/report.php', $scope);
         return [
             'tag' => $dir === null ? null : basename($dir),
-            'matches' => $dir !== null && ScopedInput::read($dir . '/report.php', $scope) !== null,
+            'matches' => $matches,
+            'carried' => $older !== null && $hiddenSince($older['scope']['revision']) !== null,
             'installedAt' => $dir === null ? 0 : (int) ($state['installedAt'] ?? 0),
             'checkedAt' => (int) ($state['checkedAt'] ?? 0),
             'error' => is_string($state['error'] ?? null) ? $state['error'] : null,
@@ -131,6 +136,29 @@ final class EmbeddingInputs
             }
             (new JsonArtifactWriter())->write($this->directory . '/state.json', $state, durable: true);
             return $result;
+        } finally {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+        }
+    }
+
+    /**
+     * Whether to ask GitHub for a build for $revision: true the first time,
+     * false once asked (whatever GitHub answered), so a failing token does not
+     * send a request on every automatic refresh.
+     */
+    public function claimBuildRequest(string $revision): bool
+    {
+        (new JsonArtifactWriter())->ensureDirectory($this->directory);
+        $lock = fopen($this->directory . '/.lock', 'c');
+        if ($lock === false) throw new RuntimeException('Unable to open the semantic-input lock.');
+        try {
+            if (!flock($lock, LOCK_EX)) return false;
+            $state = $this->state();
+            if (($state['requestedFor'] ?? null) === $revision) return false;
+            $state['requestedFor'] = $revision;
+            (new JsonArtifactWriter())->write($this->directory . '/state.json', $state, durable: true);
+            return true;
         } finally {
             flock($lock, LOCK_UN);
             fclose($lock);
