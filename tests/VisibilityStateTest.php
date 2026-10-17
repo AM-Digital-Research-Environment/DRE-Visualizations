@@ -59,4 +59,9 @@ $check(VisibilityState::privatised($linked, $state(new FakeItem(1, true, [new Fa
     'Making a link to another resource private is privatising');
 $check(VisibilityState::fromEntities([new FakeItem(null, true, [])]) === [] && VisibilityState::fromEntities('not an entity') === [],
     'Unsaved and foreign content is skipped');
+// A batch update: only the records that lost something are named.
+$batchBefore = VisibilityState::fromEntities([new FakeItem(1, true, [$title]), new FakeItem(2, true, [$abstract]), new FakeItem(3, false, [])]);
+$batchAfter = VisibilityState::fromEntities([new FakeItem(1, false, [$title]), new FakeItem(2, true, [new FakeValue(2, 'Abstract', false)]), new FakeItem(3, false, [])]);
+$check(VisibilityState::privatisedIds($batchBefore, $batchAfter) === [1, 2], 'The resources a write hid are named, and only those');
+$check(VisibilityState::privatisedIds($before, $before) === [], 'A write that hides nothing names nobody');
 echo "Visibility state passed.\n";

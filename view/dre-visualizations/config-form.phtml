@@ -9,7 +9,7 @@
  * @var \Laminas\Form\Form $form
  * @var bool $hasToken
  * @var array{run:?array{status:string,conclusion:?string,event:string,createdAt:string,url:string},error:?string} $latest
- * @var array{tag:?string,matches:bool,installedAt:int,checkedAt:int,error:?string}|null $embeddings
+ * @var array{tag:?string,matches:bool,carried:bool,installedAt:int,checkedAt:int,error:?string}|null $embeddings
  */
 
 use DreVisualizations\Form\ConfigValues;
@@ -40,7 +40,7 @@ if ($run !== null) {
 <fieldset id="dre-visualizations-embeddings">
     <legend><?= $translate('Semantic embeddings') ?></legend>
     <p>
-        <?= $translate('The semantic map and the similar items are built on GitHub, not on this server. GitHub looks every night at 01:23 UTC and rebuilds when the data changed. Edits made today reach the semantic map after that build, or after you rebuild now. A build takes about five minutes; the site then downloads it and refreshes the map by itself.') ?>
+        <?= $translate('The semantic map and the similar items are built on GitHub, not on this server. GitHub looks every night at 01:23 UTC and rebuilds when the data changed. Edits made today reach the semantic map after that build, or after you rebuild now. When a record is made private, the map stays online without it, and with a saved token the site asks GitHub for a new build straight away. A build takes about five minutes; the site then downloads it and refreshes the map by itself.') ?>
     </p>
     <ul>
         <li>
@@ -67,9 +67,11 @@ if ($run !== null) {
                     <?= $translate('No build downloaded yet.') ?>
                 <?php else: ?>
                     <?= $this->escapeHtml(sprintf(
-                        $embeddings['matches']
-                            ? $translate('%1$s, downloaded %2$s, made for the current data.')
-                            : $translate('%1$s, downloaded %2$s. It was made before a record became private or publication was withdrawn, so the semantic map stays hidden until the next build.'),
+                        match (true) {
+                            $embeddings['matches'] => $translate('%1$s, downloaded %2$s, made for the current data.'),
+                            $embeddings['carried'] => $translate('%1$s, downloaded %2$s. Records were made private since, so the semantic map shows this build without them until the next one.'),
+                            default => $translate('%1$s, downloaded %2$s. It was made before publication was withdrawn, so the semantic map stays hidden until the next build.'),
+                        },
                         $embeddings['tag'],
                         $embeddings['installedAt'] ? $when($embeddings['installedAt']) : '—'
                     )) ?>

@@ -63,9 +63,12 @@ final class SnapshotInvalidation
             } else {
                 $before = $write['before'];
                 $response = $event->getParam('response');
-                $privatised = $before === null || ($before && is_object($response) && method_exists($response, 'getContent')
-                    && VisibilityState::privatised($before, VisibilityState::fromEntities($response->getContent())));
-                $store->endWrite($write['lock'], $privatised);
+                // Which resources it hid, so the semantic map can keep the rest
+                // until a new build; null (unknown) withdraws it altogether.
+                $hidden = $before && is_object($response) && method_exists($response, 'getContent')
+                    ? VisibilityState::privatisedIds($before, VisibilityState::fromEntities($response->getContent())) : [];
+                $privatised = $before === null || $hidden !== [];
+                $store->endWrite($write['lock'], $privatised, $before === null ? null : $hidden);
             }
         }
         $target = $event->getTarget();

@@ -9,10 +9,17 @@ use RuntimeException;
  *
  * revision.json changes only on withdrawal and scopes the manifest and the
  * offline inputs; changes.json changes on every Omeka write and tells a stale
- * snapshot from a current one.
+ * snapshot from a current one. revisions.json links each revision to the one
+ * before and names the records the withdrawal hid, so an input built for an
+ * older revision can be served without them (hiddenSince()).
  */
 final readonly class SnapshotStore
 {
+    /** Revision links kept; an input older than that many withdrawals is never carried forward. */
+    private const LINKS = 64;
+    /** Beyond this many hidden records, stop carrying: a new build is due anyway. */
+    private const MAX_HIDDEN = 50_000;
+
     public function __construct(public string $directory) {}
 
     /** The configured store path, without creating or validating it. */
@@ -102,10 +109,15 @@ final readonly class SnapshotStore
         return $lock;
     }
 
-    /** A write that made something private withdraws: a stale snapshot could still show it. */
-    public function endWrite($lock, bool $privatised = false): void
+    /**
+     * A write that made something private withdraws: a stale snapshot could
+     * still show it. $hidden names the resources it hid; null when unknown.
+     *
+     * @param list<int>|null $hidden
+     */
+    public function endWrite($lock, bool $privatised = false, ?array $hidden = null): void
     {
-        try { $privatised ? $this->withdraw(automatic: true) : $this->markChanged(); }
+        try { $privatised ? $this->withdraw(automatic: true, hidden: $hidden) : $this->markChanged(); }
         finally { flock($lock, LOCK_UN); fclose($lock); }
     }
 
@@ -253,14 +265,29 @@ final readonly class SnapshotStore
      * made something private) is republished by the automatic refresh; any
      * other waits for Regenerate now, and an automatic one never relaxes it.
      * Changing the revision also invalidates offline inputs, which may hold
-     * what was just hidden.
+     * what was just hidden; $hidden (the resources this withdrawal hid, null
+     * when unknown, as for any manual withdrawal) lets them be served without
+     * those records until a new build arrives.
+     *
+     * @param list<int>|null $hidden
      */
-    public function withdraw(bool $automatic = false): void
+    public function withdraw(bool $automatic = false, ?array $hidden = null): void
     {
-        $this->locked(function () use ($automatic): void {
+        $this->locked(function () use ($automatic, $hidden): void {
             // Changing the revision also revokes the old manifest if the tombstone write fails.
             $writer = new JsonArtifactWriter();
-            $writer->write($this->directory . '/revision.json', ['revision' => bin2hex(random_bytes(16))], durable: true);
+            $previous = $this->readRevision();
+            $revision = bin2hex(random_bytes(16));
+            if ($previous !== null) {
+                // Before the new revision: a link lost to a crash only stops a carry.
+                $links = array_slice([...$this->links(), [
+                    'from' => $previous,
+                    'to' => $revision,
+                    'hidden' => $automatic && $hidden !== null ? array_values(array_unique(array_map('intval', $hidden))) : null,
+                ]], -self::LINKS);
+                $writer->write($this->directory . '/revisions.json', ['links' => $links], durable: true);
+            }
+            $writer->write($this->directory . '/revision.json', ['revision' => $revision], durable: true);
             $writer->write($this->directory . '/changes.json',
                 ['token' => bin2hex(random_bytes(16)), 'changedAt' => time()]);
             // Nothing ever published, or already withdrawn by hand: an automatic
@@ -269,6 +296,47 @@ final readonly class SnapshotStore
             $writer->write($this->directory . '/current.json',
                 ['withdrawn' => true] + ($automatic ? ['refresh' => 'automatic'] : []), durable: true);
         });
+    }
+
+    /**
+     * The resources hidden since $revision, following the links back from the
+     * current revision: [] for the current revision itself, null when any
+     * withdrawal on the way did not say what it hid (a manual one, or a write
+     * whose earlier state was unknown) or $revision is not in the history.
+     * Caller holds the policy lock in either mode (or none: files are replaced atomically).
+     *
+     * @return list<int>|null
+     */
+    public function hiddenSince(string $revision): ?array
+    {
+        $current = $this->readRevision();
+        if ($current === null) return null;
+        $hidden = [];
+        $links = $this->links();
+        for ($i = count($links) - 1; $current !== $revision; $i--) {
+            while ($i >= 0 && $links[$i]['to'] !== $current) $i--;
+            if ($i < 0 || !is_array($links[$i]['hidden'])) return null;
+            foreach ($links[$i]['hidden'] as $id) $hidden[$id] = true;
+            if (count($hidden) > self::MAX_HIDDEN) return null;
+            $current = $links[$i]['from'];
+        }
+        $ids = array_keys($hidden);
+        sort($ids);
+        return $ids;
+    }
+
+    /** @return list<array{from:string,to:string,hidden:?list<int>}> */
+    private function links(): array
+    {
+        $path = $this->directory . '/revisions.json';
+        $data = is_file($path) ? json_decode((string) file_get_contents($path), true) : null;
+        $links = [];
+        foreach (is_array($data['links'] ?? null) ? $data['links'] : [] as $link) {
+            if (!is_array($link) || !is_string($link['from'] ?? null) || !is_string($link['to'] ?? null)) continue;
+            $hidden = is_array($link['hidden'] ?? null) ? array_values(array_filter($link['hidden'], 'is_int')) : null;
+            $links[] = ['from' => $link['from'], 'to' => $link['to'], 'hidden' => $hidden];
+        }
+        return $links;
     }
 
     /**

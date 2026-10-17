@@ -63,14 +63,15 @@ class MaintenanceController extends AbstractActionController
      * The installed semantic-map build and whether it was made for the current
      * revision; null before anything was published.
      *
-     * @return array{tag:?string,matches:bool,installedAt:int,checkedAt:int,error:?string}|null
+     * @return array{tag:?string,matches:bool,carried:bool,installedAt:int,checkedAt:int,error:?string}|null
      */
     public static function embeddingStatus(?SnapshotStore $store, int $siteId): ?array
     {
         $revision = $store?->reading(fn (): ?string => $store->readRevision());
         if ($store === null || $revision === null || $siteId < 1) return null;
         return EmbeddingInputs::forStore($store->directory, static fn (): ?string => null)
-            ->status(['siteId' => $siteId, 'revision' => $revision, 'profile' => ScopedInput::profileHash()]);
+            ->status(['siteId' => $siteId, 'revision' => $revision, 'profile' => ScopedInput::profileHash()],
+                static fn (string $built): ?array => $store->hiddenSince($built));
     }
 
     /**
