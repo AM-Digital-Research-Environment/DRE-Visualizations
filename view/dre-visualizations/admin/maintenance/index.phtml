@@ -11,7 +11,7 @@
  * @var \DreVisualizations\Form\MaintenanceForm $form
  * @var array{id:int,title:string,slug:string}|null $scopeSite
  * @var array{state:string,createdAt:?string,changedAt:int} $publication
- * @var array{tag:?string,matches:bool,checkedAt:int,error:?string}|null $embeddings
+ * @var array{tag:?string,matches:bool,carried:bool,installedAt:int,checkedAt:int,error:?string}|null $embeddings
  * @var array<int,string> $placements Site id => ResourcePagePlacement::STATE_*
  */
 
@@ -65,7 +65,8 @@ echo $this->pageTitle($translate('DRE Visualizations: maintenance'), 1);
             <?php
             $embeddingText = match (true) {
                 $embeddings['matches'] => sprintf($translate('Built on GitHub for the current data (%s).'), $embeddings['tag']),
-                $embeddings['tag'] !== null => sprintf($translate('Hidden until a new build arrives: the last one (%s) was made before a record became private or publication was withdrawn. GitHub checks every night and builds a new one.'), $embeddings['tag']),
+                $embeddings['carried'] => sprintf($translate('Kept online from the last build (%s), without the records made private since. A new build replaces it.'), $embeddings['tag']),
+                $embeddings['tag'] !== null => sprintf($translate('Hidden until a new build arrives: the last one (%s) was made before publication was withdrawn. GitHub checks every night and builds a new one.'), $embeddings['tag']),
                 default => $translate('No build downloaded yet. GitHub checks every night and builds one; Regenerate now downloads the newest.'),
             };
             ?>

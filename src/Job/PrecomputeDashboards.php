@@ -8,6 +8,7 @@ use Omeka\Job\AbstractJob;
 use DreVisualizations\Precompute\Runner;
 use DreVisualizations\Precompute\SnapshotPublisher;
 use DreVisualizations\Precompute\EmbeddingInputs;
+use DreVisualizations\Precompute\EmbeddingWorkflow;
 use DreVisualizations\Precompute\ScopedInput;
 use DreVisualizations\Precompute\AmiraProfile;
 use Throwable;
@@ -226,7 +227,10 @@ class PrecomputeDashboards extends AbstractJob
                 $result === 'error' ? ': ' . $status['error'] : ''));
         }
         $publisher = new SnapshotPublisher($dataDir, $siteId, $moduleVersion);
+        $semantic = 'none';
         $manifest = $publisher->publish(static function (string $generationDir, string $revision, callable $loaded) use (
+            &$semantic,
+            $store,
             $connection,
             $siteId,
             $dataDir,
@@ -257,10 +261,14 @@ class PrecomputeDashboards extends AbstractJob
                 $sourceScope,
                 $dataDir . '/layout-cache',
                 \Closure::fromCallable($loaded),
-                $embeddings->currentDirectory()
+                $embeddings->currentDirectory(),
+                static fn (string $built): ?array => $store->hiddenSince($built)
             );
-            return $runner->run();
+            $result = $runner->run();
+            $semantic = $result['semantic'];
+            return $result;
         }, static fn () => $checkpoint(true));
+        if ($semantic !== 'current') $this->requestEmbeddingBuild($embeddings, (string) $manifest['revision'], $semantic);
         self::pruneLayoutCache($dataDir . '/layout-cache', $started);
 
         $logger->info('DreVisualizations: precompute complete', [
@@ -268,6 +276,29 @@ class PrecomputeDashboards extends AbstractJob
             'artifacts' => $manifest['artifactCounts']['total'],
             'source_counts' => $manifest['sourceCounts'],
         ]);
+    }
+
+    /**
+     * The snapshot just published has no semantic map made for its revision
+     * (a record became private since the last build, or none was ever
+     * downloaded): ask GitHub for a build now rather than at the nightly
+     * check. Once per revision, and only with a saved token.
+     */
+    private function requestEmbeddingBuild(EmbeddingInputs $embeddings, string $revision, string $semantic): void
+    {
+        $services = $this->getServiceLocator();
+        $logger = $services->get('Omeka\Logger');
+        $kept = $semantic === 'carried' ? 'The semantic map stays online without the records made private. ' : '';
+        $token = (string) $services->get('Omeka\Settings')->get(Module::SETTING_GITHUB_TOKEN, '');
+        if ($token === '') {
+            $logger->info('DreVisualizations: ' . $kept . 'No GitHub token is saved, so the nightly check builds the semantic embeddings.');
+            return;
+        }
+        if (!$embeddings->claimBuildRequest($revision)) return;
+        $error = (new EmbeddingWorkflow(EmbeddingWorkflow::httpSender($services->get('Omeka\HttpClient')), $token))->dispatch();
+        $logger->info('DreVisualizations: ' . $kept . ($error === null
+            ? 'GitHub is rebuilding the semantic embeddings.'
+            : 'GitHub did not start a semantic embeddings build: ' . $error));
     }
 
     /**

@@ -8,8 +8,8 @@ use Laminas\Form\Element;
 use Laminas\Form\Form;
 
 /**
- * The module's configuration form: the canonical public site and the optional
- * basemap / glyph endpoints. Omeka's module page wraps it and checks its own
+ * The module's configuration form: the canonical public site, the optional
+ * basemap / glyph endpoints and the GitHub token that starts embedding builds. Omeka's module page wraps it and checks its own
  * CSRF token before Module::handleConfigForm() runs; validation of the posted
  * values lives in ConfigValues.
  */
@@ -18,8 +18,9 @@ final class ConfigForm extends Form
     /**
      * @param array<int,string> $siteOptions public sites, id => label
      * @param array<string,string> $values current settings, keyed by setting name
+     * @param bool $hasToken whether a GitHub token is saved (its value is never sent back)
      */
-    public function __construct(array $siteOptions, array $values)
+    public function __construct(array $siteOptions, array $values, bool $hasToken = false)
     {
         parent::__construct('dre-visualizations-config');
         $this->add([
@@ -53,6 +54,25 @@ final class ConfigForm extends Form
             'Basemap attribution', // @translate
             'Required when a basemap URL is configured, but shown only when that style does not already credit its own sources. Most providers (CARTO included) do credit themselves, so this is normally an unused fallback rather than the text on the map.' // @translate
         );
+        $this->add([
+            'name' => Module::SETTING_GITHUB_TOKEN,
+            'type' => Element\Password::class,
+            'options' => [
+                'label' => 'GitHub token for embedding builds', // @translate
+                'info' => $hasToken
+                    ? 'A token is saved. Leave blank to keep it, or paste a new one to replace it.' // @translate
+                    : 'Optional. Lets the button below start a build on GitHub. Create a fine-grained token for the AM-Digital-Research-Environment/DRE-Visualizations repository only, with “Actions: Read and write”.', // @translate
+            ],
+            'attributes' => ['id' => Module::SETTING_GITHUB_TOKEN, 'autocomplete' => 'off', 'spellcheck' => 'false'],
+        ]);
+        if ($hasToken) {
+            $this->add([
+                'name' => ConfigValues::FORGET_TOKEN,
+                'type' => Element\Checkbox::class,
+                'options' => ['label' => 'Forget the saved GitHub token'], // @translate
+                'attributes' => ['id' => ConfigValues::FORGET_TOKEN],
+            ]);
+        }
     }
 
     private function text(array $values, string $name, string $label, string $info): void

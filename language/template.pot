@@ -39,6 +39,18 @@ msgstr ""
 msgid "%1$s issues · %2$s articles"
 msgstr ""
 
+#: view/dre-visualizations/config-form.phtml:71
+msgid "%1$s, downloaded %2$s, made for the current data."
+msgstr ""
+
+#: view/dre-visualizations/config-form.phtml:73
+msgid "%1$s, downloaded %2$s. It was made before publication was withdrawn, so the semantic map stays hidden until the next build."
+msgstr ""
+
+#: view/dre-visualizations/config-form.phtml:72
+msgid "%1$s, downloaded %2$s. Records were made private since, so the semantic map shows this build without them until the next one."
+msgstr ""
+
 #: view/common/block-layout/photo-browse.phtml:161
 msgid "%s image"
 msgid_plural "%s images"
@@ -65,11 +77,15 @@ msgstr ""
 msgid "A project selector that retunes a full dashboard beneath it. No configuration needed."
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:127
+#: src/Form/ConfigForm.php:63
+msgid "A token is saved. Leave blank to keep it, or paste a new one to replace it."
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:128
 msgid "Add the Visualisations block to item pages"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:147
+#: src/Controller/Admin/MaintenanceController.php:148
 msgid "Added the Visualisations block to the item pages of these sites: %s."
 msgstr ""
 
@@ -170,15 +186,15 @@ msgstr ""
 msgid "Authors are linked when they appear on the same publication. Colour marks groups who publish together."
 msgstr ""
 
-#: src/Form/ConfigForm.php:53
+#: src/Form/ConfigForm.php:54
 msgid "Basemap attribution"
 msgstr ""
 
-#: src/Form/ConfigValues.php:41
+#: src/Form/ConfigValues.php:48
 msgid "Basemap attribution is required when a style URL is configured."
 msgstr ""
 
-#: src/Form/ConfigValues.php:32
+#: src/Form/ConfigValues.php:39
 msgid "Basemap styles must use HTTPS or a same-origin absolute path beginning with “/”."
 msgstr ""
 
@@ -194,11 +210,15 @@ msgstr ""
 msgid "Browse"
 msgstr ""
 
+#: view/dre-visualizations/config-form.phtml:91
+msgid "Build semantic embeddings → Run workflow"
+msgstr ""
+
 #: view/dre-visualizations/admin/maintenance/index.phtml:67
 msgid "Built on GitHub for the current data (%s)."
 msgstr ""
 
-#: src/Form/ConfigForm.php:29
+#: src/Form/ConfigForm.php:30
 msgid "Canonical public site"
 msgstr ""
 
@@ -369,7 +389,7 @@ msgstr ""
 msgid "Comparison ready."
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:105
+#: src/Controller/Admin/MaintenanceController.php:106
 msgid "Configure a canonical public site in the DRE Visualizations module settings before regenerating data."
 msgstr ""
 
@@ -383,6 +403,10 @@ msgstr ""
 
 #: config/client-strings.json:kgConnectionOne
 msgid "connection shown"
+msgstr ""
+
+#: view/dre-visualizations/config-form.phtml:47
+msgid "Connection to GitHub:"
 msgstr ""
 
 #: config/client-strings.json:degConnectionOther
@@ -443,11 +467,11 @@ msgstr ""
 msgid "Current location"
 msgstr ""
 
-#: src/Form/ConfigForm.php:45
+#: src/Form/ConfigForm.php:46
 msgid "Dark basemap style URL"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:115
+#: src/Controller/Admin/MaintenanceController.php:116
 msgid "Dashboard regeneration queued — rebuilds every precomputed visualisation (entities, overviews, communities). Track progress: %1$sjob #%2$d%3$s"
 msgstr ""
 
@@ -461,6 +485,10 @@ msgstr ""
 
 #: src/Site/BlockLayout/PhotoBrowse.php:93
 msgid "Default view"
+msgstr ""
+
+#: view/dre-visualizations/config-form.phtml:36
+msgid "Did not succeed (%1$s), started %2$s (%3$s)."
 msgstr ""
 
 #: src/Site/BlockLayout/DiscursiveCommunities.php:15
@@ -495,7 +523,7 @@ msgstr ""
 msgid "Each dot on this map is a public record from the collection: a project, a research item, a publication, a podcast episode or a video. Records about similar topics appear close to each other, even when they are in different languages. Only the distance between dots matters. The axes have no meaning."
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:136
+#: view/dre-visualizations/admin/maintenance/index.phtml:137
 msgid "Each site has a public embed gallery with copy-paste iframe snippets for every visualisation block — and, for dashboards, for each individual chart. Open it to preview a block and grab its code."
 msgstr ""
 
@@ -511,7 +539,7 @@ msgstr ""
 msgid "Embed this"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:134
+#: view/dre-visualizations/admin/maintenance/index.phtml:135
 msgid "Embed visualisations"
 msgstr ""
 
@@ -563,7 +591,7 @@ msgstr ""
 msgid "Every place the research items refer to, shown as a bubble sized by the number of items that mention it. Places are split between where items come from and where they are held today. Use the legend to show or hide either layer, pick a project or person on the left to see only its places, choose a country to zoom in, or click a bubble to open that place’s page."
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:151
+#: src/Controller/Admin/MaintenanceController.php:152
 msgid "Every site you can edit already shows the Visualisations block on item pages."
 msgstr ""
 
@@ -660,6 +688,14 @@ msgstr ""
 msgid "German"
 msgstr ""
 
+#: Module.php:178
+msgid "GitHub is rebuilding the semantic embeddings. It takes about five minutes; the site then downloads the build and refreshes the semantic map by itself. %1$sFollow the build on GitHub%2$s."
+msgstr ""
+
+#: src/Form/ConfigForm.php:61
+msgid "GitHub token for embedding builds"
+msgstr ""
+
 #: view/common/block-layout/photo-browse.phtml:138
 msgid "Grid"
 msgstr ""
@@ -714,8 +750,8 @@ msgstr ""
 msgid "Held in place. Alt-click to let it go"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:68
-msgid "Hidden until a new build arrives: the last one (%s) was made before a record became private or publication was withdrawn. GitHub checks every night and builds a new one."
+#: view/dre-visualizations/admin/maintenance/index.phtml:69
+msgid "Hidden until a new build arrives: the last one (%s) was made before publication was withdrawn. GitHub checks every night and builds a new one."
 msgstr ""
 
 #: config/client-strings.json:hideAbstract
@@ -794,7 +830,7 @@ msgstr ""
 msgid "Institutions with the most items"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:167
+#: src/Controller/Admin/MaintenanceController.php:168
 msgid "Invalid form submission. Please reload the page and try again."
 msgstr ""
 
@@ -818,15 +854,15 @@ msgstr ""
 msgid "item in total"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:112
+#: view/dre-visualizations/admin/maintenance/index.phtml:113
 msgid "Item pages are configured without the Visualisations."
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:111
+#: view/dre-visualizations/admin/maintenance/index.phtml:112
 msgid "Item pages show the Visualisations."
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:113
+#: view/dre-visualizations/admin/maintenance/index.phtml:114
 msgid "Item pages use the default blocks, which include the Visualisations."
 msgstr ""
 
@@ -917,6 +953,10 @@ msgstr ""
 msgid "Keep only the strongest links"
 msgstr ""
 
+#: view/dre-visualizations/admin/maintenance/index.phtml:68
+msgid "Kept online from the last build (%s), without the records made private since. A new build replaces it."
+msgstr ""
+
 #: view/common/resource-page-block-layout/knowledge-graph.phtml:21
 msgid "Knowledge graph"
 msgstr ""
@@ -965,6 +1005,10 @@ msgstr ""
 msgid "Last"
 msgstr ""
 
+#: view/dre-visualizations/config-form.phtml:58
+msgid "Last build on GitHub:"
+msgstr ""
+
 #: config/client-strings.json:lastPage
 msgid "Last page"
 msgstr ""
@@ -985,7 +1029,7 @@ msgstr ""
 msgid "Library of Congress subject headings ranked by the number of research items that carry them."
 msgstr ""
 
-#: src/Form/ConfigForm.php:41
+#: src/Form/ConfigForm.php:42
 msgid "Light basemap style URL"
 msgstr ""
 
@@ -1036,7 +1080,7 @@ msgstr ""
 msgid "Map"
 msgstr ""
 
-#: src/Form/ConfigForm.php:49
+#: src/Form/ConfigForm.php:50
 msgid "Map glyph URL template"
 msgstr ""
 
@@ -1165,7 +1209,15 @@ msgstr ""
 msgid "Next page"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:69
+#: view/dre-visualizations/config-form.phtml:29
+msgid "nightly check"
+msgstr ""
+
+#: view/dre-visualizations/config-form.phtml:67
+msgid "No build downloaded yet."
+msgstr ""
+
+#: view/dre-visualizations/admin/maintenance/index.phtml:70
 msgid "No build downloaded yet. GitHub checks every night and builds one; Regenerate now downloads the newest."
 msgstr ""
 
@@ -1193,6 +1245,10 @@ msgstr ""
 
 #: src/Controller/Site/EmbedController.php:243
 msgid "Not found"
+msgstr ""
+
+#: view/dre-visualizations/config-form.phtml:49
+msgid "Not working. %s"
 msgstr ""
 
 #: config/client-strings.json:whatsNewNone
@@ -1231,7 +1287,11 @@ msgstr ""
 msgid "of all records"
 msgstr ""
 
-#: src/Form/ConfigForm.php:30
+#: view/dre-visualizations/config-form.phtml:65
+msgid "On this site:"
+msgstr ""
+
+#: src/Form/ConfigForm.php:31
 msgid "Only public items assigned to this public site enter generated JSON. Regeneration fails closed until a site is selected."
 msgstr ""
 
@@ -1239,8 +1299,12 @@ msgstr ""
 msgid "Only public items assigned to this public site, including relationship targets and media, enter generated JSON."
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:86
+#: view/dre-visualizations/admin/maintenance/index.phtml:87
 msgid "Only when you want the visualisations updated straight away. After an edit or import, the published data stays online and refreshes in the background once edits have been quiet for five minutes. Making an item, medium, item set or value private hides the visualisations until that refresh."
+msgstr ""
+
+#: view/dre-visualizations/config-form.phtml:60
+msgid "Open it on GitHub"
 msgstr ""
 
 #: config/client-strings.json:spatialOpenPage
@@ -1291,20 +1355,24 @@ msgstr ""
 msgid "Optional heading shown above the gallery."
 msgstr ""
 
-#: src/Form/ConfigForm.php:50
+#: src/Form/ConfigForm.php:51
 msgid "Optional HTTPS or same-origin MapLibre glyph template containing “{fontstack}” and “{range}”. Required for Entity Network labels."
 msgstr ""
 
-#: src/Form/ConfigForm.php:42
+#: src/Form/ConfigForm.php:43
 msgid "Optional HTTPS or same-origin MapLibre style JSON. Leave blank for the privacy-safe blank background."
 msgstr ""
 
-#: src/Form/ConfigForm.php:46
+#: src/Form/ConfigForm.php:47
 msgid "Optional HTTPS or same-origin MapLibre style JSON. The light style is used as a fallback when blank."
 msgstr ""
 
 #: src/Site/BlockLayout/FeaturedCollections.php:42
 msgid "Optional section heading"
+msgstr ""
+
+#: src/Form/ConfigForm.php:64
+msgid "Optional. Lets the button below start a build on GitHub. Create a fine-grained token for the AM-Digital-Research-Environment/DRE-Visualizations repository only, with “Actions: Read and write”."
 msgstr ""
 
 #: src/Site/BlockLayout/PhotoBrowse.php:82
@@ -1559,7 +1627,7 @@ msgstr ""
 msgid "Published here"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:130
+#: src/Controller/Admin/MaintenanceController.php:131
 msgid "Published visualizations withdrawn. They stay hidden until you regenerate."
 msgstr ""
 
@@ -1619,7 +1687,7 @@ msgstr ""
 msgid "Regenerate dashboard data"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:91
+#: view/dre-visualizations/admin/maintenance/index.phtml:92
 msgid "Regenerate now"
 msgstr ""
 
@@ -1631,7 +1699,7 @@ msgstr ""
 msgid "Relationship"
 msgstr ""
 
-#: src/Form/ConfigForm.php:54
+#: src/Form/ConfigForm.php:55
 msgid "Required when a basemap URL is configured, but shown only when that style does not already credit its own sources. Most providers (CARTO included) do credit themselves, so this is normally an unused fallback rather than the text on the map."
 msgstr ""
 
@@ -1693,8 +1761,16 @@ msgstr ""
 msgid "Resume the layout"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:123
+#: view/dre-visualizations/admin/maintenance/index.phtml:124
 msgid "Run this again after removing the block by mistake. It changes only sites you can edit, leaves every other block where it is, and does nothing where the block is already present."
+msgstr ""
+
+#: view/dre-visualizations/config-form.phtml:34
+msgid "Running since %1$s (%2$s)."
+msgstr ""
+
+#: view/dre-visualizations/config-form.phtml:86
+msgid "Save and rebuild the semantic embeddings"
 msgstr ""
 
 #: config/client-strings.json:saveImage
@@ -1746,11 +1822,11 @@ msgstr ""
 msgid "See these entities as a list"
 msgstr ""
 
-#: Module.php:131
+#: Module.php:152
 msgid "Select a public canonical site."
 msgstr ""
 
-#: src/Form/ConfigForm.php:31
+#: src/Form/ConfigForm.php:32
 msgid "Select a public site"
 msgstr ""
 
@@ -1758,11 +1834,15 @@ msgstr ""
 msgid "Select an item set…"
 msgstr ""
 
+#: view/dre-visualizations/config-form.phtml:41
+msgid "Semantic embeddings"
+msgstr ""
+
 #: src/Site/BlockLayout/SemanticMap.php:15
 msgid "Semantic Map"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:73
+#: view/dre-visualizations/admin/maintenance/index.phtml:74
 msgid "Semantic map:"
 msgstr ""
 
@@ -1887,6 +1967,10 @@ msgstr ""
 msgid "Start:"
 msgstr ""
 
+#: view/dre-visualizations/config-form.phtml:30
+msgid "started by hand"
+msgstr ""
+
 #: view/dre-visualizations/admin/maintenance/index.phtml:61
 msgid "Status:"
 msgstr ""
@@ -1956,6 +2040,10 @@ msgstr ""
 msgid "Subjects that are often assigned to the same research item."
 msgstr ""
 
+#: view/dre-visualizations/config-form.phtml:35
+msgid "Succeeded, started %1$s (%2$s)."
+msgstr ""
+
 #: config/client-strings.json:tableOfContents
 msgid "Table of contents"
 msgstr ""
@@ -1982,6 +2070,10 @@ msgstr ""
 
 #: config/client-strings.json:showPatterns
 msgid "Tell the colours apart with fill patterns"
+msgstr ""
+
+#: src/Form/ConfigValues.php:53
+msgid "That is not a GitHub token. Paste the whole token, which starts with “github_pat_”."
 msgstr ""
 
 #: config/client-strings.json:chartDescription.topAuthors
@@ -2024,7 +2116,7 @@ msgstr ""
 msgid "The languages recorded across the research items."
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:77
+#: view/dre-visualizations/admin/maintenance/index.phtml:78
 msgid "The last look at GitHub (%1$s) failed: %2$s"
 msgstr ""
 
@@ -2040,7 +2132,7 @@ msgstr ""
 msgid "The map could not be loaded."
 msgstr ""
 
-#: src/Form/ConfigValues.php:37
+#: src/Form/ConfigValues.php:44
 msgid "The map glyph URL must contain “{fontstack}” and “{range}”."
 msgstr ""
 
@@ -2068,8 +2160,16 @@ msgstr ""
 msgid "The roles people are credited in: author, collector, photographer, and so on."
 msgstr ""
 
+#: view/dre-visualizations/config-form.phtml:43
+msgid "The semantic map and the similar items are built on GitHub, not on this server. GitHub looks every night at 01:23 UTC and rebuilds when the data changed. Edits made today reach the semantic map after that build, or after you rebuild now. When a record is made private, the map stays online without it, and with a saved token the site asks GitHub for a new build straight away. A build takes about five minutes; the site then downloads it and refreshes the map by itself."
+msgstr ""
+
 #: config/client-strings.json:chartDescription.treemap
 msgid "The share of items held by each project, split by resource type."
+msgstr ""
+
+#: view/dre-visualizations/config-form.phtml:80
+msgid "The site’s last download attempt (%1$s) failed: %2$s"
 msgstr ""
 
 #: config/client-strings.json:chartDescription.subjects
@@ -2086,7 +2186,7 @@ msgstr ""
 msgid "The visualisation could not be loaded."
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:104
+#: view/dre-visualizations/admin/maintenance/index.phtml:105
 msgid "The Visualisations block shows a dashboard on the page of every item that has one: research projects, sections, people, institutions, places and subjects. A site whose item pages were never configured shows it by default. Once a site saves its Resource pages settings, only the blocks listed there appear; this module adds the Visualisations to that list when it is installed or upgraded, after the record’s own blocks."
 msgstr ""
 
@@ -2144,6 +2244,10 @@ msgstr ""
 
 #: config/client-strings.json:thisItem
 msgid "this"
+msgstr ""
+
+#: view/dre-visualizations/config-form.phtml:90
+msgid "This button needs a GitHub token: paste one above, then click it. Without a token, start a build on GitHub:"
 msgstr ""
 
 #: config/client-strings.json:roleThisInstitution
@@ -2276,7 +2380,7 @@ msgstr ""
 msgid "Visualisations"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:102
+#: view/dre-visualizations/admin/maintenance/index.phtml:103
 msgid "Visualisations on item pages"
 msgstr ""
 
@@ -2311,7 +2415,7 @@ msgstr ""
 msgid "What's New"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:85
+#: view/dre-visualizations/admin/maintenance/index.phtml:86
 msgid "When to run:"
 msgstr ""
 
@@ -2355,7 +2459,7 @@ msgstr ""
 msgid "with little description"
 msgstr ""
 
-#: view/dre-visualizations/admin/maintenance/index.phtml:93
+#: view/dre-visualizations/admin/maintenance/index.phtml:94
 msgid "Withdraw published data"
 msgstr ""
 
@@ -2365,6 +2469,14 @@ msgstr ""
 
 #: config/client-strings.json:chartLabel.transcriptWordcloud
 msgid "Words in the transcripts"
+msgstr ""
+
+#: view/dre-visualizations/config-form.phtml:53
+msgid "Working (read only: no token is saved)."
+msgstr ""
+
+#: view/dre-visualizations/config-form.phtml:51
+msgid "Working. GitHub recognises the saved token."
 msgstr ""
 
 #: config/client-strings.json:yes
