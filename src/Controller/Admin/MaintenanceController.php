@@ -15,8 +15,8 @@ use DreVisualizations\Service\CanonicalSite;
 use DreVisualizations\Site\ResourcePagePlacement;
 use Laminas\Http\Response;
 use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\Mvc\Controller\AbstractController;
 use Laminas\View\Model\ViewModel;
-use Omeka\Mvc\Controller\Plugin\Messenger;
 use Omeka\Stdlib\Message;
 
 /**
@@ -71,8 +71,10 @@ class MaintenanceController extends AbstractActionController
      * Flash what became of a request for an embeddings build: a link to follow
      * it, or why GitHub did not start it. Shared with the configuration page.
      */
-    public static function reportRebuild(Messenger $messenger, ?string $error): void
+    public static function reportRebuild(AbstractController $controller, ?string $error): void
     {
+        // Through the controller, as everywhere else: Messenger's own docblocks say string, but it takes a Message.
+        $messenger = $controller->messenger();
         if ($error !== null) {
             $messenger->addError(new Message('The semantic embeddings were not rebuilt: %s', $error)); // @translate
             return;
@@ -184,7 +186,7 @@ class MaintenanceController extends AbstractActionController
 
     public function rebuildEmbeddingsAction(): Response
     {
-        if ($this->validPost()) self::reportRebuild($this->messenger(), $this->workflow->dispatch());
+        if ($this->validPost()) self::reportRebuild($this, $this->workflow->dispatch());
         return $this->backToIndex();
     }
 

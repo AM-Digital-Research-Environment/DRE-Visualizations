@@ -164,7 +164,7 @@ class Module extends AbstractModule
         if ($values->rebuild) {
             // The settings are saved whatever happens to the build.
             Controller\Admin\MaintenanceController::reportRebuild(
-                $controller->messenger(), Precompute\EmbeddingWorkflow::fromServices($services)->dispatch()
+                $controller, Precompute\EmbeddingWorkflow::fromServices($services)->dispatch()
             );
         }
         return true;
