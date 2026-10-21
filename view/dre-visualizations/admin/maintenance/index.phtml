@@ -4,7 +4,8 @@
  *
  * One CSRF-protected form with two buttons: "Regenerate" dispatches the
  * precompute background job, "Withdraw" (formaction) stops serving the
- * published snapshot. Plain server-rendered HTML; the flash messenger
+ * published snapshot. The semantic map section's button starts the
+ * embeddings workflow on GitHub. Plain server-rendered HTML; the flash messenger
  * (rendered by the admin layout) links to the job log once dispatched.
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
@@ -12,8 +13,11 @@
  * @var array{id:int,title:string,slug:string}|null $scopeSite
  * @var array{state:string,createdAt:?string,changedAt:int} $publication
  * @var array{tag:?string,matches:bool,carried:bool,installedAt:int,checkedAt:int,error:?string}|null $embeddings
+ * @var bool $hasToken whether a GitHub token is saved, so the rebuild button can start a build
  * @var array<int,string> $placements Site id => ResourcePagePlacement::STATE_*
  */
+
+use DreVisualizations\Precompute\EmbeddingWorkflow;
 
 $translate = $this->plugin('translate');
 
@@ -61,27 +65,6 @@ echo $this->pageTitle($translate('DRE Visualizations: maintenance'), 1);
             <strong><?= $translate('Status:') ?></strong>
             <?= $this->escapeHtml($statusText) ?>
         </p>
-        <?php if ($embeddings !== null): ?>
-            <?php
-            $embeddingText = match (true) {
-                $embeddings['matches'] => sprintf($translate('Built on GitHub for the current data (%s).'), $embeddings['tag']),
-                $embeddings['carried'] => sprintf($translate('Kept online from the last build (%s), without the records made private since. A new build replaces it.'), $embeddings['tag']),
-                $embeddings['tag'] !== null => sprintf($translate('Hidden until a new build arrives: the last one (%s) was made before publication was withdrawn. GitHub checks every night and builds a new one.'), $embeddings['tag']),
-                default => $translate('No build downloaded yet. GitHub checks every night and builds one; Regenerate now downloads the newest.'),
-            };
-            ?>
-            <p>
-                <strong><?= $translate('Semantic map:') ?></strong>
-                <?= $this->escapeHtml($embeddingText) ?>
-                <?php if ($embeddings['error'] !== null): ?>
-                    <br><?= $this->escapeHtml(sprintf(
-                        $translate('The last look at GitHub (%1$s) failed: %2$s'),
-                        $this->i18n()->dateFormat((new DateTime())->setTimestamp($embeddings['checkedAt']), 'medium', 'short'),
-                        $embeddings['error']
-                    )) ?>
-                <?php endif; ?>
-            </p>
-        <?php endif; ?>
         <p>
             <strong><?= $translate('When to run:') ?></strong>
             <?= $translate('Only when you want the visualisations updated straight away. After an edit or import, the published data stays online and refreshes in the background once edits have been quiet for five minutes. Making an item, medium, item set or value private hides the visualisations until that refresh.') ?>
@@ -96,7 +79,50 @@ echo $this->pageTitle($translate('DRE Visualizations: maintenance'), 1);
     </section>
 </div>
 
-<?php $sites = $this->api()->search('sites')->getContent(); ?>
+<div style="margin-top:1.5rem;max-width:640px;">
+    <section style="border:1px solid #ddd;border-radius:6px;padding:1.5rem;background:#fff;">
+        <h3 style="margin-top:0;"><?= $translate('Semantic map') ?></h3>
+        <p>
+            <?= $translate('The semantic map and the similar items are built on GitHub, not on this server. GitHub looks every night at 01:23 UTC and rebuilds when the data changed. Rebuild now to bring in today’s edits sooner. A build takes about five minutes; the site then downloads it and refreshes the map by itself.') ?>
+        </p>
+        <?php if ($embeddings !== null): ?>
+            <?php
+            $embeddingText = match (true) {
+                $embeddings['matches'] => sprintf($translate('Built on GitHub for the current data (%s).'), $embeddings['tag']),
+                $embeddings['carried'] => sprintf($translate('Kept online from the last build (%s), without the records made private since. A new build replaces it.'), $embeddings['tag']),
+                $embeddings['tag'] !== null => sprintf($translate('Hidden until a new build arrives: the last one (%s) was made before publication was withdrawn. GitHub checks every night and builds a new one.'), $embeddings['tag']),
+                default => $translate('No build downloaded yet. GitHub checks every night and builds one; Regenerate now downloads the newest.'),
+            };
+            ?>
+            <p>
+                <strong><?= $translate('Status:') ?></strong>
+                <?= $this->escapeHtml($embeddingText) ?>
+                <?php if ($embeddings['error'] !== null): ?>
+                    <br><?= $this->escapeHtml(sprintf(
+                        $translate('The last look at GitHub (%1$s) failed: %2$s'),
+                        $this->i18n()->dateFormat((new DateTime())->setTimestamp($embeddings['checkedAt']), 'medium', 'short'),
+                        $embeddings['error']
+                    )) ?>
+                <?php endif; ?>
+            </p>
+        <?php endif; ?>
+        <?php if ($hasToken): ?>
+            <?= $this->form()->openTag($form) ?>
+                <?= $this->formCollection($form) ?>
+                <button type="submit" formaction="<?= $this->escapeHtmlAttr($this->url('admin/dre-visualizations/maintenance-rebuild-embeddings')) ?>"><?= $translate('Rebuild the semantic embeddings') ?></button>
+            <?= $this->form()->closeTag() ?>
+        <?php else: ?>
+            <p>
+                <?= $translate('Rebuilding from here needs a GitHub token, saved in the module configuration.') ?>
+                <a href="<?= $this->escapeHtmlAttr($this->url('admin/default', ['controller' => 'module', 'action' => 'configure'], ['query' => ['id' => 'DreVisualizations']])) ?>"><?= $translate('Open the configuration') ?></a>.
+                <?= $translate('Without a token, start a build on GitHub:') ?>
+                <a href="<?= $this->escapeHtmlAttr(EmbeddingWorkflow::PAGE) ?>" target="_blank" rel="noopener"><?= $translate('Build semantic embeddings → Run workflow') ?></a>.
+            </p>
+        <?php endif; ?>
+    </section>
+</div>
+
+<?php $sites =$this->api()->search('sites')->getContent(); ?>
 <?php if ($sites): ?>
 <div style="margin-top:1.5rem;max-width:640px;">
     <section style="border:1px solid #ddd;border-radius:6px;padding:1.5rem;background:#fff;">

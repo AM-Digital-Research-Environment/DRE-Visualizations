@@ -48,7 +48,7 @@ if ($run !== null) {
             <?php if ($latest['error'] !== null): ?>
                 <?= $this->escapeHtml(sprintf($translate('Not working. %s'), $latest['error'])) ?>
             <?php elseif ($hasToken): ?>
-                <?= $translate('Working. GitHub recognises the saved token.') ?>
+                <?= $translate('Working. GitHub accepts the saved token. If a build will not start, the organisation may still have to approve it.') ?>
             <?php else: ?>
                 <?= $translate('Working (read only: no token is saved).') ?>
             <?php endif; ?>

@@ -121,13 +121,17 @@ The positions and neighbours of the remaining records still come from the
 earlier build until a new one arrives. With a GitHub token saved in the module
 configuration (a fine-grained token for this repository, *Actions: Read and
 write*), the refresh that follows asks GitHub for that build straight away,
-once per revision; without one, the nightly check builds it. A withdrawal that
+once per revision; without one, the nightly check builds it. The token must
+be created with the organisation as its resource owner, and it starts builds
+only once an organisation owner has approved it: a pending token reads public
+data, so the connection looks fine, but GitHub refuses to start a build (403). A withdrawal that
 does not say what it hid (a manual withdrawal, a canonical-site change, a
 write whose earlier state was unknown) still hides the map until a build for
 the current revision arrives. The maintenance page and the module
 configuration show the installed build, whether it fits the current data or is
-being carried, and the last failed look at GitHub; the configuration page also
-shows the latest workflow run and can start one. The server must reach `api.github.com` and `github.com` release
+being carried, and the last failed look at GitHub; both can start a build with
+the saved token (**Rebuild the semantic embeddings**), and the configuration
+page also shows the latest workflow run. The server must reach `api.github.com` and `github.com` release
 downloads. The semantic build runs the open EmbeddingGemma 2 model on the
 GitHub runner and needs no API key or secret; PHP regeneration needs no model
 access.

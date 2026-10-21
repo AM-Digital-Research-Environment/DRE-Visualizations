@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace DreVisualizations\Precompute;
 
+use DreVisualizations\Module;
+use Psr\Container\ContainerInterface;
+
 /**
  * The embeddings workflow on GitHub Actions (.github/workflows/embeddings.yml),
  * seen from the module's configuration page: its latest run, and a button
@@ -31,6 +34,15 @@ final class EmbeddingWorkflow
     public function __construct(callable $send, private readonly string $token = '')
     {
         $this->send = $send;
+    }
+
+    /** Over Omeka's HTTP client, with the token saved in the module configuration. */
+    public static function fromServices(ContainerInterface $services): self
+    {
+        return new self(
+            self::httpSender($services->get('Omeka\HttpClient')),
+            (string) $services->get('Omeka\Settings')->get(Module::SETTING_GITHUB_TOKEN, '')
+        );
     }
 
     /** A classic (ghp_…) or fine-grained (github_pat_…) token's shape; not proof GitHub accepts it. */
@@ -106,7 +118,8 @@ final class EmbeddingWorkflow
             $status === 401 => 'GitHub rejected the token: it has expired or was revoked. Save a new one.',
             ($status === 403 || $status === 429) && stripos($message, 'rate limit') !== false
                 => 'GitHub’s hourly request limit for this server is used up. Try again in an hour.',
-            $status === 403 => 'The token may not start workflows. Give it “Actions: Read and write” on the DRE-Visualizations repository.',
+            // A fine-grained token the organisation has not approved yet reads public data but gets a 403 here.
+            $status === 403 => 'GitHub did not let the token start a build. If the organisation has not approved the token yet, ask an owner to approve it. Otherwise, give it “Actions: Read and write” on the DRE-Visualizations repository.',
             $status === 404 && $this->token !== '' => 'The token cannot see the DRE-Visualizations repository. Create it for that repository.',
             default => trim(sprintf('GitHub answered %d. %s', $status, mb_substr($message, 0, 200))),
         };

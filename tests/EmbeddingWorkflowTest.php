@@ -63,7 +63,9 @@ $reason = static function (?array $answer, string $tokenValue = 'github_pat_' . 
 };
 workflowCheck(str_contains((string) $reason(null), 'could not reach'), 'an unreachable GitHub is named');
 workflowCheck(str_contains((string) $reason([401, '{"message":"Bad credentials"}']), 'expired or was revoked'), 'a 401 asks for a new token');
-workflowCheck(str_contains((string) $reason([403, '{"message":"Resource not accessible by personal access token"}']), 'Actions: Read and write'), 'a 403 names the missing permission');
+$forbidden = (string) $reason([403, '{"message":"Resource not accessible by personal access token"}']);
+workflowCheck(str_contains($forbidden, 'Actions: Read and write'), 'a 403 names the missing permission');
+workflowCheck(str_contains($forbidden, 'approve'), 'a 403 names a token the organisation has not approved');
 workflowCheck(str_contains((string) $reason([403, '{"message":"API rate limit exceeded for 1.2.3.4"}']), 'hourly request limit'), 'a rate limit is told apart from a permission');
 workflowCheck(str_contains((string) $reason([404, '{"message":"Not Found"}']), 'cannot see the DRE-Visualizations repository'), 'a 404 with a token means the wrong repository');
 workflowCheck(str_contains((string) $reason([422, '{"message":"Unexpected inputs provided"}']), 'Unexpected inputs provided'), 'other answers keep GitHub’s message');

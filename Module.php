@@ -14,7 +14,6 @@ use Laminas\ServiceManager\ServiceLocatorInterface;
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Module\AbstractModule;
 use Omeka\Permissions\Acl;
-use Omeka\Stdlib\Message;
 
 /**
  * Module wiring only: lifecycle hooks, configuration, ACL and listeners. The
@@ -121,8 +120,8 @@ class Module extends AbstractModule
         foreach (array_diff(self::SETTINGS, [self::SETTING_GITHUB_TOKEN]) as $key) {
             $values[$key] = (string) $settings->get($key, '');
         }
-        $workflow = $this->embeddingWorkflow();
-        $form = new ConfigForm($services->get(CanonicalSite::class)->publicSiteOptions(), $values, $workflow->hasToken());
+        $workflow = Precompute\EmbeddingWorkflow::fromServices($services);
+        $form =new ConfigForm($services->get(CanonicalSite::class)->publicSiteOptions(), $values, $workflow->hasToken());
         $site = $services->get(CanonicalSite::class)->publicSite();
         return $renderer->render('dre-visualizations/config-form', [
             'form' => $form,
@@ -132,15 +131,6 @@ class Module extends AbstractModule
                 Precompute\SnapshotStore::tryDefault(), $site === null ? 0 : (int) $site['id']
             ),
         ]);
-    }
-
-    private function embeddingWorkflow(): Precompute\EmbeddingWorkflow
-    {
-        $services = $this->getServiceLocator();
-        return new Precompute\EmbeddingWorkflow(
-            Precompute\EmbeddingWorkflow::httpSender($services->get('Omeka\HttpClient')),
-            (string) $services->get('Omeka\Settings')->get(self::SETTING_GITHUB_TOKEN, '')
-        );
     }
 
     public function handleConfigForm(AbstractController $controller)
@@ -172,19 +162,10 @@ class Module extends AbstractModule
         }
 
         if ($values->rebuild) {
-            $error = $this->embeddingWorkflow()->dispatch();
-            if ($error === null) {
-                $message = new Message(
-                    'GitHub is rebuilding the semantic embeddings. It takes about five minutes; the site then downloads the build and refreshes the semantic map by itself. %1$sFollow the build on GitHub%2$s.', // @translate
-                    sprintf('<a href="%s" target="_blank" rel="noopener">', htmlspecialchars(Precompute\EmbeddingWorkflow::PAGE, ENT_QUOTES, 'UTF-8')),
-                    '</a>'
-                );
-                $message->setEscapeHtml(false);
-                $controller->messenger()->addSuccess($message);
-            } else {
-                // The settings are saved; only the build did not start.
-                $controller->messenger()->addError(new Message('The semantic embeddings were not rebuilt: %s', $error)); // @translate
-            }
+            // The settings are saved whatever happens to the build.
+            Controller\Admin\MaintenanceController::reportRebuild(
+                $controller->messenger(), Precompute\EmbeddingWorkflow::fromServices($services)->dispatch()
+            );
         }
         return true;
     }

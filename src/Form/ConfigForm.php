@@ -54,6 +54,9 @@ final class ConfigForm extends Form
             'Basemap attribution', // @translate
             'Required when a basemap URL is configured, but shown only when that style does not already credit its own sources. Most providers (CARTO included) do credit themselves, so this is normally an unused fallback rather than the text on the map.' // @translate
         );
+        $tokenAttributes = ['id' => Module::SETTING_GITHUB_TOKEN, 'autocomplete' => 'off', 'spellcheck' => 'false'];
+        // The field always comes back empty; say so in it, or a saved token looks lost.
+        if ($hasToken) $tokenAttributes['placeholder'] = 'Saved (hidden)'; // @translate
         $this->add([
             'name' => Module::SETTING_GITHUB_TOKEN,
             'type' => Element\Password::class,
@@ -63,7 +66,7 @@ final class ConfigForm extends Form
                     ? 'A token is saved. Leave blank to keep it, or paste a new one to replace it.' // @translate
                     : 'Optional. Lets the button below start a build on GitHub. Create a fine-grained token for the AM-Digital-Research-Environment/DRE-Visualizations repository only, with “Actions: Read and write”.', // @translate
             ],
-            'attributes' => ['id' => Module::SETTING_GITHUB_TOKEN, 'autocomplete' => 'off', 'spellcheck' => 'false'],
+            'attributes' => $tokenAttributes,
         ]);
         if ($hasToken) {
             $this->add([

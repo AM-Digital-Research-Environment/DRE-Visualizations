@@ -289,13 +289,13 @@ class PrecomputeDashboards extends AbstractJob
         $services = $this->getServiceLocator();
         $logger = $services->get('Omeka\Logger');
         $kept = $semantic === 'carried' ? 'The semantic map stays online without the records made private. ' : '';
-        $token = (string) $services->get('Omeka\Settings')->get(Module::SETTING_GITHUB_TOKEN, '');
-        if ($token === '') {
+        $workflow = EmbeddingWorkflow::fromServices($services);
+        if (!$workflow->hasToken()) {
             $logger->info('DreVisualizations: ' . $kept . 'No GitHub token is saved, so the nightly check builds the semantic embeddings.');
             return;
         }
         if (!$embeddings->claimBuildRequest($revision)) return;
-        $error = (new EmbeddingWorkflow(EmbeddingWorkflow::httpSender($services->get('Omeka\HttpClient')), $token))->dispatch();
+        $error = $workflow->dispatch();
         $logger->info('DreVisualizations: ' . $kept . ($error === null
             ? 'GitHub is rebuilding the semantic embeddings.'
             : 'GitHub did not start a semantic embeddings build: ' . $error));

@@ -13,6 +13,17 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.42.0] - 2026-10-21
+
+### Added
+
+- The maintenance page (**DRE Visualizations** in the admin menu) has a *Semantic map* section: the state of the installed build, and **Rebuild the semantic embeddings**, which starts a build on GitHub with the token saved in the module configuration. Without a token it links to the configuration and to the workflow on GitHub.
+
+### Changed
+
+- The GitHub token field shows *Saved (hidden)* once a token is saved, so a saved token no longer looks lost when the page reopens with the field empty.
+- When GitHub refuses to start a build (403), the message now says the organisation may still have to approve the token, as well as naming the *Actions: Read and write* permission. A fine-grained token that is still pending reads public data but cannot start a build.
+
 ## [2.41.0] - 2026-10-17
 
 ### Changed

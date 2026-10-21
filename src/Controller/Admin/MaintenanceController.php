@@ -8,6 +8,7 @@ use DreVisualizations\Form\MaintenanceForm;
 use DreVisualizations\Job\PrecomputeDashboards;
 use DreVisualizations\Listener\SnapshotInvalidation;
 use DreVisualizations\Precompute\EmbeddingInputs;
+use DreVisualizations\Precompute\EmbeddingWorkflow;
 use DreVisualizations\Precompute\ScopedInput;
 use DreVisualizations\Precompute\SnapshotStore;
 use DreVisualizations\Service\CanonicalSite;
@@ -15,6 +16,7 @@ use DreVisualizations\Site\ResourcePagePlacement;
 use Laminas\Http\Response;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
+use Omeka\Mvc\Controller\Plugin\Messenger;
 use Omeka\Stdlib\Message;
 
 /**
@@ -37,6 +39,10 @@ use Omeka\Stdlib\Message;
  *     every site the user may edit that lacks it (Site\ResourcePagePlacement),
  *     the same repair install and the 2.38.0 upgrade run.
  *
+ *   rebuildEmbeddingsAction  POST  /admin/dre-visualizations/maintenance/rebuild-embeddings
+ *     Starts the embeddings workflow on GitHub with the token saved in the
+ *     module configuration, as that page's rebuild button does.
+ *
  * ACL: editor + site-admin + global-admin (granted in Module::onBootstrap).
  */
 class MaintenanceController extends AbstractActionController
@@ -44,6 +50,7 @@ class MaintenanceController extends AbstractActionController
     public function __construct(
         private readonly CanonicalSite $canonicalSite,
         private readonly Connection $connection,
+        private readonly EmbeddingWorkflow $workflow,
     ) {}
 
     public function indexAction(): ViewModel
@@ -55,8 +62,28 @@ class MaintenanceController extends AbstractActionController
             'scopeSite' => $scopeSite,
             'publication' => self::publicationStatus($store),
             'embeddings' => self::embeddingStatus($store, $scopeSite === null ? 0 : (int) $scopeSite['id']),
+            'hasToken' => $this->workflow->hasToken(),
             'placements' => ResourcePagePlacement::states($this->connection),
         ]);
+    }
+
+    /**
+     * Flash what became of a request for an embeddings build: a link to follow
+     * it, or why GitHub did not start it. Shared with the configuration page.
+     */
+    public static function reportRebuild(Messenger $messenger, ?string $error): void
+    {
+        if ($error !== null) {
+            $messenger->addError(new Message('The semantic embeddings were not rebuilt: %s', $error)); // @translate
+            return;
+        }
+        $message = new Message(
+            'GitHub is rebuilding the semantic embeddings. It takes about five minutes; the site then downloads the build and refreshes the semantic map by itself. %1$sFollow the build on GitHub%2$s.', // @translate
+            sprintf('<a href="%s" target="_blank" rel="noopener">', htmlspecialchars(EmbeddingWorkflow::PAGE, ENT_QUOTES, 'UTF-8')),
+            '</a>'
+        );
+        $message->setEscapeHtml(false);
+        $messenger->addSuccess($message);
     }
 
     /**
@@ -152,6 +179,12 @@ class MaintenanceController extends AbstractActionController
                 $this->messenger()->addSuccess('Every site you can edit already shows the Visualisations block on item pages.'); // @translate
             }
         }
+        return $this->backToIndex();
+    }
+
+    public function rebuildEmbeddingsAction(): Response
+    {
+        if ($this->validPost()) self::reportRebuild($this->messenger(), $this->workflow->dispatch());
         return $this->backToIndex();
     }
 

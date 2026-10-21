@@ -151,6 +151,16 @@ return [
                                     ],
                                 ],
                             ],
+                            'maintenance-rebuild-embeddings' => [
+                                'type' => \Laminas\Router\Http\Literal::class,
+                                'options' => [
+                                    'route' => '/maintenance/rebuild-embeddings',
+                                    'defaults' => [
+                                        'controller' => Controller\Admin\MaintenanceController::class,
+                                        'action' => 'rebuild-embeddings',
+                                    ],
+                                ],
+                            ],
                             'maintenance-withdraw' => [
                                 'type' => \Laminas\Router\Http\Literal::class,
                                 'options' => [
