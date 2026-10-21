@@ -85,7 +85,7 @@ msgstr ""
 msgid "Add the Visualisations block to item pages"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:175
+#: src/Controller/Admin/MaintenanceController.php:177
 msgid "Added the Visualisations block to the item pages of these sites: %s."
 msgstr ""
 
@@ -390,7 +390,7 @@ msgstr ""
 msgid "Comparison ready."
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:133
+#: src/Controller/Admin/MaintenanceController.php:135
 msgid "Configure a canonical public site in the DRE Visualizations module settings before regenerating data."
 msgstr ""
 
@@ -472,7 +472,7 @@ msgstr ""
 msgid "Dark basemap style URL"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:143
+#: src/Controller/Admin/MaintenanceController.php:145
 msgid "Dashboard regeneration queued — rebuilds every precomputed visualisation (entities, overviews, communities). Track progress: %1$sjob #%2$d%3$s"
 msgstr ""
 
@@ -592,7 +592,7 @@ msgstr ""
 msgid "Every place the research items refer to, shown as a bubble sized by the number of items that mention it. Places are split between where items come from and where they are held today. Use the legend to show or hide either layer, pick a project or person on the left to see only its places, choose a country to zoom in, or click a bubble to open that place’s page."
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:179
+#: src/Controller/Admin/MaintenanceController.php:181
 msgid "Every site you can edit already shows the Visualisations block on item pages."
 msgstr ""
 
@@ -689,7 +689,7 @@ msgstr ""
 msgid "German"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:81
+#: src/Controller/Admin/MaintenanceController.php:83
 msgid "GitHub is rebuilding the semantic embeddings. It takes about five minutes; the site then downloads the build and refreshes the semantic map by itself. %1$sFollow the build on GitHub%2$s."
 msgstr ""
 
@@ -831,7 +831,7 @@ msgstr ""
 msgid "Institutions with the most items"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:201
+#: src/Controller/Admin/MaintenanceController.php:203
 msgid "Invalid form submission. Please reload the page and try again."
 msgstr ""
 
@@ -1632,7 +1632,7 @@ msgstr ""
 msgid "Published here"
 msgstr ""
 
-#: src/Controller/Admin/MaintenanceController.php:158
+#: src/Controller/Admin/MaintenanceController.php:160
 msgid "Published visualizations withdrawn. They stay hidden until you regenerate."
 msgstr ""
 
