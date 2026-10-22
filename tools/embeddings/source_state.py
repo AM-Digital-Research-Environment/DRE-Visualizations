@@ -20,6 +20,7 @@ import hashlib
 import json
 import os
 import sys
+import time
 from pathlib import Path
 from typing import Any, Callable
 from urllib.error import HTTPError
@@ -28,15 +29,25 @@ from urllib.request import Request, urlopen
 PROFILE_PATH = Path(__file__).resolve().parents[2] / "config" / "amira-profile.json"
 
 
-def fetch_json(url: str) -> Any:
-    """The decoded body, or None when the site answers 404 (nothing published)."""
-    try:
-        with urlopen(Request(url, headers={"User-Agent": "dre-embeddings/1.0"}), timeout=60) as response:
-            return json.load(response)
-    except HTTPError as error:
-        if error.code == 404:
-            return None
-        raise
+def fetch_json(url: str, attempts: int = 4) -> Any:
+    """The decoded body, or None when the site answers 404 (nothing published).
+
+    Other failures (timeouts, 5xx) are retried, as in build_embeddings.py.
+    """
+    for attempt in range(1, attempts + 1):
+        try:
+            with urlopen(Request(url, headers={"User-Agent": "dre-embeddings/1.0"}), timeout=60) as response:
+                return json.load(response)
+        except HTTPError as error:
+            if error.code == 404:
+                return None
+            if attempt == attempts:
+                raise
+        except Exception:
+            if attempt == attempts:
+                raise
+        time.sleep(3 * attempt)
+    raise AssertionError("unreachable")
 
 
 def capture(site_url: str, fetcher: Callable[[str], Any] = fetch_json) -> dict:
