@@ -58,7 +58,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       # A manual run always builds; a scheduled one only when the site changed
-      # since the newest semantic-inputs release.
+      # since the newest semantic-inputs release. An unreachable site skips the
+      # night with a warning; the next scheduled run checks again.
       - name: Compare the site with the last build
         id: decide
         env:
@@ -74,7 +75,7 @@ jobs:
             gh release download "$tag" --pattern source-state.json --dir "$RUNNER_TEMP/previous" || true
           fi
           python tools/embeddings/source_state.py "$RUNNER_TEMP/state.json" \
-            --previous "$RUNNER_TEMP/previous/source-state.json" >> "$GITHUB_OUTPUT"
+            --previous "$RUNNER_TEMP/previous/source-state.json" --skip-unreachable >> "$GITHUB_OUTPUT"
 
   build:
     needs: check

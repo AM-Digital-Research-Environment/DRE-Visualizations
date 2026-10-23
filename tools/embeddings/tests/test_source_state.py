@@ -4,6 +4,7 @@ import importlib.util
 import sys
 import unittest
 from pathlib import Path
+from urllib.error import HTTPError, URLError
 
 
 SCRIPT = Path(__file__).resolve().parents[1] / "source_state.py"
@@ -32,6 +33,14 @@ class SourceStateTests(unittest.TestCase):
     def test_capture_requires_a_revision(self) -> None:
         with self.assertRaises(ValueError):
             state_module.capture(SITE, lambda url: None)
+
+    def test_timeouts_and_server_errors_count_as_unreachable(self) -> None:
+        for error in (URLError(TimeoutError("timed out")), TimeoutError(), HTTPError(SITE, 503, "down", {}, None)):
+            self.assertTrue(state_module.unreachable(error), error)
+
+    def test_client_errors_and_bad_answers_still_fail(self) -> None:
+        for error in (HTTPError(SITE, 403, "forbidden", {}, None), ValueError("no revision")):
+            self.assertFalse(state_module.unreachable(error), error)
 
     def test_first_build_is_due(self) -> None:
         self.assertTrue(state_module.decide(STATE, None, "p")[0])

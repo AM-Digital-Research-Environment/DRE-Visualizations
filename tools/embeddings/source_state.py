@@ -8,9 +8,11 @@ or another profile. The state is read from the site's public ``source.json``
 and ``current.json`` and stored with each ``semantic-inputs-*`` release as
 ``source-state.json``; the next run compares against it.
 
-Usage: ``source_state.py OUT.json [--previous PREVIOUS.json]``. Prints
-``build=true`` or ``build=false`` (for ``$GITHUB_OUTPUT``) and the reason on
-stderr.
+Usage: ``source_state.py OUT.json [--previous PREVIOUS.json]
+[--skip-unreachable]``. Prints ``build=true`` or ``build=false`` (for
+``$GITHUB_OUTPUT``) and the reason on stderr. With ``--skip-unreachable`` a
+site that cannot be reached (timeouts, refused connections, 5xx) skips the
+build with a warning instead of failing; the next night checks again.
 """
 
 from __future__ import annotations
@@ -23,7 +25,7 @@ import sys
 import time
 from pathlib import Path
 from typing import Any, Callable
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 PROFILE_PATH = Path(__file__).resolve().parents[2] / "config" / "amira-profile.json"
@@ -63,6 +65,13 @@ def capture(site_url: str, fetcher: Callable[[str], Any] = fetch_json) -> dict:
     }
 
 
+def unreachable(error: BaseException) -> bool:
+    """Whether the error means the site is down rather than misconfigured."""
+    if isinstance(error, HTTPError):
+        return error.code >= 500
+    return isinstance(error, (URLError, OSError))
+
+
 def decide(state: dict, previous: dict | None, local_profile: str) -> tuple[bool, str]:
     if state.get("profile") != local_profile:
         return False, "The site runs another profile than this branch; deploy the module first."
@@ -78,12 +87,20 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("out", type=Path)
     parser.add_argument("--previous", type=Path)
+    parser.add_argument("--skip-unreachable", action="store_true")
     args = parser.parse_args()
     site_url = os.environ.get("OMEKA_SITE_URL", "").rstrip("/")
     if not site_url:
         print("Set OMEKA_SITE_URL to the canonical public site.", file=sys.stderr)
         return 2
-    state = capture(site_url)
+    try:
+        state = capture(site_url)
+    except Exception as error:
+        if not (args.skip_unreachable and unreachable(error)):
+            raise
+        print("build=false")
+        print(f"::warning::The site could not be reached ({error}); skipping tonight's build.", file=sys.stderr)
+        return 0
     args.out.write_text(json.dumps(state, sort_keys=True) + "\n", encoding="utf-8")
     previous = None
     if args.previous and args.previous.is_file():
