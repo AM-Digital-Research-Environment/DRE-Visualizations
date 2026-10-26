@@ -13,6 +13,11 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Changed
+
+- MapLibre GL JS 6.16.0 (was 6.13.0), re-vendored with `npm run vendor:maplibre`.
+- Development dependencies updated: Playwright 1.64.1, axe-core/playwright 4.14.0, ESLint 10.13.0.
+
 ## [2.42.0] - 2026-10-21
 
 ### Added

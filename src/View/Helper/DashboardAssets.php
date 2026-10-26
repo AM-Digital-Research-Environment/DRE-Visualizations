@@ -33,7 +33,7 @@ class DashboardAssets extends AbstractHelper
     // caching, and no third-party dependency (consistent with the privacy-first
     // posture). Paths are relative to the module asset root: resolve with
     // assetUrl()/the $asset() helper before use. Pinned: echarts 6.1.0,
-    // echarts-wordcloud 2.1.0, maplibre-gl 6.13.0, d3-force 3.0.0.
+    // echarts-wordcloud 2.1.0, maplibre-gl 6.16.0, d3-force 3.0.0.
     const ECHARTS_JS   = 'vendor/echarts.min.js';
     const WORDCLOUD_JS = 'vendor/echarts-wordcloud.min.js';
     const MAPLIBRE_CSS = 'vendor/maplibre-gl.css';

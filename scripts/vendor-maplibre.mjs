@@ -37,7 +37,7 @@ const ROOT = join(import.meta.dirname, '..');
 const VENDOR = join(ROOT, 'asset', 'vendor');
 // The pinned release. Bump here, re-run, then update THIRD_PARTY_NOTICES and
 // the version comment in DashboardAssets to match.
-const PINNED = '6.13.0';
+const PINNED = '6.16.0';
 /** Any relative static or dynamic import, which would drop Omeka's `?v=`. */
 const RELATIVE_IMPORT = /(?:\bfrom\s*|\bimport\s*\(\s*)["'`]\.\.?\//;
 

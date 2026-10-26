@@ -33,14 +33,14 @@ d3-force 3.0.0 and its runtime dependencies
     d3-timer.min.js     911ceda305f014b6b53ca68d5c896a9a387da120cfd56a421a2c60cca2fc9b36
   Replace them only from a named d3 release and update these hashes.
 
-MapLibre GL JS 6.13.0 — RENAMED, see below
+MapLibre GL JS 6.16.0 — RENAMED, see below
   Files: asset/vendor/maplibre-gl.js (dist/maplibre-gl.mjs),
          asset/vendor/maplibre-gl-worker.js (dist/maplibre-gl-worker.mjs),
          asset/vendor/maplibre-gl.css
   Primary license: BSD-3-Clause; the upstream distribution also contains
   notices for incorporated Mapbox GL JS, glfx.js, and d3-color code.
   Project and full notices:
-  https://github.com/maplibre/maplibre-gl-js/blob/v6.13.0/LICENSE.txt
+  https://github.com/maplibre/maplibre-gl-js/blob/v6.16.0/LICENSE.txt
 
   RENAMED. MapLibre 6 ships ES modules only, under the .mjs extension, which
   stock nginx does not type as JavaScript. scripts/vendor-maplibre.mjs copies
@@ -48,9 +48,9 @@ MapLibre GL JS 6.13.0 — RENAMED, see below
   altered: every file is verbatim upstream.
 
   SHA-256, as shipped (identical to upstream):
-    maplibre-gl.js         389731e8581cc59d484e867b051db73ae034a76f0691d2890a2a1a7d2495bdf3
-    maplibre-gl-worker.js  53a2dd60f76c7b9201a3cc007b755d98ce4b52403843fef5c90c41780fe62e91
-    maplibre-gl.css        20fc3054e6c769ae9502ec5c7ea46dae05b544fdc4fca2108553fb8c07265bf3
+    maplibre-gl.js         fbbdf8ddd9a48e49059a4be6795a4f214a711314bb5809f72d3730b48e7897e3
+    maplibre-gl-worker.js  0bf06492bdb7ba3d4132b78e435621bfba60d5250967991c02b1a73affea8cd5
+    maplibre-gl.css        a90798a1953017790e590f7e1bd35ff103a8a4263972cb47290b78adf86f8c20
   Re-vendor with `npm run vendor:maplibre`, which verifies the npm tarball
   against the registry's own sha512 before extracting, then update these.
 
