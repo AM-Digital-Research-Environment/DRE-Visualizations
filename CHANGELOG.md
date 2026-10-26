@@ -13,6 +13,8 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.42.1] - 2026-10-26
+
 ### Changed
 
 - MapLibre GL JS 6.16.0 (was 6.13.0), re-vendored with `npm run vendor:maplibre`.
