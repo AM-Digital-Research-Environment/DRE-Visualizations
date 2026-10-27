@@ -13,6 +13,10 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.43.0] - 2026-10-27
+
+**Upgrading:** install this release, then **Regenerate now**: the new word clouds appear with the next snapshot.
+
 ### Added
 
 - *Words in the abstracts* hides the words every abstract uses about itself ("article", "paper", "study", "Studie", "étude", "artigo"…), which topped each language's cloud without saying what the publications are about. A *Show common academic words* checkbox under the word-count slider brings them back; its caption names the current language's three commonest.
