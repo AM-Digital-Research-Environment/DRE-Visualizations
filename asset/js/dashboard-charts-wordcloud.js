@@ -8,6 +8,10 @@
  *   - `{languages: ['en','fr',…], byLang: {en:[…], fr:[…]}}` — a per-language
  *     cloud (the lemmatised word-cloud inputs), rendered with a language toggle.
  *
+ * Entries flagged `generic` (the words of scholarly prose in the abstract
+ * cloud: "article", "study") start hidden, behind a "Show common academic
+ * words" checkbox.
+ *
  * Falls back to a bar chart if the echarts-wordcloud extension is unavailable.
  * Registers into window.RV.charts for the dashboard orchestrator.
  */
@@ -53,8 +57,12 @@
             : [];
         var curLang = multi ? langs[0] : null;
 
-        function rawFor() { return multi ? (data.byLang[curLang] || []) : data; }
-        var entries = toEntries(rawFor());
+        var hideGeneric = true;
+        function rawFor() {
+            var list = toEntries(multi ? (data.byLang[curLang] || []) : data);
+            return hideGeneric ? list.filter(function (e) { return !e.generic; }) : list;
+        }
+        var entries = rawFor();
         if (!entries.length) return;
         if (!isWordCloudAvailable()) return ns.charts.buildBarChart(el, rawFor(), siteBase);
 
@@ -140,7 +148,21 @@
         var desc = panel.querySelector('.chart-description');
         var anchor = desc ? desc.nextSibling : el;
 
-        var sliderInput = null, sliderValue = null, relayoutTimer = null;
+        var sliderInput = null, sliderValue = null, relayoutTimer = null, genericCaption = null;
+
+        // After a language switch or the academic-words checkbox: re-read the
+        // entries, clamp the slider to the new list, and lay the cloud out again.
+        function refresh() {
+            entries = rawFor();
+            if (sliderInput) {
+                sliderInput.max = String(entries.length);
+                var n = Math.min(parseInt(sliderInput.value, 10), entries.length);
+                sliderInput.value = String(n);
+                sliderValue.textContent = n;
+            }
+            if (genericCaption) genericCaption.textContent = genericLabel();
+            render(sliderInput ? parseInt(sliderInput.value, 10) : defaultCount());
+        }
 
         // Language toggle — only when the data carries more than one language.
         if (multi && langs.length > 1) {
@@ -157,20 +179,13 @@
                 b.addEventListener('click', function () {
                     if (code === curLang) return;
                     curLang = code;
-                    entries = toEntries(rawFor());
                     langBar.querySelectorAll('.rv-word-lang').forEach(function (x) {
                         x.classList.remove('is-active');
                         x.setAttribute('aria-pressed', 'false');
                     });
                     b.classList.add('is-active');
                     b.setAttribute('aria-pressed', 'true');
-                    if (sliderInput) {
-                        sliderInput.max = String(entries.length);
-                        var n = Math.min(parseInt(sliderInput.value, 10), entries.length);
-                        sliderInput.value = String(n);
-                        sliderValue.textContent = n;
-                    }
-                    render(sliderInput ? parseInt(sliderInput.value, 10) : defaultCount());
+                    refresh();
                 });
                 langBar.appendChild(b);
             });
@@ -196,6 +211,34 @@
                 clearTimeout(relayoutTimer);
                 relayoutTimer = setTimeout(function () { render(n); }, 180);
             });
+            anchor = slider.nextSibling;
+        }
+
+        // The academic-words checkbox — only when some cloud flags such words.
+        // Its caption names the current language's three most frequent ones.
+        function genericLabel() {
+            var words = toEntries(multi ? (data.byLang[curLang] || []) : data)
+                .filter(function (e) { return e.generic; }).slice(0, 3)
+                .map(function (e) { return e.name; });
+            var label = ns.t('showAcademicWords', 'Show common academic words');
+            return words.length ? label + ' (' + words.join(', ') + '…)' : label;
+        }
+        var hasGeneric = (multi ? langs.map(function (code) { return data.byLang[code]; }) : [data])
+            .some(function (list) { return toEntries(list).some(function (e) { return e.generic; }); });
+        if (hasGeneric) {
+            var toggle = document.createElement('label');
+            toggle.className = 'rv-word-generic';
+            var box = document.createElement('input');
+            box.type = 'checkbox';
+            genericCaption = document.createElement('span');
+            genericCaption.textContent = genericLabel();
+            toggle.appendChild(box);
+            toggle.appendChild(genericCaption);
+            box.addEventListener('change', function () {
+                hideGeneric = !box.checked;
+                refresh();
+            });
+            panel.insertBefore(toggle, anchor);
         }
 
         return chart;

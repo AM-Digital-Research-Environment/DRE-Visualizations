@@ -1276,6 +1276,24 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     font-variant-numeric: tabular-nums;
 }
 
+/* "Show common academic words" checkbox under the word-count slider (abstract
+   cloud only). */
+.rv-word-generic {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--rv-space-2);
+    margin: 0 0 var(--rv-space-2);
+    font-size: var(--rv-text-xs);
+    color: var(--rv-text-color);
+    cursor: pointer;
+}
+
+.rv-word-generic input[type="checkbox"] {
+    margin: 0;
+    accent-color: var(--rv-accent);
+    cursor: pointer;
+}
+
 /* Bar-chart pager — under a ranked list longer than one page (twenty bars).
    The buttons are toolbar buttons; a disabled one stays flat on hover. */
 .rv-bar-pager {

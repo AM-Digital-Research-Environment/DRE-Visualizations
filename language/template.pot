@@ -1907,6 +1907,10 @@ msgstr ""
 msgid "Show as a globe"
 msgstr ""
 
+#: config/client-strings.json:showAcademicWords
+msgid "Show common academic words"
+msgstr ""
+
 #: config/client-strings.json:degClearFiltersTitle
 msgid "Show every entity again and drop the current selection"
 msgstr ""

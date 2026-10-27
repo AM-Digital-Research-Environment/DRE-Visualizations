@@ -13,6 +13,14 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Added
+
+- *Words in the abstracts* hides the words every abstract uses about itself ("article", "paper", "study", "Studie", "étude", "artigo"…), which topped each language's cloud without saying what the publications are about. A *Show common academic words* checkbox under the word-count slider brings them back; its caption names the current language's three commonest.
+
+### Fixed
+
+- *Words in the abstracts* on the Publications dashboard has a cloud per language again (English, French, German, Portuguese, with the language toggle), instead of one cloud where the German abstracts' "und", "die" and "der" outranked every English word. Each abstract is assigned the language whose function words it uses most, which agrees with every abstract's own language tag on the live site. The PHP word cloud also stops German and Portuguese function words. Since 2.29.0 the dashboard had used the single-language PHP fallback, because the committed lemmatised input predates scoped inputs and no longer loads.
+
 ## [2.42.1] - 2026-10-26
 
 ### Changed

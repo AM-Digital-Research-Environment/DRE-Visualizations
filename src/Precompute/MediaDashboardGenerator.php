@@ -75,9 +75,11 @@ final class MediaDashboardGenerator extends DashboardGenerator
         }
         // Abstract word cloud — lemmatised frequencies from the wordclouds Action
         // (asset/data/wordclouds/publications.json), or an in-PHP fallback over the
-        // raw bibo:abstract text when that committed input is absent.
+        // raw bibo:abstract text when that committed input is absent, split by
+        // the language each abstract is written in, the words of scholarly prose
+        // ("article", "study") flagged for the viewer to hide.
         $absWc = $this->wordCloudInput('publications')
-            ?? $this->aggregators->buildTranscriptWordCloud($this->loadTextValues($pubs, 'bibo:abstract'));
+            ?? $this->aggregators->buildMultilingualWordCloud($this->loadTextValues($pubs, 'bibo:abstract'), markAcademic: true);
         if ($absWc) {
             $dashboard['abstractWordcloud'] = $absWc;
         }

@@ -640,6 +640,35 @@ check(($fallbackCounts['study'] ?? null) === 3
     'transcript fallback merges curated English/French word forms into readable lemmas');
 check(!isset($fallbackCounts['speaker'], $fallbackCounts['music']),
     'transcript fallback strips diarisation labels and audio cues');
+$abstractCloud = $aggregators->buildMultilingualWordCloud([
+    'The memory of the city is the subject of this archive, and of its memory.',
+    'The archive of the city and the memory of its people in the colonial archive.',
+    'Die Erinnerung an die Stadt und das Archiv der Stadt, mit der Erinnerung, war ein Thema.',
+    'La mémoire de la ville et les archives de la ville dans les récits.',
+    'Ekiwandiiko kino kilagira ddala bulungi.',
+]);
+$cloudWords = static fn (string $lang): array => array_column($abstractCloud['byLang'][$lang] ?? [], 'value', 'name');
+check(($abstractCloud['languages'] ?? null) === ['en', 'fr', 'de'],
+    'abstract cloud buckets each text by language, the most-used language first');
+check(($cloudWords('en')['memory'] ?? null) === 3 && ($cloudWords('en')['archive'] ?? null) === 3
+    && ($cloudWords('de')['erinnerung'] ?? null) === 2 && ($cloudWords('fr')['ville'] ?? null) === 2,
+    'abstract cloud counts each language\'s words in its own bucket');
+check(array_intersect(['und', 'die', 'der', 'das', 'mit', 'war'], array_keys($cloudWords('de'))) === []
+    && !isset($cloudWords('en')['und']),
+    'abstract cloud stops German function words, and German "war" only in German');
+check(!array_filter($abstractCloud['byLang']['en'], static fn (array $e): bool => isset($e['generic'])),
+    'abstract cloud flags no academic words unless asked to');
+$academicCloud = $aggregators->buildMultilingualWordCloud([
+    'This article is a study of the archive, and the study of the archive of the city.',
+    'The paper and the article examine the memory of the city in the archive.',
+], 1, true);
+$academicFlags = array_column($academicCloud['byLang']['en'] ?? [], 'generic', 'name');
+check(($academicFlags['article'] ?? null) === true && ($academicFlags['study'] ?? null) === true
+    && !isset($academicFlags['archive']) && array_key_exists('archive', array_column($academicCloud['byLang']['en'], 'value', 'name')),
+    'abstract cloud flags academic words, and keeps $topN words besides them');
+check($aggregators->buildMultilingualWordCloud(['archive memory archive memory']) === [
+    ['name' => 'archive', 'value' => 2], ['name' => 'memory', 'value' => 2],
+], 'abstract cloud falls back to one mixed cloud when no language can be told');
 
 // --- knowledge graph (IDF-ranked shared-item discovery) ---
 $kgItems = [
