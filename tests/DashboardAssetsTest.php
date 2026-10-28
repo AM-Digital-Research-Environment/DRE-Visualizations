@@ -63,20 +63,20 @@ $view = new AssetsTestView();
 $helper = assetsHelper($view);
 $helper([]);
 $helper(['cdn' => true, 'controller' => '', 'preludeOnly' => true]); // Module::addAssets, later
-$core = array_search('js/dashboard-core.js', $view->head->files, true);
+$core = array_search('js/dashboard-core.min.js', $view->head->files, true);
 $first = array_search('js/graph-canvas.js', $view->head->files, true);
 $controller = array_search('js/dashboard.js', $view->head->files, true);
 assetsCheck($core !== false && $first !== false && $core < $first,
-    'dashboard-core.js precedes the graph renderers when a block asks first');
-assetsCheck($controller !== false && $core < $controller, 'dashboard-core.js precedes the dashboard controller');
-assetsCheck(count(array_keys($view->head->files, 'js/dashboard-core.js', true)) === 1, 'dashboard-core.js is emitted once');
+    'the core precedes the graph renderers when a block asks first');
+assetsCheck($controller !== false && $core < $controller, 'the core precedes the dashboard controller');
+assetsCheck(count(array_keys($view->head->files, 'js/dashboard-core.min.js', true)) === 1, 'the core is emitted once');
 
 // The usual order (prelude by the listener, then the block) is unchanged.
 $view = new AssetsTestView();
 $helper = assetsHelper($view);
 $helper(['cdn' => true, 'controller' => '', 'preludeOnly' => true]);
 $helper([]);
-assetsCheck(array_search('js/dashboard-core.js', $view->head->files, true) === 0,
+assetsCheck(array_search('js/dashboard-core.min.js', $view->head->files, true) === 0,
     'with the prelude already emitted, nothing is moved');
 
 if ($failures) {

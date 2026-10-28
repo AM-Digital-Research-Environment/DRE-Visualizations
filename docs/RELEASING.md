@@ -12,7 +12,9 @@
    dependencies installed. If generated artifacts changed shape, confirm
    `SnapshotPublisher::SCHEMA_VERSION` was bumped and say in the changelog that
    the upgrade needs a regeneration.
-3. Commit the generated files (`asset/js/dashboard-charts.bundle.js`,
+3. Commit the generated files (`asset/js/dashboard-core.js`,
+   `asset/js/dashboard-charts.bundle.js`, their `.min.js` copies and the
+   `asset/css/dre-visualizations.min.css` Omeka serves, each with its `.map`,
    `config/dashboard-layouts.json`, `config/client-strings.json`). Create and
    push a signed or annotated `vX.Y.Z` tag pointing at that commit.
 4. The release workflow runs the whole CI workflow (both PHP versions, the

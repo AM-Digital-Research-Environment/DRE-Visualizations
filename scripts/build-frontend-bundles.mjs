@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 /**
- * Generates four committed files from the modular front-end sources:
+ * Generates committed files from the modular front-end sources:
  *   - asset/js/dashboard-core.js — CORE_SOURCES (scripts/lib/frontend-sources.mjs)
  *     concatenated in order;
  *   - asset/js/dashboard-charts.bundle.js — CHART_SCRIPTS concatenated in order;
+ *   - a minified `.min.js` / `.min.css` copy of both bundles and of
+ *     asset/css/dre-visualizations.css, each with a `.map` — what Omeka serves;
  *   - config/dashboard-layouts.json — each layout's chart keys, read by PHP
  *     (EmbedController answers 404 for a chart a layout does not render);
  *   - config/client-strings.json — every interface string the browser code
@@ -12,13 +14,16 @@
  *
  * Both bundles are plain concatenations of self-contained IIFEs, served as one
  * classic <script> each: native ES modules would drop Omeka's `?v=` cache-buster
- * from every relative import.
+ * from every relative import. The readable bundles stay committed and ship:
+ * the contract checks and unit tests load them, and the source maps point at
+ * them, so devtools show readable code on the live site too.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import vm from 'node:vm';
+import { transformSync } from 'esbuild';
 import { collectClientStrings } from './lib/client-strings.mjs';
-import { CHART_BUNDLE, CORE_BUNDLE, CORE_SOURCES } from './lib/frontend-sources.mjs';
+import { CHART_BUNDLE, CORE_BUNDLE, CORE_SOURCES, STYLESHEET, minifiedPath } from './lib/frontend-sources.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const helperPath = join(ROOT, 'src', 'View', 'Helper', 'DashboardAssets.php');
@@ -84,9 +89,37 @@ const expectedStrings = JSON.stringify({
   strings,
 }, null, 2) + '\n';
 
+/**
+ * The served copy of an asset/-relative readable file and its source map, as
+ * [path, contents] pairs. The map names the readable file beside it and carries
+ * no copy of it. ES2022 is the level the sources are linted at; without a
+ * target esbuild may rewrite them into newer syntax than they were written in.
+ */
+function minified(readable, contents, loader) {
+  const served = minifiedPath(readable);
+  const { code, map } = transformSync(contents, {
+    loader,
+    minify: true,
+    target: 'es2022',
+    sourcemap: 'external',
+    sourcefile: basename(readable),
+    sourcesContent: false,
+  });
+  const link = `sourceMappingURL=${basename(served)}.map`;
+  return [
+    [join(ROOT, 'asset', served), `${code.trimEnd()}\n${loader === 'css' ? `/*# ${link} */` : `//# ${link}`}\n`],
+    [join(ROOT, 'asset', served + '.map'), map.trimEnd() + '\n'],
+  ];
+}
+
+const stylesheet = readFileSync(join(ROOT, 'asset', STYLESHEET), 'utf8').replace(/\r\n/g, '\n');
+
 const outputs = [
   [coreOutputPath, expectedCore],
   [chartOutputPath, expectedCharts],
+  ...minified(CORE_BUNDLE, expectedCore, 'js'),
+  ...minified(CHART_BUNDLE, expectedCharts, 'js'),
+  ...minified(STYLESHEET, stylesheet, 'css'),
   [layoutsPath, expectedLayouts],
   [stringsPath, expectedStrings],
 ];

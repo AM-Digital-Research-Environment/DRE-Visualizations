@@ -443,8 +443,8 @@ DreVisualizations/
 The front-end script chain (chart builders + registry + controller) is injected by a
 single view helper — `src/View/Helper/DashboardAssets.php` (`$this->dashboardAssets(...)`).
 Registering a new chart means adding its builder file to that helper's `CHART_SCRIPTS`
-list once and running `npm run build`. Omeka loads the generated
-`dashboard-charts.bundle.js`, reducing the modular builder chain to one request;
+list once and running `npm run build`. Omeka loads the generated, minified
+`dashboard-charts.bundle.min.js`, reducing the modular builder chain to one request;
 `npm run check` rejects a stale bundle.
 
 The **in-Omeka regeneration** (the admin "Regenerate" button) is a self-contained PHP

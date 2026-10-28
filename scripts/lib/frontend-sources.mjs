@@ -12,8 +12,8 @@
  * soon as they run (startup.js resolves the theme and mounts the block embed
  * buttons), so everything they call must already be defined above them.
  *
- * The served file keeps its historical name, so every template, the
- * DashboardAssets helper and Module.php keep loading `js/dashboard-core.js`.
+ * The readable bundle keeps its historical name; what the DashboardAssets
+ * helper and the templates load is its minified copy (see MINIFIED below).
  */
 export const CORE_SOURCES = [
   'js/core/base.js',
@@ -36,8 +36,22 @@ export const CORE_BUNDLE = 'js/dashboard-core.js';
 /** The chart-builder bundle; its source order is DashboardAssets::CHART_SCRIPTS. */
 export const CHART_BUNDLE = 'js/dashboard-charts.bundle.js';
 
+/** The hand-written stylesheet. */
+export const STYLESHEET = 'css/dre-visualizations.css';
+
+/** The served copy of a readable file: `x.js` → `x.min.js`, `x.css` → `x.min.css`. */
+export function minifiedPath(path) {
+  return path.replace(/\.(js|css)$/, '.min.$1');
+}
+
+/**
+ * What Omeka serves: the two bundles and the stylesheet, minified by the build
+ * with a source map beside each that points back at the readable file.
+ */
+export const MINIFIED = [CORE_BUNDLE, CHART_BUNDLE, STYLESHEET];
+
 /** Every generated JavaScript file. Scanners read the sources instead. */
-export const GENERATED_JS = [CORE_BUNDLE, CHART_BUNDLE];
+export const GENERATED_JS = [CORE_BUNDLE, CHART_BUNDLE, minifiedPath(CORE_BUNDLE), minifiedPath(CHART_BUNDLE)];
 
 /** Whether an asset/-relative path (forward slashes) is a generated file. */
 export function isGeneratedJs(assetPath) {

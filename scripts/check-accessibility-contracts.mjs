@@ -151,7 +151,7 @@ requireFragment(core, 'ns.mapPopup = function', 'core/maps.js must provide ns.ma
 const mapsCore = read('asset/js/core/maps.js');
 for (const file of readdirSync(join(ROOT, 'asset/js'), { recursive: true })) {
   const path = 'asset/js/' + String(file).replace(/\\/g, '/');
-  if (!path.endsWith('.js') || path.endsWith('.bundle.js') || path.endsWith('dashboard-core.js')) continue;
+  if (!path.endsWith('.js') || path.endsWith('.bundle.js') || path.endsWith('dashboard-core.js') || path.endsWith('.min.js')) continue;
   const source = read(path);
   const own = source === mapsCore ? source.replace('new maplibregl.Popup(options)', '') : source;
   if (/new (window\.)?maplibregl\.Popup\(/.test(own)) {

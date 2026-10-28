@@ -14,6 +14,7 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { MINIFIED, minifiedPath } from './lib/frontend-sources.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const archive = process.argv[2];
@@ -30,7 +31,10 @@ const failures = [];
 const helper = readFileSync(join(ROOT, 'src/View/Helper/DashboardAssets.php'), 'utf8')
   .replace(/const CHART_SCRIPTS = \[[\s\S]*?\];/, '');
 const runtimeAssets = new Set([...helper.matchAll(/'((?:js|css|vendor)\/[^']+\.(?:js|css))'/g)].map((m) => 'asset/' + m[1]));
-for (const required of [...runtimeAssets, 'asset/js/dashboard-charts.bundle.js',
+// The served minified files, their source maps and the readable files the maps
+// point back to, so devtools on the live site show readable code.
+const debugAssets = MINIFIED.flatMap((path) => [path, minifiedPath(path) + '.map']).map((path) => 'asset/' + path);
+for (const required of [...runtimeAssets, ...debugAssets,
   'config/dashboard-layouts.json', 'config/client-strings.json', 'config/module.ini', 'Module.php',
   // The translation catalogue Omeka's translator is pointed at (module.config.php).
   'language/template.pot']) {

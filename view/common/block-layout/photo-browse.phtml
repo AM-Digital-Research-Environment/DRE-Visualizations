@@ -169,9 +169,9 @@ $payload = \DreVisualizations\View\Helper\DashboardAssets::scriptJson($photos);
 // MapLibre on demand, so we skip the full chart-builder chain and only inject
 // the stylesheet, the shared RV core helpers, and this block's engine.
 $this->headLink()->appendStylesheet(
-    $this->assetUrl('css/dre-visualizations.css', 'DreVisualizations'));
+    $this->assetUrl(\DreVisualizations\View\Helper\DashboardAssets::STYLESHEET, 'DreVisualizations'));
 $this->headScript()->appendFile(
-    $this->assetUrl('js/dashboard-core.js', 'DreVisualizations'), 'text/javascript', ['defer' => true]);
+    $this->assetUrl(\DreVisualizations\View\Helper\DashboardAssets::CORE_JS, 'DreVisualizations'), 'text/javascript', ['defer' => true]);
 $this->headScript()->appendFile(
     $this->assetUrl('js/item-set-photo-views.js', 'DreVisualizations'), 'text/javascript', ['defer' => true]);
 ?>

@@ -11,6 +11,7 @@ export default [
       'asset/vendor/**',
       'asset/js/dashboard-core.js',          // generated from asset/js/core/
       'asset/js/dashboard-charts.bundle.js', // generated from CHART_SCRIPTS
+      'asset/js/*.min.js',                   // minified copies of the two above
       'node_modules/**',
       'tests/golden/**',
       '.cache/**',

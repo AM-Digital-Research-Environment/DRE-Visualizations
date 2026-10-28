@@ -58,7 +58,9 @@ before replacing a container; cleanup disposes charts, removes maps and stops
 graph simulations/observers. Theme changes only rebuild live maps.
 
 Browser sources remain modular. npm run build concatenates the ordered builder
-list into the committed runtime bundle. Playwright is a development dependency;
+list into the committed runtime bundle, then minifies it, the core and the
+stylesheet into the `.min` files Omeka serves, with source maps to the readable
+copies (which ship too). Playwright is a development dependency;
 no Node/Composer install is required on the Omeka host. Modules must not bundle
 Omeka's Laminas or PSR packages.
 

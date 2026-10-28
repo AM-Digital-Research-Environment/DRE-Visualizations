@@ -25,12 +25,12 @@ function surface(className, data = {}, { statusInside = false } = {}) {
 
 const PAGES = {
   compare: {
-    scripts: ['vendor/echarts.min.js', 'js/dashboard-core.js', 'js/graph-canvas.js', 'js/graph-force.js',
-      'js/dashboard-charts.bundle.js', 'js/dashboard-compare-unify.js', 'js/dashboard-compare.js'],
+    scripts: ['vendor/echarts.min.js', 'js/dashboard-core.min.js', 'js/graph-canvas.js', 'js/graph-force.js',
+      'js/dashboard-charts.bundle.min.js', 'js/dashboard-compare-unify.js', 'js/dashboard-compare.js'],
     body: `<div class="resource-vis-block compare-block">${surface('compare-container')}</div><div id="ownership"></div>`,
   },
   dashboard: {
-    scripts: ['js/dashboard-core.js', 'js/dashboard-charts.bundle.js', 'js/dashboard.js'],
+    scripts: ['js/dashboard-core.min.js', 'js/dashboard-charts.bundle.min.js', 'js/dashboard.js'],
     body: `<div class="resource-vis-block dashboard-block">${surface('dashboard-async-container', {
       'item-id': 'test',
       'ready-status': 'Visualisations ready.',
@@ -39,7 +39,7 @@ const PAGES = {
     }, { statusInside: true })}</div>`,
   },
   semantic: {
-    scripts: ['js/dashboard-core.js', 'js/semantic-map.js'],
+    scripts: ['js/dashboard-core.min.js', 'js/semantic-map.js'],
     body: `<div class="resource-vis-block semantic-map-block">${surface('semantic-map-container', { 'embed-slug': 'semantic-map' })}</div>`,
   },
 };
@@ -60,7 +60,7 @@ export function fixturePage(name, { theme = 'light', i18n = {} } = {}) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DRE Visualizations fixture: ${name}</title>
-<link rel="stylesheet" href="/asset/css/dre-visualizations.css">
+<link rel="stylesheet" href="/asset/css/dre-visualizations.min.css">
 <style>
   body { margin: 0; padding: 1rem; background: var(--rv-bg); color: var(--rv-text-strong);
          font-family: system-ui, sans-serif; }
