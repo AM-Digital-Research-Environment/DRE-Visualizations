@@ -14,6 +14,9 @@
 # byte-identical to upstream — no EOL conversion — and exclude from GitHub's
 # language statistics and diffs.
 asset/vendor/** -text -diff linguist-vendored
+# …except the manifest that records them (scripts/check-vendor.mjs), which is
+# this repository's own file and is reviewed like one.
+asset/vendor/versions.json text eol=lf diff -linguist-vendored
 
 # Golden precompute output (tests/integration/GoldenTest.php): regenerated,
 # not hand-edited — collapse it in review diffs.

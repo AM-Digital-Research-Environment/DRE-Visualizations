@@ -23,65 +23,31 @@
  * that would never be re-fetched after an upgrade.
  *
  * The npm tarball is verified against the integrity hash the registry
- * publishes before a byte of it is read, and every file written is reported
- * with its SHA-256 so the vendored diff can be audited.
+ * publishes before a byte of it is read (scripts/lib/npm-tarball.mjs), every
+ * file written is reported with its SHA-256 so the vendored diff can be
+ * audited, and asset/vendor/versions.json — the pin this script defaults to —
+ * is rewritten with the new version and hashes. Update THIRD_PARTY_NOTICES to
+ * match; `npm run check:vendor` fails until it does.
  *
  * Usage: node scripts/vendor-maplibre.mjs [version]
  */
-import { createHash } from 'node:crypto';
-import { gunzipSync } from 'node:zlib';
-import { writeFileSync, rmSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, rmSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { packageFiles, sha256 } from './lib/npm-tarball.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const VENDOR = join(ROOT, 'asset', 'vendor');
-// The pinned release. Bump here, re-run, then update THIRD_PARTY_NOTICES and
-// the version comment in DashboardAssets to match.
-const PINNED = '6.16.0';
+const MANIFEST = join(VENDOR, 'versions.json');
+const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
 /** Any relative static or dynamic import, which would drop Omeka's `?v=`. */
 const RELATIVE_IMPORT = /(?:\bfrom\s*|\bimport\s*\(\s*)["'`]\.\.?\//;
 
-const version = process.argv[2] || PINNED;
-
-/** Minimal ustar reader — enough for an npm tarball's flat `package/` layout. */
-function untar(buffer) {
-  const entries = new Map();
-  for (let offset = 0; offset + 512 <= buffer.length;) {
-    const header = buffer.subarray(offset, offset + 512);
-    const name = header.subarray(0, 100).toString('utf8').replace(/\0.*$/, '');
-    if (!name) break; // two zero blocks terminate the archive
-    const size = parseInt(header.subarray(124, 136).toString('utf8').replace(/\0.*$/, '').trim(), 8) || 0;
-    const type = header.subarray(156, 157).toString('utf8');
-    offset += 512;
-    if (type === '0' || type === '') entries.set(name, buffer.subarray(offset, offset + size));
-    offset += Math.ceil(size / 512) * 512;
-  }
-  return entries;
-}
-
-const sha256 = (data) => createHash('sha256').update(data).digest('hex');
+const version = process.argv[2] || manifest.packages['maplibre-gl'].version;
 
 async function main() {
-  const meta = await fetch(`https://registry.npmjs.org/maplibre-gl/${version}`)
-    .then((response) => {
-      if (!response.ok) throw new Error(`npm registry returned ${response.status} for maplibre-gl@${version}`);
-      return response.json();
-    });
-  const { tarball, integrity } = meta.dist;
-  const archive = Buffer.from(await fetch(tarball).then((response) => {
-    if (!response.ok) throw new Error(`tarball download returned ${response.status}`);
-    return response.arrayBuffer();
-  }));
-
-  // npm publishes `sha512-<base64>`; anything else would be an older or a
-  // tampered-with packument, and we would rather stop than vendor it.
-  const [algorithm, expected] = String(integrity).split('-');
-  if (algorithm !== 'sha512') throw new Error(`unexpected integrity algorithm: ${integrity}`);
-  const actual = createHash('sha512').update(archive).digest('base64');
-  if (actual !== expected) throw new Error(`tarball integrity mismatch\n  expected ${expected}\n  actual   ${actual}`);
+  const files = await packageFiles('maplibre-gl', version);
   console.log(`maplibre-gl@${version}: tarball verified against npm integrity (sha512).`);
 
-  const files = untar(gunzipSync(archive));
   const take = (name) => {
     const data = files.get(`package/dist/${name}`);
     if (!data) throw new Error(`maplibre-gl@${version} ships no dist/${name}`);
@@ -112,11 +78,15 @@ async function main() {
     }
   }
 
+  const pin = manifest.packages['maplibre-gl'];
+  pin.version = version;
   for (const [name, contents] of written) {
     writeFileSync(join(VENDOR, name), contents, 'utf8');
-    console.log(`  asset/vendor/${name}  ${Buffer.byteLength(contents)} bytes  sha256:${sha256(contents)}`);
+    pin.files[name].sha256 = sha256(contents);
+    console.log(`  asset/vendor/${name}  ${Buffer.byteLength(contents)} bytes  sha256:${pin.files[name].sha256}`);
   }
-  console.log(`Vendored maplibre-gl ${version} (renamed .mjs -> .js; contents unchanged).`);
+  writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
+  console.log(`Vendored maplibre-gl ${version} (renamed .mjs -> .js; contents unchanged); asset/vendor/versions.json updated.`);
 }
 
 main().catch((error) => {
