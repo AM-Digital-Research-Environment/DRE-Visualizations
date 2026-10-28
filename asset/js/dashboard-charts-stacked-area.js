@@ -28,7 +28,9 @@
             tooltip: {
                 trigger: 'axis',
                 confine: true,
-                axisPointer: { type: 'cross' }
+                axisPointer: { type: 'cross' },
+                // Only the series present that year, largest first.
+                formatter: ns.axisTooltip
             },
             aria: { enabled: true },
             legend: {

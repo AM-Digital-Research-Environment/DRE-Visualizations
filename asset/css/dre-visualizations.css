@@ -1359,6 +1359,53 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     box-shadow: var(--rv-focus-ring);
 }
 
+/* Network "Colour by" switch — collaboration group or affiliation (shown only
+   when the precompute recorded affiliations). Sits with the legend under the
+   graph, in the same segmented style as the word-cloud language toggle. */
+.rv-colour-mode {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--rv-space-1);
+    margin: 0 0 var(--rv-space-2);
+}
+
+.rv-colour-mode-label {
+    margin-right: var(--rv-space-1);
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-xs);
+}
+
+.rv-colour-mode-btn {
+    margin: 0;
+    padding: var(--rv-space-1) var(--rv-space-2);
+    border: 1px solid var(--rv-border);
+    border-radius: var(--rv-radius-md);
+    background: var(--rv-bg);
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-xs);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--rv-transition-fast), color var(--rv-transition-fast), border-color var(--rv-transition-fast);
+}
+
+.rv-colour-mode-btn:hover {
+    background: var(--rv-bg-raised);
+    color: var(--rv-accent);
+    border-color: var(--rv-accent);
+}
+
+.rv-colour-mode-btn[aria-pressed="true"] {
+    background: var(--rv-accent);
+    color: var(--rv-accent-contrast);
+    border-color: var(--rv-accent);
+}
+
+.rv-colour-mode-btn:focus-visible {
+    outline: 2px solid transparent;
+    box-shadow: var(--rv-focus-ring);
+}
+
 .chart-container {
     width: 100%;
     max-width: 100%;

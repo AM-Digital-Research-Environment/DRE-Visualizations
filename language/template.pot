@@ -98,6 +98,7 @@ msgid "affiliation"
 msgstr ""
 
 #: config/client-strings.json:affiliation
+#: config/client-strings.json:colourByAffiliation
 msgid "Affiliation"
 msgstr ""
 
@@ -111,6 +112,10 @@ msgstr ""
 
 #: config/client-strings.json:networkStatAffiliations
 msgid "Affiliations"
+msgstr ""
+
+#: config/client-strings.json:affiliationCluster
+msgid "Africa Multiple cluster"
 msgstr ""
 
 #: config/client-strings.json:chartLabel.clusterPartners
@@ -296,6 +301,10 @@ msgstr ""
 msgid "Co-occurrence network. Use the arrow keys to move between connected people and Enter to select one."
 msgstr ""
 
+#: config/client-strings.json:colourByGroup
+msgid "Collaboration group"
+msgstr ""
+
 #: config/client-strings.json:chartLabel.collabNetwork
 msgid "Collaboration network"
 msgstr ""
@@ -333,6 +342,7 @@ msgstr ""
 msgid "Collection: {title} ({records})"
 msgstr ""
 
+#: config/client-strings.json:colourBy
 #: config/client-strings.json:degColorBy
 #: config/client-strings.json:semanticColorBy
 msgid "Colour by"
@@ -1226,6 +1236,10 @@ msgstr ""
 msgid "No canonical public site is configured. Open this module’s configuration, select a public site, and save before regenerating data."
 msgstr ""
 
+#: config/client-strings.json:affiliationNone
+msgid "No cluster affiliation recorded"
+msgstr ""
+
 #: config/client-strings.json:noItems
 msgid "No items"
 msgstr ""
@@ -1402,6 +1416,10 @@ msgstr ""
 
 #: config/client-strings.json:semanticLowSignal
 msgid "Pale dots are records with little or no description, so their position is less reliable."
+msgstr ""
+
+#: config/client-strings.json:affiliationPartner
+msgid "Partner institution"
 msgstr ""
 
 #: config/client-strings.json:compareNounPeople
@@ -1953,6 +1971,10 @@ msgstr ""
 
 #: src/Site/ResourcePageBlockLayout/SimilarItems.php:14
 msgid "Similar Items"
+msgstr ""
+
+#: config/client-strings.json:smallerGroups
+msgid "Smaller groups"
 msgstr ""
 
 #: config/client-strings.json:visualizationsPartial

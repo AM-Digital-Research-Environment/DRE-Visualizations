@@ -61,7 +61,13 @@ final class MediaDashboardGenerator extends DashboardGenerator
         if ($v = $this->aggregators->buildTopLinked($pubs, $this->links, $this->items, 'frapo:isFundedBy')) {
             $dashboard['funders'] = $v;
         }
-        if ($v = $this->aggregators->buildCoAuthorNetwork($pubs, $this->links, $this->literals, $this->items)) {
+        // The whole network, not a top slice: every author or editor with at
+        // least one collaborator here, each tagged cluster / partner where the
+        // records say so.
+        $affiliations = $this->aggregators->personAffiliations($this->items, $this->links,
+            $this->profile->clusterCategoryAuthorities(),
+            [$this->profile->template('projects'), $this->profile->template('sections')]);
+        if ($v = $this->aggregators->buildCoAuthorNetwork($pubs, $this->links, $this->literals, $this->items, 1, PHP_INT_MAX, $affiliations)) {
             $dashboard['coAuthorNetwork'] = $v;
         }
         if ($v = $this->aggregators->buildChord($pubs, $this->links, $this->items)) {
@@ -69,9 +75,6 @@ final class MediaDashboardGenerator extends DashboardGenerator
         }
         if ($v = $this->aggregators->buildStackedTimeline($pubs, $this->links, $this->items, $this->itemYear)) {
             $dashboard['stackedTimeline'] = $v;
-        }
-        if ($v = $this->aggregators->buildSubjectTrends($pubs, $this->links, $this->items, $this->itemYear)) {
-            $dashboard['subjectTrends'] = $v;
         }
         // Abstract word cloud — lemmatised frequencies from the wordclouds Action
         // (asset/data/wordclouds/publications.json), or an in-PHP fallback over the
@@ -148,7 +151,6 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'coAuthorNetwork' => 'Collaboration network',
             'chord' => 'Keywords that appear together',
             'subjects' => 'Keywords',
-            'subjectTrends' => 'Keywords over time',
             'abstractWordcloud' => 'Words in the abstracts',
             'similarity' => 'Publications by similarity',
         ];
@@ -157,15 +159,14 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'languages' => 'The languages the publications are written in.',
             'stackedTimeline' => 'Publications issued each year, split by type.',
             'locations' => 'Countries are shaded by the number of publications that appeared there: an article counts for the country its journal comes from, a book or chapter for the country of its place of publication. The bubbles mark those places of publication, sized by the number of publications issued there. Click a country or a bubble to list its publications.',
-            'topJournals' => 'The journals these publications appear in most often. Click a bar to open the journal\'s page.',
+            'topJournals' => 'The journals these publications appear in most often. Click a bar to open the journal\'s page. On a touch screen, the first tap shows the count and a second tap opens the page.',
             'topSeries' => 'The book and working-paper series these publications belong to most often.',
             'topPublishers' => 'The publishers that issued the most of these publications.',
-            'funders' => 'The funding bodies credited on these publications. Click a bar to open a funder\'s page.',
+            'funders' => 'The funding bodies credited on these publications. Click a bar to open a funder\'s page. On a touch screen, the first tap shows the count and a second tap opens the page.',
             'topAuthors' => 'The authors credited on the most publications.',
-            'coAuthorNetwork' => 'Authors and editors are linked when they appear on the same publication. Each person is scored by how well connected they are across the whole network; the chart starts from the best-connected person and keeps adding the best-connected collaborator of someone already shown, up to 120 people. Circle size follows that score, and circle colour marks groups who publish together more often than with others. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.',
+            'coAuthorNetwork' => 'Authors and editors are linked when they appear on the same publication. The chart shows everyone with at least one collaborator. Circle size follows how well connected a person is across the network. Circle colour marks groups who publish together more often than with others, or, if you switch the colouring, whether a person belongs to the Africa Multiple cluster or a partner institution. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.',
             'chord' => 'Keywords that are often assigned to the same publication.',
             'subjects' => 'The keywords assigned to these publications most often.',
-            'subjectTrends' => 'How the most frequent keywords rise and fall over the years.',
             'abstractWordcloud' => 'The words that come up most often across the publication abstracts. Words are reduced to their base form, and everyday words such as "the" and "of" are left out.',
             'similarity' => 'Each dot is a publication. Publications about similar topics appear close to each other, even when they are in different languages. Colours show the type of publication. Pale dots are publications with little or no abstract, so their position is less reliable. Click a dot to open the publication. To zoom, use the buttons above the chart or hold Ctrl and scroll. Drag to move around.',
         ];

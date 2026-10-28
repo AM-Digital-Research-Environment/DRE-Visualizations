@@ -200,12 +200,12 @@ check($hm['rows'] === ['Book'], 'buildHeatmap drops a type with no language (Map
 check($hm['cols'] === ['English'], 'buildHeatmap keeps only languages paired with a type');
 check($hm['values'] === [[0, 0, 1]], 'buildHeatmap Book × English = 1');
 
-// --- buildStackedTimeline: publications stack under their synthetic type, else "(no type)" ---
+// --- buildStackedTimeline: publications stack under their synthetic type, else "No type" ---
 $stItems = [10 => ['title' => 'Book']];
 $stLinks = [
     1 => [['dcterms:type', 'T', 10]], // 2018, Book
     2 => [],                          // 2018, no type, marked publication
-    3 => [],                          // 2019, no type, no synthetic -> "(no type)"
+    3 => [],                          // 2019, no type, no synthetic -> "No type"
 ];
 $st = $aggregators->buildStackedTimeline([1, 2, 3], $stLinks, $stItems, [1 => '2018', 2 => '2018', 3 => '2019'], [2 => 'Publication']);
 // Years come back as ints (PHP coerces the numeric-string year keys of $yearType).
@@ -214,7 +214,7 @@ $stSeries = [];
 foreach ($st['series'] as $s) { $stSeries[$s['name']] = $s['data']; }
 check(($stSeries['Book'] ?? null) === [1, 0], 'buildStackedTimeline keeps real linked types');
 check(($stSeries['Publication'] ?? null) === [1, 0], 'buildStackedTimeline stacks a publication under "Publication"');
-check(($stSeries['(no type)'] ?? null) === [0, 1], 'buildStackedTimeline still falls back to "(no type)" without a synthetic label');
+check(($stSeries['No type'] ?? null) === [0, 1], 'buildStackedTimeline still falls back to "No type" without a synthetic label');
 
 // buildStackedTimeline: a synthetic type overrides the item's own dcterms:type
 $stOvLinks = [
@@ -587,6 +587,52 @@ check($cnComm === range(0, count($cnNet['communities'] ?? []) - 1), 'coAuthorNet
 // --- buildCoAuthorNetwork returns a graph within the cap whole ---
 $allNet = $aggregators->buildCoAuthorNetwork(array_keys($cnLits), [], $cnLits, []);
 check(count($allNet['nodes'] ?? []) === 15, 'coAuthorNetwork: every component is shown when the graph fits the cap');
+
+// --- buildCoAuthorNetwork folds the groups past the palette into one ---
+// Fourteen separate pairs are fourteen communities: the eleven largest keep
+// their colour, the other three share the merged remainder, listed last.
+$mgLits = [];
+for ($k = 0; $k < 14; $k++) {
+    for ($r = 0; $r <= ($k < 11 ? 1 : 0); $r++) { $mgLits[700 + $k * 2 + $r] = ['bibo:authorList' => ['P' . $k, 'Q' . $k]]; }
+}
+$mgNet = $aggregators->buildCoAuthorNetwork(array_keys($mgLits), [], $mgLits, [], 1, PHP_INT_MAX);
+$mgComms = $mgNet['communities'] ?? [];
+check(count($mgComms) === A::COMMUNITY_COLOURS, 'coAuthorNetwork: no more communities than the palette has colours');
+$mgLast = end($mgComms);
+check(!empty($mgLast['merged']) && $mgLast['size'] === 6 && $mgLast['anchor'] === null, 'coAuthorNetwork: the smallest groups share the merged community, listed last');
+
+// --- personAffiliations: research centres and memberships are the cluster ---
+$afItems = [
+    1 => ['title' => 'Africa Multiple Research Centres', 'template_id' => 6],
+    2 => ['title' => 'Cooperation partners', 'template_id' => 6],
+    10 => ['title' => 'Rhodes University', 'template_id' => 2],
+    11 => ['title' => 'Institute at Rhodes', 'template_id' => 2],
+    12 => ['title' => 'Partner university', 'template_id' => 2],
+    13 => ['title' => 'Elsewhere', 'template_id' => 2],
+    20 => ['title' => 'Centre person', 'template_id' => 4],
+    21 => ['title' => 'Partner person', 'template_id' => 4],
+    22 => ['title' => 'Project member', 'template_id' => 4],
+    23 => ['title' => 'Unaffiliated', 'template_id' => 4],
+    24 => ['title' => 'Partner and centre', 'template_id' => 4],
+    30 => ['title' => 'Project', 'template_id' => 5],
+];
+$afLinks = [
+    10 => [['dcterms:isPartOf', 'Part of', 1]],
+    11 => [['dcterms:isPartOf', 'Part of', 10]],
+    12 => [['dcterms:isPartOf', 'Part of', 2]],
+    20 => [['dcterms:isPartOf', 'Part of', 11]],
+    21 => [['dcterms:isPartOf', 'Part of', 12]],
+    23 => [['dcterms:isPartOf', 'Part of', 13]],
+    24 => [['dcterms:isPartOf', 'Part of', 12], ['dcterms:isPartOf', 'Part of', 10]],
+    30 => [['foaf:member', 'Member', 22], ['foaf:member', 'Member', 21]],
+];
+$af = $aggregators->personAffiliations($afItems, $afLinks, [1 => 'amrc', 2 => 'cooperation'], [5]);
+check($af === [20 => 'cluster', 21 => 'cluster', 22 => 'cluster', 24 => 'cluster'], 'personAffiliations: centre (through a parent institute) and project members are the cluster');
+$af2 = $aggregators->personAffiliations($afItems, $afLinks, [1 => 'amrc', 2 => 'cooperation'], []);
+check(($af2[21] ?? null) === 'partner' && !isset($af2[22]) && !isset($af2[23]), 'personAffiliations: a partner affiliation alone is a partner; no record, no affiliation');
+$afNet = $aggregators->buildCoAuthorNetwork([800, 801], [800 => [['bibo:authorList', 'A', 20], ['bibo:authorList', 'A', 23]], 801 => [['bibo:authorList', 'A', 20], ['bibo:authorList', 'A', 22]]], [], $afItems, 1, 120, $af);
+$afOf = array_column($afNet['nodes'] ?? [], 'affiliation', 'name');
+check(($afOf['Centre person'] ?? null) === 'cluster' && !isset($afOf['Unaffiliated']), 'coAuthorNetwork: nodes carry the affiliation they have');
 
 // --- louvainMultiLevel merges what one local-moving pass leaves apart ---
 // A ring of 12 triangles: one pass stops at the triangles, but pairing

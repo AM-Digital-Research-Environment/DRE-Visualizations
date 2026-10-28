@@ -34,6 +34,12 @@
         if (existing) existing.dispose();
         var chart = echarts.init(el, ns._echartsTheme);
         ns._allCharts.push(chart);
+        // The last pointer that pressed on the chart, for ns.confirmOpen: a tap
+        // previews before it opens, a mouse click opens.
+        if (!el._rvPointerTracked && el.addEventListener) {
+            el._rvPointerTracked = true;
+            el.addEventListener('pointerdown', function (e) { el._rvPointer = e.pointerType; }, { capture: true, passive: true });
+        }
         if (ns.prefersReducedMotion()) chart.setOption({ animation: false });
         var label = ns.labelChart(el);
         // ECharts writes its own generic aria-label ("This is a chart…") on the
@@ -359,14 +365,64 @@
     };
 
     /**
+     * Axis tooltip for multi-series charts (stacked bars and areas): the axis
+     * value, then only the series with a value there, largest first. A year of
+     * the stacked timeline otherwise lists every publication type, most at zero.
+     */
+    ns.axisTooltip = function (params) {
+        var list = Array.isArray(params) ? params : [params];
+        if (!list.length) return '';
+        function valueOf(p) {
+            var v = Array.isArray(p.value) ? p.value[p.value.length - 1] : p.value;
+            return Number(v);
+        }
+        var rows = list.filter(function (p) {
+            var v = valueOf(p);
+            return isFinite(v) && v !== 0;
+        }).sort(function (a, b) { return valueOf(b) - valueOf(a); });
+        return '<strong>' + ns.escapeHtml(list[0].axisValueLabel != null ? list[0].axisValueLabel : list[0].name) + '</strong>'
+            + rows.map(function (p) {
+                // p.marker is ECharts' own swatch markup, built from the series colour.
+                return '<br/>' + (p.marker || '') + ns.escapeHtml(p.seriesName)
+                    + '<span style="float:right;margin-left:16px;font-weight:600">'
+                    + ns.escapeHtml(ns.formatNumber(valueOf(p))) + '</span>';
+            }).join('');
+    };
+
+    /**
+     * Whether a click on a chart element should open its record. A mouse click
+     * opens it at once; on a touch screen, where there is no hover to read the
+     * value first, the first tap only shows the tooltip and a second tap on the
+     * same element opens the record. Tapping elsewhere starts over.
+     */
+    ns.confirmOpen = function (chart, params) {
+        var dom = chart.getDom && chart.getDom();
+        var pointer = dom && dom._rvPointer;
+        if (pointer !== 'touch' && pointer !== 'pen') return true;
+        var key = [params.seriesIndex, params.dataType || '', params.dataIndex, params.name].join('|');
+        if (chart._rvArmed === key) {
+            chart._rvArmed = null;
+            return true;
+        }
+        chart._rvArmed = key;
+        if (!chart._rvArmWatch) {
+            chart._rvArmWatch = true;
+            chart.getZr().on('click', function (e) { if (!e.target) chart._rvArmed = null; });
+        }
+        return false;
+    };
+
+    /**
      * Add click-to-navigate and pointer cursor on chart elements. Builders put
      * `itemId` on each series data item, which identifies the clicked datum even
      * when two share a name; `entries` (an array, or a function returning the
-     * current one) is only the fallback lookup by name.
+     * current one) is only the fallback lookup by name. On a touch screen the
+     * first tap shows the value and the second opens the record (confirmOpen).
      */
     ns.addClickHandler = function (chart, entries, siteBase) {
         if (!siteBase) return;
         chart.on('click', function (params) {
+            if (!ns.confirmOpen(chart, params)) return;
             var id = params.data && typeof params.data === 'object' ? params.data.itemId : null;
             if (id == null) {
                 var list = typeof entries === 'function' ? entries() : entries;

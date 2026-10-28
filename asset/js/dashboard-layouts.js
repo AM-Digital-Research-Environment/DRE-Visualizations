@@ -205,7 +205,7 @@
             tall:  ['subjects', 'locations']
         },
         // Half-width charts are paired consecutively (types+languages,
-        // topJournals+topSeries, topPublishers+topAuthors) so none sits alone on
+        // topJournals+topPublishers, topSeries+topAuthors) so none sits alone on
         // a row; every other key is full-width. `templates` and the (empty)
         // `timeline` are intentionally omitted — `types` already breaks
         // publications down by type. `locations` here is the places-of-publication
@@ -214,15 +214,13 @@
         // the dashboard's own labels override.
         publications: {
             order: ['types', 'languages', 'stackedTimeline', 'locations',
-                    'topJournals', 'topSeries', 'topPublishers', 'topAuthors',
+                    'topJournals', 'topPublishers', 'topSeries', 'topAuthors',
                     'funders', 'coAuthorNetwork',
-                    'chord', 'subjects', 'subjectTrends', 'abstractWordcloud',
-                    'similarity'],
+                    'chord', 'subjects', 'abstractWordcloud', 'similarity'],
             wide:  ['stackedTimeline', 'locations', 'funders', 'coAuthorNetwork',
-                    'chord', 'subjects', 'subjectTrends', 'abstractWordcloud',
-                    'similarity'],
+                    'chord', 'subjects', 'abstractWordcloud', 'similarity'],
             tall:  ['locations', 'coAuthorNetwork', 'chord', 'subjects',
-                    'subjectTrends', 'abstractWordcloud', 'similarity']
+                    'abstractWordcloud', 'similarity']
         },
         // Cluster YouTube channel (youtube.json). Videos carry no resource type
         // or geography, so the layout shows uploads over time, the language mix,

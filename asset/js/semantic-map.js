@@ -257,7 +257,7 @@
         chart._semanticRestoreLabel();
         chart.on('click', function (params) {
             var id = Number(params.data && params.data.id);
-            if (Number.isInteger(id) && id > 0) {
+            if (Number.isInteger(id) && id > 0 && ns.confirmOpen(chart, params)) {
                 window.location.href = ns.itemUrl((container.getAttribute('data-site-base') || ''), id);
             }
         });

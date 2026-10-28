@@ -28,7 +28,8 @@
 
         var zoom = buildDataZoom(data.years.length);
         chart.setOption({
-            tooltip: { trigger: 'axis', confine: true },
+            // Only the types published that year, largest first.
+            tooltip: { trigger: 'axis', confine: true, formatter: ns.axisTooltip },
             aria: { enabled: true, decal: { show: ns._decalEnabled } },
             dataZoom: zoom,
             legend: { bottom: zoom.length ? 50 : 5, textStyle: { fontSize: THEME.fontSize }, type: 'scroll' },

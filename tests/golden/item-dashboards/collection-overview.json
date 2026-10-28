@@ -870,16 +870,16 @@
   "stackedTimeline": {
     "series": [
       {
-        "data": [2,1,1,0,0,0,1],
-        "name": "(no type)"
-      },
-      {
         "data": [5,4,3,1,4,2,2],
         "name": "Field notes"
       },
       {
         "data": [1,2,3,4,7,4,3],
         "name": "Interview"
+      },
+      {
+        "data": [2,1,1,0,0,0,1],
+        "name": "No type"
       },
       {
         "data": [2,3,5,1,5,2,3],

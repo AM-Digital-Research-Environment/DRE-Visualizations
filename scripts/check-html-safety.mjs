@@ -60,7 +60,7 @@ const inventory = {
 // An exact ratchet: a new sink fails until it is reviewed and the baseline is
 // raised, and a removed one fails until the baseline is lowered — so the
 // numbers never drift into headroom that would hide the next sink.
-const reviewedCounts = { setHTML: 10, innerHTML: 43, insertAdjacentHTML: 0, tooltipFormatters: 14 };
+const reviewedCounts = { setHTML: 10, innerHTML: 43, insertAdjacentHTML: 0, tooltipFormatters: 16 };
 for (const [kind, value] of Object.entries(inventory)) {
   if (value !== reviewedCounts[kind]) {
     fail(`${kind} sink count is ${value}, reviewed baseline is ${reviewedCounts[kind]} — review the change and update reviewedCounts`);
@@ -80,6 +80,10 @@ const requiredFixes = [
   // dashboard-core.js is generated from asset/js/core/; the embed snippet lives in embed.js.
   ['asset/js/core/embed.js', "ns.escapeHtml(src) + '\" title=\"' + ns.escapeHtml(title || '')"],
   ['asset/js/dashboard-charts-treemap.js', 'echarts.format.encodeHTML(n.name'],
+  // The shared axis tooltip (stacked timeline, stacked areas) names series and
+  // axis values from curated metadata.
+  ['asset/js/core/charts.js', "ns.escapeHtml(p.seriesName)"],
+  ['asset/js/core/charts.js', "'<strong>' + ns.escapeHtml(list[0].axisValueLabel"],
 ];
 for (const [file, fragment] of requiredFixes) {
   if (!read(join(ROOT, file)).includes(fragment)) {

@@ -25,7 +25,7 @@ trait TemporalChartsTrait
      * stack in place of (overriding) the item's own dcterms:type — e.g. every
      * publication stacks under one "Publication" series, whatever its
      * bibliographic type. Items with neither a synthetic label nor a dcterms:type
-     * fall back to the generic "(no type)" bucket. Pass `[]` to disable.
+     * fall back to the generic "No type" bucket. Pass `[]` to disable.
      *
      * @param array<int,string> $syntheticTypes
      */
@@ -56,8 +56,8 @@ trait TemporalChartsTrait
                     }
                 }
                 if (!$itemTypes) {
-                    $itemTypes = ['(no type)'];
-                    $allTypes['(no type)'] = true;
+                    $itemTypes = ['No type'];
+                    $allTypes['No type'] = true;
                 }
             }
             foreach ($itemTypes as $t) {

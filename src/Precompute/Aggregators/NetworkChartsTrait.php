@@ -633,6 +633,66 @@ trait NetworkChartsTrait
     }
 
     /**
+     * Where each Person stands towards the Africa Multiple cluster, for colouring
+     * a collaboration network: 'cluster' for a member or principal investigator
+     * of a cluster project or research section (foaf:member, dcterms:creator) and
+     * for anyone affiliated with an Africa Multiple Research Centre; 'partner'
+     * for anyone affiliated with another cluster partner. An affiliation counts
+     * when the person's dcterms:isPartOf Institution, or an institution above it,
+     * is `dcterms:isPartOf` one of the cluster category authorities
+     * ($authorityKeys: authority item id => category key, 'amrc' for the research
+     * centres). People with neither are left out: most have no affiliation recorded.
+     *
+     * @param array<int,string> $authorityKeys
+     * @param list<int> $membershipTemplates project and research section templates
+     * @return array<int,string> person item id => 'cluster' | 'partner'
+     */
+    public function personAffiliations(array $items, array $links, array $authorityKeys, array $membershipTemplates): array
+    {
+        $categoryOf = [];   // institution id => category key | null, memoised
+        $resolve = function (int $id, int $depth = 0) use (&$resolve, &$categoryOf, $links, $authorityKeys): ?string {
+            if (array_key_exists($id, $categoryOf)) {
+                return $categoryOf[$id];
+            }
+            $categoryOf[$id] = null;   // breaks an isPartOf cycle
+            $found = null;
+            foreach ($links[$id] ?? [] as [$term, , $vrid]) {
+                if ($term !== 'dcterms:isPartOf') {
+                    continue;
+                }
+                $found = $authorityKeys[$vrid] ?? ($depth < 4 ? $resolve($vrid, $depth + 1) : null) ?? $found;
+                if ($found === 'amrc') {
+                    break;
+                }
+            }
+            return $categoryOf[$id] = $found;
+        };
+
+        $out = [];
+        $person = $this->personTemplateId();
+        $membership = array_flip($membershipTemplates);
+        foreach ($items as $iid => $info) {
+            $template = $info['template_id'] ?? null;
+            if ($template === $person) {
+                foreach ($links[$iid] ?? [] as [$term, , $vrid]) {
+                    if ($term === 'dcterms:isPartOf' && ($category = $resolve($vrid)) !== null) {
+                        $out[$iid] = $category === 'amrc' ? 'cluster' : ($out[$iid] ?? 'partner');
+                    }
+                }
+            } elseif ($template !== null && isset($membership[$template])) {
+                foreach ($links[$iid] ?? [] as [$term, , $vrid]) {
+                    if (($term === 'foaf:member' || $term === 'dcterms:creator')
+                        && ($items[$vrid]['template_id'] ?? null) === $person) {
+                        $out[$vrid] = 'cluster';
+                    }
+                }
+            }
+        }
+        ksort($out);
+        return $out;
+    }
+
+    /**
      * Co-author network: authors and editors co-occurring on the same publication,
      * as a force graph in the {nodes, links, communities} shape buildCommunities
      * consumes. Contributors come from both literal and Person-linked
@@ -649,10 +709,17 @@ trait NetworkChartsTrait
      * stretch of the network and not its top-ranked people cut off from the
      * people who link them. Communities come from multi-level Louvain over the
      * chosen nodes only, so the legend describes the groups the reader sees.
+     * Past COMMUNITY_COLOURS groups the palette would repeat, so the rest — always
+     * the smallest — share one `merged` community the legend calls smaller groups.
      *
+     * $affiliations (person item id => 'cluster' | 'partner', from
+     * personAffiliations()) tags each linked person's node with an `affiliation`
+     * the front-end can colour by; a node without one has none recorded.
+     *
+     * @param array<int,string> $affiliations
      * @return array{nodes:list<array>,links:list<array>,communities:list<array>}|null
      */
-    public function buildCoAuthorNetwork(array $itemIds, array $links, array $literals, array $items, int $minCooccurrence = 1, int $maxNodes = 120): ?array
+    public function buildCoAuthorNetwork(array $itemIds, array $links, array $literals, array $items, int $minCooccurrence = 1, int $maxNodes = 120, array $affiliations = []): ?array
     {
         // Map each distinct contributor name to an integer node id so the integer-
         // keyed louvain()/weightedPagerank() helpers apply unchanged. Each node
@@ -800,6 +867,19 @@ trait NetworkChartsTrait
             }
             $commOf[$node] = $relabel[$c];
         }
+        // Keep the largest groups their own colour; fold the rest into one. The
+        // kept groups are renumbered 0… by size, since the front-end picks a
+        // group's colour by its id and two ids twelve apart would share one.
+        $commSize = array_count_values($commOf);
+        $mergedId = null;
+        if (count($commSize) > self::COMMUNITY_COLOURS) {
+            uksort($commSize, fn ($a, $b) => ($commSize[$b] <=> $commSize[$a]) ?: ($a <=> $b));
+            $kept = array_flip(array_slice(array_keys($commSize), 0, self::COMMUNITY_COLOURS - 1));
+            $mergedId = self::COMMUNITY_COLOURS - 1;
+            foreach ($commOf as $node => $c) {
+                $commOf[$node] = $kept[$c] ?? $mergedId;
+            }
+        }
 
         $roleName = function (int $mask): string {
             if ($mask === 3) {
@@ -817,6 +897,9 @@ trait NetworkChartsTrait
             ];
             if (!empty($matched[$nd]) && isset($personId[$nd])) {
                 $node['itemId'] = $personId[$nd];
+                if (isset($affiliations[$personId[$nd]])) {
+                    $node['affiliation'] = $affiliations[$personId[$nd]];
+                }
             }
             $nodes[] = $node;
         }
@@ -850,9 +933,13 @@ trait NetworkChartsTrait
         }
         $communitiesList = [];
         foreach ($summary as $s) {
-            $communitiesList[] = ['id' => $s['id'], 'size' => $s['size'], 'anchor' => $s['anchor']];
+            $communitiesList[] = $s['id'] === $mergedId
+                ? ['id' => $s['id'], 'size' => $s['size'], 'anchor' => null, 'merged' => true]
+                : ['id' => $s['id'], 'size' => $s['size'], 'anchor' => $s['anchor']];
         }
-        usort($communitiesList, fn ($a, $b) => ($b['size'] <=> $a['size'])
+        // Largest first, the merged remainder last whatever its size.
+        usort($communitiesList, fn ($a, $b) => (!empty($a['merged']) <=> !empty($b['merged']))
+            ?: ($b['size'] <=> $a['size'])
             ?: ((int) $a['id'] <=> (int) $b['id']));
 
         return ['nodes' => $nodes, 'links' => $outLinks, 'communities' => $communitiesList];

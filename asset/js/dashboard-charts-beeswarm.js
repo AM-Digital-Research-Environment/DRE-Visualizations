@@ -129,7 +129,7 @@
 
         // Click to navigate to project page
         chart.on('click', function (params) {
-            if (params.data && params.data._itemId && siteBase) {
+            if (params.data && params.data._itemId && siteBase && ns.confirmOpen(chart, params)) {
                 window.location.href = ns.itemUrl(siteBase, params.data._itemId);
             }
         });

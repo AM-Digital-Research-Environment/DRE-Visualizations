@@ -211,7 +211,7 @@
             tall:  ['subjects', 'locations']
         },
         // Half-width charts are paired consecutively (types+languages,
-        // topJournals+topSeries, topPublishers+topAuthors) so none sits alone on
+        // topJournals+topPublishers, topSeries+topAuthors) so none sits alone on
         // a row; every other key is full-width. `templates` and the (empty)
         // `timeline` are intentionally omitted — `types` already breaks
         // publications down by type. `locations` here is the places-of-publication
@@ -220,15 +220,13 @@
         // the dashboard's own labels override.
         publications: {
             order: ['types', 'languages', 'stackedTimeline', 'locations',
-                    'topJournals', 'topSeries', 'topPublishers', 'topAuthors',
+                    'topJournals', 'topPublishers', 'topSeries', 'topAuthors',
                     'funders', 'coAuthorNetwork',
-                    'chord', 'subjects', 'subjectTrends', 'abstractWordcloud',
-                    'similarity'],
+                    'chord', 'subjects', 'abstractWordcloud', 'similarity'],
             wide:  ['stackedTimeline', 'locations', 'funders', 'coAuthorNetwork',
-                    'chord', 'subjects', 'subjectTrends', 'abstractWordcloud',
-                    'similarity'],
+                    'chord', 'subjects', 'abstractWordcloud', 'similarity'],
             tall:  ['locations', 'coAuthorNetwork', 'chord', 'subjects',
-                    'subjectTrends', 'abstractWordcloud', 'similarity']
+                    'abstractWordcloud', 'similarity']
         },
         // Cluster YouTube channel (youtube.json). Videos carry no resource type
         // or geography, so the layout shows uploads over time, the language mix,
@@ -381,7 +379,9 @@
 
 /* ---- js/dashboard-charts-bar.js ---- */
 /**
- * Bar chart builder: horizontal bars for ranked lists, twenty to a page.
+ * Bar chart builder: horizontal bars for ranked lists, twenty to a page — ten
+ * on a phone, where the chart is shorter and twenty bars leave too little room
+ * to label every one.
  *
  * A list longer than a page gets a pager under the chart (first, previous,
  * "21–40 of 143", next, last). Every page shares the first page's value axis,
@@ -401,6 +401,7 @@
     ns.charts = ns.charts || {};
 
     var PAGE_SIZE = 20;
+    var PAGE_SIZE_NARROW = 10;   // the chart is 280px tall below 600px (dre-visualizations.css)
 
     /** One pager button: an icon with a spoken name. */
     function pagerButton(icon, label, onClick) {
@@ -419,14 +420,16 @@
         var all = toEntries(data).slice().sort(function (a, b) { return b.value - a.value; });
         if (!all.length) return;
         var chart = initChart(el);
-        var pages = Math.ceil(all.length / PAGE_SIZE);
+        var narrow = window.matchMedia && window.matchMedia('(max-width: 599px)').matches;
+        var pageSize = narrow ? PAGE_SIZE_NARROW : PAGE_SIZE;
+        var pages = Math.ceil(all.length / pageSize);
         var page = 0;
         var axisMax = all[0].value;
         var shown = [];
 
         function render() {
             // The category axis draws its first entry at the bottom.
-            shown = all.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).reverse();
+            shown = all.slice(page * pageSize, (page + 1) * pageSize).reverse();
             chart.setOption({
                 tooltip: { trigger: 'axis', confine: true, axisPointer: { type: 'shadow' } },
                 aria: { enabled: true },
@@ -438,7 +441,9 @@
                 yAxis: {
                     type: 'category', data: shown.map(function (e) { return e.name; }),
                     axisLabel: {
-                        fontSize: THEME.fontSize, width: 200, overflow: 'truncate',
+                        // Every bar keeps its label: the page size leaves room.
+                        interval: 0,
+                        fontSize: THEME.fontSize, width: narrow ? 130 : 200, overflow: 'truncate',
                         formatter: function (v) { return truncateLabel(v, THEME.labelMaxLen); }
                     }
                 },
@@ -489,8 +494,8 @@
 
         function sync() {
             status.textContent = ns.fill(ns.t('rangeOfTotal', '{from}–{to} of {total}'), {
-                from: ns.formatNumber(page * PAGE_SIZE + 1),
-                to: ns.formatNumber(Math.min((page + 1) * PAGE_SIZE, all.length)),
+                from: ns.formatNumber(page * pageSize + 1),
+                to: ns.formatNumber(Math.min((page + 1) * pageSize, all.length)),
                 total: ns.formatNumber(all.length)
             });
             first.disabled = prev.disabled = page === 0;
@@ -894,7 +899,7 @@
         });
 
         chart.on('click', function (p) {
-            if (p.value && p.value[3] && siteBase) window.location.href = ns.itemUrl(siteBase, p.value[3]);
+            if (p.value && p.value[3] && siteBase && ns.confirmOpen(chart, p)) window.location.href = ns.itemUrl(siteBase, p.value[3]);
         });
         return chart;
     };
@@ -1051,7 +1056,7 @@
         });
 
         chart.on('click', function (p) {
-            if (p.dataType === 'node' && p.data.itemId && siteBase) window.location.href = ns.itemUrl(siteBase, p.data.itemId);
+            if (p.dataType === 'node' && p.data.itemId && siteBase && ns.confirmOpen(chart, p)) window.location.href = ns.itemUrl(siteBase, p.data.itemId);
         });
         return chart;
     };
@@ -1174,7 +1179,8 @@
 
         var zoom = buildDataZoom(data.years.length);
         chart.setOption({
-            tooltip: { trigger: 'axis', confine: true },
+            // Only the types published that year, largest first.
+            tooltip: { trigger: 'axis', confine: true, formatter: ns.axisTooltip },
             aria: { enabled: true, decal: { show: ns._decalEnabled } },
             dataZoom: zoom,
             legend: { bottom: zoom.length ? 50 : 5, textStyle: { fontSize: THEME.fontSize }, type: 'scroll' },
@@ -1323,7 +1329,7 @@
 
         // Click to navigate to project page
         chart.on('click', function (params) {
-            if (params.data && params.data._itemId && siteBase) {
+            if (params.data && params.data._itemId && siteBase && ns.confirmOpen(chart, params)) {
                 window.location.href = ns.itemUrl(siteBase, params.data._itemId);
             }
         });
@@ -2211,7 +2217,7 @@
         });
 
         chart.on('click', function (p) {
-            if (p.dataType === 'node' && p.data.itemId && siteBase) window.location.href = ns.itemUrl(siteBase, p.data.itemId);
+            if (p.dataType === 'node' && p.data.itemId && siteBase && ns.confirmOpen(chart, p)) window.location.href = ns.itemUrl(siteBase, p.data.itemId);
         });
         return chart;
     };
@@ -2352,7 +2358,7 @@
         });
 
         chart.on('click', function (p) {
-            if (p.dataType === 'node' && p.data.itemId && siteBase) {
+            if (p.dataType === 'node' && p.data.itemId && siteBase && ns.confirmOpen(chart, p)) {
                 window.location.href = ns.itemUrl(siteBase, p.data.itemId);
             }
         });
@@ -2428,7 +2434,9 @@
             tooltip: {
                 trigger: 'axis',
                 confine: true,
-                axisPointer: { type: 'cross' }
+                axisPointer: { type: 'cross' },
+                // Only the series present that year, largest first.
+                formatter: ns.axisTooltip
             },
             aria: { enabled: true },
             legend: {
@@ -2897,9 +2905,13 @@
  *
  * The payload contract is unchanged, so no regeneration is needed.
  *
- * Data: { nodes: [{ name, value, itemId, community, rank, matched, role }],
+ * When nodes carry an `affiliation` ('cluster' | 'partner', set by the
+ * precompute for the Publications network), a "Colour by" switch recolours the
+ * same layout by where each person stands towards the Africa Multiple cluster.
+ *
+ * Data: { nodes: [{ name, value, itemId, community, rank, matched, role, affiliation? }],
  *         links: [{ source, target, value, relation? }],   // endpoints are NAMES
- *         communities: [{ id, size, anchor }] }
+ *         communities: [{ id, size, anchor, merged? }] }   // merged = the smaller groups
  *
  * Registers into window.RV.charts.
  */
@@ -2980,25 +2992,52 @@
             ? data.communities
             : [{ id: 0, size: nodes.length, anchor: null }];
         var catIndex = {};
-        var categories = communities.map(function (c, i) {
+        var groupCategories = communities.map(function (c, i) {
             catIndex[c.id] = i;
-            var label = c.anchor
-                ? (c.anchor + ' (' + c.size + ')')
-                : (t('community', 'Group') + ' ' + (c.id + 1));
-            return { name: truncateLabel(label, 28), community: c.id };
+            // The precompute folds the groups past the palette into one.
+            var label = c.merged ? (t('smallerGroups', 'Smaller groups') + ' (' + c.size + ')')
+                : c.anchor ? (c.anchor + ' (' + c.size + ')')
+                    : (t('community', 'Group') + ' ' + (c.id + 1));
+            return { name: truncateLabel(label, 28), community: c.id, merged: !!c.merged };
         });
-        function categoryOf(node) {
+        function groupOf(node) {
             var i = catIndex[node.community];
             return i == null ? 0 : i;
         }
         // Keyed by the community ID, not the legend position, so the colours are the
         // ones the ECharts version produced and a community keeps its hue even if a
-        // regeneration reorders the list.
-        function colorOf(i) {
-            var c = categories[i];
+        // regeneration reorders the list. The merged smaller groups stay neutral.
+        function groupColour(i) {
+            var c = groupCategories[i];
+            if (c && c.merged) return ns.THEME.muted;
             var id = c ? c.community : 0;
             return ns.COLORS[id % ns.COLORS.length];
         }
+
+        /* -- categories: affiliation, when the precompute recorded it ------ */
+
+        var AFFILIATIONS = ['cluster', 'partner', ''];
+        var hasAffiliation = nodes.some(function (n) { return !!n.affiliation; });
+        function affiliationOf(node) {
+            var i = AFFILIATIONS.indexOf(node.affiliation || '');
+            return i < 0 ? 2 : i;
+        }
+        var affiliationCount = [0, 0, 0];
+        nodes.forEach(function (n) { affiliationCount[affiliationOf(n)]++; });
+        var affiliationCategories = [
+            t('affiliationCluster', 'Africa Multiple cluster'),
+            t('affiliationPartner', 'Partner institution'),
+            t('affiliationNone', 'No cluster affiliation recorded')
+        ].map(function (label, i) { return { name: label + ' (' + affiliationCount[i] + ')' }; });
+        function affiliationColour(i) {
+            return i === 2 ? ns.THEME.muted : ns.COLORS[i];
+        }
+
+        // The colouring the reader picked; every caller below reads these.
+        var mode = 'group';
+        var categories = groupCategories;
+        function categoryOf(node) { return mode === 'group' ? groupOf(node) : affiliationOf(node); }
+        function colorOf(i) { return mode === 'group' ? groupColour(i) : affiliationColour(i); }
 
         /* -- node + link specs -------------------------------------------- */
 
@@ -3102,19 +3141,53 @@
         graph.onSelect(card.show);
 
         var legend = chrome.buildLegend(graph, categories, colorOf);
+        var modeSwitch = hasAffiliation ? buildModeSwitch() : null;
         var lineLegend = hasRel
             ? chrome.buildLineLegend(['coauthor', 'mixed', 'coeditor']
                 .filter(function (k) { return present[k]; })
                 .map(function (k) { return rel[k]; }))
             : null;
         chrome.mountBelow(container, [
+            modeSwitch,
             legend.el,
             lineLegend,
             chrome.buildHint(t('communitiesHint', 'Click a person to focus their collaborators; the panel that opens links to their record. Toggle a cluster in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom.'))
         ]);
-        graph.onTheme(legend.recolour);
+        graph.onTheme(function () { legend.recolour(); });
 
         /* -- helpers ------------------------------------------------------ */
+
+        /** "Colour by" — collaboration group or affiliation, on the same layout. */
+        function buildModeSwitch() {
+            var group = el('div', 'rv-colour-mode');
+            group.setAttribute('role', 'group');
+            group.setAttribute('aria-label', t('colourBy', 'Colour by'));
+            var label = el('span', 'rv-colour-mode-label', t('colourBy', 'Colour by'));
+            label.setAttribute('aria-hidden', 'true');   // the group's own name says it
+            group.appendChild(label);
+            [['group', t('colourByGroup', 'Collaboration group')],
+                ['affiliation', t('colourByAffiliation', 'Affiliation')]].forEach(function (option) {
+                var button = el('button', 'rv-colour-mode-btn', option[1]);
+                button.type = 'button';
+                button.setAttribute('aria-pressed', String(option[0] === mode));
+                button.addEventListener('click', function () {
+                    if (mode === option[0]) return;
+                    mode = option[0];
+                    categories = mode === 'group' ? groupCategories : affiliationCategories;
+                    group.querySelectorAll('button').forEach(function (other) {
+                        other.setAttribute('aria-pressed', String(other === button));
+                    });
+                    graph.setCategories(categories, colorOf, function (node) { return categoryOf(node.data || {}); });
+                    var next = chrome.buildLegend(graph, categories, colorOf);
+                    legend.el.replaceWith(next.el);
+                    legend = next;
+                    var selected = graph.selected();
+                    if (selected) card.show(selected);
+                });
+                group.appendChild(button);
+            });
+            return group;
+        }
 
         function roleLabel(d) {
             if (!d) return null;
@@ -3183,7 +3256,7 @@
                 data.links.forEach(function (l) {
                     var s = byName[l.source];
                     if (!s || !byName[l.target]) return;
-                    var cat = categories[categoryOf(s)];
+                    var cat = groupCategories[groupOf(s)];
                     var row = [l.source, l.target, l.value || 1, cat ? cat.name : ''];
                     if (hasRel) row.push((rel[l.relation] || {}).label || '');
                     rows.push(row);
@@ -3378,7 +3451,7 @@
         chart._rvRebuild = render; // re-resolve theme colours on light/dark toggle
 
         chart.on('click', function (p) {
-            if (p.dataType === 'node' && p.data.itemId && siteBase) {
+            if (p.dataType === 'node' && p.data.itemId && siteBase && ns.confirmOpen(chart, p)) {
                 window.location.href = ns.itemUrl(siteBase, p.data.itemId);
             }
         });
@@ -3470,7 +3543,7 @@
             return rows;
         };
         chart.on('click', function (params) {
-            if (params.data && params.data._itemId && siteBase) {
+            if (params.data && params.data._itemId && siteBase && ns.confirmOpen(chart, params)) {
                 window.location.href = ns.itemUrl(siteBase, params.data._itemId);
             }
         });

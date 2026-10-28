@@ -112,6 +112,12 @@ final class Aggregators
      */
     public const RANKED_LIST_CAP = 100;
 
+    /**
+     * Communities a co-occurrence network colours apart: the twelve hues of the
+     * cluster palette (ns.COLORS), the last one kept for the merged remainder.
+     */
+    public const COMMUNITY_COLOURS = 12;
+
     public const RADAR_AXES = [
         ['items', 'Items'],
         ['languages', 'Languages'],

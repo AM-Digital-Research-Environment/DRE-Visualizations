@@ -670,6 +670,19 @@
                 hideTooltip();
                 requestPaint();
             },
+            /**
+             * Recolour by another grouping without touching the layout: new
+             * categories, their colours, and each node's category (`categoryOf`
+             * is called with the node). Every category is shown again.
+             */
+            setCategories: function (cats, colours, categoryOf) {
+                categories = cats || [];
+                colorOf = colours;
+                hiddenCats = {};
+                allNodes.forEach(function (n) { n.category = categoryOf(n); });
+                hideTooltip();
+                requestPaint();
+            },
             toggleHalos: function () { showHalos = !showHalos; requestPaint(); return showHalos; },
             toggleLabels: function () { labelsAll = !labelsAll; requestPaint(); return labelsAll; },
             toggleFrozen: function () {

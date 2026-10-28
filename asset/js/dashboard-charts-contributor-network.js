@@ -131,7 +131,7 @@
         });
 
         chart.on('click', function (p) {
-            if (p.dataType === 'node' && p.data.itemId && siteBase) {
+            if (p.dataType === 'node' && p.data.itemId && siteBase && ns.confirmOpen(chart, p)) {
                 window.location.href = ns.itemUrl(siteBase, p.data.itemId);
             }
         });

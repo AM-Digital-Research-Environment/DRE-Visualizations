@@ -1,5 +1,7 @@
 /**
- * Bar chart builder: horizontal bars for ranked lists, twenty to a page.
+ * Bar chart builder: horizontal bars for ranked lists, twenty to a page — ten
+ * on a phone, where the chart is shorter and twenty bars leave too little room
+ * to label every one.
  *
  * A list longer than a page gets a pager under the chart (first, previous,
  * "21–40 of 143", next, last). Every page shares the first page's value axis,
@@ -19,6 +21,7 @@
     ns.charts = ns.charts || {};
 
     var PAGE_SIZE = 20;
+    var PAGE_SIZE_NARROW = 10;   // the chart is 280px tall below 600px (dre-visualizations.css)
 
     /** One pager button: an icon with a spoken name. */
     function pagerButton(icon, label, onClick) {
@@ -37,14 +40,16 @@
         var all = toEntries(data).slice().sort(function (a, b) { return b.value - a.value; });
         if (!all.length) return;
         var chart = initChart(el);
-        var pages = Math.ceil(all.length / PAGE_SIZE);
+        var narrow = window.matchMedia && window.matchMedia('(max-width: 599px)').matches;
+        var pageSize = narrow ? PAGE_SIZE_NARROW : PAGE_SIZE;
+        var pages = Math.ceil(all.length / pageSize);
         var page = 0;
         var axisMax = all[0].value;
         var shown = [];
 
         function render() {
             // The category axis draws its first entry at the bottom.
-            shown = all.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).reverse();
+            shown = all.slice(page * pageSize, (page + 1) * pageSize).reverse();
             chart.setOption({
                 tooltip: { trigger: 'axis', confine: true, axisPointer: { type: 'shadow' } },
                 aria: { enabled: true },
@@ -56,7 +61,9 @@
                 yAxis: {
                     type: 'category', data: shown.map(function (e) { return e.name; }),
                     axisLabel: {
-                        fontSize: THEME.fontSize, width: 200, overflow: 'truncate',
+                        // Every bar keeps its label: the page size leaves room.
+                        interval: 0,
+                        fontSize: THEME.fontSize, width: narrow ? 130 : 200, overflow: 'truncate',
                         formatter: function (v) { return truncateLabel(v, THEME.labelMaxLen); }
                     }
                 },
@@ -107,8 +114,8 @@
 
         function sync() {
             status.textContent = ns.fill(ns.t('rangeOfTotal', '{from}–{to} of {total}'), {
-                from: ns.formatNumber(page * PAGE_SIZE + 1),
-                to: ns.formatNumber(Math.min((page + 1) * PAGE_SIZE, all.length)),
+                from: ns.formatNumber(page * pageSize + 1),
+                to: ns.formatNumber(Math.min((page + 1) * pageSize, all.length)),
                 total: ns.formatNumber(all.length)
             });
             first.disabled = prev.disabled = page === 0;
