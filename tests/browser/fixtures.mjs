@@ -7,10 +7,24 @@
  * lifecycle.spec.mjs); this file only builds HTML.
  */
 
-const LIBS = `window.RV_DATA_BASE='/s/test/dre-data/';window.RV_LIBS={
-echarts:'/asset/vendor/echarts.min.js',maplibre:'/asset/vendor/maplibre-gl.js',
-maplibreWorker:'/asset/vendor/maplibre-gl-worker.js',maplibreCss:'/asset/vendor/maplibre-gl.css',
-d3:['dispatch','quadtree','timer','force'].map(function(n){return '/asset/vendor/d3-'+n+'.min.js';})};`;
+/** The page configuration, as DashboardAssets hands it over: inert JSON. */
+const CONFIG = {
+  dataBase: '/s/test/dre-data/',
+  libs: {
+    echarts: '/asset/vendor/echarts.min.js',
+    maplibre: '/asset/vendor/maplibre-gl.js',
+    maplibreWorker: '/asset/vendor/maplibre-gl-worker.js',
+    maplibreCss: '/asset/vendor/maplibre-gl.css',
+    d3: ['dispatch', 'quadtree', 'timer', 'force'].map((name) => `/asset/vendor/d3-${name}.min.js`),
+  },
+};
+
+/**
+ * JSON that cannot close its <script> element: `<`, `>` and `&` as \u escapes,
+ * as DashboardAssets' JSON_HEX_TAG / JSON_HEX_AMP flags write them.
+ */
+const inertJson = (value) => JSON.stringify(value).replace(/[<>&]/g,
+  (c) => String.fromCharCode(92) + 'u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
 
 /** The partial's status node + container + spinner (async-surface.phtml). */
 function surface(className, data = {}, { statusInside = false } = {}) {
@@ -48,7 +62,7 @@ export const FIXTURES = Object.keys(PAGES);
 
 /**
  * One fixture page. `theme` writes data-theme on <html> and <body>, as
- * DRE-theme does; `i18n` seeds window.RV_I18N.
+ * DRE-theme does; `i18n` seeds the translated strings (window.RV_I18N).
  */
 export function fixturePage(name, { theme = 'light', i18n = {} } = {}) {
   const page = PAGES[name];
@@ -66,7 +80,7 @@ export function fixturePage(name, { theme = 'light', i18n = {} } = {}) {
          font-family: system-ui, sans-serif; }
   main { max-width: 76rem; margin: 0 auto; }
 </style>
-<script>${LIBS}window.RV_I18N=${JSON.stringify(i18n)};</script>
+<script type="application/json" id="rv-config-1">${inertJson({ ...CONFIG, i18n })}</script>
 ${scripts}
 </head>
 <body data-theme="${theme}"><main><h1>Fixture: ${name}</h1>${page.body}</main></body>

@@ -129,10 +129,41 @@ if (rendered.includes('<img') || !rendered.includes('&lt;img')) {
   fail('treemap tooltip did not encode the malicious-label fixture');
 }
 
+// No executable inline script anywhere the module renders: configuration
+// travels as <script type="application/json"> (DashboardAssets::appendConfig,
+// read by core/base.js) and behaviour lives in files, so a host whose policy is
+// `script-src 'self'` breaks nothing. Event-handler attributes count too.
+function collectFiles(dir, extensions, files = []) {
+  for (const name of readdirSync(dir)) {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) collectFiles(path, extensions, files);
+    else if (extensions.some((extension) => name.endsWith(extension))) files.push(path);
+  }
+  return files;
+}
+let inlineChecked = 0;
+for (const path of [...collectFiles(join(ROOT, 'view'), ['.phtml']), ...collectFiles(join(ROOT, 'src'), ['.php']), join(ROOT, 'Module.php')]) {
+  const rel = relative(ROOT, path).split(sep).join('/');
+  // Comments name `<script>` freely; only code and markup count.
+  const source = read(path).replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*(\/\/|#).*$/gm, '');
+  inlineChecked++;
+  for (const match of source.matchAll(/<script\b([^>]*)>/gi)) {
+    const attrs = match[1];
+    if (/\bsrc\s*=/.test(attrs) || /type\s*=\s*["']application\/(ld\+)?json["']/i.test(attrs)) continue;
+    fail(`${rel}: inline <script${attrs}> — move it to a file under asset/js or pass data as application/json`);
+  }
+  for (const match of source.matchAll(/->\s*(append|prepend|offsetSet|set)Script\s*\(([^;]*)/g)) {
+    if (!/'application\/json'/.test(match[2])) fail(`${rel}: headScript()->${match[1]}Script() with executable code — use appendConfig() or a file`);
+  }
+  if (/\son(click|load|error|change|submit|input|mouse\w+|key\w+)\s*=\s*["']/i.test(source)) {
+    fail(`${rel}: inline event-handler attribute`);
+  }
+}
+
 if (failures.length) {
   console.error(`HTML safety contracts: ${failures.length} finding(s)`);
   for (const message of failures) console.error('  ' + message);
   process.exit(1);
 }
 
-console.log(`HTML safety contracts: clean (${inventory.setHTML} setHTML, ${inventory.innerHTML} innerHTML, ${inventory.tooltipFormatters} tooltip formatters reviewed).`);
+console.log(`HTML safety contracts: clean (${inventory.setHTML} setHTML, ${inventory.innerHTML} innerHTML, ${inventory.tooltipFormatters} tooltip formatters reviewed; no inline script in ${inlineChecked} PHP files).`);

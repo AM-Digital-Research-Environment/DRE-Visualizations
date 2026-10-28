@@ -88,6 +88,14 @@ $themeAttr = ' data-theme="' . $escapeAttr($mode) . '"';
 $site = $this->currentSite();
 $sourceUrl = $site ? $site->siteUrl(null, true) : rtrim((string) $this->serverUrl(false), '/');
 $sourceLabel = $this->translate('Source') . ': ' . ($site ? $site->title() : 'Africa Multiple DRE');
+
+// The height reporter the host page's snippet listens to, as a file: the embed
+// page carries no inline script.
+if (!$isGallery) {
+    $this->headScript()->appendFile($this->assetUrl(
+        \DreVisualizations\View\Helper\DashboardAssets::EMBED_HEIGHT_JS, 'DreVisualizations'
+    ), 'text/javascript', ['defer' => true]);
+}
 ?>
 <!doctype html>
 <html lang="<?= $escapeAttr($locale) ?>"<?= $themeAttr ?>>
@@ -126,31 +134,6 @@ $sourceLabel = $this->translate('Source') . ': ' . ($site ? $site->title() : 'Af
 <footer class="dre-embed-source">
     <a href="<?= $escapeAttr($sourceUrl) ?>" target="_blank" rel="noopener"><?= $escapeHtml($sourceLabel) ?></a>
 </footer>
-<script>
-/* iframe height reporter — posts the document height to the parent on load,
-   resize, and DOM mutations (charts populate asynchronously and lazily). The
-   host page pairs this with the listener emitted in the embed snippet. */
-(function () {
-    if (window.parent === window) return;
-    var last = 0;
-    function post() {
-        var h = Math.ceil(document.documentElement.getBoundingClientRect().height);
-        if (h && h !== last) {
-            last = h;
-            window.parent.postMessage({ type: 'dre-embed-height', height: h }, '*');
-        }
-    }
-    window.addEventListener('load', post);
-    window.addEventListener('resize', post);
-    if ('ResizeObserver' in window) {
-        new ResizeObserver(post).observe(document.body);
-    } else {
-        setInterval(post, 1000);
-    }
-    // Nudge a few times early, before the charts/maps finish their first paint.
-    var t = 0, iv = setInterval(function () { post(); if (++t > 20) clearInterval(iv); }, 300);
-})();
-</script>
 <?php endif; ?>
 </body>
 </html>

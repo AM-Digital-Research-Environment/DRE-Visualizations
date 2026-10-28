@@ -21,6 +21,35 @@
     var ns = window.RV = window.RV || {};
 
     /* ------------------------------------------------------------------ */
+    /*  Page configuration                                                 */
+    /* ------------------------------------------------------------------ */
+
+    // DashboardAssets hands the page configuration over as inert JSON —
+    // <script type="application/json" id="rv-config-N"> — never as inline
+    // script, so a host whose policy is `script-src 'self'` breaks nothing.
+    // The payloads merge in document order and the first value for a key wins,
+    // as the Object.assign chains they replaced did. They are published on the
+    // window globals the rest of the core reads at call time; DRE Search reads
+    // RV_LIBS and RV_MAP_CONFIG from there too.
+    var PAGE_GLOBALS = { libs: 'RV_LIBS', i18n: 'RV_I18N', mapConfig: 'RV_MAP_CONFIG' };
+    ns.readPageConfig = function () {
+        var nodes = document.querySelectorAll
+            ? document.querySelectorAll('script[type="application/json"][id^="rv-config-"]') : [];
+        for (var i = 0; i < nodes.length; i++) {
+            var data = null;
+            try { data = JSON.parse(nodes[i].textContent); } catch (e) { /* skip a malformed payload */ }
+            if (!data || typeof data !== 'object') continue;
+            if (typeof data.dataBase === 'string' && !window.RV_DATA_BASE) window.RV_DATA_BASE = data.dataBase;
+            Object.keys(PAGE_GLOBALS).forEach(function (key) {
+                if (!data[key] || typeof data[key] !== 'object') return;
+                var name = PAGE_GLOBALS[key];
+                window[name] = Object.assign({}, data[key], window[name] || {});
+            });
+        }
+    };
+    ns.readPageConfig();
+
+    /* ------------------------------------------------------------------ */
     /*  Interface strings                                                  */
     /* ------------------------------------------------------------------ */
 

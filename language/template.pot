@@ -155,7 +155,7 @@ msgstr ""
 msgid "Any"
 msgstr ""
 
-#: view/dre-visualizations/embed/index.phtml:179
+#: view/dre-visualizations/embed/index.phtml:183
 msgid "Any visualisation on this site can be placed on another website. Copy the snippet under the one you want and paste it into your page. It loads live from here, so it stays up to date, matches the look of this site, and adjusts its height to fit. Where a page holds several charts, you can also embed a single one."
 msgstr ""
 
@@ -453,12 +453,12 @@ msgid "Contributor roles"
 msgstr ""
 
 #: config/client-strings.json:copied
-#: view/dre-visualizations/embed/index.phtml:225
+#: view/dre-visualizations/embed/index.phtml:227
 msgid "Copied"
 msgstr ""
 
-#: view/dre-visualizations/embed/index.phtml:201
-#: view/dre-visualizations/embed/index.phtml:224
+#: view/dre-visualizations/embed/index.phtml:205
+#: view/dre-visualizations/embed/index.phtml:226
 msgid "Copy"
 msgstr ""
 
@@ -542,7 +542,7 @@ msgstr ""
 msgid "editor"
 msgstr ""
 
-#: view/dre-visualizations/embed/index.phtml:178
+#: view/dre-visualizations/embed/index.phtml:182
 msgid "Embed a visualisation"
 msgstr ""
 
@@ -554,7 +554,7 @@ msgstr ""
 msgid "Embed visualisations"
 msgstr ""
 
-#: view/dre-visualizations/embed/index.phtml:214
+#: view/dre-visualizations/embed/index.phtml:218
 msgid "Embeds use the light theme by default. Add <code>?theme=dark</code> to the address for the dark theme, or <code>?primary=2b6cb0</code> to set your own accent colour."
 msgstr ""
 
@@ -1394,7 +1394,7 @@ msgstr ""
 msgid "Optional. Pick a curated collection to apply its item set, sub-collection filter, journal-issue grouping and views automatically. Leave as “None” to configure a plain gallery below."
 msgstr ""
 
-#: view/dre-visualizations/embed/index.phtml:227
+#: view/dre-visualizations/embed/index.phtml:229
 msgid "Or embed a single chart"
 msgstr ""
 
@@ -1544,7 +1544,7 @@ msgstr ""
 msgid "Press Enter to select."
 msgstr ""
 
-#: view/dre-visualizations/embed/index.phtml:226
+#: view/dre-visualizations/embed/index.phtml:228
 msgid "Preview"
 msgstr ""
 
