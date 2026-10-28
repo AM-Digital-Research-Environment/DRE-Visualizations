@@ -403,6 +403,14 @@
     var PAGE_SIZE = 20;
     var PAGE_SIZE_NARROW = 10;   // the chart is 280px tall below 600px (dre-visualizations.css)
 
+    /** The smallest whole 1, 2 or 5 × 10ⁿ step at least `raw` (never below 1). */
+    function niceStep(raw) {
+        if (!(raw > 1)) return 1;
+        var mag = Math.pow(10, Math.floor(Math.log10(raw)));
+        var f = raw / mag;
+        return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * mag;
+    }
+
     /** One pager button: an icon with a spoken name. */
     function pagerButton(icon, label, onClick) {
         var btn = ns.el('button', 'rv-toolbar-btn rv-bar-pager-btn');
@@ -424,7 +432,11 @@
         var pageSize = narrow ? PAGE_SIZE_NARROW : PAGE_SIZE;
         var pages = Math.ceil(all.length / pageSize);
         var page = 0;
-        var axisMax = all[0].value;
+        // Paged charts share one scale. A bare maximum (32) gets its own label
+        // squeezed against the last tick (30), so the axis runs to the next
+        // whole step of a 1-2-5 interval instead: 0, 10, 20, 30, 40.
+        var axisStep = niceStep(all[0].value / 4);
+        var axisMax = Math.ceil(all[0].value / axisStep) * axisStep;
         var shown = [];
 
         function render() {
@@ -437,7 +449,9 @@
                 // outerBoundsMode), so the grid sizes itself to the real label width
                 // instead of an estimate from the character count.
                 grid: { left: 8, right: 20, top: 10, bottom: 20 },
-                xAxis: { type: 'value', minInterval: 1, max: pages > 1 ? axisMax : null },
+                xAxis: pages > 1
+                    ? { type: 'value', min: 0, max: axisMax, interval: axisStep }
+                    : { type: 'value', minInterval: 1 },
                 yAxis: {
                     type: 'category', data: shown.map(function (e) { return e.name; }),
                     axisLabel: {
@@ -3027,7 +3041,9 @@
         var affiliationCategories = [
             t('affiliationCluster', 'Africa Multiple cluster'),
             t('affiliationPartner', 'Partner institution'),
-            t('affiliationNone', 'No cluster affiliation recorded')
+            // Not "no affiliation recorded": most of these people are simply
+            // outside the cluster, which is no gap in the data.
+            t('affiliationNone', 'Other')
         ].map(function (label, i) { return { name: label + ' (' + affiliationCount[i] + ')' }; });
         function affiliationColour(i) {
             return i === 2 ? ns.THEME.muted : ns.COLORS[i];
@@ -3151,7 +3167,7 @@
             modeSwitch,
             legend.el,
             lineLegend,
-            chrome.buildHint(t('communitiesHint', 'Click a person to focus their collaborators; the panel that opens links to their record. Toggle a cluster in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom.'))
+            chrome.buildHint(t('communitiesHint', 'Click a person to focus their collaborators; the panel that opens links to their record. Toggle a group in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom.'))
         ]);
         graph.onTheme(function () { legend.recolour(); });
 
@@ -3165,6 +3181,8 @@
             var label = el('span', 'rv-colour-mode-label', t('colourBy', 'Colour by'));
             label.setAttribute('aria-hidden', 'true');   // the group's own name says it
             group.appendChild(label);
+            var options = el('div', 'rv-colour-mode-options');
+            group.appendChild(options);
             [['group', t('colourByGroup', 'Collaboration group')],
                 ['affiliation', t('colourByAffiliation', 'Affiliation')]].forEach(function (option) {
                 var button = el('button', 'rv-colour-mode-btn', option[1]);
@@ -3174,7 +3192,7 @@
                     if (mode === option[0]) return;
                     mode = option[0];
                     categories = mode === 'group' ? groupCategories : affiliationCategories;
-                    group.querySelectorAll('button').forEach(function (other) {
+                    options.querySelectorAll('button').forEach(function (other) {
                         other.setAttribute('aria-pressed', String(other === button));
                     });
                     graph.setCategories(categories, colorOf, function (node) { return categoryOf(node.data || {}); });
@@ -3184,7 +3202,7 @@
                     var selected = graph.selected();
                     if (selected) card.show(selected);
                 });
-                group.appendChild(button);
+                options.appendChild(button);
             });
             return group;
         }

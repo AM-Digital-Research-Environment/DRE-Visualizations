@@ -13,6 +13,18 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.44.1] - 2026-10-28
+
+### Changed
+
+- The *Colour by* switch under the Publications *Collaboration network* and the language toggle of *Words in the abstracts* are drawn like the theme's own segmented control (DRE Search's list/grid toggle): one outlined group, the current choice underlined in the accent colour, instead of a row of separate buttons with a filled green one.
+- In the network's *Affiliation* colouring, the grey category is *Other*, not "No cluster affiliation recorded": most of these people are simply outside the cluster, which is no gap in the data.
+- The network's hint says "Toggle a group in the legend", not "a cluster", now that "cluster" names the Africa Multiple cluster in the same panel.
+
+### Fixed
+
+- Paged ranked bar charts (*Journals*, *Publishers*, *Book series*, *Most published authors*) end their value axis on a round step (0–40) instead of the largest count, whose label (32) was squeezed against the last tick (30).
+
 ## [2.44.0] - 2026-10-28
 
 **Upgrading:** install this release, then **Regenerate now**: the whole collaboration network, its affiliation colouring, the new panel order and "No type" arrive with the next snapshot.

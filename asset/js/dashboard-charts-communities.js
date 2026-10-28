@@ -143,7 +143,9 @@
         var affiliationCategories = [
             t('affiliationCluster', 'Africa Multiple cluster'),
             t('affiliationPartner', 'Partner institution'),
-            t('affiliationNone', 'No cluster affiliation recorded')
+            // Not "no affiliation recorded": most of these people are simply
+            // outside the cluster, which is no gap in the data.
+            t('affiliationNone', 'Other')
         ].map(function (label, i) { return { name: label + ' (' + affiliationCount[i] + ')' }; });
         function affiliationColour(i) {
             return i === 2 ? ns.THEME.muted : ns.COLORS[i];
@@ -267,7 +269,7 @@
             modeSwitch,
             legend.el,
             lineLegend,
-            chrome.buildHint(t('communitiesHint', 'Click a person to focus their collaborators; the panel that opens links to their record. Toggle a cluster in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom.'))
+            chrome.buildHint(t('communitiesHint', 'Click a person to focus their collaborators; the panel that opens links to their record. Toggle a group in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom.'))
         ]);
         graph.onTheme(function () { legend.recolour(); });
 
@@ -281,6 +283,8 @@
             var label = el('span', 'rv-colour-mode-label', t('colourBy', 'Colour by'));
             label.setAttribute('aria-hidden', 'true');   // the group's own name says it
             group.appendChild(label);
+            var options = el('div', 'rv-colour-mode-options');
+            group.appendChild(options);
             [['group', t('colourByGroup', 'Collaboration group')],
                 ['affiliation', t('colourByAffiliation', 'Affiliation')]].forEach(function (option) {
                 var button = el('button', 'rv-colour-mode-btn', option[1]);
@@ -290,7 +294,7 @@
                     if (mode === option[0]) return;
                     mode = option[0];
                     categories = mode === 'group' ? groupCategories : affiliationCategories;
-                    group.querySelectorAll('button').forEach(function (other) {
+                    options.querySelectorAll('button').forEach(function (other) {
                         other.setAttribute('aria-pressed', String(other === button));
                     });
                     graph.setCategories(categories, colorOf, function (node) { return categoryOf(node.data || {}); });
@@ -300,7 +304,7 @@
                     var selected = graph.selected();
                     if (selected) card.show(selected);
                 });
-                group.appendChild(button);
+                options.appendChild(button);
             });
             return group;
         }

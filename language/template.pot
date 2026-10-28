@@ -261,7 +261,7 @@ msgid "Clear selection: {name}"
 msgstr ""
 
 #: config/client-strings.json:communitiesHint
-msgid "Click a person to focus their collaborators; the panel that opens links to their record. Toggle a cluster in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom."
+msgid "Click a person to focus their collaborators; the panel that opens links to their record. Toggle a group in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom."
 msgstr ""
 
 #: config/client-strings.json:kgHint
@@ -1236,10 +1236,6 @@ msgstr ""
 msgid "No canonical public site is configured. Open this module’s configuration, select a public site, and save before regenerating data."
 msgstr ""
 
-#: config/client-strings.json:affiliationNone
-msgid "No cluster affiliation recorded"
-msgstr ""
-
 #: config/client-strings.json:noItems
 msgid "No items"
 msgstr ""
@@ -1402,6 +1398,7 @@ msgstr ""
 msgid "Or embed a single chart"
 msgstr ""
 
+#: config/client-strings.json:affiliationNone
 #: config/client-strings.json:otherSection
 msgid "Other"
 msgstr ""

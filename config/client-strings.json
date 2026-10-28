@@ -3,7 +3,7 @@
   "strings": {
     "affiliation": "Affiliation",
     "affiliationCluster": "Africa Multiple cluster",
-    "affiliationNone": "No cluster affiliation recorded",
+    "affiliationNone": "Other",
     "affiliationOne": "affiliation",
     "affiliationOther": "affiliations",
     "affiliationPartner": "Partner institution",
@@ -143,7 +143,7 @@
     "colourByGroup": "Collaboration group",
     "comesFromHere": "Comes from here",
     "communitiesCanvasLabel": "Co-occurrence network. Use the arrow keys to move between connected people and Enter to select one.",
-    "communitiesHint": "Click a person to focus their collaborators; the panel that opens links to their record. Toggle a cluster in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom.",
+    "communitiesHint": "Click a person to focus their collaborators; the panel that opens links to their record. Toggle a group in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom.",
     "community": "Group",
     "compareChartContributors": "People linked most often",
     "compareChartCoSubjects": "Subjects alongside",
