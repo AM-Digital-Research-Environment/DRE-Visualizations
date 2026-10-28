@@ -1,13 +1,49 @@
-# Roadmap — 2.29.1 review implementation (released in 2.30.0)
+# Roadmap
+
+Status: `[x]` done · `[~]` partly done / see note · `[ ]` open · `[-]` decided against (reason given).
+
+## Cross-module review with IWAC Visualizations (2026-10-28)
+
+This module and its sibling [IWAC Visualizations](https://github.com/fmadore/IwacVisualizations)
+were compared structurally. This one is the stronger of the two on the data side
+(in-Omeka precompute, snapshot publication, golden output, strict harnesses,
+HTML-safety contracts); IWAC is ahead on the front end and on the module's own
+structure. These are the items taken from it. IWAC's own list, of what it takes
+from this module, is in its ROADMAP.md.
+
+### Phase 0 — Quick wins
+
+- [x] X1 Omeka serves minified copies of the core, the chart bundle and the stylesheet (esbuild, with source maps to the readable files). Item pages ~71 → ~28 KB gzip.
+- [x] X2 PHPStan lists the Laminas plugins and helpers it lets through instead of matching any method name.
+- [x] X3 `CONTRIBUTING.md` describes the private snapshot store, the data route and the semantic-input releases.
+
+### Phase 1 — Robustness
+
+- [ ] X4 No inline `<script>`: the page configuration (`RV_DATA_BASE`, `RV_I18N`, `RV_MAP_CONFIG`, `RV_LIBS`) travels as inert JSON that the core reads, so a host with `script-src 'self'` breaks nothing. Accept: no `appendScript()` of executable code anywhere in `src/` or `view/`; DRE Search still reads the shared basemap configuration.
+- [ ] X5 A monthly workflow compares the vendored ECharts, echarts-wordcloud, MapLibre and d3 versions with the npm registry and verifies the vendored bytes against the published tarballs. Accept: a stale pin turns the scheduled run red; a byte mismatch fails always.
+- [ ] X6 A weekly workflow fails when the token rules vendored from DRE-theme (`scripts/lib/token-rules.mjs`, `dre-tokens-fallback.json`) fall behind the theme's main branch.
+
+### Phase 2 — Structure
+
+- [ ] X7 One block registry. A block is declared once (slug, invokable, label, description, embed kind, template, assets); the `BlockLayout` classes, `EmbedController::BLOCKS`, the templates' embed slug and the asset options derive from it. Accept: adding a block touches the registry, a one-line class and the config invokable; a lint fails when they disagree.
+- [ ] X8 A declarative asset plan. The script chains live in a JSON manifest that the build and PHP both read (no regex over PHP source); a block names a plan, an unknown plan or flag throws. Accept: `DashboardAssets` has no per-block branches.
+
+### Phase 3 — Tests
+
+- [ ] X9 Omeka boot integration in CI against MariaDB: install the module, render every block layout, answer the embed and data routes, upgrade and uninstall. Accept: runs on Omeka 4.2.1 / PHP 8.4 and 8.5.
+- [ ] X10 A browser fixture for every site-page block (not only compare, dashboard and the semantic map), each checked for console errors and with axe; unit tests for the `core/` helpers (number formatting, `plural`/`fill`, token resolution, `ensureLibs`).
+- [ ] X11 Lighthouse budgets on the block fixtures (bytes, requests, accessibility and best-practice scores), as IWAC runs them.
+- [ ] X12 stylelint and a dead-selector check over `dre-visualizations.css`.
+- [ ] X13 The README's repository tree is generated from `git ls-files` and checked, instead of hand-written.
+
+## 2.29.1 review implementation (released in 2.30.0)
 
 Tracks the fixes and improvements from the module review of 2026-10-07
 (PHP back end, browser JavaScript, tests/CI, and MapLibre/ECharts against their
 current documentation). The earlier review is recorded in
 [ROADMAP_STATUS.md](ROADMAP_STATUS.md).
 
-Status: `[x]` done · `[~]` partly done / see note · `[ ]` open · `[-]` decided against (reason given).
-
-## Decisions
+### Decisions
 
 - **PHP floor raised to 8.4** (from 8.2). Production runs PHP 8.5; 8.4 keeps one
   version of headroom while allowing typed class constants, `readonly` classes
@@ -19,7 +55,7 @@ Status: `[x]` done · `[~]` partly done / see note · `[ ]` open · `[-]` decide
   withdrawn data out of browser disk caches; within a page the client now
   memoises each artifact instead.
 
-## Phase 1 — Correctness
+### Phase 1 — Correctness
 
 - [x] B1 Cluster click-to-zoom uses the Promise form of `getClusterExpansionZoom` (dashboard map).
 - [x] B2 Every MapLibre symbol layer uses the shipped `Noto Sans Regular` glyphs through one shared `ns.MAP_LABEL_FONT`.
@@ -42,13 +78,13 @@ Status: `[x]` done · `[~]` partly done / see note · `[ ]` open · `[-]` decide
 - [x] B19 Cover thumbnails resolve through Omeka's file store instead of a hard-coded `/files/large/` path.
 - [x] B20 Every map creation site handles MapLibre's thrown `GPUInitializationError`.
 
-## Phase 2 — MapLibre 6.13
+### Phase 2 — MapLibre 6.13
 
 - [x] M1 Vendor MapLibre 6.13.0 (self-contained worker; no shared chunk) and simplify `vendor-maplibre.mjs`.
 - [x] M2 Update `DashboardAssets`, release-metadata check, browser test and `THIRD_PARTY_NOTICES`.
 - [ ] M3 Browser-verify clusters, globe + markers, spatial picker, PNG export, theme rebuild, RTL labels.
 
-## Phase 3 — Front-end behaviour and performance
+### Phase 3 — Front-end behaviour and performance
 
 - [x] F1 Cache resolved theme colours per theme (`cssColor`/`entityColor`); cleared on theme change.
 - [x] F2 Entity-graph selection/keyboard focus via feature-state instead of filters and data-driven paint.
@@ -67,13 +103,13 @@ Status: `[x]` done · `[~]` partly done / see note · `[ ]` open · `[-]` decide
 - [~] F15 Choropleth reuses the basemap's country source and only rewrites its popup on feature change. — the popup is rebuilt only when the country changes; the separate count source stays, because an administrator-configured basemap need not contain `dre-countries`
 - [x] F16 Graph canvas reacts to `devicePixelRatio` changes.
 
-## Phase 4 — Front-end structure
+### Phase 4 — Front-end structure
 
 - [x] S1 Shared helpers replace duplicates: graph legend, keyboard walker, `mountWhenVisible`, local `fold`/`el`/escape fallbacks, choropleth colour maths, marker-map factory, photo-views MapLibre loader. — plus ns.moveHover / ns.fitToPoints / ns.graphStep; the marker maps share fitToPoints rather than a factory (their markers and popups differ)
 - [x] S2 `dashboard-core.js` split into focused sources concatenated into one core bundle. — eleven sources in `asset/js/core/`, concatenated by the build into the same served `dashboard-core.js`
 - [x] S3 Dead code and stale comments removed (`kgData.buildFromApi`, `ns.helpers`, sparkline `data-api-base`, outdated headers).
 
-## Phase 5 — ECharts 6
+### Phase 5 — ECharts 6
 
 - [x] E1 Drop deprecated `grid.containLabel`.
 - [ ] E2 Replace hand-tuned grid margins with v6 `outerBoundsMode` where it gives the same result.
@@ -81,7 +117,7 @@ Status: `[x]` done · `[~]` partly done / see note · `[ ]` open · `[-]` decide
 - [-] E4 Native `series-chord` — not adopted: the graph-based chord keeps the shared click/roam behaviour; revisit if the chord needs ribbons.
 - [-] E5 Custom ECharts build with only the registered series/components, guarded by a contract check. — not adopted: the vendored `echarts.min.js` stays byte-identical to upstream (its SHA is auditable against npm), and since F4 the library loads only on pages that draw an ECharts chart; ~90 KB gzip did not justify a build step, two devDependencies and a component list that fails at runtime when it drifts
 
-## Phase 6 — PHP structure and efficiency
+### Phase 6 — PHP structure and efficiency
 
 - [x] P1 Value query fetches only the properties the generators use.
 - [x] P2 `PublicCorpus::project` avoids copying arrays that are already in scope.
@@ -97,7 +133,7 @@ Status: `[x]` done · `[~]` partly done / see note · `[ ]` open · `[-]` decide
 - [x] P12 `JsonArtifactWriter`: fsync before rename, private directory permissions.
 - [x] P13 Stale docblocks and docs corrected.
 
-## Phase 7 — Tests and CI
+### Phase 7 — Tests and CI
 
 - [~] T1 Shared PHP harness (`tests/lib`) that fails on warnings and prints expected/actual. — warnings, notices and our deprecations fail every harness (`tests/lib/strict-errors.php`); the per-file check helpers remain
 - [x] T2 Golden-file tests of the full generator output on an enriched database fixture.
