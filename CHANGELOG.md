@@ -13,6 +13,12 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Changed
+
+- Pages download less: Omeka now serves minified copies of the shared core, the chart bundle and the stylesheet (`.min.js` / `.min.css`, built by `npm run build` with esbuild). Every item page carries the core and the stylesheet, which together go from about 71 to about 28 KB compressed; a dashboard's chart bundle goes from 42 to 22 KB. Each minified file has a source map back to the readable file, which still ships, so the browser's developer tools show readable code.
+- PHPStan names the Laminas controller plugins and view helpers it lets through instead of accepting any method on those classes, so a misspelt call to one of the module's own methods there now fails the analysis.
+- `CONTRIBUTING.md` describes the data as it is stored since 2.29 and 2.39: a private snapshot store read through the data route, no REST-API fallback, and semantic inputs downloaded from releases rather than committed.
+
 ## [2.44.1] - 2026-10-28
 
 ### Changed

@@ -6,7 +6,7 @@ modular, maintainable, and theme-consistent; they were proven out over the
 visualization-parity initiative with the sibling
 [amira dashboard](https://github.com/AM-Digital-Research-Environment/amira).
 
-The module ships plain PHP, CSS and vanilla JavaScript. `npm run build` concatenates modular chart sources into the committed browser bundle. ECharts 6, MapLibre 6 and d3-force 3 are vendored under `asset/vendor`; Playwright is used only for development tests. Record any changed vendored dependency in `THIRD_PARTY_NOTICES` and verify its upstream version before pinning.
+The module ships plain PHP, CSS and vanilla JavaScript. `npm run build` concatenates the modular sources into two committed bundles, then minifies both and the stylesheet into the `.min.js` / `.min.css` files Omeka serves, each with a source map pointing back at the readable file. ECharts 6, MapLibre 6 and d3-force 3 are vendored under `asset/vendor`; esbuild (the minifier) and Playwright are development dependencies only. Record any changed vendored dependency in `THIRD_PARTY_NOTICES` and verify its upstream version before pinning.
 
 Three renderers, and the choice between them is not a matter of taste: ECharts for
 charts, MapLibre for maps, and the module's own canvas + d3-force for a graph the
@@ -159,38 +159,39 @@ Overview is the first consumer (`Runner::buildOverviewStats`).
     maps are *rebuilt* on theme toggle.
   - In **CSS**, use the `--rv-*` aliases at the top of
     `asset/css/dre-visualizations.css`. Never introduce a raw hex. (See the
-    README's *Theming* section for the full alias → token table.)
+    README's *Theming* section for the full alias → token table.) Edit that
+    file and run `npm run build`; never edit the generated `.min.css`.
 
 ## Data architecture
 
-All visualizations load from precomputed JSON under `asset/data/`:
+Visualizations read generated JSON from a **private snapshot store**, never from
+the module's public `asset/` tree. `SnapshotStore` keeps it in
+`DRE_VISUALIZATIONS_DATA_DIR`, a directory outside the Omeka document root (see
+[Administration](docs/ADMINISTRATION.md)). The browser fetches each artifact
+through the module's data route (`Controller\Site\DataController`, read with
+`ns.fetchDataJson`), which serves only the current published snapshot of the
+canonical site. A block whose artifact is not published renders nothing; there
+is no live REST-API fallback.
 
-```
-asset/data/
-├── geo/countries.geojson    # Natural Earth boundaries (choropleth) — committed INPUT
-├── wordclouds/              # Lemmatised frequencies from the CI Action — committed INPUT
-├── embeddings/              # Committed map/recommendations/report; vectors are release-only
-├── communities/             # Multi-entity co-occurrence network (baked FA2 positions)
-├── knowledge-graphs/        # One per item — gitignored, regenerated in-Omeka
-├── photo-galleries/         # One per image-bearing item set — gitignored
-└── item-dashboards/         # Dashboards + {type}-index.json + publications/podcasts/youtube/…
-```
+The snapshot is rebuilt inside Omeka — **Admin → DRE Visualizations →
+Regenerate now**, or by itself once API edits have been quiet for five minutes —
+by a pure-PHP engine under `src/Precompute/` (`DataLoader` → `PublicCorpus` →
+`CorpusSnapshot` → `Runner` and its generators → `SnapshotPublisher`) that reuses
+Omeka's own database connection. It needs no Python, shell access or extra
+credentials at runtime. It holds the dashboards and their indexes, the
+Discursive Communities graph (baked FA2 positions), the per-item knowledge
+graphs and item contexts, the photo galleries, the featured collections, the
+network explorer and the validated semantic inputs.
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) has the publication and locking
+rules.
 
-Installation-specific dashboard data regenerates inside Omeka via the admin **"Regenerate now"** button —
-a pure-PHP engine under `src/Precompute/` (`DataLoader` → `Aggregators` /
-`KnowledgeGraphs` → `Runner`) that reuses Omeka's own database connection. It needs no
-Python, shell access, or extra credentials at runtime. The
-knowledge-graph JSON (~6,000 files) is **not committed**; until the first run the
-front-end falls back to a lighter live REST-API graph.
+Three **inputs** are made outside Omeka:
 
-Static **inputs** are the exception, produced outside Omeka and committed like
-`countries.geojson`: the `wordclouds/` frequencies come from the **Build word
-clouds** GitHub Action (`tools/wordclouds/build_wordclouds.py`, spaCy
-lemmatisation — PHP can't do it), read back by `Runner::wordCloudInput()` with an
-in-PHP tokeniser fallback. The **Build semantic embeddings** Action runs the
-secret-backed Gemini precompute: only `map.json`, `similar.json`, and `report.json`
-are committed, while full vectors and their manifest are published as a versioned
-release. Its consumer contract is documented in `docs/SEMANTIC_EMBEDDINGS.md`.
+| Input | Where | Made by |
+|---|---|---|
+| `asset/data/geo/countries.geojson` | committed | Natural Earth boundaries, for the choropleth |
+| `data/wordclouds/*.php` | committed | the **Build word clouds** Action (`tools/wordclouds/build_wordclouds.py`, spaCy lemmatisation — PHP can't do it); `MediaDashboardGenerator::wordCloudInput()` reads them, with an in-PHP tokeniser fallback |
+| semantic inputs (map, similar items, report) | `semantic-inputs-<n>` GitHub releases, never committed | the **Build semantic embeddings** Action (EmbeddingGemma 2); `Precompute\EmbeddingInputs` downloads the newest matching release into the store. Contract: [docs/SEMANTIC_EMBEDDINGS.md](docs/SEMANTIC_EMBEDDINGS.md) |
 
 The JS is modular — one vanilla-JS IIFE per concern (chart builders, controllers,
 the `window.RV` core, registry, layouts). The authoritative per-file tree lives in
