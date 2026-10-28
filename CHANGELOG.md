@@ -13,6 +13,27 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.44.0] - 2026-10-28
+
+**Upgrading:** install this release, then **Regenerate now**: the whole collaboration network, its affiliation colouring, the new panel order and "No type" arrive with the next snapshot.
+
+### Added
+
+- The Publications *Collaboration network* can be coloured by **Affiliation** as well as by collaboration group (a *Colour by* switch under the graph, on the same layout). Green marks the Africa Multiple cluster: anyone affiliated with an Africa Multiple Research Centre, through their institution or an institute above it, and every member or principal investigator of a cluster project or research section. A second colour marks people affiliated with another cluster partner, and grey the people with no cluster affiliation recorded, which is most authors for now.
+
+### Changed
+
+- The Publications *Collaboration network* shows the whole network, everyone with at least one collaborator (722 people and 2,080 ties on the live site), instead of the 120 best connected. Past eleven groups the palette would repeat, so the smallest groups share one grey *Smaller groups* entry in the legend.
+- On a touch screen, the first tap on a bar, slice, word, node or dot shows its value, and a second tap on the same element opens its record. A tap used to leave the page at once, so readers could not read a value first. A mouse click still opens the record straight away. This covers every chart that links to records, on every dashboard.
+- The tooltip of a stacked timeline or stacked area chart lists only the series present in that year, largest first, instead of every type with most at zero.
+- Ranked bar charts show ten bars a page on a phone (twenty elsewhere), so every bar keeps its label. On the shorter phone chart, twenty bars made ECharts drop every other label.
+- The Publications dashboard pairs *Journals* with *Publishers*, then *Book series* with *Most published authors*.
+- Untyped items stack as "No type", not "(no type)".
+
+### Removed
+
+- *Keywords over time* is gone from the Publications dashboard.
+
 ## [2.43.0] - 2026-10-27
 
 **Upgrading:** install this release, then **Regenerate now**: the new word clouds appear with the next snapshot.
