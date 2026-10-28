@@ -21,12 +21,18 @@ parameters:
         # MVC hands controllers the HTTP request/response behind the generic
         # Stdlib interfaces; PHPStan cannot see either without a Laminas
         # extension, which would be a dependency for no other gain.
+        #
+        # Each magic name is listed rather than matched with \w+, which also
+        # silenced a typo in a call to any of this module's own methods on
+        # those classes. Calling a new plugin or helper means adding its name
+        # here; reportUnmatchedIgnoredErrors keeps the lists from outliving
+        # their last caller.
         - identifier: method.notFound
-          message: '#^Call to an undefined method Laminas\\View\\Renderer\\(PhpRenderer|RendererInterface)::\w+\(\)\.$#'
+          message: '#^Call to an undefined method Laminas\\View\\Renderer\\(PhpRenderer|RendererInterface)::(api|assetUrl|currentSite|dreFileUrl|formSelect|formText|headLink|headScript|setting|translate|url)\(\)\.$#'
         - identifier: method.notFound
-          message: '#^Call to an undefined method (DreVisualizations\\Controller\\\w+\\\w+|Laminas\\Mvc\\Controller\\AbstractController)::\w+\(\)\.$#'
+          message: '#^Call to an undefined method (DreVisualizations\\Controller\\\w+\\\w+|Laminas\\Mvc\\Controller\\AbstractController)::(api|currentSite|getForm|jobDispatcher|messenger|settings|viewHelpers)\(\)\.$#'
         - identifier: method.notFound
-          message: '#^Call to an undefined method Laminas\\Stdlib\\(Request|Response)Interface::\w+\(\)\.$#'
+          message: '#^Call to an undefined method Laminas\\Stdlib\\(Request|Response)Interface::(getHeaders|getPost|isGet|isHead|isPost|setStatusCode)\(\)\.$#'
         # AbstractActionController documents indexAction() as returning a
         # ViewModel; the data endpoint deliberately returns the response.
         - identifier: return.type
