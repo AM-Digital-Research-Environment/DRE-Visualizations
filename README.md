@@ -335,110 +335,238 @@ Then click **"Regenerate now"** to rebuild the precomputed data.
 
 ## Architecture
 
+<!-- BEGIN GENERATED TREE (npm run build:tree) -->
+
 ```
 DreVisualizations/
-├── Module.php                          # Asset injection (self-hosted ECharts / MapLibre)
-├── config/
-│   ├── module.ini                      # Module metadata
-│   └── module.config.php               # Resource page block registration
-├── src/Site/ResourcePageBlockLayout/
-│   ├── KnowledgeGraph.php              # Item pages — graph block
-│   ├── LinkedItemsDashboard.php        # Item pages — visualizations block
-│   └── ItemSetDashboard.php            # Item set pages — dashboard block
-├── src/Site/ResourcePagePlacement.php  # Adds the visualizations block to saved item-page configurations
-├── view/common/resource-page-block-layout/
-│   ├── knowledge-graph.phtml           # Lightweight async container
-│   ├── linked-items-dashboard.phtml    # Lightweight async container
-│   ├── item-set-dashboard.phtml        # Server-side rendered
-├── src/Controller/Site/EmbedController.php # Public iframe-embed endpoint (gallery + block/chart)
-├── view/dre-visualizations/
-│   ├── layout/embed.phtml              # Bare, theme-following layout for iframes
-│   ├── embed/index.phtml               # Per-site embed snippet gallery
-│   ├── embed/block.phtml               # Whole-block or single-chart embed body
-│   └── embed/not-found.phtml           # Bare 404 inside the frame
+├── .github/
+│   ├── workflows/                                   # 4 files — CI, release, embeddings, word clouds and the watches
+│   ├── dependabot.yml
+│   └── social-preview.png
 ├── asset/
-│   ├── js/
-│   │   ├── graph-canvas.js                       # Reusable: view transform, canvas painter, hit tests
-│   │   ├── graph-force.js                        # Reusable: d3-force simulation + pointer/keyboard interaction
-│   │   ├── knowledge-graph-data.js               # Protected payload load + IDF filters (pure data)
-│   │   ├── knowledge-graph-ui.js                 # Toolbar, filter panel, legend, text alternative
-│   │   ├── item-location-map.js                  # MapLibre origin / current-location panel
-│   │   ├── knowledge-graph.js                    # Controller wiring the five together
-│   │   ├── core/                                 # dashboard-core sources (theme, data, libs, maps, …)
-│   │   ├── dashboard-core.js                     # Generated from core/ by npm run build: THEME, COLORS, helpers (window.RV)
-│   │   ├── dashboard-layouts.js                  # Per-resource-type layout configs
-│   │   ├── dashboard-charts-timeline.js          # Timeline (bar by year)
-│   │   ├── dashboard-charts-pie.js               # Pie/donut chart
-│   │   ├── dashboard-charts-bar.js               # Horizontal bar chart, paged 20 bars at a time
-│   │   ├── dashboard-charts-wordcloud.js         # Word cloud with slider
-│   │   ├── dashboard-charts-gantt.js             # Gantt chart (project timelines)
-│   │   ├── dashboard-charts-heatmap.js           # Heatmap (type × language)
-│   │   ├── dashboard-charts-chord.js             # Chord diagram (co-occurrence)
-│   │   ├── dashboard-charts-sankey.js            # Sankey flow diagram
-│   │   ├── dashboard-charts-sunburst.js          # Sunburst hierarchy
-│   │   ├── dashboard-charts-stacked-timeline.js  # Stacked bar by year and type
-│   │   ├── dashboard-charts-beeswarm.js          # Beeswarm scatter (projects by year)
-│   │   ├── dashboard-charts-histogram.js         # Histogram (episode-length bands)
-│   │   ├── dashboard-charts-boxplot.js           # Box plot (items-per-project spread)
-│   │   ├── dashboard-charts-map.js               # Geographic origins map, mini map
-│   │   ├── dashboard-charts-cluster-map.js       # AMRCs & partners map (category legend)
-│   │   ├── dashboard-charts-affiliation-map.js   # Geocoded affiliation markers
-│   │   ├── dashboard-charts-stacked-area.js      # Subject trends, language timeline
-│   │   ├── dashboard-charts-treemap.js           # Hierarchical treemap
-│   │   ├── dashboard-charts-choropleth.js        # Country choropleth (MapLibre fill)
-│   │   ├── dashboard-charts-radar.js             # Entity breadth-profile radar (ECharts)
-│   │   ├── dashboard-charts-time-chord.js        # Subject co-occurrence with a year slider
-│   │   ├── dashboard-charts-communities.js       # Community force graph (co-author / speaker networks)
-│   │   ├── entity-graph.js                       # Entity Network — MapLibre renderer + controller
-│   │   ├── spatial-exploration.js                # Spatial Exploration — places map controller
-│   │   ├── dashboard-charts-contributor-network.js # Contributor + affiliation networks
-│   │   ├── dashboard-collab-network.js           # Institution collaboration network
-│   │   ├── dashboard-compare.js                  # Compare controller (any entity type)
-│   │   ├── dashboard-compare-unify.js            # Compare: shared category → colour mapping
-│   │   ├── dashboard-explorer.js                 # Project Explorer controller
-│   │   ├── dashboard-network-explorer.js         # Network Explorer controller (tabbed graphs)
-│   │   ├── dashboard-whats-new.js                # What's New controller (window selector)
-│   │   ├── item-set-photo-views.js               # Photo Browsing: masonry / map / timeline + lightbox
-│   │   ├── sibling-sparkline.js                  # Sibling-items sparkline (standalone; no RV core)
-│   │   ├── dashboard-stat-cards.js               # Reusable summary stat cards (lucide icon + value); renders any dashboard's `stats`
-│   │   ├── dashboard-registry.js                 # CHART_MAP, labels, descriptions
-│   │   └── dashboard.js                          # Orchestrator: render + async/inline init
 │   ├── css/
-│   │   └── dre-visualizations.css # Styles with CSS custom properties
-│   ├── vendor/                    # Committed third-party bundles (upstream; see THIRD_PARTY_NOTICES)
-│   │   └── echarts.min.js, maplibre-gl.js, …   # ECharts + MapLibre (self-hosted; MapLibre is ESM,
-│   │                                           # vendored by `npm run vendor:maplibre`)
-│   └── data/
-│       ├── geo/
-│       │   └── countries.geojson       # Natural Earth 110m boundaries (choropleth) — committed INPUT
-│       ├── wordclouds/                 # Lemmatised frequencies from the CI Action — committed INPUT
-│       ├── communities/
-│       │   └── entity-graph.json       # Multi-entity co-occurrence network (MapLibre; baked positions)
-│       ├── knowledge-graphs/           # Per-item graph JSON — gitignored, regenerated in-Omeka
-│       ├── photo-galleries/            # Per-item-set gallery JSON — gitignored, regenerated in-Omeka
-│       └── item-dashboards/            # Dashboard JSON + {type}-index.json + publications/podcasts/
-│                                       #   youtube/whats-new/spatial-exploration artifacts
-├── src/Precompute/                     # PHP precompute engine (admin "Regenerate now")
-│   ├── DataLoader.php                  # Items/links/literals/geo via Omeka\Connection
-│   ├── ProjectCollections.php          # A research project's item sets (isPartOf, then dre:id)
-│   ├── Aggregators.php                 # Facade: composes the trait builders + shared constants (unit-tested)
-│   ├── Aggregators/                    # Builders split by concern (one trait per file)
-│   │   ├── SupportTrait.php            # sort/lookup + PageRank/Louvain primitives
-│   │   ├── BasicChartsTrait.php        # aggregateItems, heatmap, roles, templates
-│   │   ├── TemporalChartsTrait.php     # timelines, trends, boxplot, time-chord, what's-new
-│   │   ├── NetworkChartsTrait.php      # chord, sankey, contributor/affiliation/collab/co-author networks
-│   │   ├── GeoChartsTrait.php          # choropleth, geo-flows, country index, publication countries
-│   │   ├── HierarchyChartsTrait.php    # sunburst, treemap
-│   │   ├── EntityGraphTrait.php        # global multi-entity co-occurrence graph (MapLibre block)
-│   │   ├── PublicationChartsTrait.php  # journals/series/publishers/funders, top authors, stat-card counts
-│   │   └── OverviewChartsTrait.php     # radar, stat cards, sections/section×university, cluster map
-│   ├── KnowledgeGraphs.php             # Per-item knowledge-graph builder (IDF-ranked)
-│   ├── ForceLayout.php                 # Pure-PHP ForceAtlas2 — bakes entity-network positions
-│   ├── JsonArtifactWriter.php          # Consistent, temp-file-backed JSON artifact writes
-│   └── Runner.php                      # Entities, overviews, publications, knowledge graphs
-├── CONTRIBUTING.md                     # How to add a visualization (recipes + guardrails)
-└── README.md
+│   │   ├── dre-visualizations.css                   # Hand-written styles over the DRE theme tokens (--rv-* aliases)
+│   │   ├── dre-visualizations.min.css               # GENERATED by npm run build: what Omeka serves
+│   │   └── dre-visualizations.min.css.map
+│   ├── data/
+│   │   └── geo/
+│   │       └── countries.geojson                    # Natural Earth 110m boundaries (choropleth) — committed INPUT
+│   ├── fonts/                                       # 8 files — self-hosted MapLibre glyph ranges
+│   ├── js/
+│   │   ├── core/                                    # 14 files — the dashboard-core sources, in scripts/lib/frontend-sources.mjs order
+│   │   ├── dashboard-charts-affiliation-map.js      # Geocoded affiliation markers
+│   │   ├── dashboard-charts-bar.js                  # Horizontal bar chart, paged 20 bars at a time
+│   │   ├── dashboard-charts-beeswarm.js             # Beeswarm scatter (projects by year)
+│   │   ├── dashboard-charts-boxplot.js              # Box plot (items-per-project spread)
+│   │   ├── dashboard-charts-chord.js                # Chord diagram (co-occurrence)
+│   │   ├── dashboard-charts-choropleth.js           # Country choropleth (MapLibre fill)
+│   │   ├── dashboard-charts-cluster-map.js          # AMRCs & partners map (category legend)
+│   │   ├── dashboard-charts-communities.js          # Community force graph (co-author / speaker networks)
+│   │   ├── dashboard-charts-contributor-network.js  # Contributor + affiliation networks
+│   │   ├── dashboard-charts-gantt.js                # Gantt chart (project timelines)
+│   │   ├── dashboard-charts-heatmap.js              # Heatmap (type × language)
+│   │   ├── dashboard-charts-histogram.js            # Histogram (episode-length bands)
+│   │   ├── dashboard-charts-map.js                  # Geographic origins map, mini map
+│   │   ├── dashboard-charts-pie.js                  # Pie/donut chart
+│   │   ├── dashboard-charts-radar.js                # Entity breadth-profile radar
+│   │   ├── dashboard-charts-sankey.js               # Sankey flow diagram
+│   │   ├── dashboard-charts-semantic.js             # By-similarity scatter panels
+│   │   ├── dashboard-charts-stacked-area.js         # Subject trends, language timeline
+│   │   ├── dashboard-charts-stacked-timeline.js     # Stacked bar by year and type
+│   │   ├── dashboard-charts-sunburst.js             # Sunburst hierarchy
+│   │   ├── dashboard-charts-time-chord.js           # Subject co-occurrence with a year slider
+│   │   ├── dashboard-charts-timeline.js             # Timeline (bar by year)
+│   │   ├── dashboard-charts-treemap.js              # Hierarchical treemap
+│   │   ├── dashboard-charts-wordcloud.js            # Word cloud with slider
+│   │   ├── dashboard-charts.bundle.js               # GENERATED: the chart builders, concatenated
+│   │   ├── dashboard-charts.bundle.min.js           # GENERATED: its minified copy, what Omeka serves (+ .map)
+│   │   ├── dashboard-charts.bundle.min.js.map
+│   │   ├── dashboard-collab-network.js              # Institution collaboration network
+│   │   ├── dashboard-compare-unify.js               # Compare: shared category → colour mapping
+│   │   ├── dashboard-compare.js                     # Compare controller (any entity type)
+│   │   ├── dashboard-core.js                        # GENERATED from core/: THEME, COLORS, helpers (window.RV)
+│   │   ├── dashboard-core.min.js                    # GENERATED: its minified copy, what Omeka serves (+ .map)
+│   │   ├── dashboard-core.min.js.map
+│   │   ├── dashboard-explorer.js                    # Project Explorer controller
+│   │   ├── dashboard-layouts.js                     # Per-resource-type layout configs
+│   │   ├── dashboard-network-explorer.js            # Network Explorer controller (tabbed graphs)
+│   │   ├── dashboard-registry.js                    # CHART_MAP, labels, descriptions
+│   │   ├── dashboard-stat-cards.js                  # Summary stat cards; renders any dashboard's `stats`
+│   │   ├── dashboard-whats-new.js                   # What's New controller (window selector)
+│   │   ├── dashboard.js                             # Orchestrator: render + async/inline init
+│   │   ├── entity-graph-ui.js                       # Entity Network chrome: keyboard walker, text alternative, filters
+│   │   ├── entity-graph.js                          # Entity Network: MapLibre renderer + controller
+│   │   ├── graph-canvas.js                          # Reusable: view transform, canvas painter, hit tests
+│   │   ├── graph-chrome.js                          # Reusable: graph toolbar, legend, fullscreen
+│   │   ├── graph-force.js                           # Reusable: d3-force simulation + pointer/keyboard interaction
+│   │   ├── item-location-map.js                     # MapLibre origin / current-location panel
+│   │   ├── item-set-photo-views.js                  # Photo Browsing: masonry / map / timeline + lightbox
+│   │   ├── knowledge-graph-data.js                  # Protected payload load + IDF filters (pure data)
+│   │   ├── knowledge-graph-ui.js                    # Toolbar, filter panel, legend, text alternative
+│   │   ├── knowledge-graph.js                       # Knowledge Graph controller
+│   │   ├── semantic-map.js                          # Semantic Map controller
+│   │   ├── semantic-similar.js                      # Similar Items block
+│   │   ├── sibling-sparkline.js                     # Sibling-items sparkline
+│   │   └── spatial-exploration.js                   # Spatial Exploration: places map controller
+│   └── vendor/                                      # 10 files — committed third-party builds (THIRD_PARTY_NOTICES)
+├── config/
+│   ├── amira-profile.json                           # Templates, item sets and authorities the precompute reads
+│   ├── client-strings.json                          # GENERATED by npm run build: every browser interface string
+│   ├── dashboard-layouts.json                       # GENERATED by npm run build: each layout's chart keys
+│   ├── module.config.php                            # Block layouts, routes, controllers, helpers
+│   └── module.ini                                   # Module metadata; the version drives the asset ?v= cache-bust
+├── data/
+│   └── wordclouds/                                  # 3 files — lemmatised frequencies from the Build word clouds Action — committed INPUT
+├── docs/                                            # 7 files — administration, architecture, releasing, roadmap, security, embeddings
+├── language/
+│   └── template.pot
+├── reports/
+│   └── amira-visualization-porting-report.md
+├── scripts/
+│   ├── lib/                                         # 5 files — shared by the build and the checks; token rules vendored from DRE-theme
+│   ├── benchmark-precompute.php
+│   ├── build-frontend-bundles.mjs                   # npm run build: bundles, minified copies, layouts, strings
+│   ├── build-tree.mjs                               # Writes this tree (npm run build:tree)
+│   ├── changelog-section.mjs
+│   ├── check-accessibility-contracts.mjs
+│   ├── check-design-tokens.mjs
+│   ├── check-formatters.mjs
+│   ├── check-graph-contracts.mjs
+│   ├── check-html-safety.mjs
+│   ├── check-js-syntax.mjs
+│   ├── check-module-contract.php
+│   ├── check-registry-contracts.mjs
+│   ├── check-release-archive.mjs
+│   ├── check-release-metadata.mjs
+│   ├── design-token-allowlist.txt
+│   ├── extract-translations.mjs
+│   ├── phpstan.mjs
+│   ├── test-php-docker.mjs
+│   ├── test-php.php
+│   └── vendor-maplibre.mjs
+├── src/
+│   ├── Controller/
+│   │   ├── Admin/
+│   │   │   ├── MaintenanceController.php
+│   │   │   └── MaintenanceControllerFactory.php
+│   │   └── Site/
+│   │       ├── BasemapController.php
+│   │       ├── DataController.php                   # Streams the published snapshot; fails closed
+│   │       └── EmbedController.php                  # Public iframe-embed endpoint (gallery + block/chart)
+│   ├── FeaturedCollections/
+│   │   └── Registry.php
+│   ├── Form/
+│   │   ├── ConfigForm.php
+│   │   ├── ConfigValues.php
+│   │   └── MaintenanceForm.php
+│   ├── Job/
+│   │   └── PrecomputeDashboards.php                 # The "Regenerate now" background job
+│   ├── Listener/
+│   │   ├── EmbedFraming.php
+│   │   ├── SnapshotInvalidation.php
+│   │   └── VisibilityState.php
+│   ├── Precompute/
+│   │   ├── Aggregators/
+│   │   │   ├── BasicChartsTrait.php                 # aggregateItems, heatmap, roles, templates
+│   │   │   ├── EntityGraphTrait.php                 # global multi-entity co-occurrence graph (MapLibre block)
+│   │   │   ├── GeoChartsTrait.php                   # choropleth, geo-flows, country index, publication countries
+│   │   │   ├── HierarchyChartsTrait.php             # sunburst, treemap
+│   │   │   ├── MediaChartsTrait.php                 # episode-length histogram, transcript word cloud
+│   │   │   ├── NetworkChartsTrait.php               # chord, sankey, contributor/affiliation/collab/co-author networks
+│   │   │   ├── OverviewChartsTrait.php              # radar, stat cards, sections/section×university, cluster map
+│   │   │   ├── PublicationChartsTrait.php           # journals/series/publishers/funders, top authors, stat-card counts
+│   │   │   ├── SpatialTrait.php                     # the place index behind Spatial Exploration
+│   │   │   ├── SupportTrait.php                     # sort/lookup + PageRank/Louvain primitives
+│   │   │   └── TemporalChartsTrait.php              # timelines, trends, boxplot, time-chord, what's-new
+│   │   ├── Aggregators.php                          # Facade: composes the trait builders + shared constants (unit-tested)
+│   │   ├── AmiraProfile.php
+│   │   ├── CollectionGalleryGenerator.php
+│   │   ├── CorpusSnapshot.php                       # Validates and freezes the generator input
+│   │   ├── DashboardGenerator.php
+│   │   ├── DataLoader.php                           # Public, site-scoped rows via Omeka\Connection
+│   │   ├── DataSelection.php
+│   │   ├── EmbeddingInputs.php                      # Downloads the semantic-inputs releases into the store
+│   │   ├── EmbeddingWorkflow.php
+│   │   ├── EntityDashboardGenerator.php
+│   │   ├── ForceLayout.php                          # Pure-PHP ForceAtlas2: bakes entity-network positions
+│   │   ├── GenerationCancelled.php
+│   │   ├── GeneratorPaths.php
+│   │   ├── ItemSetDashboardGenerator.php
+│   │   ├── JsonArtifactWriter.php                   # Consistent, temp-file-backed JSON artifact writes
+│   │   ├── KnowledgeGraphGenerator.php
+│   │   ├── KnowledgeGraphs.php                      # Per-item knowledge-graph builder (IDF-ranked)
+│   │   ├── LegacyPublicOutputs.php
+│   │   ├── MediaDashboardGenerator.php
+│   │   ├── OverviewDashboardGenerator.php
+│   │   ├── ProjectCollections.php                   # A research project's item sets (isPartOf, then dre:id)
+│   │   ├── PublicationBusy.php
+│   │   ├── PublicCorpus.php                         # Deduplicated statements, consistent relationship indexes
+│   │   ├── PublishedSnapshot.php
+│   │   ├── RepulsionTree.php                        # Barnes–Hut tree for ForceAtlas2 repulsion
+│   │   ├── Roles.php
+│   │   ├── Runner.php                               # Loads once, then runs every generator
+│   │   ├── SafeFilesystem.php
+│   │   ├── ScopedInput.php
+│   │   ├── SemanticCarry.php                        # Keeps the semantic map online after a privatising write
+│   │   ├── SnapshotPublisher.php                    # Locked, validated, atomic publication
+│   │   ├── SnapshotStore.php                        # The private store outside the document root
+│   │   └── SourceChanged.php
+│   ├── Service/
+│   │   ├── AutomaticRefresh.php
+│   │   ├── CanonicalSite.php
+│   │   └── CanonicalSiteFactory.php
+│   ├── Site/
+│   │   ├── BlockLayout/                             # 15 files — site-page block layouts
+│   │   ├── ResourcePageBlockLayout/                 # 5 files — item and item-set page blocks
+│   │   ├── BasemapStyle.php
+│   │   ├── PublishedData.php
+│   │   └── ResourcePagePlacement.php                # Adds the visualizations block to saved item-page configurations
+│   └── View/
+│       └── Helper/
+│           ├── DashboardAssets.php                  # The script chains every block loads
+│           ├── FileUrl.php
+│           ├── FileUrlFactory.php
+│           ├── ProjectExplorerUrl.php
+│           └── ProjectExplorerUrlFactory.php
+├── tests/                                           # 247 files — PHP harnesses, the Omeka-core and golden suites, node and Playwright tests
+├── tools/
+│   ├── embeddings/                                  # 6 files — the Build semantic embeddings Action (EmbeddingGemma 2)
+│   ├── wordclouds/
+│   │   ├── build_wordclouds.py
+│   │   └── requirements.txt
+│   └── scoped_source.py
+├── view/
+│   ├── common/
+│   │   ├── block-layout/                            # 17 files — one template per site-page block, plus the shared partials
+│   │   └── resource-page-block-layout/              # 5 files — one template per resource-page block
+│   └── dre-visualizations/
+│       ├── admin/
+│       │   └── maintenance/
+│       │       └── index.phtml
+│       ├── embed/
+│       │   ├── block.phtml                          # Whole-block or single-chart embed body
+│       │   ├── index.phtml                          # Per-site embed snippet gallery
+│       │   └── not-found.phtml                      # Bare 404 inside the frame
+│       ├── layout/
+│       │   └── embed.phtml                          # Bare, theme-following layout for iframes
+│       └── config-form.phtml
+├── CHANGELOG.md                                     # Version history (Keep a Changelog)
+├── CITATION.cff
+├── CONTRIBUTING.md                                  # How to add a visualization (recipes + guardrails)
+├── eslint.config.mjs
+├── LICENSE
+├── Module.php                                       # Wiring only: lifecycle hooks, configuration, ACL, listeners
+├── package-lock.json
+├── package.json
+├── phpstan-baseline.neon
+├── phpstan.neon.dist
+├── playwright.config.mjs
+├── README.md
+├── SECURITY.md
+└── THIRD_PARTY_NOTICES                              # Vendored libraries and their licences
 ```
+
+<!-- END GENERATED TREE -->
 
 The front-end script chain (chart builders + registry + controller) is injected by a
 single view helper — `src/View/Helper/DashboardAssets.php` (`$this->dashboardAssets(...)`).

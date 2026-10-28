@@ -194,9 +194,11 @@ Three **inputs** are made outside Omeka:
 | semantic inputs (map, similar items, report) | `semantic-inputs-<n>` GitHub releases, never committed | the **Build semantic embeddings** Action (EmbeddingGemma 2); `Precompute\EmbeddingInputs` downloads the newest matching release into the store. Contract: [docs/SEMANTIC_EMBEDDINGS.md](docs/SEMANTIC_EMBEDDINGS.md) |
 
 The JS is modular — one vanilla-JS IIFE per concern (chart builders, controllers,
-the `window.RV` core, registry, layouts). The authoritative per-file tree lives in
-the README's **Architecture** section; the shared helper chain is injected by
-`DashboardAssets` (single source of truth).
+the `window.RV` core, registry, layouts). The per-file tree in the README's
+**Architecture** section is generated from `git ls-files` by `npm run build:tree`
+(annotations in `scripts/build-tree.mjs`); `npm run check` fails while it is out of
+date, so run it after adding, moving or removing a file. The shared helper chain is
+injected by `DashboardAssets` (single source of truth).
 
 ## Omeka S data reference
 
