@@ -116,11 +116,11 @@ if ($phase === 'omeka') {
     // the password is random and not kept.
     $installer = $services->get('Omeka\Installer');
     $installer->registerVars('Omeka\Installation\Task\CreateFirstUserTask', [
-        'name' => 'Boot test', 'email' => 'boot-test@example.test',
+        'name' => 'Boot test', 'email' => 'boot-test@example.com',
         'password-confirm' => ['password' => bin2hex(random_bytes(16))],
     ]);
     $installer->registerVars('Omeka\Installation\Task\AddDefaultSettingsTask', [
-        'administrator_email' => 'boot-test@example.test', 'installation_title' => 'DRE Visualizations boot test',
+        'administrator_email' => 'boot-test@example.com', 'installation_title' => 'DRE Visualizations boot test',
         'time_zone' => 'UTC', 'locale' => 'en_US',
     ]);
     $installed = $installer->install();
