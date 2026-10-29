@@ -6,7 +6,7 @@ modular, maintainable, and theme-consistent; they were proven out over the
 visualization-parity initiative with the sibling
 [amira dashboard](https://github.com/AM-Digital-Research-Environment/amira).
 
-The module ships plain PHP, CSS and vanilla JavaScript. `npm run build` concatenates the modular sources into two committed bundles, then minifies both and the stylesheet into the `.min.js` / `.min.css` files Omeka serves, each with a source map pointing back at the readable file. ECharts 6, MapLibre 6 and d3-force 3 are vendored under `asset/vendor`; esbuild (the minifier) and Playwright are development dependencies only. Record any changed vendored dependency in `THIRD_PARTY_NOTICES` and verify its upstream version before pinning.
+The module ships plain PHP, CSS and vanilla JavaScript. `npm run build` concatenates the modular sources into two committed bundles, then minifies both and the stylesheet into the `.min.js` / `.min.css` files Omeka serves, each with a source map pointing back at the readable file. ECharts 6, MapLibre 6 and d3-force 3 are vendored under `asset/vendor`; esbuild (the minifier) and Playwright are development dependencies only. Record any changed vendored dependency in `asset/vendor/versions.json` (version, source file in the npm tarball, SHA-256) and in `THIRD_PARTY_NOTICES`; `npm run check:vendor` holds the two together, and `node scripts/check-vendor.mjs --latest --verify` compares the pins with npm and the bytes with the tarballs.
 
 Three renderers, and the choice between them is not a matter of taste: ECharts for
 charts, MapLibre for maps, and the module's own canvas + d3-force for a graph the
@@ -36,6 +36,14 @@ are listed in `.github/workflows/ci.yml`.
 The PHP harnesses fail on any warning, notice or deprecation the module raises
 (`tests/lib/strict-errors.php`). The aggregators are dependency-free and
 unit-tested — add a mock-data case for every new builder.
+
+**Omeka boot.** `tests/integration/OmekaBootTest.php` is the one suite that
+needs a database server, so it runs in CI only (job `omeka-boot`, on the MySQL
+image production runs). It unpacks the release archive into Omeka S, lets
+Omeka's ModuleManager install, upgrade and uninstall the module, resolves every
+route through the real `ModuleRouteListener`, runs one regeneration job and
+renders every block layout. A new block layout is covered as soon as it is
+registered; a new route belongs in its route list.
 
 **Golden output.** `tests/integration/GoldenTest.php` runs the whole precompute
 on a fixed synthetic corpus (`tests/integration/fixtures/GoldenCorpus.php`) and
@@ -161,6 +169,11 @@ Overview is the first consumer (`Runner::buildOverviewStats`).
     `asset/css/dre-visualizations.css`. Never introduce a raw hex. (See the
     README's *Theming* section for the full alias → token table.) Edit that
     file and run `npm run build`; never edit the generated `.min.css`.
+    `npm run check` runs stylelint over it (`no-duplicate-selectors`,
+    `declaration-no-important`: an exemption carries its reason in a
+    `stylelint-disable` comment) and `check:css-dead`, which fails on a class
+    the stylesheet styles but nothing in `asset/js`, `view`, `src` or `config`
+    builds.
 
 ## Data architecture
 
@@ -194,9 +207,11 @@ Three **inputs** are made outside Omeka:
 | semantic inputs (map, similar items, report) | `semantic-inputs-<n>` GitHub releases, never committed | the **Build semantic embeddings** Action (EmbeddingGemma 2); `Precompute\EmbeddingInputs` downloads the newest matching release into the store. Contract: [docs/SEMANTIC_EMBEDDINGS.md](docs/SEMANTIC_EMBEDDINGS.md) |
 
 The JS is modular — one vanilla-JS IIFE per concern (chart builders, controllers,
-the `window.RV` core, registry, layouts). The authoritative per-file tree lives in
-the README's **Architecture** section; the shared helper chain is injected by
-`config/asset-plans.json` (single source of truth).
+the `window.RV` core, registry, layouts). The per-file tree in the README's
+**Architecture** section is generated from `git ls-files` by `npm run build:tree`
+(annotations in `scripts/build-tree.mjs`); `npm run check` fails while it is out of
+date, so run it after adding, moving or removing a file. What each surface loads
+is declared in `config/asset-plans.json` (single source of truth).
 
 ## Omeka S data reference
 

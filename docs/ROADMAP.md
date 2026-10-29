@@ -20,8 +20,8 @@ from this module, is in its ROADMAP.md.
 ### Phase 1 — Robustness
 
 - [x] X4 No inline `<script>`: the page configuration (`RV_DATA_BASE`, `RV_I18N`, `RV_MAP_CONFIG`, `RV_LIBS`) travels as inert JSON that the core reads, so a host with `script-src 'self'` breaks nothing. Accept: no `appendScript()` of executable code anywhere in `src/` or `view/`; DRE Search still reads the shared basemap configuration.
-- [ ] X5 A monthly workflow compares the vendored ECharts, echarts-wordcloud, MapLibre and d3 versions with the npm registry and verifies the vendored bytes against the published tarballs. Accept: a stale pin turns the scheduled run red; a byte mismatch fails always.
-- [ ] X6 A weekly workflow fails when the token rules vendored from DRE-theme (`scripts/lib/token-rules.mjs`, `dre-tokens-fallback.json`) fall behind the theme's main branch.
+- [x] X5 A monthly workflow compares the vendored ECharts, echarts-wordcloud, MapLibre and d3 versions with the npm registry and verifies the vendored bytes against the published tarballs (`asset/vendor/versions.json`, `scripts/check-vendor.mjs`, `vendor-versions.yml`). Accept: a stale pin turns the scheduled run red; a byte mismatch fails always; offline, `npm run check` holds THIRD_PARTY_NOTICES and the asset plans' library paths to the manifest.
+- [-] X6 A weekly workflow failing when the token rules vendored from DRE-theme fall behind its main branch. Decided against: DRE-theme's own `contract-drift.yml` already checks out this repository and runs `vendor-lint.mjs --check`, weekly and on every rule change; a second workflow here would only add a second red run for the same event.
 
 ### Phase 2 — Structure
 
@@ -30,11 +30,11 @@ from this module, is in its ROADMAP.md.
 
 ### Phase 3 — Tests
 
-- [ ] X9 Omeka boot integration in CI against MariaDB: install the module, render every block layout, answer the embed and data routes, upgrade and uninstall. Accept: runs on Omeka 4.2.1 / PHP 8.4 and 8.5.
+- [x] X9 Omeka boot integration in CI (`omeka-boot` in ci.yml, `tests/integration/OmekaBootTest.php`) against the MySQL image production runs (not MariaDB, as first written): Omeka installs itself, the module is installed by Omeka's ModuleManager, every route answers, one regeneration publishes a snapshot, every page and item-page block renders, then upgrade (from 2.28.0) and uninstall. Runs on Omeka 4.2.1 / PHP 8.4 and 8.5, and gates releases through ci.yml.
 - [~] X10 A browser fixture for every interactive site-page block — collection overview, publications, network explorer, what's new, project explorer, discursive communities, spatial exploration, besides compare, dashboard and the semantic map — each loading exactly its asset plan, booting on the golden output with no console error, and checked with axe (light, dark) and at 320 px; unit tests for the `core/` helpers (page configuration, `t`/`plural`/`fill`, number formatting, escaping, `ensureLibs`). They found and fixed undersized targets (cluster-map markers, the spatial lists) and a 320 px overflow (the spatial country picker). Open: neighbouring cluster-map markers overlap at the overview zoom, which fails WCAG 2.5.8 spacing; it needs marker clustering or a list equivalent, and the axe check names it as the one known exception. Featured collections and photo browsing render on the server and are not fixtures yet.
 - [ ] X11 Lighthouse budgets on the block fixtures (bytes, requests, accessibility and best-practice scores), as IWAC runs them.
-- [ ] X12 stylelint and a dead-selector check over `dre-visualizations.css`.
-- [ ] X13 The README's repository tree is generated from `git ls-files` and checked, instead of hand-written.
+- [x] X12 stylelint and a dead-selector check over `dre-visualizations.css` (`lint:css`, `check:css-dead`): one dead class and one duplicated selector removed, each remaining `!important` says why.
+- [x] X13 The README's repository tree is generated from `git ls-files` and checked, instead of hand-written (`build:tree`, `check:tree`).
 
 ## 2.29.1 review implementation (released in 2.30.0)
 

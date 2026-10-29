@@ -1,0 +1,81 @@
+{
+  "$comment": "The one record of what asset/vendor holds: each npm package, its pinned version and, per vendored file, the file it is taken from in the package tarball and its SHA-256. scripts/check-vendor.mjs holds THIRD_PARTY_NOTICES and the vendoring script to it, compares the pins with the npm registry (--latest) and the bytes with the tarballs (--verify). A file with no \"from\" is the module's own and is held to its hash only.",
+  "packages": {
+    "echarts": {
+      "version": "6.1.0",
+      "files": {
+        "echarts.min.js": {
+          "from": "dist/echarts.min.js",
+          "sha256": "b66b25aeb4df84e33199dc21694014d336d222cbd9deb0e5a7c14bd6aa0d0fd0"
+        }
+      }
+    },
+    "echarts-wordcloud": {
+      "version": "2.1.0",
+      "files": {
+        "echarts-wordcloud.min.js": {
+          "from": "dist/echarts-wordcloud.min.js",
+          "sha256": "7b6f0d55971d9de5913120c7ce6342f3551efd00b4a1df8a50f08385bb25f155"
+        },
+        "echarts-wordcloud.min.js.LICENSE.txt": {
+          "from": null,
+          "note": "Written for this module: the minified build points to it, the package does not ship it.",
+          "sha256": "2ade33a9b1d01a161e4bb3fa839627647f97f65f261d552974db768619766302"
+        }
+      }
+    },
+    "maplibre-gl": {
+      "version": "6.16.0",
+      "files": {
+        "maplibre-gl.js": {
+          "from": "dist/maplibre-gl.mjs",
+          "sha256": "fbbdf8ddd9a48e49059a4be6795a4f214a711314bb5809f72d3730b48e7897e3"
+        },
+        "maplibre-gl-worker.js": {
+          "from": "dist/maplibre-gl-worker.mjs",
+          "sha256": "0bf06492bdb7ba3d4132b78e435621bfba60d5250967991c02b1a73affea8cd5"
+        },
+        "maplibre-gl.css": {
+          "from": "dist/maplibre-gl.css",
+          "sha256": "a90798a1953017790e590f7e1bd35ff103a8a4263972cb47290b78adf86f8c20"
+        }
+      }
+    },
+    "d3-force": {
+      "version": "3.0.0",
+      "files": {
+        "d3-force.min.js": {
+          "from": "dist/d3-force.min.js",
+          "sha256": "1e07b473241328795d5ea9ad479a7bbabd765012fa2ef95633c83b69868dff6b"
+        }
+      }
+    },
+    "d3-quadtree": {
+      "version": "3.0.1",
+      "files": {
+        "d3-quadtree.min.js": {
+          "from": "dist/d3-quadtree.min.js",
+          "sha256": "57e2ad12824ed82893ba447523f2a2fb9beeb9222aafb2c778a9f5b313348b0e"
+        }
+      }
+    },
+    "d3-dispatch": {
+      "version": "3.0.1",
+      "files": {
+        "d3-dispatch.min.js": {
+          "from": "dist/d3-dispatch.min.js",
+          "sha256": "94b3bbdb6b98dc1325a15762b051013e8253999b0e0436b27d1da17b952ba0af"
+        }
+      }
+    },
+    "d3-timer": {
+      "version": "3.0.1",
+      "files": {
+        "d3-timer.min.js": {
+          "from": "dist/d3-timer.min.js",
+          "sha256": "911ceda305f014b6b53ca68d5c896a9a387da120cfd56a421a2c60cca2fc9b36"
+        }
+      }
+    }
+  }
+}
