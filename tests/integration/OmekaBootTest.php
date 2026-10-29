@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * The module inside a real Omeka S, against a real MariaDB: the one place the
+ * The module inside a real Omeka S, against the MySQL production runs: the one place the
  * other suites cannot reach. They declare the classes against Omeka's core
  * (check-module-contract.php), stub its plugins (CoreContractsTest) and read a
  * SQLite slice of its schema (DatabaseTest); none of them boots the
@@ -225,7 +225,7 @@ switch ($phase) {
 
         // The loader's queries against the real schema on the real server.
         $corpus = (new DataLoader($connection, $site->id()))->load();
-        $check(count($corpus->items) === 2, 'DataLoader reads the public items of the site from MariaDB');
+        $check(count($corpus->items) === 2, 'DataLoader reads the public items of the site from MySQL');
 
         // A page carrying every page-block layout the module registers. Written
         // before the regeneration: once a snapshot is published, a write would
@@ -256,7 +256,7 @@ switch ($phase) {
         $job = $services->get('Omeka\Job\Dispatcher')->dispatch(
             PrecomputeDashboards::class, null, $services->get('Omeka\Job\DispatchStrategy\Synchronous'));
         if ($job->getStatus() !== Job::STATUS_COMPLETED) echo $job->getLog() . "\n";
-        $check($job->getStatus() === Job::STATUS_COMPLETED, 'The regeneration job completes against MariaDB');
+        $check($job->getStatus() === Job::STATUS_COMPLETED, 'The regeneration job completes against MySQL');
         $store = SnapshotStore::tryDefault();
         $check($store !== null && $store->manifest() !== null, 'The regeneration publishes a snapshot');
 
