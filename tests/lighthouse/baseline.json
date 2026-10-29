@@ -1,0 +1,78 @@
+{
+  "_": "Written by `npm run check:lighthouse -- --update` (scripts/check-lighthouse.mjs), never by hand.",
+  "lighthouse": "13.5.0",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+  "runs": 1,
+  "pages": {
+    "collection-overview": {
+      "performance": 0.66,
+      "accessibility": 0.96,
+      "best-practices": 1,
+      "script": 738707,
+      "stylesheet": 22796,
+      "image": 0,
+      "font": 0,
+      "requests": 17
+    },
+    "publications": {
+      "performance": 0.59,
+      "accessibility": 1,
+      "best-practices": 1,
+      "script": 746497,
+      "stylesheet": 22796,
+      "image": 0,
+      "font": 0,
+      "requests": 22
+    },
+    "network-explorer": {
+      "performance": 0.61,
+      "accessibility": 1,
+      "best-practices": 1,
+      "script": 447004,
+      "stylesheet": 12381,
+      "image": 0,
+      "font": 0,
+      "requests": 16
+    },
+    "whats-new": {
+      "performance": 0.65,
+      "accessibility": 1,
+      "best-practices": 1,
+      "script": 445634,
+      "stylesheet": 12381,
+      "image": 0,
+      "font": 0,
+      "requests": 16
+    },
+    "project-explorer": {
+      "performance": 0.81,
+      "accessibility": 1,
+      "best-practices": 1,
+      "script": 68590,
+      "stylesheet": 12381,
+      "image": 0,
+      "font": 0,
+      "requests": 11
+    },
+    "discursive-communities": {
+      "performance": 0.63,
+      "accessibility": 1,
+      "best-practices": 1,
+      "script": 333506,
+      "stylesheet": 22796,
+      "image": 0,
+      "font": 0,
+      "requests": 11
+    },
+    "spatial-exploration": {
+      "performance": 0.59,
+      "accessibility": 1,
+      "best-practices": 1,
+      "script": 321431,
+      "stylesheet": 22796,
+      "image": 0,
+      "font": 0,
+      "requests": 11
+    }
+  }
+}

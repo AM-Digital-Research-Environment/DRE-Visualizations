@@ -147,6 +147,7 @@ export function fixturePage(name, { theme = 'light', i18n = {} } = {}) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DRE Visualizations fixture: ${name}</title>
+<link rel="icon" href="data:,">
 ${css}
 <style>
   body { margin: 0; padding: 1rem; background: var(--rv-bg); color: var(--rv-text-strong);

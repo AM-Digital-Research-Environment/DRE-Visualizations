@@ -30,7 +30,8 @@
     "check:formatters": "node scripts/check-formatters.mjs",
     "lint": "eslint .",
     "lint:css": "stylelint \"asset/css/**/*.css\"",
-    "check:css-dead": "node scripts/check-css-dead.mjs"
+    "check:css-dead": "node scripts/check-css-dead.mjs",
+    "check:lighthouse": "node scripts/check-lighthouse.mjs"
   },
   "author": "Frédérick Madore",
   "license": "GPL-3.0-or-later",
@@ -46,6 +47,7 @@
     "eslint": "10.13.0",
     "eslint-plugin-no-unsanitized": "4.1.5",
     "globals": "17.13.0",
+    "lighthouse": "13.5.0",
     "stylelint": "17.16.0"
   }
 }

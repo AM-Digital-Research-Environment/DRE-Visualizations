@@ -340,7 +340,7 @@ Then click **"Regenerate now"** to rebuild the precomputed data.
 ```
 DreVisualizations/
 ├── .github/
-│   ├── workflows/                                   # 5 files — CI, release, embeddings, word clouds and the watches
+│   ├── workflows/                                   # 6 files — CI, release, embeddings, word clouds and the watches
 │   ├── dependabot.yml
 │   └── social-preview.png
 ├── asset/
@@ -438,6 +438,7 @@ DreVisualizations/
 │   ├── check-graph-contracts.mjs
 │   ├── check-html-safety.mjs
 │   ├── check-js-syntax.mjs
+│   ├── check-lighthouse.mjs
 │   ├── check-module-contract.php
 │   ├── check-registry-contracts.mjs
 │   ├── check-release-archive.mjs
@@ -535,7 +536,7 @@ DreVisualizations/
 │           ├── FileUrlFactory.php
 │           ├── ProjectExplorerUrl.php
 │           └── ProjectExplorerUrlFactory.php
-├── tests/                                           # 250 files — PHP harnesses, the Omeka-core and golden suites, node and Playwright tests
+├── tests/                                           # 251 files — PHP harnesses, the Omeka-core and golden suites, node and Playwright tests
 ├── tools/
 │   ├── embeddings/                                  # 6 files — the Build semantic embeddings Action (EmbeddingGemma 2)
 │   ├── wordclouds/

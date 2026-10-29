@@ -22,10 +22,20 @@ npm run build
 npm run check
 npx playwright install chromium
 npm run test:browser
+npm run check:lighthouse                        # page weight and scores, after a front-end change
 OMEKA_CORE=/path/to/omeka-s npm run test:php   # PHP 8.5 in Docker; add -- --php 8.4
 OMEKA_CORE=/path/to/omeka-s npm run phpstan
 python -m unittest discover -s tools/embeddings/tests -v
 ```
+
+`npm run check:lighthouse` loads every block fixture that renders the golden
+output in Lighthouse three times and holds the median against
+`tests/lighthouse/baseline.json`: bytes and requests within 10%, accessibility
+and best-practice scores no lower, performance no more than 0.05 lower. A page
+that gets lighter or scores higher fails until `-- --update` locks the gain in.
+Locally `--update` rewrites bytes and requests only; scores come from the
+`lighthouse` artifact of the CI workflow, since another machine times and lays
+out the pages differently.
 
 `npm run test:php` needs only Docker: it lints every PHP file and runs the
 harnesses, the module contract and every integration suite (including the
