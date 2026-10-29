@@ -147,8 +147,18 @@ $fixture = static function () use ($api): array {
     return [$site, $items];
 };
 
-/** The Visualisations block's state in the site's saved item-page configuration. */
+/**
+ * The Visualisations block's state in the site's saved item-page configuration.
+ * The module's classes load only once Omeka has loaded the module, or once
+ * install() / upgrade() has registered its autoloader, exactly as in production;
+ * before that, read the saved value directly (savedOnItemPage).
+ */
 $placement = static fn (int $siteId): string => ResourcePagePlacement::states($connection)[$siteId] ?? 'unknown';
+$savedOnItemPage = static function (int $siteId) use ($connection): bool {
+    $saved = json_decode((string) $connection->fetchOne(
+        "SELECT value FROM site_setting WHERE id = 'theme_settings_default' AND site_id = ?", [$siteId]), true);
+    return in_array('dreLinkedItemsDashboard', $saved['resource_page_blocks']['items']['main'] ?? [], true);
+};
 
 switch ($phase) {
     case 'install':
@@ -174,7 +184,8 @@ switch ($phase) {
         $siteSettings = $services->get('Omeka\Settings\Site');
         $siteSettings->setTargetId($site->id());
         $siteSettings->set('theme_settings_default', ['resource_page_blocks' => ['items' => ['main' => ['values', 'linkedResources']]]]);
-        $check($placement($site->id()) === ResourcePagePlacement::STATE_MISSING, 'The saved item page lacks the Visualisations block');
+        $check(!$savedOnItemPage($site->id()), 'The saved item page lacks the Visualisations block');
+        $check(!class_exists(ResourcePagePlacement::class), 'The module classes are not loadable before install(), as in Omeka');
 
         $modules->install($module);
         $check($module->getState() === ModuleManager::STATE_ACTIVE, 'The ModuleManager installs and activates the module');
@@ -284,6 +295,7 @@ switch ($phase) {
 
     case 'rewind':
         [$site] = $fixture();
+        $check(SnapshotStore::tryDefault()?->manifest() !== null, 'The snapshot the boot phase published is still current');
         $connection->executeStatement('UPDATE module SET version = ? WHERE id = ?', [REWIND_TO, MODULE_ID]);
         $siteSettings = $services->get('Omeka\Settings\Site');
         $siteSettings->setTargetId($site->id());
@@ -294,7 +306,8 @@ switch ($phase) {
     case 'upgrade':
         [$site] = $fixture();
         $check($module->getState() === ModuleManager::STATE_NEEDS_UPGRADE, 'A ' . REWIND_TO . ' install needs an upgrade');
-        $check(SnapshotStore::tryDefault()?->manifest() !== null, 'A snapshot is published before the upgrade');
+        $check(!class_exists(SnapshotStore::class), 'Omeka does not load a module that needs an upgrade');
+        $check(!$savedOnItemPage($site->id()), 'The saved item page still lacks the block');
         $modules->upgrade($module);
         $check($module->getState() === ModuleManager::STATE_ACTIVE, 'The ModuleManager upgrades the module and keeps it active');
         $installed = $connection->fetchOne('SELECT version FROM module WHERE id = ?', [MODULE_ID]);
