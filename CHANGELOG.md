@@ -13,6 +13,10 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.45.0] - 2026-10-29
+
+No regeneration is needed: the generated data is unchanged. Pages load the minified copies of the shared core, the chart bundle and the stylesheet, so a proxy or browser cache serving the old asset URLs simply refreshes with the new `?v=`.
+
 ### Fixed
 
 - The dots of the Collection Overview's partner map are 24 px targets around the same small dot, and the place and entity lists of Spatial Exploration have 24 px rows, as WCAG 2.2 asks of touch targets.
