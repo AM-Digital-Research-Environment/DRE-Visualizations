@@ -966,8 +966,8 @@
      * so a map-only block can load MapLibre without preventing a later dashboard
      * from loading ECharts.
      *
-     * URLs come from window.RV_LIBS (emitted by the DashboardAssets helper on the
-     * lazy surfaces). When a library was loaded eagerly, its global is already
+     * URLs come from window.RV_LIBS (the `publish` lists of the asset plans in
+     * config/asset-plans.json). When a library was loaded eagerly, its global is already
      * defined and that part resolves immediately.
      *
      * Recognised keys: `echarts`, `wordcloud` (implies echarts), `maplibre`, and
@@ -1054,7 +1054,7 @@
          * ns._libPromises covers repeat callers within this page. This runs
          * after the document is parsed, so — unlike a <script type="module"> in
          * the head — it cannot make Firefox discard an import map that follows
-         * (DashboardAssets::MAPLIBRE_JS). `register` runs once, before any caller sees
+         * (see libs.maplibre in config/asset-plans.json). `register` runs once, before any caller sees
          * the promise settle, and is where the namespace becomes a global.
          */
         function loadModule(key, src, isReady, register) {
@@ -1087,7 +1087,7 @@
         var d3Ready = function () { return !!(window.d3 && window.d3.forceSimulation); };
 
         if (required.d3 && !d3Ready()) {
-            // RV_LIBS.d3 is an ORDERED list (DashboardAssets::D3_SCRIPTS): the
+            // RV_LIBS.d3 is an ORDERED list (libs.d3 in config/asset-plans.json): the
             // d3-force UMD wrapper resolves d3-quadtree / d3-dispatch / d3-timer
             // off the shared `d3` global, so these must EXECUTE sequentially —
             // chained, never Promise.all'd like the independent libraries below.

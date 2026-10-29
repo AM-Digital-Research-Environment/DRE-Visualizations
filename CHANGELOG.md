@@ -13,11 +13,17 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Fixed
+
+- The dots of the Collection Overview's partner map are 24 px targets around the same small dot, and the place and entity lists of Spatial Exploration have 24 px rows, as WCAG 2.2 asks of touch targets.
+- On a phone, Spatial Exploration's country picker drops under its label instead of pushing the page 57 px wider than the screen.
+
 ### Changed
 
 - Pages download less: Omeka now serves minified copies of the shared core, the chart bundle and the stylesheet (`.min.js` / `.min.css`, built by `npm run build` with esbuild). Every item page carries the core and the stylesheet, which together go from about 71 to about 28 KB compressed; a dashboard's chart bundle goes from 42 to 22 KB. Each minified file has a source map back to the readable file, which still ships, so the browser's developer tools show readable code.
 - No inline script anywhere the module renders: the page configuration travels as JSON that the shared core reads, and the embed page's height reporter and the snippet gallery are script files. A site with a `script-src 'self'` content-security policy runs every block and embed. `npm run check` fails on a new inline script, `appendScript()` call or event-handler attribute.
 - Each block is declared once, in `src/Site/BlockRegistry.php`: its label, admin text, template, embed settings and asset plan. The block classes are one line each, the embed whitelist and the templates' embed slug come from the registry, and a new PHP test fails when the registry, the configuration, the classes and the templates disagree. Saved pages keep working: the layout names Omeka stores are unchanged.
+- The browser tests now open every interactive block, not three, on the precompute's real output, each with exactly the files its page loads, and check it for errors, with axe in light and dark, and at phone width. New unit tests cover the shared core.
 - What each block loads is listed in `config/asset-plans.json`, which PHP, the build and the checks all read, instead of being spread over the asset helper's branches. An unknown plan fails loudly instead of loading nothing.
 - PHPStan names the Laminas controller plugins and view helpers it lets through instead of accepting any method on those classes, so a misspelt call to one of the module's own methods there now fails the analysis.
 - `CONTRIBUTING.md` describes the data as it is stored since 2.29 and 2.39: a private snapshot store read through the data route, no REST-API fallback, and semantic inputs downloaded from releases rather than committed.

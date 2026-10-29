@@ -31,7 +31,7 @@ from this module, is in its ROADMAP.md.
 ### Phase 3 — Tests
 
 - [ ] X9 Omeka boot integration in CI against MariaDB: install the module, render every block layout, answer the embed and data routes, upgrade and uninstall. Accept: runs on Omeka 4.2.1 / PHP 8.4 and 8.5.
-- [ ] X10 A browser fixture for every site-page block (not only compare, dashboard and the semantic map), each checked for console errors and with axe; unit tests for the `core/` helpers (number formatting, `plural`/`fill`, token resolution, `ensureLibs`).
+- [~] X10 A browser fixture for every interactive site-page block — collection overview, publications, network explorer, what's new, project explorer, discursive communities, spatial exploration, besides compare, dashboard and the semantic map — each loading exactly its asset plan, booting on the golden output with no console error, and checked with axe (light, dark) and at 320 px; unit tests for the `core/` helpers (page configuration, `t`/`plural`/`fill`, number formatting, escaping, `ensureLibs`). They found and fixed undersized targets (cluster-map markers, the spatial lists) and a 320 px overflow (the spatial country picker). Open: neighbouring cluster-map markers overlap at the overview zoom, which fails WCAG 2.5.8 spacing; it needs marker clustering or a list equivalent, and the axe check names it as the one known exception. Featured collections and photo browsing render on the server and are not fixtures yet.
 - [ ] X11 Lighthouse budgets on the block fixtures (bytes, requests, accessibility and best-practice scores), as IWAC runs them.
 - [ ] X12 stylelint and a dead-selector check over `dre-visualizations.css`.
 - [ ] X13 The README's repository tree is generated from `git ls-files` and checked, instead of hand-written.

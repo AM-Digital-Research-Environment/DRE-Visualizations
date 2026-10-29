@@ -5,9 +5,9 @@
  * the window.RV namespace (populated by the modular JS files)
  * and wires up async + inline dashboard rendering.
  *
- * Load order (see DashboardAssets): dashboard-core.js, then the generated
- * dashboard-charts.bundle.js (layouts, every chart builder and the registry,
- * concatenated from DashboardAssets::CHART_SCRIPTS), then this orchestrator.
+ * Load order (the `dashboard` plan in config/asset-plans.json): the core, then
+ * the generated chart bundle (layouts, every chart builder and the registry,
+ * concatenated from its `chartSources`), then this orchestrator.
  */
 (function () {
     'use strict';

@@ -2089,17 +2089,29 @@ button.rv-colour-mode-btn:focus-visible {
 }
 
 /* Cluster-partner map (Collection Overview): colour-coded dot markers with a
-   toggleable legend. Colours are set inline per category by the builder
-   (dashboard-charts-cluster-map.js); shape/stroke live here. */
+   toggleable legend. The builder (dashboard-charts-cluster-map.js) sets each
+   dot's colour and size as --rv-marker-color / --rv-marker-size; the marker
+   itself is a 24 × 24 px target (WCAG 2.5.8) around the smaller visible dot. */
 .rv-cluster-marker {
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: pointer;
+}
+
+.rv-cluster-marker::before {
+    content: '';
+    width: var(--rv-marker-size, 0.8125rem);
+    height: var(--rv-marker-size, 0.8125rem);
     border-radius: 50%;
     border: 2px solid var(--rv-border);
+    background: var(--rv-marker-color, var(--rv-accent));
     box-shadow: var(--rv-shadow-sm);
-    cursor: pointer;
     transition: transform var(--rv-transition-fast);
 }
 
-.rv-cluster-marker:hover {
+.rv-cluster-marker:hover::before {
     transform: scale(1.15);
 }
 
@@ -4123,9 +4135,13 @@ body.photo-lightbox-open {
 }
 .rv-spatial-focus {
     display: inline-flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--rv-space-2);
-    flex: none;
+    flex: 0 1 auto;
+    /* On a phone the select drops under its label instead of overflowing. */
+    min-width: 0;
+    max-width: 100%;
     font-size: var(--rv-text-xs);
     color: var(--rv-text-color);
     white-space: nowrap;
@@ -4133,7 +4149,8 @@ body.photo-lightbox-open {
 .rv-spatial-focus-select {
     height: var(--rv-spatial-control-h);
     width: auto;
-    max-width: 16rem;
+    min-width: 0;
+    max-width: min(16rem, 100%);
     margin: 0;
     padding: 0 var(--rv-space-2);
     border: 1px solid var(--rv-field-border);
@@ -4238,6 +4255,8 @@ body.photo-lightbox-open {
     align-items: baseline;
     gap: var(--rv-space-2);
     width: 100%;
+    /* At least a 24 px target (WCAG 2.5.8): rows sit flush in the list. */
+    min-height: 1.5rem;
     padding: var(--rv-space-1) var(--rv-space-2);
     border: 0;
     border-radius: var(--rv-radius-sm);
@@ -4299,7 +4318,7 @@ body.photo-lightbox-open {
     .photo-timeline-thumb:focus-visible,
     .collection-card:hover,
     .whats-new-card:hover,
-    .rv-cluster-marker:hover {
+    .rv-cluster-marker:hover::before {
         transform: none;
     }
     .photo-card:hover .photo-card-img.is-loaded,

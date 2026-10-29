@@ -18,7 +18,6 @@
     'use strict';
 
     var ns = window.RV;
-    var THEME = ns.THEME;
 
     ns.charts = ns.charts || {};
 
@@ -94,10 +93,9 @@
                     // it on Enter; give that tab stop a name and a role.
                     dot.setAttribute('role', 'button');
                     dot.setAttribute('aria-label', p.label + (labelFor[p.category] ? ' (' + labelFor[p.category] + ')' : ''));
-                    dot.style.width = size + 'px';
-                    dot.style.height = size + 'px';
-                    dot.style.backgroundColor = colorFor[p.category] || ns.COLORS[0];
-                    dot.style.borderColor = THEME.border;
+                    // The element is the 24 px target; the CSS draws the dot inside it.
+                    dot.style.setProperty('--rv-marker-size', size + 'px');
+                    dot.style.setProperty('--rv-marker-color', colorFor[p.category] || ns.COLORS[0]);
 
                     var marker = new maplibregl.Marker({ element: dot })
                         .setLngLat([p.longitude, p.latitude]);
