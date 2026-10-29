@@ -23,12 +23,14 @@
     "i18n:extract": "node scripts/extract-translations.mjs",
     "i18n:check": "node scripts/extract-translations.mjs --check",
     "test": "node --test tests/js/*.test.mjs",
-    "check": "npm test && npm run lint && npm run check:bundles && npm run lint:tokens && npm run check:js && npm run check:registry && npm run check:html && npm run check:formatters && npm run check:a11y && npm run check:graph && npm run i18n:check && npm run check:release && npm run check:tree && npm run check:vendor && npm audit --audit-level=high",
+    "check": "npm test && npm run lint && npm run lint:css && npm run check:css-dead && npm run check:bundles && npm run lint:tokens && npm run check:js && npm run check:registry && npm run check:html && npm run check:formatters && npm run check:a11y && npm run check:graph && npm run i18n:check && npm run check:release && npm run check:tree && npm run check:vendor && npm audit --audit-level=high",
     "test:browser": "playwright test",
     "test:php": "node scripts/test-php-docker.mjs",
     "phpstan": "node scripts/phpstan.mjs",
     "check:formatters": "node scripts/check-formatters.mjs",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "lint:css": "stylelint \"asset/css/**/*.css\"",
+    "check:css-dead": "node scripts/check-css-dead.mjs"
   },
   "author": "Frédérick Madore",
   "license": "GPL-3.0-or-later",
@@ -43,6 +45,7 @@
     "esbuild": "0.28.2",
     "eslint": "10.13.0",
     "eslint-plugin-no-unsanitized": "4.1.5",
-    "globals": "17.13.0"
+    "globals": "17.13.0",
+    "stylelint": "17.16.0"
   }
 }

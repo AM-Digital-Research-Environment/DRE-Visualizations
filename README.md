@@ -429,6 +429,7 @@ DreVisualizations/
 │   ├── build-tree.mjs                               # Writes this tree (npm run build:tree)
 │   ├── changelog-section.mjs
 │   ├── check-accessibility-contracts.mjs
+│   ├── check-css-dead.mjs                           # Fails on a class the stylesheet styles and nothing builds
 │   ├── check-design-tokens.mjs
 │   ├── check-formatters.mjs
 │   ├── check-graph-contracts.mjs
@@ -551,6 +552,7 @@ DreVisualizations/
 │       ├── layout/
 │       │   └── embed.phtml                          # Bare, theme-following layout for iframes
 │       └── config-form.phtml
+├── .stylelintrc.json
 ├── CHANGELOG.md                                     # Version history (Keep a Changelog)
 ├── CITATION.cff
 ├── CONTRIBUTING.md                                  # How to add a visualization (recipes + guardrails)

@@ -900,6 +900,7 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     flex-direction: column;
     height: calc(100vh - 2rem);
     min-height: 0;
+    padding-top: 0;
 }
 
 /* flex-basis 0, not auto: the stage takes the space the flex line has left over
@@ -939,10 +940,6 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
 
 .knowledge-graph-block.rv-fullscreen > .rv-collapsible__head {
     display: none;
-}
-
-.knowledge-graph-block.rv-fullscreen .rv-collapsible__panel {
-    padding-top: 0;
 }
 
 /* ------------------------------------------------------------------ */
@@ -2046,6 +2043,7 @@ button.rv-colour-mode-btn:focus-visible {
 }
 
 .rv-map-popup {
+    /* stylelint-disable-next-line declaration-no-important -- MapLibre writes the popup's max-width (240px by default) as an inline style. */
     max-width: 320px !important;
 }
 
@@ -2595,6 +2593,7 @@ button.rv-colour-mode-btn:focus-visible {
 
 /* Stats cards */
 .compare-stats {
+    /* stylelint-disable-next-line declaration-no-important -- forced against the theme cascade since 1.11.0 (5968530e), with the chart rows below. */
     display: grid !important;
     grid-template-columns: 1fr 1fr 1fr;
     gap: var(--rv-space-4);
@@ -2673,10 +2672,15 @@ button.rv-colour-mode-btn:focus-visible {
     font-style: italic;
 }
 
-/* Chart pair rows — always 2 columns for side-by-side comparison */
+/* Chart pair rows — always 2 columns for side-by-side comparison. Forced
+   against the theme cascade since 1.11.0 (5968530e); the !important also
+   out-ranks the single-column rule in the ≤599px query below, so phones keep
+   two columns too. */
 .compare-chart-row {
+    /* stylelint-disable declaration-no-important -- see above. */
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
+    /* stylelint-enable declaration-no-important */
     gap: var(--rv-space-4);
     margin-bottom: var(--rv-space-5);
 }
@@ -2829,13 +2833,6 @@ button.rv-colour-mode-btn:focus-visible {
 /*  Photo Browsing block (masonry / map / timeline + lightbox)         */
 /* ------------------------------------------------------------------ */
 
-.rv-empty {
-    padding: var(--rv-space-6);
-    text-align: center;
-    color: var(--rv-text-color);
-    font-size: var(--rv-text-sm);
-}
-
 .photo-browse-heading {
     margin: 0 0 14px;
     color: var(--rv-heading-color);
@@ -2919,9 +2916,10 @@ button.rv-colour-mode-btn:focus-visible {
     min-height: 200px;
 }
 
-/* `hidden` alone loses to a view's own display (e.g. masonry's flex) — force it off. */
+/* `hidden` alone loses to a view's own display (e.g. masonry's flex); this
+   selector out-ranks every view's display rule, so it needs no !important. */
 .photo-browse-stage .photo-view[hidden] {
-    display: none !important;
+    display: none;
 }
 
 /* --- Masonry (responsive round-robin columns, built by the engine) --- */
@@ -3564,11 +3562,13 @@ body.photo-lightbox-open {
     transform: none;
 }
 @media (prefers-reduced-motion: reduce) {
+    /* stylelint-disable declaration-no-important -- the reduced-motion override must win over any reveal state and inline stagger delay. */
     [data-reveal] {
         opacity: 1 !important;
         transform: none !important;
         transition: none !important;
     }
+    /* stylelint-enable declaration-no-important */
 }
 
 /* ------------------------------------------------------------------ */
@@ -4315,6 +4315,7 @@ body.photo-lightbox-open {
    rendered frame.
    ================================================================== */
 @media print {
+    /* stylelint-disable declaration-no-important -- print hides the chrome whatever display its screen rules or inline styles give it. */
     .chart-panel,
     .rv-stat-card,
     .whats-new-card,
@@ -4359,6 +4360,7 @@ body.photo-lightbox-open {
         color: inherit;
         font-weight: 700;
     }
+    /* stylelint-enable declaration-no-important */
 }
 
 /* Keep recovery visible while the separate live region announces its state.

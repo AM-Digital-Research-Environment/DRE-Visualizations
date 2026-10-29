@@ -161,6 +161,11 @@ Overview is the first consumer (`Runner::buildOverviewStats`).
     `asset/css/dre-visualizations.css`. Never introduce a raw hex. (See the
     README's *Theming* section for the full alias → token table.) Edit that
     file and run `npm run build`; never edit the generated `.min.css`.
+    `npm run check` runs stylelint over it (`no-duplicate-selectors`,
+    `declaration-no-important`: an exemption carries its reason in a
+    `stylelint-disable` comment) and `check:css-dead`, which fails on a class
+    the stylesheet styles but nothing in `asset/js`, `view`, `src` or `config`
+    builds.
 
 ## Data architecture
 

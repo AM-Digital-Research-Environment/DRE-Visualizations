@@ -1,0 +1,8 @@
+{
+  "//": "The same two rules as IWAC Visualizations' .stylelintrc.json. Formatting is not linted; scripts/check-design-tokens.mjs owns the token contract. What stylelint adds is a parser that rejects a broken sheet, a selector repeated where the second block silently overrides the first, and !important, which defeats the theme's cascade.",
+  "ignoreFiles": ["**/*.min.css", "node_modules/**", "asset/vendor/**"],
+  "rules": {
+    "no-duplicate-selectors": true,
+    "declaration-no-important": true
+  }
+}

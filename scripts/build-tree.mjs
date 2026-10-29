@@ -143,6 +143,7 @@ const ANNOTATIONS = {
   'asset/js/spatial-exploration.js': 'Spatial Exploration: places map controller',
   'scripts/build-frontend-bundles.mjs': 'npm run build: bundles, minified copies, layouts, strings',
   'scripts/build-tree.mjs': 'Writes this tree (npm run build:tree)',
+  'scripts/check-css-dead.mjs': 'Fails on a class the stylesheet styles and nothing builds',
   'scripts/check-vendor.mjs': 'asset/vendor against versions.json, npm latest and the tarballs',
   'CHANGELOG.md': 'Version history (Keep a Changelog)',
   'CONTRIBUTING.md': 'How to add a visualization (recipes + guardrails)',
