@@ -530,7 +530,7 @@ DreVisualizations/
 │           ├── FileUrlFactory.php
 │           ├── ProjectExplorerUrl.php
 │           └── ProjectExplorerUrlFactory.php
-├── tests/                                           # 247 files — PHP harnesses, the Omeka-core and golden suites, node and Playwright tests
+├── tests/                                           # 248 files — PHP harnesses, the Omeka-core and golden suites, node and Playwright tests
 ├── tools/
 │   ├── embeddings/                                  # 6 files — the Build semantic embeddings Action (EmbeddingGemma 2)
 │   ├── wordclouds/

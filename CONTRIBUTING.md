@@ -37,6 +37,14 @@ The PHP harnesses fail on any warning, notice or deprecation the module raises
 (`tests/lib/strict-errors.php`). The aggregators are dependency-free and
 unit-tested — add a mock-data case for every new builder.
 
+**Omeka boot.** `tests/integration/OmekaBootTest.php` is the one suite that
+needs a database server, so it runs in CI only (job `omeka-boot`, on the MySQL
+image production runs). It unpacks the release archive into Omeka S, lets
+Omeka's ModuleManager install, upgrade and uninstall the module, resolves every
+route through the real `ModuleRouteListener`, runs one regeneration job and
+renders every block layout. A new block layout is covered as soon as it is
+registered; a new route belongs in its route list.
+
 **Golden output.** `tests/integration/GoldenTest.php` runs the whole precompute
 on a fixed synthetic corpus (`tests/integration/fixtures/GoldenCorpus.php`) and
 compares every artifact with `tests/golden/`. A change that alters generated

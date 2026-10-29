@@ -107,6 +107,70 @@ jobs:
           php -d memory_limit=2G "$RUNNER_TEMP/phpstan.phar" analyse -c phpstan.neon.dist \
             --autoload-file "$RUNNER_TEMP/omeka-s/vendor/autoload.php" --no-progress
 
+  # The module as Omeka meets it: the release archive unpacked into a real
+  # Omeka S, the lifecycle run by Omeka's own ModuleManager, one regeneration
+  # against a real database server, and every block rendered
+  # (tests/integration/OmekaBootTest.php has the phases).
+  omeka-boot:
+    name: Omeka boot (PHP ${{ matrix.php }}, MySQL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4', '8.5']
+    services:
+      # The image and digest production runs (omeka-s-docker docker-compose.yml);
+      # its command-line flags there are buffer and cache tuning only.
+      mysql:
+        image: mysql:9.7.2@sha256:c7cb87a9822f499375287930cbff71d6d3b201e346b45108b1115b435ee2df13
+        env:
+          MYSQL_DATABASE: omeka
+          MYSQL_USER: omeka
+          MYSQL_PASSWORD: omeka
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --host=127.0.0.1 --user=root --password=root --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      # shivammathur/setup-php 2.37.2, verified upstream 2026-10-07.
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: intl, mbstring, pdo_mysql, xml, zip
+          coverage: none
+          tools: none
+      - name: Fetch Omeka S core
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/omeka-s.zip" \
+            "https://github.com/omeka/omeka-s/releases/download/v${OMEKA_S_VERSION}/omeka-s-${OMEKA_S_VERSION}.zip"
+          echo "$OMEKA_S_SHA256  $RUNNER_TEMP/omeka-s.zip" | sha256sum --check --strict
+          unzip -q "$RUNNER_TEMP/omeka-s.zip" -d "$RUNNER_TEMP"
+      # The archive a release ships, not the checkout: tests/, scripts/ and the
+      # sources export-ignore strips stay out, as on a real installation.
+      - name: Unpack the module's release archive into Omeka
+        run: git archive --format=tar --prefix=DreVisualizations/ HEAD | tar -x -C "$RUNNER_TEMP/omeka-s/modules"
+      - name: Create an empty Omeka schema
+        env:
+          MYSQL_PWD: omeka
+        run: |
+          printf 'user = "omeka"\npassword = "omeka"\ndbname = "omeka"\nhost = "127.0.0.1"\nport = 3306\n' \
+            > "$RUNNER_TEMP/omeka-s/config/database.ini"
+          mysql --host=127.0.0.1 --user=omeka omeka < "$RUNNER_TEMP/omeka-s/application/data/install/schema.sql"
+          mysql --host=127.0.0.1 --user=omeka omeka \
+            -e "INSERT INTO setting (id, value) VALUES ('version', '\"${OMEKA_S_VERSION}\"'), ('locale', '\"en_US\"');"
+      - name: Install, boot, regenerate, render, upgrade and uninstall
+        env:
+          DRE_VISUALIZATIONS_DATA_DIR: ${{ runner.temp }}/dre-visualizations-data
+          EXPECTED_OMEKA_VERSION: ${{ env.OMEKA_S_VERSION }}
+          EXPECTED_PHP_SERIES: ${{ matrix.php }}
+        run: php tests/integration/OmekaBootTest.php "$RUNNER_TEMP/omeka-s"
+
   embeddings:
     runs-on: ubuntu-latest
     timeout-minutes: 15
