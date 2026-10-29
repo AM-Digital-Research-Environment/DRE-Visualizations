@@ -155,15 +155,16 @@ jobs:
       # sources export-ignore strips stay out, as on a real installation.
       - name: Unpack the module's release archive into Omeka
         run: git archive --format=tar --prefix=DreVisualizations/ HEAD | tar -x -C "$RUNNER_TEMP/omeka-s/modules"
-      - name: Create an empty Omeka schema
+      # The database stays empty: the test's first phase installs Omeka with
+      # its own Installer. One client login first prints the server version and
+      # warms MySQL's caching_sha2 cache for the omeka user.
+      - name: Point Omeka at the empty database
         env:
           MYSQL_PWD: omeka
         run: |
           printf 'user = "omeka"\npassword = "omeka"\ndbname = "omeka"\nhost = "127.0.0.1"\nport = 3306\n' \
             > "$RUNNER_TEMP/omeka-s/config/database.ini"
-          mysql --host=127.0.0.1 --user=omeka omeka < "$RUNNER_TEMP/omeka-s/application/data/install/schema.sql"
-          mysql --host=127.0.0.1 --user=omeka omeka \
-            -e "INSERT INTO setting (id, value) VALUES ('version', '\"${OMEKA_S_VERSION}\"'), ('locale', '\"en_US\"');"
+          mysql --host=127.0.0.1 --user=omeka omeka -e 'SELECT VERSION()'
       - name: Install, boot, regenerate, render, upgrade and uninstall
         env:
           DRE_VISUALIZATIONS_DATA_DIR: ${{ runner.temp }}/dre-visualizations-data

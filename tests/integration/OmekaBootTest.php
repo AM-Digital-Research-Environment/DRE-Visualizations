@@ -13,6 +13,9 @@ declare(strict_types=1);
  * runs each phase in a fresh process, because Omeka decides a module's state
  * (not installed, active, needs upgrade) once, at bootstrap:
  *
+ *   omeka      Omeka installs itself on the empty database with its own
+ *              Installer (schema, migrations, default vocabularies, first user,
+ *              settings), as its install screen does.
  *   install    seed a public site, two linked items and saved item-page blocks
  *              through Omeka's API, then install the module with the
  *              ModuleManager: install() picks the only public site as canonical
@@ -20,7 +23,7 @@ declare(strict_types=1);
  *   boot       the active module's services, routes (through the real
  *              ModuleRouteListener, which is what turned a matched dre-embed
  *              route into a themed 404 in 2.12.0) and controllers; the loader's
- *              SQL against MariaDB; one regeneration job, run synchronously;
+ *              SQL against MySQL; one regeneration job, run synchronously;
  *              then every page-block layout rendered on a seeded page and every
  *              item-page block on the seeded item.
  *   rewind     wind the installed version back to 2.28.0 and unplace the block.
@@ -28,7 +31,7 @@ declare(strict_types=1);
  *              placement both run.
  *   uninstall  the ModuleManager uninstall: settings and generations go.
  *
- * Needs: OMEKA_ROOT's config/database.ini pointing at an empty Omeka schema,
+ * Needs: OMEKA_ROOT's config/database.ini pointing at an empty database,
  * the module at modules/DreVisualizations, and DRE_VISUALIZATIONS_DATA_DIR set
  * outside the Omeka root. CI provides all three (.github/workflows/ci.yml,
  * job omeka-boot). EXPECTED_OMEKA_VERSION / EXPECTED_PHP_SERIES, when set, must
@@ -46,7 +49,7 @@ use Laminas\Mvc\MvcEvent;
 use Omeka\Entity\Job;
 use Omeka\Module\Manager as ModuleManager;
 
-const PHASES = ['install', 'boot', 'rewind', 'upgrade', 'uninstall'];
+const PHASES = ['omeka', 'install', 'boot', 'rewind', 'upgrade', 'uninstall'];
 const MODULE_ID = 'DreVisualizations';
 const SITE_SLUG = 'boot-test';
 const PAGE_SLUG = 'all-blocks';
@@ -100,6 +103,33 @@ $services = $application->getServiceManager();
 // No one is logged in on the command line: let every privilege through, as an
 // administrator's would be, so the API and the ModuleManager act.
 $services->get('Omeka\Acl')->allow();
+
+if ($phase === 'omeka') {
+    $expected = trim((string) getenv('EXPECTED_OMEKA_VERSION'));
+    if ($expected !== '') $check(\Omeka\Module::VERSION === $expected, "Omeka S $expected booted");
+    $series = trim((string) getenv('EXPECTED_PHP_SERIES'));
+    if ($series !== '') $check(PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION === $series, "PHP $series is running");
+    // The module manager is what records whether Omeka is installed.
+    $services->get('Omeka\ModuleManager');
+    $check(!$services->get('Omeka\Status')->isInstalled(), 'The database starts empty');
+    // The install screen's form, filled in. The administrator never logs in:
+    // the password is random and not kept.
+    $installer = $services->get('Omeka\Installer');
+    $installer->registerVars('Omeka\Installation\Task\CreateFirstUserTask', [
+        'name' => 'Boot test', 'email' => 'boot-test@example.test',
+        'password-confirm' => ['password' => bin2hex(random_bytes(16))],
+    ]);
+    $installer->registerVars('Omeka\Installation\Task\AddDefaultSettingsTask', [
+        'administrator_email' => 'boot-test@example.test', 'installation_title' => 'DRE Visualizations boot test',
+        'time_zone' => 'UTC', 'locale' => 'en_US',
+    ]);
+    $installed = $installer->install();
+    if (!$installed) echo implode("\n", $installer->getErrors()) . "\n";
+    $check($installed, 'Omeka S installs itself with its own Installer');
+    echo "Phase omeka passed.\n";
+    exit(0);
+}
+
 $modules = $services->get('Omeka\ModuleManager');
 $module = $modules->getModule(MODULE_ID);
 $check($module !== null, 'Omeka finds the module in modules/' . MODULE_ID);
@@ -122,10 +152,6 @@ $placement = static fn (int $siteId): string => ResourcePagePlacement::states($c
 
 switch ($phase) {
     case 'install':
-        $expected = trim((string) getenv('EXPECTED_OMEKA_VERSION'));
-        if ($expected !== '') $check(\Omeka\Module::VERSION === $expected, "Omeka S $expected booted");
-        $series = trim((string) getenv('EXPECTED_PHP_SERIES'));
-        if ($series !== '') $check(PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION === $series, "PHP $series is running");
         $check($module->getState() === ModuleManager::STATE_NOT_INSTALLED, 'The module starts not installed');
 
         $site = $api->create('sites', [
