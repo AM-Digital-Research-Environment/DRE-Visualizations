@@ -80,29 +80,29 @@ whole dashboard object, which is how data-driven overlays work (see `geoFlows`).
 | 3 | `asset/js/dashboard-charts-x.js` | New IIFE builder registering `window.RV.charts.buildX = function (el, data, siteBase, allData) { … }`. |
 | 4 | `asset/js/dashboard-registry.js` | `CHART_MAP['x'] = c.buildX;` + `CHART_LABELS` + (optionally) `CHART_DESCRIPTIONS`. |
 | 5 | `asset/js/dashboard-layouts.js` | Add `'x'` to the chosen layouts' `order` (and `wide`/`tall`). |
-| 6 | `src/View/Helper/DashboardAssets.php` | Add `dashboard-charts-x.js` to `CHART_SCRIPTS`, then run `npm run build`; CI rejects a stale generated bundle. |
+| 6 | `config/asset-plans.json` | Add `js/dashboard-charts-x.js` to `chartSources` (before `dashboard-registry.js`), then run `npm run build`; CI rejects a stale generated bundle. |
 | 7 | `tests/AggregatorsTest.php` | Mock-data case for `buildX`. |
 | 8 | Admin → Regenerate now | Rebuild JSON in-Omeka (pure PHP). |
 
 ### Recipe B — add a cross-cutting site-page block
 
-Archive-wide views are **site-page block layouts**, not resource-page blocks.
-`src/Site/BlockLayout/Xxx.php` extends `Omeka\Site\BlockLayout\AbstractBlockLayout`
-and is registered in `config/module.config.php` under `block_layouts.invokables`;
-these attach to site pages (Admin → Sites → [site] → Pages). (The narrower
-`src/Site/ResourcePageBlockLayout/Xxx.php` — `ResourcePageBlockLayoutInterface`,
-`getCompatibleResourceNames()` — is reserved for blocks bound to a single item /
-item-set page: Knowledge Graph, Item Set Dashboard, Linked Items Dashboard,
-Sibling-items Sparkline.)
+Archive-wide views are **site-page block layouts**, not resource-page blocks;
+they attach to site pages (Admin → Sites → [site] → Pages). A block is declared
+once, in `src/Site/BlockRegistry.php`, under its **slug**, which is also its
+template name, its embed route segment and the `data-embed-slug` it stamps.
+(`RESOURCE_BLOCKS` in the same file holds the blocks bound to one item or item
+set: Knowledge Graph, Item Set Dashboard, Visualisations, Sibling-items
+Sparkline, Similar Items.) `tests/BlockRegistryTest.php` fails when the registry,
+the config invokables, the classes, the templates and the plans disagree.
 
 | Step | File | Change |
 |---|---|---|
-| 1 | `src/Site/BlockLayout/Xxx.php` | `extends AbstractBlockLayout`; `getLabel()`, `form()` (config or "no configuration needed"), `render()` → partial. |
-| 2 | `config/module.config.php` | Register `'dreXxx' => Site\BlockLayout\Xxx::class` under `block_layouts.invokables`. |
-| 3 | `view/common/block-layout/xxx.phtml` | Call `$this->dashboardAssets(['cdn' => true, 'controller' => 'xxx'])` (or a lean prelude), emit a `.xxx-container` + spinner. The five dashboard blocks delegate to the shared `partials/dashboard-async.phtml`. |
-| 4 | `asset/js/dashboard-xxx.js` + `DashboardAssets::CONTROLLERS` | Controller IIFE that fetches its JSON, builds UI, renders via `CHART_MAP`; register the chain under `CONTROLLERS['xxx']`. |
-| 5 | *(if data-driven)* `src/Precompute/{Aggregators,Runner}.php` | New aggregator emitting an index/feed JSON inside the generation staging directory. |
-| 6 | *(to make it embeddable)* `EmbedController.php` + the step-3 template | In `src/Controller/Site/EmbedController.php` add a `BLOCKS` entry: slug ⇒ `label` + `template` + `kind`. Use `kind => 'dashboard'` with `itemId`/`layout` only if `dashboard.js` renders it from a chart-key layout (then single-chart embeds come for free); otherwise `kind => 'widget'`. Zero-config partials only — the embed route has no `$block`. Then stamp the **same slug** as `data-embed-slug` on the container (directly, or via the shared partial's `'slug'` param), so the on-page copy-embed buttons can build the URL. `scripts/check-registry-contracts.mjs` verifies this slug matches in both directions. |
+| 1 | `src/Site/BlockRegistry.php` | A `BLOCKS` row: `invokable` (`dreXxx`), `class`, `label` and `description` (each `// @translate`), `plan`, and `embed` — `null`, or `label` + `kind`: `'dashboard'` with `itemId`/`layout` when `dashboard.js` renders it from a chart-key layout (single-chart embeds then come free), else `'widget'`. Embeddable blocks are zero-configuration: the embed route has no `$block`. |
+| 2 | `src/Site/BlockLayout/Xxx.php` | `class Xxx extends AbstractDreBlockLayout { const SLUG = 'xxx'; }` — label, admin text and template come from the row. Only a block with settings overrides `form()` (row `description` null) and `render()`. |
+| 3 | `config/module.config.php` | The same `'dreXxx' => Site\BlockLayout\Xxx::class` under `block_layouts.invokables` (literal: module config is read before the registry can load). |
+| 4 | `view/common/block-layout/xxx.phtml` | Call `$this->dashboardAssets(['plan' => $plan])` and stamp `'embed-slug' => $slug` through `partials/async-surface` (the dashboard blocks pass `$slug` and `$plan` to `partials/dashboard-async.phtml`). Never a literal slug or a hand-written script tag. |
+| 5 | `config/asset-plans.json` + `asset/js/dashboard-xxx.js` | A plan for the block (stylesheet, the library URLs it publishes, its scripts in load order — groups such as `@core`, `@chartBundle`), ending with the controller IIFE that fetches its JSON and renders via `CHART_MAP`. |
+| 6 | *(if data-driven)* `src/Precompute/{Aggregators,Runner}.php` | New aggregator emitting an index/feed JSON inside the generation staging directory. |
 | 7 | README | Document adding the block (Admin → Sites → [site] → Pages). |
 
 ### Recipe C — add stat cards to a dashboard
@@ -196,7 +196,7 @@ Three **inputs** are made outside Omeka:
 The JS is modular — one vanilla-JS IIFE per concern (chart builders, controllers,
 the `window.RV` core, registry, layouts). The authoritative per-file tree lives in
 the README's **Architecture** section; the shared helper chain is injected by
-`DashboardAssets` (single source of truth).
+`config/asset-plans.json` (single source of truth).
 
 ## Omeka S data reference
 

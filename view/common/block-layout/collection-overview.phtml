@@ -14,11 +14,14 @@
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SitePageBlockRepresentation $block
+ * @var string $slug  this block's BlockRegistry slug (its data-embed-slug)
+ * @var string $plan  its DashboardAssets plan (config/asset-plans.json)
  */
 ?>
 <?= $this->partial('common/block-layout/partials/dashboard-async', [
     'itemId'  => 'collection-overview',
     'layout'  => 'collectionOverview',
-    'slug'    => 'collection-overview',
+    'slug'    => $slug,
+    'plan'    => $plan,
     'title'   => $this->translate('Collection overview'),
 ]) ?>

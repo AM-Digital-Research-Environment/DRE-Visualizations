@@ -1,6 +1,6 @@
 /**
  * Generated chart-builder bundle. Do not edit directly.
- * Source order: DashboardAssets::CHART_SCRIPTS.
+ * Source order: config/asset-plans.json chartSources.
  * Rebuild: npm run build
  */
 /* ---- js/dashboard-layouts.js ---- */

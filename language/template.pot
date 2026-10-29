@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/Site/BlockLayout/PhotoBrowse.php:55
+#: src/Site/BlockLayout/PhotoBrowse.php:52
 msgid "— None (plain item-set gallery) —"
 msgstr ""
 
@@ -61,7 +61,7 @@ msgstr[1] ""
 msgid "+{count} more — keep typing to narrow"
 msgstr ""
 
-#: src/Site/BlockLayout/CollectionOverview.php:21
+#: src/Site/BlockRegistry.php:59
 msgid "A curated overview for the home page: summary cards, the Africa Multiple Research Centres (AMRCs) & partners map, research sections, the section × university breakdown, an item timeline, resource types, languages, subjects and a map of items by country. For the full set of visualisations use the \"Collection Dashboard\" block instead. No configuration needed."
 msgstr ""
 
@@ -73,7 +73,7 @@ msgstr ""
 msgid "A profile across six measures: items, languages, subjects, people, resource types and year span. Each is scaled against the largest of its kind."
 msgstr ""
 
-#: src/Site/BlockLayout/ProjectExplorer.php:21
+#: src/Site/BlockRegistry.php:141
 msgid "A project selector that retunes a full dashboard beneath it. No configuration needed."
 msgstr ""
 
@@ -143,11 +143,11 @@ msgstr ""
 msgid "An edit made something private, so the visualisations are hidden. They are regenerated automatically once edits have been quiet for a minute."
 msgstr ""
 
-#: src/Site/BlockLayout/Podcasts.php:21
+#: src/Site/BlockRegistry.php:130
 msgid "Analytics for the cluster podcast episodes: a word cloud built from the episode transcripts, the most frequent speakers, episode length, the publication timeline, and the series breakdown. No configuration needed."
 msgstr ""
 
-#: src/Site/BlockLayout/YouTube.php:21
+#: src/Site/BlockRegistry.php:196
 msgid "Analytics for the cluster YouTube channel: videos by year, the language mix and how it shifts over time, the channel's playlists, and any credited speakers. No configuration needed."
 msgstr ""
 
@@ -155,7 +155,7 @@ msgstr ""
 msgid "Any"
 msgstr ""
 
-#: view/dre-visualizations/embed/index.phtml:183
+#: view/dre-visualizations/embed/index.phtml:179
 msgid "Any visualisation on this site can be placed on another website. Copy the snippet under the one you want and paste it into your page. It loads live from here, so it stays up to date, matches the look of this site, and adjusts its height to fit. Where a page holds several charts, you can also embed a single one."
 msgstr ""
 
@@ -203,7 +203,7 @@ msgstr ""
 msgid "Basemap styles must use HTTPS or a same-origin absolute path beginning with “/”."
 msgstr ""
 
-#: src/Site/BlockLayout/Publications.php:21
+#: src/Site/BlockRegistry.php:152
 msgid "Bibliographic analytics across all publications (articles, books, chapters, …): by-template breakdown, top venues and authors, co-author network and keyword co-occurrence. No configuration needed."
 msgstr ""
 
@@ -211,7 +211,7 @@ msgstr ""
 msgid "Book series"
 msgstr ""
 
-#: view/common/block-layout/featured-collections.phtml:115
+#: view/common/block-layout/featured-collections.phtml:112
 msgid "Browse"
 msgstr ""
 
@@ -309,32 +309,32 @@ msgstr ""
 msgid "Collaboration network"
 msgstr ""
 
-#: src/Controller/Site/EmbedController.php:68
+#: src/Site/BlockRegistry.php:51
 msgid "Collection dashboard"
 msgstr ""
 
-#: src/Site/BlockLayout/CollectionDashboard.php:23
+#: src/Site/BlockRegistry.php:47
 msgid "Collection Dashboard"
 msgstr ""
 
-#: src/Controller/Site/EmbedController.php:61
-#: view/common/block-layout/collection-overview.phtml:23
+#: src/Site/BlockRegistry.php:62
+#: view/common/block-layout/collection-overview.phtml:26
 msgid "Collection overview"
 msgstr ""
 
-#: src/Site/BlockLayout/CollectionOverview.php:15
+#: src/Site/BlockRegistry.php:58
 msgid "Collection Overview"
 msgstr ""
 
-#: src/Site/BlockLayout/DiscursiveCommunities.php:21
+#: src/Site/BlockRegistry.php:92
 msgid "Collection-wide entity network: people, organisations, places, subjects and tags that co-occur across the research items, rendered as an explorable force-directed graph (MapLibre GL, positions precomputed) and coloured by entity type. No configuration needed."
 msgstr ""
 
-#: src/Site/BlockLayout/SpatialExploration.php:21
+#: src/Site/BlockRegistry.php:174
 msgid "Collection-wide map of every geocoded place the research items reference (origins and current locations), as bubbles sized by how many items mention each place. A sidebar lets visitors filter the map to a single project, research section, person, organisation or subject, and a country dropdown zooms in. Positions are precomputed (MapLibre GL). No configuration needed."
 msgstr ""
 
-#: src/Site/BlockLayout/NetworkExplorer.php:21
+#: src/Site/BlockRegistry.php:111
 msgid "Collection-wide network explorer for contributors, co-authorship, people-institution affiliations, and institution collaborations. No configuration needed."
 msgstr ""
 
@@ -372,7 +372,7 @@ msgstr ""
 msgid "Comes from here"
 msgstr ""
 
-#: src/Site/BlockLayout/CompareEntity.php:15
+#: src/Site/BlockRegistry.php:69
 msgid "Compare (any entity)"
 msgstr ""
 
@@ -380,7 +380,7 @@ msgstr ""
 msgid "Compare {types}"
 msgstr ""
 
-#: src/Site/BlockLayout/CompareGenres.php:15
+#: src/Site/BlockRegistry.php:80
 msgid "Compare Genres"
 msgstr ""
 
@@ -388,11 +388,11 @@ msgstr ""
 msgid "Compare it with other projects in the Project explorer"
 msgstr ""
 
-#: src/Controller/Site/EmbedController.php:121
+#: src/Site/BlockRegistry.php:84
 msgid "Compare two genres"
 msgstr ""
 
-#: src/Controller/Site/EmbedController.php:116
+#: src/Site/BlockRegistry.php:73
 msgid "Compare two of anything"
 msgstr ""
 
@@ -453,12 +453,12 @@ msgid "Contributor roles"
 msgstr ""
 
 #: config/client-strings.json:copied
-#: view/dre-visualizations/embed/index.phtml:227
+#: view/dre-visualizations/embed/index.phtml:223
 msgid "Copied"
 msgstr ""
 
-#: view/dre-visualizations/embed/index.phtml:205
-#: view/dre-visualizations/embed/index.phtml:226
+#: view/dre-visualizations/embed/index.phtml:201
+#: view/dre-visualizations/embed/index.phtml:222
 msgid "Copy"
 msgstr ""
 
@@ -494,7 +494,7 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:93
+#: src/Site/BlockLayout/PhotoBrowse.php:90
 msgid "Default view"
 msgstr ""
 
@@ -502,11 +502,11 @@ msgstr ""
 msgid "Did not succeed (%1$s), started %2$s (%3$s)."
 msgstr ""
 
-#: src/Site/BlockLayout/DiscursiveCommunities.php:15
+#: src/Site/BlockRegistry.php:91
 msgid "Discursive Communities"
 msgstr ""
 
-#: src/Controller/Site/EmbedController.php:96
+#: src/Site/BlockRegistry.php:95
 msgid "Discursive communities (entity network)"
 msgstr ""
 
@@ -542,7 +542,7 @@ msgstr ""
 msgid "editor"
 msgstr ""
 
-#: view/dre-visualizations/embed/index.phtml:182
+#: view/dre-visualizations/embed/index.phtml:178
 msgid "Embed a visualisation"
 msgstr ""
 
@@ -554,7 +554,7 @@ msgstr ""
 msgid "Embed visualisations"
 msgstr ""
 
-#: view/dre-visualizations/embed/index.phtml:218
+#: view/dre-visualizations/embed/index.phtml:214
 msgid "Embeds use the light theme by default. Add <code>?theme=dark</code> to the address for the dark theme, or <code>?primary=2b6cb0</code> to set your own accent colour."
 msgstr ""
 
@@ -610,7 +610,7 @@ msgstr ""
 msgid "Exit fullscreen"
 msgstr ""
 
-#: src/Site/BlockLayout/SemanticMap.php:21
+#: src/Site/BlockRegistry.php:163
 msgid "Explore podcasts, videos, publications, projects, research sections, and research items in one multilingual semantic space. No configuration needed."
 msgstr ""
 
@@ -618,11 +618,11 @@ msgstr ""
 msgid "external name"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:81
+#: src/Site/BlockLayout/PhotoBrowse.php:78
 msgid "Featured collection"
 msgstr ""
 
-#: src/Site/BlockLayout/FeaturedCollections.php:33
+#: src/Site/BlockRegistry.php:102
 msgid "Featured Collections"
 msgstr ""
 
@@ -674,7 +674,7 @@ msgstr ""
 msgid "Funders"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:89
+#: src/Site/BlockLayout/PhotoBrowse.php:86
 msgid "Gallery title"
 msgstr ""
 
@@ -711,7 +711,7 @@ msgstr ""
 msgid "Grid"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:75
+#: src/Site/BlockLayout/PhotoBrowse.php:72
 msgid "Grid (masonry)"
 msgstr ""
 
@@ -745,7 +745,7 @@ msgstr ""
 msgid "Groups with the most items"
 msgstr ""
 
-#: src/Site/BlockLayout/FeaturedCollections.php:46
+#: src/Site/BlockLayout/FeaturedCollections.php:43
 msgid "Heading"
 msgstr ""
 
@@ -877,11 +877,11 @@ msgstr ""
 msgid "Item pages use the default blocks, which include the Visualisations."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:85
+#: src/Site/BlockLayout/PhotoBrowse.php:82
 msgid "Item set"
 msgstr ""
 
-#: src/Site/ResourcePageBlockLayout/ItemSetDashboard.php:14
+#: src/Site/BlockRegistry.php:214
 msgid "Item Set Dashboard"
 msgstr ""
 
@@ -968,15 +968,15 @@ msgstr ""
 msgid "Kept online from the last build (%s), without the records made private since. A new build replaces it."
 msgstr ""
 
-#: view/common/resource-page-block-layout/knowledge-graph.phtml:21
+#: view/common/resource-page-block-layout/knowledge-graph.phtml:23
 msgid "Knowledge graph"
 msgstr ""
 
-#: src/Site/ResourcePageBlockLayout/KnowledgeGraph.php:14
+#: src/Site/BlockRegistry.php:221
 msgid "Knowledge Graph"
 msgstr ""
 
-#: view/common/resource-page-block-layout/knowledge-graph.phtml:26
+#: view/common/resource-page-block-layout/knowledge-graph.phtml:28
 msgid "Knowledge graph actions"
 msgstr ""
 
@@ -1086,7 +1086,7 @@ msgid "Locations"
 msgstr ""
 
 #: config/client-strings.json:mapTitle
-#: src/Site/BlockLayout/PhotoBrowse.php:76
+#: src/Site/BlockLayout/PhotoBrowse.php:73
 #: view/common/block-layout/photo-browse.phtml:139
 msgid "Map"
 msgstr ""
@@ -1188,11 +1188,11 @@ msgid "Network"
 msgstr ""
 
 #: config/client-strings.json:networkExplorer
-#: src/Controller/Site/EmbedController.php:111
+#: src/Site/BlockRegistry.php:114
 msgid "Network explorer"
 msgstr ""
 
-#: src/Site/BlockLayout/NetworkExplorer.php:15
+#: src/Site/BlockRegistry.php:110
 msgid "Network Explorer"
 msgstr ""
 
@@ -1254,7 +1254,7 @@ msgstr ""
 msgid "No visualisations are available."
 msgstr ""
 
-#: src/Controller/Site/EmbedController.php:243
+#: src/Controller/Site/EmbedController.php:157
 msgid "Not found"
 msgstr ""
 
@@ -1358,15 +1358,15 @@ msgstr ""
 msgid "Open this subject’s page →"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:70
+#: src/Site/BlockLayout/PhotoBrowse.php:67
 msgid "Optional gallery title"
 msgstr ""
 
-#: src/Site/BlockLayout/FeaturedCollections.php:48
+#: src/Site/BlockLayout/FeaturedCollections.php:45
 msgid "Optional heading shown above the collection grid. The collections themselves come from the module registry."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:90
+#: src/Site/BlockLayout/PhotoBrowse.php:87
 msgid "Optional heading shown above the gallery."
 msgstr ""
 
@@ -1382,7 +1382,7 @@ msgstr ""
 msgid "Optional HTTPS or same-origin MapLibre style JSON. The light style is used as a fallback when blank."
 msgstr ""
 
-#: src/Site/BlockLayout/FeaturedCollections.php:42
+#: src/Site/BlockLayout/FeaturedCollections.php:39
 msgid "Optional section heading"
 msgstr ""
 
@@ -1390,11 +1390,11 @@ msgstr ""
 msgid "Optional. Lets the button below start a build on GitHub. Create a fine-grained token for the AM-Digital-Research-Environment/DRE-Visualizations repository only, with “Actions: Read and write”."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:82
+#: src/Site/BlockLayout/PhotoBrowse.php:79
 msgid "Optional. Pick a curated collection to apply its item set, sub-collection filter, journal-issue grouping and views automatically. Leave as “None” to configure a plain gallery below."
 msgstr ""
 
-#: view/dre-visualizations/embed/index.phtml:229
+#: view/dre-visualizations/embed/index.phtml:225
 msgid "Or embed a single chart"
 msgstr ""
 
@@ -1494,7 +1494,7 @@ msgstr ""
 msgid "Photo"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:41
+#: src/Site/BlockRegistry.php:121
 msgid "Photo Browsing"
 msgstr ""
 
@@ -1526,8 +1526,8 @@ msgstr ""
 msgid "Places of origin and current locations"
 msgstr ""
 
-#: src/Controller/Site/EmbedController.php:89
-#: src/Site/BlockLayout/Podcasts.php:15
+#: src/Site/BlockRegistry.php:129
+#: src/Site/BlockRegistry.php:133
 msgid "Podcasts"
 msgstr ""
 
@@ -1544,7 +1544,7 @@ msgstr ""
 msgid "Press Enter to select."
 msgstr ""
 
-#: view/dre-visualizations/embed/index.phtml:228
+#: view/dre-visualizations/embed/index.phtml:224
 msgid "Preview"
 msgstr ""
 
@@ -1573,11 +1573,11 @@ msgid "Project"
 msgstr ""
 
 #: config/client-strings.json:explorerTitle
-#: src/Controller/Site/EmbedController.php:126
+#: src/Site/BlockRegistry.php:144
 msgid "Project explorer"
 msgstr ""
 
-#: src/Site/BlockLayout/ProjectExplorer.php:15
+#: src/Site/BlockRegistry.php:140
 msgid "Project Explorer"
 msgstr ""
 
@@ -1622,8 +1622,8 @@ msgstr ""
 msgid "publications"
 msgstr ""
 
-#: src/Controller/Site/EmbedController.php:75
-#: src/Site/BlockLayout/Publications.php:15
+#: src/Site/BlockRegistry.php:151
+#: src/Site/BlockRegistry.php:155
 msgid "Publications"
 msgstr ""
 
@@ -1675,7 +1675,7 @@ msgstr ""
 msgid "Rebuilding from here needs a GitHub token, saved in the module configuration."
 msgstr ""
 
-#: src/Site/BlockLayout/WhatsNew.php:21
+#: src/Site/BlockRegistry.php:185
 msgid "Recent additions and the most-active projects, in 3 / 6 / 12-month windows. No configuration needed."
 msgstr ""
 
@@ -1689,7 +1689,7 @@ msgstr ""
 msgid "records"
 msgstr ""
 
-#: view/common/resource-page-block-layout/similar-items.phtml:22
+#: view/common/resource-page-block-layout/similar-items.phtml:20
 msgid "Records about similar topics, from anywhere in the collection and in any language. The percentage shows how closely each one matches this record."
 msgstr ""
 
@@ -1699,7 +1699,7 @@ msgstr ""
 
 #: config/client-strings.json:chartLabel.similarity
 #: config/client-strings.json:semanticMapTitle
-#: src/Controller/Site/EmbedController.php:106
+#: src/Site/BlockRegistry.php:166
 msgid "Records by similarity"
 msgstr ""
 
@@ -1707,7 +1707,7 @@ msgstr ""
 msgid "Records counted by the description template they use: Article, Book, Research Item, and so on."
 msgstr ""
 
-#: view/common/resource-page-block-layout/similar-items.phtml:21
+#: view/common/resource-page-block-layout/similar-items.phtml:19
 msgid "Records on similar topics"
 msgstr ""
 
@@ -1862,7 +1862,7 @@ msgstr ""
 msgid "Select a public site"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:65
+#: src/Site/BlockLayout/PhotoBrowse.php:62
 msgid "Select an item set…"
 msgstr ""
 
@@ -1874,7 +1874,7 @@ msgstr ""
 msgid "Semantic map"
 msgstr ""
 
-#: src/Site/BlockLayout/SemanticMap.php:15
+#: src/Site/BlockRegistry.php:162
 msgid "Semantic Map"
 msgstr ""
 
@@ -1954,19 +1954,19 @@ msgstr ""
 msgid "Showing the first %s images"
 msgstr ""
 
-#: src/Site/ResourcePageBlockLayout/SiblingItemsSparkline.php:14
+#: src/Site/BlockRegistry.php:235
 msgid "Sibling Items Sparkline"
 msgstr ""
 
-#: src/Site/BlockLayout/CompareEntity.php:21
+#: src/Site/BlockRegistry.php:70
 msgid "Side-by-side comparison of any two entities of the same type (projects, people, institutions, subjects, languages, genres), with an in-page type switcher. No configuration needed."
 msgstr ""
 
-#: src/Site/BlockLayout/CompareGenres.php:21
+#: src/Site/BlockRegistry.php:81
 msgid "Side-by-side comparison of two genres. No configuration needed."
 msgstr ""
 
-#: src/Site/ResourcePageBlockLayout/SimilarItems.php:14
+#: src/Site/BlockRegistry.php:242
 msgid "Similar Items"
 msgstr ""
 
@@ -1987,11 +1987,11 @@ msgstr ""
 msgid "Spatial exploration"
 msgstr ""
 
-#: src/Site/BlockLayout/SpatialExploration.php:15
+#: src/Site/BlockRegistry.php:173
 msgid "Spatial Exploration"
 msgstr ""
 
-#: src/Controller/Site/EmbedController.php:101
+#: src/Site/BlockRegistry.php:177
 msgid "Spatial exploration (map of places)"
 msgstr ""
 
@@ -2133,7 +2133,7 @@ msgstr ""
 msgid "The comparison could not be loaded."
 msgstr ""
 
-#: src/Site/BlockLayout/CollectionDashboard.php:29
+#: src/Site/BlockRegistry.php:48
 msgid "The full set of aggregate visualisations across the entire collection. For a curated, home-page-friendly subset use the \"Collection Overview\" block instead. No configuration needed."
 msgstr ""
 
@@ -2145,7 +2145,7 @@ msgstr ""
 msgid "The genres assigned most often across the research items."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:86
+#: src/Site/BlockLayout/PhotoBrowse.php:83
 msgid "The image-heavy item set to display as a photo gallery. Ignored when a Featured collection is selected above."
 msgstr ""
 
@@ -2331,7 +2331,7 @@ msgstr ""
 msgid "This visualisation needs JavaScript."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:77
+#: src/Site/BlockLayout/PhotoBrowse.php:74
 #: view/common/block-layout/photo-browse.phtml:140
 msgid "Timeline"
 msgstr ""
@@ -2404,7 +2404,7 @@ msgstr ""
 msgid "Videos counted by the playlist they belong to."
 msgstr ""
 
-#: view/common/block-layout/photo-browse.phtml:196
+#: view/common/block-layout/photo-browse.phtml:191
 msgid "View as"
 msgstr ""
 
@@ -2421,7 +2421,7 @@ msgid "View organisation"
 msgstr ""
 
 #: config/client-strings.json:visualisations
-#: src/Site/ResourcePageBlockLayout/LinkedItemsDashboard.php:17
+#: src/Site/BlockRegistry.php:228
 msgid "Visualisations"
 msgstr ""
 
@@ -2452,11 +2452,11 @@ msgid "What to compare"
 msgstr ""
 
 #: config/client-strings.json:whatsNewTitle
-#: src/Controller/Site/EmbedController.php:131
+#: src/Site/BlockRegistry.php:188
 msgid "What's new"
 msgstr ""
 
-#: src/Site/BlockLayout/WhatsNew.php:15
+#: src/Site/BlockRegistry.php:184
 msgid "What's New"
 msgstr ""
 
@@ -2472,7 +2472,7 @@ msgstr ""
 msgid "Where research items come from and where they are held today, with lines linking the two."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:94
+#: src/Site/BlockLayout/PhotoBrowse.php:91
 msgid "Which browser opens first. Timeline needs dated items; Map needs coordinates (and is off for journal-issue collections). Each is hidden automatically when it does not apply."
 msgstr ""
 
@@ -2532,8 +2532,8 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
-#: src/Controller/Site/EmbedController.php:82
-#: src/Site/BlockLayout/YouTube.php:15
+#: src/Site/BlockRegistry.php:195
+#: src/Site/BlockRegistry.php:199
 msgid "YouTube"
 msgstr ""
 

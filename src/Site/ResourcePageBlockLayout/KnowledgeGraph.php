@@ -5,19 +5,11 @@ namespace DreVisualizations\Site\ResourcePageBlockLayout;
 use DreVisualizations\Site\PublishedData;
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
-use Omeka\Site\ResourcePageBlockLayout\ResourcePageBlockLayoutInterface;
 
-class KnowledgeGraph implements ResourcePageBlockLayoutInterface
+/** Label, resource types and template: BlockRegistry::RESOURCE_BLOCKS['knowledge-graph']. */
+class KnowledgeGraph extends AbstractDreResourcePageBlockLayout
 {
-    public function getLabel(): string
-    {
-        return 'Knowledge Graph'; // @translate
-    }
-
-    public function getCompatibleResourceNames(): array
-    {
-        return ['items'];
-    }
+    const SLUG = 'knowledge-graph';
 
     public function render(PhpRenderer $view, AbstractResourceEntityRepresentation $resource): string
     {
@@ -26,7 +18,7 @@ class KnowledgeGraph implements ResourcePageBlockLayoutInterface
         if (!PublishedData::available($view, 'knowledge-graphs/' . $resource->id() . '.json')) {
             return '';
         }
-        return $view->partial('common/resource-page-block-layout/knowledge-graph', [
+        return $this->renderTemplate($view, [
             'resource' => $resource,
         ]);
     }

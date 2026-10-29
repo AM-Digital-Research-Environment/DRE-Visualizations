@@ -5,22 +5,14 @@ namespace DreVisualizations\Site\ResourcePageBlockLayout;
 use DreVisualizations\Site\PublishedData;
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
-use Omeka\Site\ResourcePageBlockLayout\ResourcePageBlockLayoutInterface;
 
-class LinkedItemsDashboard implements ResourcePageBlockLayoutInterface
+/** Label, resource types and template: BlockRegistry::RESOURCE_BLOCKS['linked-items-dashboard']. */
+class LinkedItemsDashboard extends AbstractDreResourcePageBlockLayout
 {
+    const SLUG = 'linked-items-dashboard';
+
     /** $dataDir overrides the default store (tests); resolved per render, so a storage fault hides the block. */
     public function __construct(private readonly ?string $dataDir = null) {}
-
-    public function getLabel(): string
-    {
-        return 'Visualisations'; // @translate
-    }
-
-    public function getCompatibleResourceNames(): array
-    {
-        return ['items'];
-    }
 
     public function render(PhpRenderer $view, AbstractResourceEntityRepresentation $resource): string
     {
@@ -31,7 +23,7 @@ class LinkedItemsDashboard implements ResourcePageBlockLayoutInterface
             return '';
         }
 
-        return $view->partial('common/resource-page-block-layout/linked-items-dashboard', [
+        return $this->renderTemplate($view, [
             'resource' => $resource,
         ]);
     }

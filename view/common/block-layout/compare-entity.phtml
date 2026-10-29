@@ -10,11 +10,13 @@
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SitePageBlockRepresentation $block
+ * @var string $slug  this block's BlockRegistry slug (its data-embed-slug)
+ * @var string $plan  its DashboardAssets plan (config/asset-plans.json)
  */
 
 // Site-page block (Module.php does not run on page controllers), so request the
 // CDN + core prelude and the compare controller chain.
-$this->dashboardAssets(['cdn' => true, 'controller' => 'compare']);
+$this->dashboardAssets(['plan' => $plan]);
 
 ?>
 
@@ -22,7 +24,7 @@ $this->dashboardAssets(['cdn' => true, 'controller' => 'compare']);
     <?= $this->partial('common/block-layout/partials/async-surface', [
         'class' => 'compare-container',
         'data' => [
-            'embed-slug' => 'compare-entity',
+            'embed-slug' => $slug,
         ],
     ]) ?>
 </div>

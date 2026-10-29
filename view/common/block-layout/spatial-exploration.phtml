@@ -10,6 +10,8 @@
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SitePageBlockRepresentation $block
+ * @var string $slug  this block's BlockRegistry slug (its data-embed-slug)
+ * @var string $plan  its DashboardAssets plan (config/asset-plans.json)
  */
 
 // Site-page block (Module.php does not run on page controllers): load the MapLibre
@@ -17,7 +19,7 @@
 // (theme tokens + the shared ensureLibs loader), and the spatial-exploration
 // controller. The 'spatial' mode skips the ECharts chart-builder prelude.
 // Single source of truth: DreVisualizations\View\Helper\DashboardAssets.
-$this->dashboardAssets(['spatial' => true]);
+$this->dashboardAssets(['plan' => $plan]);
 
 ?>
 
@@ -25,7 +27,7 @@ $this->dashboardAssets(['spatial' => true]);
     <?= $this->partial('common/block-layout/partials/async-surface', [
         'class' => 'dre-spatial-exploration',
         'data' => [
-            'embed-slug' => 'spatial-exploration',
+            'embed-slug' => $slug,
         ],
     ]) ?>
 </div>

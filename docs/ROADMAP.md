@@ -19,14 +19,14 @@ from this module, is in its ROADMAP.md.
 
 ### Phase 1 — Robustness
 
-- [ ] X4 No inline `<script>`: the page configuration (`RV_DATA_BASE`, `RV_I18N`, `RV_MAP_CONFIG`, `RV_LIBS`) travels as inert JSON that the core reads, so a host with `script-src 'self'` breaks nothing. Accept: no `appendScript()` of executable code anywhere in `src/` or `view/`; DRE Search still reads the shared basemap configuration.
+- [x] X4 No inline `<script>`: the page configuration (`RV_DATA_BASE`, `RV_I18N`, `RV_MAP_CONFIG`, `RV_LIBS`) travels as inert JSON that the core reads, so a host with `script-src 'self'` breaks nothing. Accept: no `appendScript()` of executable code anywhere in `src/` or `view/`; DRE Search still reads the shared basemap configuration.
 - [ ] X5 A monthly workflow compares the vendored ECharts, echarts-wordcloud, MapLibre and d3 versions with the npm registry and verifies the vendored bytes against the published tarballs. Accept: a stale pin turns the scheduled run red; a byte mismatch fails always.
 - [ ] X6 A weekly workflow fails when the token rules vendored from DRE-theme (`scripts/lib/token-rules.mjs`, `dre-tokens-fallback.json`) fall behind the theme's main branch.
 
 ### Phase 2 — Structure
 
-- [ ] X7 One block registry. A block is declared once (slug, invokable, label, description, embed kind, template, assets); the `BlockLayout` classes, `EmbedController::BLOCKS`, the templates' embed slug and the asset options derive from it. Accept: adding a block touches the registry, a one-line class and the config invokable; a lint fails when they disagree.
-- [ ] X8 A declarative asset plan. The script chains live in a JSON manifest that the build and PHP both read (no regex over PHP source); a block names a plan, an unknown plan or flag throws. Accept: `DashboardAssets` has no per-block branches.
+- [x] X7 One block registry. A block is declared once (slug, invokable, label, description, embed kind, template, assets); the `BlockLayout` classes, `EmbedController::BLOCKS`, the templates' embed slug and the asset options derive from it. Accept: adding a block touches the registry, a one-line class and the config invokable; `tests/BlockRegistryTest.php` fails when they disagree.
+- [x] X8 A declarative asset plan. The script chains live in `config/asset-plans.json`, which the build, PHP (`Site\AssetPlans`) and the checks read (no regex over PHP source); a block names a plan, and an unknown plan or option throws. Accept: `DashboardAssets` has no per-block branches.
 
 ### Phase 3 — Tests
 

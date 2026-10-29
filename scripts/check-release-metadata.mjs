@@ -143,18 +143,18 @@ if (profile && (!profile.itemSets || !profile.templates
 }
 // MapLibre 6 ships as three ES-module files whose names are coupled in two
 // directions: the entry point and the worker both import a version-stamped
-// shared chunk, and DashboardAssets names the version-stamped worker so it can
+// shared chunk, and config/asset-plans.json names the version-stamped worker so it can
 // hand it to setWorkerUrl(). Bumping the library renames two of the three, and
 // every miss is a silent runtime 404 — a blank map, not a build error. Assert
 // the whole triangle resolves.
 try {
   const vendored = new Set(readdirSync(join(ROOT, 'asset/vendor')));
-  const helper = read('src/View/Helper/DashboardAssets.php');
-  const workerMatch = /const MAPLIBRE_WORKER_JS\s*=\s*'vendor\/([^']+)'/.exec(helper);
+  const worker = /^vendor\/([^/]+)$/.exec(JSON.parse(read('config/asset-plans.json')).libs?.maplibreWorker || '');
+  const workerMatch = worker;
   if (!workerMatch) {
-    failures.push('DashboardAssets::MAPLIBRE_WORKER_JS is missing');
+    failures.push('config/asset-plans.json names no libs.maplibreWorker');
   } else if (!vendored.has(workerMatch[1])) {
-    failures.push(`DashboardAssets::MAPLIBRE_WORKER_JS names asset/vendor/${workerMatch[1]}, which is not vendored`);
+    failures.push(`config/asset-plans.json libs.maplibreWorker names asset/vendor/${workerMatch[1]}, which is not vendored`);
   }
   for (const entry of ['maplibre-gl.js', workerMatch?.[1]].filter(Boolean)) {
     if (!vendored.has(entry)) {

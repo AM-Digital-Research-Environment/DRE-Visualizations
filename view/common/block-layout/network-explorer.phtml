@@ -7,9 +7,11 @@
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SitePageBlockRepresentation $block
+ * @var string $slug  this block's BlockRegistry slug (its data-embed-slug)
+ * @var string $plan  its DashboardAssets plan (config/asset-plans.json)
  */
 
-$this->dashboardAssets(['cdn' => true, 'controller' => 'network']);
+$this->dashboardAssets(['plan' => $plan]);
 
 ?>
 
@@ -17,7 +19,7 @@ $this->dashboardAssets(['cdn' => true, 'controller' => 'network']);
     <?= $this->partial('common/block-layout/partials/async-surface', [
         'class' => 'network-explorer-container',
         'data' => [
-            'embed-slug' => 'network-explorer',
+            'embed-slug' => $slug,
         ],
     ]) ?>
 </div>

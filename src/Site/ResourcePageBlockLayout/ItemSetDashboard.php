@@ -5,19 +5,11 @@ namespace DreVisualizations\Site\ResourcePageBlockLayout;
 use DreVisualizations\Site\PublishedData;
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
-use Omeka\Site\ResourcePageBlockLayout\ResourcePageBlockLayoutInterface;
 
-class ItemSetDashboard implements ResourcePageBlockLayoutInterface
+/** Label, resource types and template: BlockRegistry::RESOURCE_BLOCKS['item-set-dashboard']. */
+class ItemSetDashboard extends AbstractDreResourcePageBlockLayout
 {
-    public function getLabel(): string
-    {
-        return 'Item Set Dashboard'; // @translate
-    }
-
-    public function getCompatibleResourceNames(): array
-    {
-        return ['item_sets'];
-    }
+    const SLUG = 'item-set-dashboard';
 
     public function render(PhpRenderer $view, AbstractResourceEntityRepresentation $resource): string
     {
@@ -26,7 +18,7 @@ class ItemSetDashboard implements ResourcePageBlockLayoutInterface
         if (!PublishedData::available($view, 'item-set-dashboards/' . $resource->id() . '.json')) {
             return '';
         }
-        return $view->partial('common/resource-page-block-layout/item-set-dashboard', [
+        return $this->renderTemplate($view, [
             'resource' => $resource,
         ]);
     }

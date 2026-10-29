@@ -7,7 +7,7 @@ use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Api\Representation\SitePageBlockRepresentation;
 use Omeka\Api\Representation\SitePageRepresentation;
 use Omeka\Api\Representation\SiteRepresentation;
-use Omeka\Site\BlockLayout\AbstractBlockLayout;
+use DreVisualizations\Site\BlockRegistry;
 use DreVisualizations\FeaturedCollections\Registry;
 use DreVisualizations\Precompute\PublishedSnapshot;
 
@@ -31,15 +31,12 @@ use DreVisualizations\Precompute\PublishedSnapshot;
  * curated site page. The rendering engine (asset/js/item-set-photo-views.js) is
  * surface-agnostic.
  */
-class PhotoBrowse extends AbstractBlockLayout
+class PhotoBrowse extends AbstractDreBlockLayout
 {
+    const SLUG = 'photo-browse';
+
     /** Available view modes, in toggle order. */
     const VIEWS = ['masonry', 'map', 'timeline'];
-
-    public function getLabel()
-    {
-        return 'Photo Browsing'; // @translate
-    }
 
     public function form(PhpRenderer $view, SiteRepresentation $site,
         ?SitePageRepresentation $page = null, ?SitePageBlockRepresentation $block = null)
@@ -96,7 +93,7 @@ class PhotoBrowse extends AbstractBlockLayout
     }
 
     public function render(PhpRenderer $view, SitePageBlockRepresentation $block,
-        $templateViewScript = 'common/block-layout/photo-browse')
+        $templateViewScript = null)
     {
         $site = $view->currentSite();
         if (!$site || !$site->isPublic() || $site->id() !== (int) $view->setting(\DreVisualizations\Module::SETTING_SITE_ID, 0)) return '';
@@ -150,7 +147,7 @@ class PhotoBrowse extends AbstractBlockLayout
             $defaultView = 'masonry';
         }
 
-        return $view->partial($templateViewScript, [
+        return $view->partial($templateViewScript ?? BlockRegistry::template(self::SLUG), [
             'block'           => $block,
             'itemSetId'       => $itemSetId,
             'heading'         => $heading,
@@ -160,7 +157,7 @@ class PhotoBrowse extends AbstractBlockLayout
             'grouping'        => $grouping,
             'partner'         => $partner,
             'allowedViews'    => $allowedViews,
-        ]);
+        ] + BlockRegistry::viewVars(self::SLUG));
     }
 
     /**

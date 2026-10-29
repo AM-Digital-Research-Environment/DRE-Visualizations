@@ -9,6 +9,8 @@
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SitePageBlockRepresentation $block
+ * @var string $slug  this block's BlockRegistry slug (its data-embed-slug)
+ * @var string $plan  its DashboardAssets plan (config/asset-plans.json)
  */
 
 // Site-page block (Module.php does not run on page controllers): load the graph
@@ -16,7 +18,7 @@
 // (theme tokens only; it pulls in no heavy library), and the entity-graph
 // controller. The 'graph' mode skips the ECharts chart-builder prelude.
 // Single source of truth: DreVisualizations\View\Helper\DashboardAssets.
-$this->dashboardAssets(['graph' => true]);
+$this->dashboardAssets(['plan' => $plan]);
 
 ?>
 
@@ -24,7 +26,7 @@ $this->dashboardAssets(['graph' => true]);
     <?= $this->partial('common/block-layout/partials/async-surface', [
         'class' => 'dre-entity-graph',
         'data' => [
-            'embed-slug' => 'discursive-communities',
+            'embed-slug' => $slug,
             // The graph toolbar carries its own fullscreen (entity-graph-ui.js).
             'fullscreen' => 'own',
         ],

@@ -239,6 +239,6 @@ class Module extends AbstractModule
 
     public function addAssets($event)
     {
-        $event->getTarget()->dashboardAssets(['cdn' => true, 'controller' => '', 'preludeOnly' => true]);
+        $event->getTarget()->dashboardAssets(['plan' => 'prelude']);
     }
 }

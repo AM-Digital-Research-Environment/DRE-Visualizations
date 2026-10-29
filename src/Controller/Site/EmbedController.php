@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace DreVisualizations\Controller\Site;
 
+use DreVisualizations\Site\BlockRegistry;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 
@@ -10,8 +11,8 @@ use Laminas\View\Model\ViewModel;
  *
  * Every embeddable page block here is zero-configuration: it only needs a site
  * context (current site + base path) to render — the block templates never read
- * `$block`, they fetch their precomputed JSON from the module's same-origin
- * asset/data/ directory. That lets us render any single block (or a single chart
+ * `$block`, they fetch their generated JSON through the module's same-origin
+ * data route. That lets us render any single block (or a single chart
  * from a dashboard block) on its own bare page, suitable for dropping into a
  * third-party site via an `<iframe>`. Because the iframe loads from this same
  * origin, the data fetches, the module CSS, the active theme's compiled
@@ -33,106 +34,18 @@ use Laminas\View\Model\ViewModel;
 class EmbedController extends AbstractActionController
 {
     /**
-     * Whitelist of embeddable page blocks.
+     * Whitelist of embeddable page blocks: BlockRegistry::embeddable(), slug =>
+     * label, template, kind ('dashboard' | 'widget'), itemId and layout for
+     * dashboards. The slug is route-constrained to [a-z0-9-]+ and doubles as the
+     * directory-traversal guard: only a registry template, never user input,
+     * reaches partial().
      *
-     * The key is the URL slug (route-constrained to [a-z0-9-]+); it also doubles
-     * as the directory-traversal guard for the rendered partial, since only the
-     * `template` value here — never user input — is fed to partial().
-     *
-     *   label    Reader-facing label for the gallery card and <title>.
-     *   template The `common/block-layout/<template>` partial rendered verbatim
-     *            for a whole-block embed (identical to the on-page block).
-     *   kind     'dashboard' — built by dashboard.js from a layout of chart keys,
-     *            so a single chart can be embedded via the :viz segment;
-     *            'widget' — a single self-contained controller (map / network /
-     *            compare / explorer), embeddable only as a whole.
-     *   itemId   (dashboards) the precomputed JSON id under asset/data/item-dashboards/.
-     *   layout   (dashboards) the RV.LAYOUTS key whose chart-key order drives both
-     *            the on-page render and the gallery's single-chart enumeration.
-     *
-     * The slug is also stamped as `data-embed-slug` on the block's own template so
-     * the on-page "copy embed code" buttons (dashboard-core.js) can build the embed
-     * URL; keep the two in sync when adding a block.
-     *
-     * @var array<string, array{label:string, template:string, kind:string, itemId?:string, layout?:string}>
+     * @return array<string, array{label:string, template:string, kind:string, itemId?:string, layout?:string}>
      */
-    const BLOCKS = [
-        'collection-overview' => [
-            'label' => 'Collection overview', // @translate
-            'template' => 'collection-overview',
-            'kind' => 'dashboard',
-            'itemId' => 'collection-overview',
-            'layout' => 'collectionOverview',
-        ],
-        'collection-dashboard' => [
-            'label' => 'Collection dashboard', // @translate
-            'template' => 'collection-dashboard',
-            'kind' => 'dashboard',
-            'itemId' => 'collection-overview',
-            'layout' => 'section',
-        ],
-        'publications' => [
-            'label' => 'Publications', // @translate
-            'template' => 'publications',
-            'kind' => 'dashboard',
-            'itemId' => 'publications',
-            'layout' => 'publications',
-        ],
-        'youtube' => [
-            'label' => 'YouTube', // @translate
-            'template' => 'youtube',
-            'kind' => 'dashboard',
-            'itemId' => 'youtube',
-            'layout' => 'youtube',
-        ],
-        'podcasts' => [
-            'label' => 'Podcasts', // @translate
-            'template' => 'podcasts',
-            'kind' => 'dashboard',
-            'itemId' => 'podcasts',
-            'layout' => 'podcasts',
-        ],
-        'discursive-communities' => [
-            'label' => 'Discursive communities (entity network)', // @translate
-            'template' => 'discursive-communities',
-            'kind' => 'widget',
-        ],
-        'spatial-exploration' => [
-            'label' => 'Spatial exploration (map of places)', // @translate
-            'template' => 'spatial-exploration',
-            'kind' => 'widget',
-        ],
-        'semantic-map' => [
-            'label' => 'Records by similarity', // @translate
-            'template' => 'semantic-map',
-            'kind' => 'widget',
-        ],
-        'network-explorer' => [
-            'label' => 'Network explorer', // @translate
-            'template' => 'network-explorer',
-            'kind' => 'widget',
-        ],
-        'compare-entity' => [
-            'label' => 'Compare two of anything', // @translate
-            'template' => 'compare-entity',
-            'kind' => 'widget',
-        ],
-        'compare-genres' => [
-            'label' => 'Compare two genres', // @translate
-            'template' => 'compare-genres',
-            'kind' => 'widget',
-        ],
-        'project-explorer' => [
-            'label' => 'Project explorer', // @translate
-            'template' => 'project-explorer',
-            'kind' => 'widget',
-        ],
-        'whats-new' => [
-            'label' => "What's new", // @translate
-            'template' => 'whats-new',
-            'kind' => 'widget',
-        ],
-    ];
+    public static function blocks(): array
+    {
+        return BlockRegistry::embeddable();
+    }
 
     /**
      * Chart keys a dashboard layout renders, from the build-generated
@@ -163,7 +76,7 @@ class EmbedController extends AbstractActionController
         $this->layout()->setVariable('isGallery', true);
 
         $view = new ViewModel([
-            'blocks' => self::BLOCKS,
+            'blocks' => self::blocks(),
             'siteSlug' => $this->currentSite()->slug(),
         ]);
         $view->setTemplate('dre-visualizations/embed/index');
@@ -177,10 +90,11 @@ class EmbedController extends AbstractActionController
     public function blockAction()
     {
         $slug = (string) $this->params()->fromRoute('block', '');
-        if (!isset(self::BLOCKS[$slug])) {
+        $blocks = self::blocks();
+        if (!isset($blocks[$slug])) {
             return $this->notFound();
         }
-        $info = self::BLOCKS[$slug];
+        $info = $blocks[$slug];
 
         // A :viz segment requests a single chart; only the dashboard blocks
         // (rendered by dashboard.js from a chart-key layout) support it.

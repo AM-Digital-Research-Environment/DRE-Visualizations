@@ -20,7 +20,7 @@
  * 2. THE VENDORED d3 LOAD ORDER IS LOAD-BEARING. d3-force's UMD wrapper hands
  *    itself the same `d3` global for all three of its dependencies, so loading it
  *    alone yields a DEFINED but unusable API — a silently dead graph rather than an
- *    error. DashboardAssets::D3_SCRIPTS fixes the order; this proves it matters.
+ *    error. libs.d3 in config/asset-plans.json fixes the order; this proves it matters.
  *
  * Exit code 1 on any finding.
  */
@@ -163,12 +163,10 @@ if (!ns || typeof ns.entityColor !== 'function') {
 const D3_ORDER = ['d3-quadtree', 'd3-dispatch', 'd3-timer', 'd3-force'];
 
 // The helper's declared order must match what actually works.
-const helper = readFileSync(join(ROOT, 'src/View/Helper/DashboardAssets.php'), 'utf8');
-const block = helper.slice(helper.indexOf('const D3_SCRIPTS = ['));
-const declared = [...block.slice(0, block.indexOf(']')).matchAll(/'vendor\/([^.']+)\.min\.js'/g)]
-  .map((m) => m[1]);
+const plans = JSON.parse(readFileSync(join(ROOT, 'config/asset-plans.json'), 'utf8'));
+const declared = plans.libs.d3.map((path) => path.replace(/^vendor\/|\.min\.js$/g, ''));
 if (declared.join(',') !== D3_ORDER.join(',')) {
-  fail(`DashboardAssets::D3_SCRIPTS order is ${declared.join(',')}; d3-force needs ${D3_ORDER.join(',')}`);
+  fail(`config/asset-plans.json libs.d3 order is ${declared.join(',')}; d3-force needs ${D3_ORDER.join(',')}`);
 }
 
 // In order: a usable simulation.

@@ -24,11 +24,7 @@ $escapeHtml = $this->plugin('escapeHtml');
 $escapeAttr = $this->plugin('escapeHtmlAttr');
 
 // Make RV.LAYOUTS + RV.CHART_LABELS available for the single-chart menu below.
-$this->dashboardAssets(['cdn' => true]);
-// The gallery's own controller, after the core and the chart bundle.
-$this->headScript()->appendFile($this->assetUrl(
-    \DreVisualizations\View\Helper\DashboardAssets::EMBED_GALLERY_JS, 'DreVisualizations'
-), 'text/javascript', ['defer' => true]);
+$this->dashboardAssets(['plan' => 'embedGallery']);
 
 // Absolute origin so a generated snippet works when pasted on another domain.
 $origin = rtrim($this->serverUrl(false), '/');

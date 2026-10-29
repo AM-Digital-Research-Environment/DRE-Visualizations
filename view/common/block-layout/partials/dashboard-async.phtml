@@ -20,9 +20,9 @@
  *   ?string $dashboardDir  Optional artifact directory (data-dashboard-dir).
  *   ?string $explorerUrl   Project explorer deep link (data-explorer-url),
  *                          shown by a project dashboard's introduction.
- *   array   $assets        Options for the dashboardAssets helper (default
- *                          ['cdn' => true]: a site-page block, where Module.php
- *                          has not injected the chart prelude).
+ *   ?string $plan          The block's DashboardAssets plan (from its registry
+ *                          row; default 'dashboard', which emits the prelude
+ *                          first unless the page already carries it).
  *
  * Zero-config: no $block access, so the bare embed route renders it too.
  *
@@ -30,7 +30,7 @@
  */
 
 // Single source of truth for the asset chain: the DashboardAssets view helper.
-$this->dashboardAssets($assets ?? ['cdn' => true]);
+$this->dashboardAssets(['plan' => $plan ?? 'dashboard']);
 ?>
 
 <div class="resource-vis-block dashboard-block">

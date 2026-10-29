@@ -2,9 +2,9 @@
 /**
  * Checks a built release archive (git archive --prefix=DreVisualizations/):
  *
- *   - every asset the module loads at runtime — each 'js/…', 'css/…' and
- *     'vendor/…' path DashboardAssets names, plus the generated chart bundle
- *     and the generated config JSON — is in the archive. The export-ignore
+ *   - every asset the module loads at runtime — each path config/asset-plans.json
+ *     names, the source-mapped readable bundles and the generated config JSON —
+ *     is in the archive. The export-ignore
  *     globs in .gitattributes strip modular sources (dashboard-charts-*.js …),
  *     so a runtime file that happens to match one would vanish silently;
  *   - no installation-derived generated data and no development material ships.
@@ -12,11 +12,8 @@
  * Usage: node scripts/check-release-archive.mjs DreVisualizations.zip
  */
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { MINIFIED, minifiedPath } from './lib/frontend-sources.mjs';
+import { MINIFIED, minifiedPath, runtimeAssets as planAssets } from './lib/frontend-sources.mjs';
 
-const ROOT = join(import.meta.dirname, '..');
 const archive = process.argv[2];
 if (!archive) {
   console.error('Usage: node scripts/check-release-archive.mjs <archive.zip>');
@@ -27,15 +24,14 @@ const entries = new Set(execFileSync('unzip', ['-Z1', archive], { encoding: 'utf
 const prefix = 'DreVisualizations/';
 const failures = [];
 
-// CHART_SCRIPTS are the bundle's modular sources, deliberately not shipped.
-const helper = readFileSync(join(ROOT, 'src/View/Helper/DashboardAssets.php'), 'utf8')
-  .replace(/const CHART_SCRIPTS = \[[\s\S]*?\];/, '');
-const runtimeAssets = new Set([...helper.matchAll(/'((?:js|css|vendor)\/[^']+\.(?:js|css))'/g)].map((m) => 'asset/' + m[1]));
+// Every file a plan can load (config/asset-plans.json). The chart sources are
+// the bundle's inputs, deliberately not shipped.
+const runtimeAssets = new Set(planAssets().map((path) => 'asset/' + path));
 // The served minified files, their source maps and the readable files the maps
 // point back to, so devtools on the live site show readable code.
 const debugAssets = MINIFIED.flatMap((path) => [path, minifiedPath(path) + '.map']).map((path) => 'asset/' + path);
 for (const required of [...runtimeAssets, ...debugAssets,
-  'config/dashboard-layouts.json', 'config/client-strings.json', 'config/module.ini', 'Module.php',
+  'config/asset-plans.json', 'config/dashboard-layouts.json', 'config/client-strings.json', 'config/module.ini', 'Module.php',
   // The translation catalogue Omeka's translator is pointed at (module.config.php).
   'language/template.pot']) {
   if (!entries.has(prefix + required)) failures.push(`missing runtime file: ${required}`);

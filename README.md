@@ -157,7 +157,7 @@ Collection-wide relationship networks in one tabbed block — **Contributors ↔
 
 A collection-wide **places map**: every geocoded location the research items reference, drawn as **MapLibre GL** bubbles sized by referencing-item count and split into **two separately coloured, toggleable layers** — places of **origin** (`dcterms:spatial`, brand accent) and **current locations** (`dcterms:provenance`, cluster Hellblau), the same colour language as the per-entity dashboard map; the legend doubles as a show/hide toggle. Added as a **site-page block** (Admin > Sites > [site] > Pages), it loads `asset/data/item-dashboards/spatial-exploration.json`. A sidebar entity picker filters the map to a single **project, research section, person, organisation or subject** — the selection is served from a baked entity→places adjacency, so it filters client-side with no extra fetch — a country dropdown (built from the point-in-polygon country index, with per-country zoom bounds) focuses the map, and clicking a bubble opens that location's page. The high-cardinality picker types (people, organisations, subjects) are capped to the top entities by mapped-place count to keep the payload lean.
 
-> Shares the **MapLibre GL** engine and the `dashboardAssets(['spatial' => true])` asset mode (mirroring the entity network's `['graph' => true]`), so a page carrying this block alongside the Discursive Communities graph and the dashboards loads MapLibre exactly once. Built by `Aggregators\SpatialTrait` + `Runner::generateSpatialExploration()`; rendered by `asset/js/spatial-exploration.js`.
+> Shares the **MapLibre GL** engine through the `spatial` asset plan (mirroring the entity network's `entityGraph` plan, both in `config/asset-plans.json`), so a page carrying this block alongside the Discursive Communities graph and the dashboards loads MapLibre exactly once. Built by `Aggregators\SpatialTrait` + `Runner::generateSpatialExploration()`; rendered by `asset/js/spatial-exploration.js`.
 
 ### Publications
 
@@ -440,10 +440,13 @@ DreVisualizations/
 └── README.md
 ```
 
-The front-end script chain (chart builders + registry + controller) is injected by a
-single view helper — `src/View/Helper/DashboardAssets.php` (`$this->dashboardAssets(...)`).
-Registering a new chart means adding its builder file to that helper's `CHART_SCRIPTS`
-list once and running `npm run build`. Omeka loads the generated, minified
+What each surface loads is data: `config/asset-plans.json` names, per plan, the
+stylesheet, the library URLs handed to the core and the scripts in load order, and
+`src/View/Helper/DashboardAssets.php` (`$this->dashboardAssets(['plan' => $plan])`)
+turns a plan into head tags. Each block's plan, label, template and embed settings
+live in one row of `src/Site/BlockRegistry.php`. Registering a new chart means
+adding its builder file to the manifest's `chartSources` once and running
+`npm run build`. Omeka loads the generated, minified
 `dashboard-charts.bundle.min.js`, reducing the modular builder chain to one request;
 `npm run check` rejects a stale bundle.
 

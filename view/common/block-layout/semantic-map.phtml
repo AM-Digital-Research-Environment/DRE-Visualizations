@@ -5,16 +5,18 @@
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SitePageBlockRepresentation $block
+ * @var string $slug  this block's BlockRegistry slug (its data-embed-slug)
+ * @var string $plan  its DashboardAssets plan (config/asset-plans.json)
  */
 
-$this->dashboardAssets(['cdn' => true, 'semanticMap' => true, 'controller' => 'semanticMap']);
+$this->dashboardAssets(['plan' => $plan]);
 ?>
 
 <div class="resource-vis-block semantic-map-block">
     <?= $this->partial('common/block-layout/partials/async-surface', [
         'class' => 'semantic-map-container',
         'data' => [
-            'embed-slug' => 'semantic-map',
+            'embed-slug' => $slug,
         ],
     ]) ?>
 </div>

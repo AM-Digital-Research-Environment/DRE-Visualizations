@@ -7,11 +7,13 @@
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\SitePageBlockRepresentation $block
+ * @var string $slug  this block's BlockRegistry slug (its data-embed-slug)
+ * @var string $plan  its DashboardAssets plan (config/asset-plans.json)
  */
 
 // Site-page block (Module.php does not run on page controllers), so request the
 // CDN + core prelude and the What's New controller.
-$this->dashboardAssets(['cdn' => true, 'controller' => 'whatsNew']);
+$this->dashboardAssets(['plan' => $plan]);
 
 ?>
 
@@ -19,7 +21,7 @@ $this->dashboardAssets(['cdn' => true, 'controller' => 'whatsNew']);
     <?= $this->partial('common/block-layout/partials/async-surface', [
         'class' => 'whats-new-container',
         'data' => [
-            'embed-slug' => 'whats-new',
+            'embed-slug' => $slug,
         ],
     ]) ?>
 </div>

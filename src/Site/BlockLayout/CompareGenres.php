@@ -2,30 +2,11 @@
 declare(strict_types=1);
 namespace DreVisualizations\Site\BlockLayout;
 
-use Laminas\View\Renderer\PhpRenderer;
-use Omeka\Api\Representation\SitePageBlockRepresentation;
-use Omeka\Api\Representation\SitePageRepresentation;
-use Omeka\Api\Representation\SiteRepresentation;
-use Omeka\Site\BlockLayout\AbstractBlockLayout;
-
-class CompareGenres extends AbstractBlockLayout
+/**
+ * CompareGenres page block. Label, admin text and template come from
+ * `DreVisualizations\Site\BlockRegistry::BLOCKS['compare-genres']`.
+ */
+class CompareGenres extends AbstractDreBlockLayout
 {
-    public function getLabel()
-    {
-        return 'Compare Genres'; // @translate
-    }
-
-    public function form(PhpRenderer $view, SiteRepresentation $site,
-        ?SitePageRepresentation $page = null, ?SitePageBlockRepresentation $block = null)
-    {
-        return '<p>' . $view->translate('Side-by-side comparison of two genres. No configuration needed.') . '</p>';
-    }
-
-    public function render(PhpRenderer $view, SitePageBlockRepresentation $block,
-        $templateViewScript = 'common/block-layout/compare-genres')
-    {
-        return $view->partial($templateViewScript, [
-            'block' => $block,
-        ]);
-    }
+    const SLUG = 'compare-genres';
 }

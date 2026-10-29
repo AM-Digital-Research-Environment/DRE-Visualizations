@@ -5,6 +5,8 @@
  *
  * Paths are relative to asset/.
  */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 /**
  * dashboard-core.js is concatenated from these focused sources, IN THIS ORDER.
@@ -33,8 +35,33 @@ export const CORE_SOURCES = [
 ];
 export const CORE_BUNDLE = 'js/dashboard-core.js';
 
-/** The chart-builder bundle; its source order is DashboardAssets::CHART_SCRIPTS. */
+/** The chart-builder bundle; its source order is `chartSources` in config/asset-plans.json. */
 export const CHART_BUNDLE = 'js/dashboard-charts.bundle.js';
+
+const ROOT = join(import.meta.dirname, '..', '..');
+
+/** config/asset-plans.json — what each surface loads (read by PHP as Site\AssetPlans). */
+export function assetPlans() {
+  return JSON.parse(readFileSync(join(ROOT, 'config', 'asset-plans.json'), 'utf8'));
+}
+
+/** A plan's script entries expanded to asset/ paths, in load order (Site\AssetPlans::scripts). */
+export function planScripts(manifest, name) {
+  return (manifest.plans[name].scripts || []).flatMap((entry) => {
+    if (entry.startsWith('@')) return manifest.groups[entry.slice(1)];
+    if (entry.startsWith('lib:')) return [manifest.libs[entry.slice(4)]].flat();
+    return [entry];
+  });
+}
+
+/** Every file a page can load: the stylesheet, the vendored libraries and every plan's scripts. */
+export function runtimeAssets(manifest = assetPlans()) {
+  return [...new Set([
+    manifest.stylesheet,
+    ...Object.values(manifest.libs).flat(),
+    ...Object.keys(manifest.plans).flatMap((name) => planScripts(manifest, name)),
+  ])];
+}
 
 /** The hand-written stylesheet. */
 export const STYLESHEET = 'css/dre-visualizations.css';

@@ -5,19 +5,11 @@ namespace DreVisualizations\Site\ResourcePageBlockLayout;
 use DreVisualizations\Site\PublishedData;
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
-use Omeka\Site\ResourcePageBlockLayout\ResourcePageBlockLayoutInterface;
 
-class SimilarItems implements ResourcePageBlockLayoutInterface
+/** Label, resource types and template: BlockRegistry::RESOURCE_BLOCKS['similar-items']. */
+class SimilarItems extends AbstractDreResourcePageBlockLayout
 {
-    public function getLabel(): string
-    {
-        return 'Similar Items'; // @translate
-    }
-
-    public function getCompatibleResourceNames(): array
-    {
-        return ['items'];
-    }
+    const SLUG = 'similar-items';
 
     public function render(PhpRenderer $view, AbstractResourceEntityRepresentation $resource): string
     {
@@ -26,7 +18,7 @@ class SimilarItems implements ResourcePageBlockLayoutInterface
         if (!PublishedData::available($view, 'embeddings/similar.json')) {
             return '';
         }
-        return $view->partial('common/resource-page-block-layout/similar-items', [
+        return $this->renderTemplate($view, [
             'resource' => $resource,
         ]);
     }

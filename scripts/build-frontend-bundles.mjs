@@ -3,7 +3,8 @@
  * Generates committed files from the modular front-end sources:
  *   - asset/js/dashboard-core.js — CORE_SOURCES (scripts/lib/frontend-sources.mjs)
  *     concatenated in order;
- *   - asset/js/dashboard-charts.bundle.js — CHART_SCRIPTS concatenated in order;
+ *   - asset/js/dashboard-charts.bundle.js — `chartSources` (config/asset-plans.json)
+ *     concatenated in order;
  *   - a minified `.min.js` / `.min.css` copy of both bundles and of
  *     asset/css/dre-visualizations.css, each with a `.map` — what Omeka serves;
  *   - config/dashboard-layouts.json — each layout's chart keys, read by PHP
@@ -23,23 +24,10 @@ import { basename, join } from 'node:path';
 import vm from 'node:vm';
 import { transformSync } from 'esbuild';
 import { collectClientStrings } from './lib/client-strings.mjs';
-import { CHART_BUNDLE, CORE_BUNDLE, CORE_SOURCES, STYLESHEET, minifiedPath } from './lib/frontend-sources.mjs';
+import { CHART_BUNDLE, CORE_BUNDLE, CORE_SOURCES, STYLESHEET, assetPlans, minifiedPath } from './lib/frontend-sources.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
-const helperPath = join(ROOT, 'src', 'View', 'Helper', 'DashboardAssets.php');
-const source = readFileSync(helperPath, 'utf8');
-const marker = 'const CHART_SCRIPTS = [';
-const start = source.indexOf(marker);
-if (start === -1) throw new Error('DashboardAssets::CHART_SCRIPTS was not found');
-const from = source.indexOf('[', start);
-let depth = 0;
-let end = -1;
-for (let i = from; i < source.length; i++) {
-  if (source[i] === '[') depth++;
-  if (source[i] === ']' && --depth === 0) { end = i; break; }
-}
-if (end < 0) throw new Error('DashboardAssets::CHART_SCRIPTS could not be parsed');
-const paths = [...source.slice(from, end + 1).matchAll(/'([^']+\.js)'/g)].map((match) => match[1]);
+const paths = assetPlans().chartSources;
 if (!paths.length) throw new Error('No chart sources were found');
 
 /** Banner + each source under a path marker, as one classic script. */
@@ -61,7 +49,7 @@ function bundle(title, order, sources) {
 const coreOutputPath = join(ROOT, 'asset', CORE_BUNDLE);
 const expectedCore = bundle('dashboard core', 'scripts/lib/frontend-sources.mjs CORE_SOURCES (asset/js/core/)', CORE_SOURCES);
 const chartOutputPath = join(ROOT, 'asset', CHART_BUNDLE);
-const expectedCharts = bundle('chart-builder bundle', 'DashboardAssets::CHART_SCRIPTS', paths);
+const expectedCharts = bundle('chart-builder bundle', 'config/asset-plans.json chartSources', paths);
 
 const layoutsPath = join(ROOT, 'config', 'dashboard-layouts.json');
 const sandbox = { window: { RV: {} } };

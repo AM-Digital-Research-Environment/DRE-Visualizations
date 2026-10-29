@@ -2,20 +2,18 @@
 /**
  * Static contract checks for hand-maintained visualization registries.
  *
- * These files intentionally stay build-free, but the chart asset chain, layout
- * keys, registry keys and embed slugs still need to move together. This script
- * catches drift without requiring Omeka or a browser.
+ * The asset plans (config/asset-plans.json), the chart layouts and the chart
+ * registry need to move together. This script catches drift without requiring
+ * Omeka or a browser. The block registry (slugs, templates, embeds, plans per
+ * block) is checked by tests/BlockRegistryTest.php.
  */
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { join, relative, sep } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import vm from 'node:vm';
+import { assetPlans, runtimeAssets } from './lib/frontend-sources.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const failures = [];
-
-function rel(path) {
-  return relative(ROOT, path).split(sep).join('/');
-}
 
 function fail(message) {
   failures.push(message);
@@ -23,30 +21,6 @@ function fail(message) {
 
 function read(path) {
   return readFileSync(path, 'utf8');
-}
-
-function extractBlock(source, constName) {
-  const start = source.indexOf(`const ${constName} = [`);
-  if (start === -1) {
-    fail(`DashboardAssets.php: missing ${constName}`);
-    return '';
-  }
-  const from = source.indexOf('[', start);
-  let depth = 0;
-  for (let i = from; i < source.length; i++) {
-    const ch = source[i];
-    if (ch === '[') depth++;
-    else if (ch === ']') {
-      depth--;
-      if (depth === 0) return source.slice(from, i + 1);
-    }
-  }
-  fail(`DashboardAssets.php: could not parse ${constName}`);
-  return '';
-}
-
-function quotedStrings(source) {
-  return [...source.matchAll(/'([^']+)'/g)].map((m) => m[1]);
 }
 
 function loadRegistries() {
@@ -64,52 +38,35 @@ function loadRegistries() {
   return context.window.RV;
 }
 
-function checkDashboardAssets() {
-  const file = join(ROOT, 'src/View/Helper/DashboardAssets.php');
-  const source = read(file);
-  const scripts = quotedStrings(extractBlock(source, 'CHART_SCRIPTS'));
-  for (const script of scripts) {
-    const path = join(ROOT, 'asset', script.replace(/^asset\//, ''));
-    if (!existsSync(path)) fail(`DashboardAssets CHART_SCRIPTS missing file: ${script}`);
-  }
-  const bundleMatch = /const CHART_BUNDLE = '([^']+)'/.exec(source);
-  if (!bundleMatch || !existsSync(join(ROOT, 'asset', bundleMatch[1]))) {
-    fail('DashboardAssets CHART_BUNDLE is missing its generated file');
+function checkAssetPlans() {
+  const manifest = assetPlans();
+  for (const path of [...manifest.chartSources, ...runtimeAssets(manifest)]) {
+    if (!existsSync(join(ROOT, 'asset', path))) fail(`config/asset-plans.json names a missing file: ${path}`);
   }
 
+  // Every builder the chart sources register must be wired into CHART_MAP.
   const registrySource = read(join(ROOT, 'asset/js/dashboard-registry.js'));
   const registeredBuilders = new Set(
     [...registrySource.matchAll(/(?:ns\.charts|c)\.(build[A-Za-z0-9_]+)/g)].map((match) => match[1]),
   );
-  for (const script of scripts) {
-    const path = join(ROOT, 'asset', script.replace(/^asset\//, ''));
+  for (const script of manifest.chartSources) {
+    const path = join(ROOT, 'asset', script);
     if (!existsSync(path)) continue;
-    const builders = [...read(path).matchAll(/ns\.charts\.(build[A-Za-z0-9_]+)\s*=/g)]
-      .map((match) => match[1]);
+    const builders = [...read(path).matchAll(/ns\.charts\.(build[A-Za-z0-9_]+)\s*=/g)].map((match) => match[1]);
     for (const builder of builders) {
-      if (!registeredBuilders.has(builder)) {
-        fail(`DashboardAssets loads unused chart builder ${builder} from ${script}`);
-      }
+      if (!registeredBuilders.has(builder)) fail(`chartSources load unused chart builder ${builder} from ${script}`);
     }
   }
 
-  const controllerScripts = quotedStrings(extractBlock(source, 'CONTROLLERS'))
-    .filter((value) => value.startsWith('js/'));
-  for (const script of controllerScripts) {
-    const path = join(ROOT, 'asset', script);
-    if (!existsSync(path)) fail(`DashboardAssets CONTROLLERS missing file: ${script}`);
-  }
-
-  // The ordered asset chains that are NOT part of the chart registry: the shared
-  // d3-force renderer, the knowledge graph's own data/chrome files, and the
-  // vendored d3-force stack whose load order is load-bearing (d3-force resolves
-  // its dependencies off `d3`).
-  for (const constName of ['GRAPH_RENDERER_SCRIPTS', 'KNOWLEDGE_GRAPH_SCRIPTS',
-    'ENTITY_GRAPH_SCRIPTS', 'D3_SCRIPTS']) {
-    for (const script of quotedStrings(extractBlock(source, constName))) {
-      if (!existsSync(join(ROOT, 'asset', script))) {
-        fail(`DashboardAssets ${constName} missing file: ${script}`);
-      }
+  // References inside the manifest resolve: groups, libraries, `after`.
+  for (const [name, plan] of Object.entries(manifest.plans)) {
+    if (plan.after && !manifest.plans[plan.after]) fail(`plan ${name}: after names no plan (${plan.after})`);
+    for (const key of plan.publish || []) {
+      if (!manifest.libs[key]) fail(`plan ${name}: publishes unknown library ${key}`);
+    }
+    for (const entry of plan.scripts || []) {
+      if (entry.startsWith('@') && !manifest.groups[entry.slice(1)]) fail(`plan ${name}: unknown group ${entry}`);
+      if (entry.startsWith('lib:') && !manifest.libs[entry.slice(4)]) fail(`plan ${name}: unknown library ${entry}`);
     }
   }
 }
@@ -142,84 +99,8 @@ function checkLayouts(rv) {
   }
 }
 
-function parseEmbedBlocks() {
-  const source = read(join(ROOT, 'src/Controller/Site/EmbedController.php'));
-  const start = source.indexOf('const BLOCKS = [');
-  if (start === -1) {
-    fail('EmbedController.php: missing BLOCKS');
-    return [];
-  }
-  const end = source.indexOf('];', start);
-  const block = source.slice(start, end);
-  const entries = [];
-  const re = /'([^']+)'\s*=>\s*\[(.*?)\n\s*\]/gs;
-  let match;
-  while ((match = re.exec(block)) !== null) {
-    const body = match[2];
-    const get = (key) => {
-      const m = new RegExp(`'${key}'\\s*=>\\s*'([^']+)'`).exec(body);
-      return m ? m[1] : '';
-    };
-    entries.push({
-      slug: match[1],
-      template: get('template'),
-      kind: get('kind'),
-      layout: get('layout'),
-    });
-  }
-  return entries;
-}
-
-function checkEmbeds(rv, entries) {
-  const layouts = rv.LAYOUTS || {};
-  for (const entry of entries) {
-    const templatePath = join(ROOT, 'view/common/block-layout', `${entry.template}.phtml`);
-    if (!entry.template || !existsSync(templatePath)) {
-      fail(`Embed block ${entry.slug} references missing template: ${entry.template}`);
-      continue;
-    }
-    const template = read(templatePath);
-    // The slug is either stamped directly on the container, passed as the
-    // 'slug' param to partials/dashboard-async.phtml, or passed as 'embed-slug'
-    // in the data map of partials/async-surface.phtml (both emit data-embed-slug).
-    const stampsSlug = template.includes(`data-embed-slug="${entry.slug}"`)
-      || new RegExp(`'(?:embed-)?slug'\\s*=>\\s*'${entry.slug}'`).test(template);
-    if (!stampsSlug) {
-      fail(`Embed block ${entry.slug} template lacks matching data-embed-slug`);
-    }
-    if (entry.kind === 'dashboard' && !layouts[entry.layout]) {
-      fail(`Embed dashboard ${entry.slug} references missing layout: ${entry.layout}`);
-    }
-  }
-}
-
-// Reverse direction of checkEmbeds: every slug a template stamps (directly as
-// data-embed-slug, or via the shared partial's 'slug' param) must be an
-// EmbedController BLOCKS key — otherwise the on-page copy-embed button builds
-// a URL that 404s. The partial's own dynamic `<?= $slug ?>` stamp doesn't
-// match the literal patterns, so it is naturally skipped.
-function checkStampedSlugs(entries) {
-  const known = new Set(entries.map((e) => e.slug));
-  const viewDir = join(ROOT, 'view');
-  for (const dirent of readdirSync(viewDir, { recursive: true, withFileTypes: true })) {
-    if (!dirent.isFile() || !dirent.name.endsWith('.phtml')) continue;
-    const path = join(dirent.parentPath, dirent.name);
-    const source = read(path);
-    for (const m of source.matchAll(/data-embed-slug="([a-z][a-z-]*)"|'slug'\s*=>\s*'([a-z-]+)'/g)) {
-      const slug = m[1] || m[2];
-      if (!known.has(slug)) {
-        fail(`${rel(path)} stamps embed slug with no EmbedController BLOCKS entry: ${slug}`);
-      }
-    }
-  }
-}
-
-checkDashboardAssets();
-const rv = loadRegistries();
-checkLayouts(rv);
-const embedBlocks = parseEmbedBlocks();
-checkEmbeds(rv, embedBlocks);
-checkStampedSlugs(embedBlocks);
+checkAssetPlans();
+checkLayouts(loadRegistries());
 
 if (failures.length) {
   console.error(`Registry contracts: ${failures.length} finding(s)\n`);

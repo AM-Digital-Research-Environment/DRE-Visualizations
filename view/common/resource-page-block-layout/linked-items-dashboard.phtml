@@ -16,6 +16,5 @@
 <?= $this->partial('common/block-layout/partials/dashboard-async', [
     'itemId' => (string) $resource->id(),
     'explorerUrl' => $this->dreProjectExplorerUrl((int) $resource->id()),
-    // Module.php has already injected the CDN + core prelude on item pages.
-    'assets' => [],
+    'plan' => $plan,
 ]) ?>

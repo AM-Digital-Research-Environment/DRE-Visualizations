@@ -91,11 +91,7 @@ $sourceLabel = $this->translate('Source') . ': ' . ($site ? $site->title() : 'Af
 
 // The height reporter the host page's snippet listens to, as a file: the embed
 // page carries no inline script.
-if (!$isGallery) {
-    $this->headScript()->appendFile($this->assetUrl(
-        \DreVisualizations\View\Helper\DashboardAssets::EMBED_HEIGHT_JS, 'DreVisualizations'
-    ), 'text/javascript', ['defer' => true]);
-}
+if (!$isGallery) $this->dashboardAssets(['plan' => 'embedFrame']);
 ?>
 <!doctype html>
 <html lang="<?= $escapeAttr($locale) ?>"<?= $themeAttr ?>>

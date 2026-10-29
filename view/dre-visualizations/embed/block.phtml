@@ -11,20 +11,20 @@
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var string $slug
- * @var array  $info  the EmbedController::BLOCKS entry (label/template/kind[/itemId/layout])
+ * @var array  $info  the BlockRegistry::embeddable() entry (label/template/kind[/itemId/layout])
  * @var string $viz   chart key for a single-chart embed, or '' for the whole block
  */
 $viz = isset($viz) ? (string) $viz : '';
 
 if ($viz === '') {
     // Whole block: reuse the exact on-page partial, no duplication.
-    echo $this->partial('common/block-layout/' . $info['template']);
+    echo $this->partial('common/block-layout/' . $info['template'], \DreVisualizations\Site\BlockRegistry::viewVars($slug));
     return;
 }
 
 // Single chart from a dashboard block. Module.php does not run on this route, so
 // request the CDN + core prelude and the dashboard controller ourselves.
-$this->dashboardAssets(['cdn' => true]);
+$this->dashboardAssets(['plan' => 'dashboard']);
 ?>
 <div class="resource-vis-block dashboard-block dre-embed-single">
     <?= $this->partial('common/block-layout/partials/async-surface', [

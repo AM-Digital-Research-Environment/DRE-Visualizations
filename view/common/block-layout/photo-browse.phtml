@@ -168,12 +168,7 @@ $payload = \DreVisualizations\View\Helper\DashboardAssets::scriptJson($photos);
 // Lean asset prelude — masonry & timeline are pure DOM, the map lazy-loads
 // MapLibre on demand, so we skip the full chart-builder chain and only inject
 // the stylesheet, the shared RV core helpers, and this block's engine.
-$this->headLink()->appendStylesheet(
-    $this->assetUrl(\DreVisualizations\View\Helper\DashboardAssets::STYLESHEET, 'DreVisualizations'));
-$this->headScript()->appendFile(
-    $this->assetUrl(\DreVisualizations\View\Helper\DashboardAssets::CORE_JS, 'DreVisualizations'), 'text/javascript', ['defer' => true]);
-$this->headScript()->appendFile(
-    $this->assetUrl('js/item-set-photo-views.js', 'DreVisualizations'), 'text/javascript', ['defer' => true]);
+$this->dashboardAssets(['plan' => $plan]);
 ?>
 
 <div class="resource-vis-block photo-browse-block">
@@ -187,9 +182,9 @@ $this->headScript()->appendFile(
     <div class="photo-browse-container"
          data-default-view="<?= $this->escapeHtmlAttr($defaultView) ?>"
          data-grouping="<?= $this->escapeHtmlAttr($issueMode ? 'issue' : 'photo') ?>"
-         data-maplibre-css="<?= $this->escapeHtmlAttr($this->assetUrl(DashboardAssets::MAPLIBRE_CSS, 'DreVisualizations')) ?>"
-         data-maplibre-js="<?= $this->escapeHtmlAttr($this->assetUrl(DashboardAssets::MAPLIBRE_JS, 'DreVisualizations')) ?>"
-         data-maplibre-worker="<?= $this->escapeHtmlAttr($this->assetUrl(DashboardAssets::MAPLIBRE_WORKER_JS, 'DreVisualizations')) ?>">
+         data-maplibre-css="<?= $this->escapeHtmlAttr($this->assetUrl(\DreVisualizations\Site\AssetPlans::lib('maplibreCss'), 'DreVisualizations')) ?>"
+         data-maplibre-js="<?= $this->escapeHtmlAttr($this->assetUrl(\DreVisualizations\Site\AssetPlans::lib('maplibre'), 'DreVisualizations')) ?>"
+         data-maplibre-worker="<?= $this->escapeHtmlAttr($this->assetUrl(\DreVisualizations\Site\AssetPlans::lib('maplibreWorker'), 'DreVisualizations')) ?>">
 
         <div class="photo-browse-toolbar">
             <?php if (count($views) > 1): ?>

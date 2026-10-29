@@ -52,7 +52,9 @@ layout cache hashes algorithm version, ordered edges and masses. Cancellation is
 checked each layout iteration.
 
 Three renderer families coexist: ECharts, MapLibre and the canvas/d3-force
-renderer. DashboardAssets supplies the shared prelude. Dashboard payload keys
+renderer. Site\BlockRegistry declares every block once (slug, invokable, label,
+template, embed kind, asset plan); config/asset-plans.json declares what each plan
+loads, and DashboardAssets emits it, the shared prelude first. Dashboard payload keys
 select heavy libraries after usable data arrives. Controllers call disposeWithin
 before replacing a container; cleanup disposes charts, removes maps and stops
 graph simulations/observers. Theme changes only rebuild live maps.
