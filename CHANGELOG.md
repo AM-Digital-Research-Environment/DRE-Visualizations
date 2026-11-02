@@ -13,6 +13,8 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.45.1] - 2026-11-02
+
 Regenerate once after updating, so the projects without records get their map.
 
 ### Fixed
