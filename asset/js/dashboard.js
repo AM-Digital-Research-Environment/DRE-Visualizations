@@ -94,7 +94,9 @@
             html += '<p class="rv-project-collection">' + esc(fill(ns.t('projectCollection', 'Collection: {title} ({records})'),
                 { title: collection.title, records: records(Number(collection.items) || 0) })) + '</p>';
         });
-        var explorerUrl = host && host.dataset ? host.dataset.explorerUrl : '';
+        // The Project explorer compares records, so a project without any is
+        // not in it.
+        var explorerUrl = total && host && host.dataset ? host.dataset.explorerUrl : '';
         if (explorerUrl && /^(\/|https?:\/\/)/.test(explorerUrl)) {
             html += '<p><a href="' + esc(explorerUrl) + '">'
                 + esc(ns.t('projectExplorerLink', 'Compare it with other projects in the Project explorer'))
@@ -305,7 +307,9 @@
             ? container.dataset.dashboardDir : 'item-dashboards';
 
         return ns.fetchDataJson(directory + '/' + encodeURIComponent(itemId) + '.json').then(function (data) {
-            if (!data || !data.totalItems) {
+            // A dashboard without records can still carry a panel: a research
+            // project with no records yet publishes its members' map alone.
+            if (!data || (!data.totalItems && !planDashboard(data, container).keys.length)) {
                 var emptyMessage = container.dataset.emptyStatus || ns.t('noData', 'Nothing to show');
                 showMessage(container, emptyMessage, 'empty');
                 finish(emptyMessage);

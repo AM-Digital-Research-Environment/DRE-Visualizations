@@ -106,6 +106,17 @@ final class EntityDashboardGenerator extends DashboardGenerator
         foreach ($projects as $pid => $pinfo) {
             $itemIds = $this->childrenOf[$pid] ?? [];
             if (!$itemIds) {
+                // A project with no records yet still has a team: publish the
+                // map of its members' institutions alone, so the project page
+                // shows where its researchers are. It stays out of the project
+                // index (Project explorer, counts), which compares records.
+                if ($affMap = $this->aggregators->buildProjectAffiliationMap($pid, $this->links, $this->items, $this->geo)) {
+                    $this->save($pid, [
+                        'totalItems' => 0,
+                        'affiliationMap' => $affMap,
+                        'resourceType' => $this->profile->templateResourceType($this->items[$pid]['template_id'] ?? null) ?? 'project',
+                    ]);
+                }
                 continue;
             }
             $sectionNames = [];

@@ -1,0 +1,13 @@
+{
+  "affiliationMap": [
+    {
+      "itemId": 502,
+      "lat": 12.3714,
+      "lon": -1.5197,
+      "members": ["Schmidt, Jonas"],
+      "name": "University Joseph Ki-Zerbo"
+    }
+  ],
+  "resourceType": "project",
+  "totalItems": 0
+}

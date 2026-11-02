@@ -107,6 +107,13 @@ test('empty data shows a visible explanation without a misleading retry', async 
     assert.equal(result.content.children[0].children.length, 1);
 });
 
+test('a dashboard without records still draws the panels it carries', async () => {
+    // A research project with no records yet publishes its members' map alone.
+    const result = await dashboard({ data: { totalItems: 0, curated: [1] } });
+    assert.equal(result.host.dataset.state, 'ready');
+    assert.deepEqual(result.built, ['curated']);
+});
+
 test('one failing chart does not erase other charts or announce full success', async () => {
     const result = await dashboard({ builderError: new Error('bad chart') });
     assert.deepEqual(result.built, ['curated', 'second']);
@@ -147,6 +154,11 @@ test('the project introduction leaves other dashboards and unsafe links alone', 
     const html = projectIntro({ resourceType: 'project', totalItems: 3 }, { explorerUrl: 'javascript:alert(1)' });
     assert.doesNotMatch(html, /<a |Collection:/);
     assert.match(html, /3 records/);
+});
+
+test('a project without records names none and does not link to the Project explorer', () => {
+    assert.equal(projectIntro({ resourceType: 'project', totalItems: 0, affiliationMap: [{}] },
+        { explorerUrl: '/s/amira/page/projects?project=308' }), '');
 });
 
 function dataLoader(respond) {

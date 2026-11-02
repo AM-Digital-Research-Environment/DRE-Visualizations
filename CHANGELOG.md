@@ -13,6 +13,12 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+Regenerate once after updating, so the projects without records get their map.
+
+### Fixed
+
+- A research project with no records yet shows the map of its members' institutions on its page. The map of where a project's principal investigator and team members are affiliated was only published with the project's record charts, so a project that had a team but no records had no Visualisations block at all. Its dashboard now carries the map alone, without the link to the Project explorer, which compares projects by their records.
+
 ## [2.45.0] - 2026-10-29
 
 No regeneration is needed: the generated data is unchanged. Pages load the minified copies of the shared core, the chart bundle and the stylesheet, so a proxy or browser cache serving the old asset URLs simply refreshes with the new `?v=`.
