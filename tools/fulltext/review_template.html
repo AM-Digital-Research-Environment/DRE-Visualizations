@@ -30,6 +30,13 @@ h1 { font-size: 1.45rem; margin: 0 0 4px; letter-spacing: -0.01em; }
 .banner { margin: 12px 0 0; padding: 8px 12px; border-radius: 6px; font-size: .9rem; }
 .banner.private { background: var(--warn-soft); color: var(--warn); }
 .banner.public { background: var(--accent-soft); color: var(--accent); }
+.lead { margin: 12px 0 0; max-width: 75ch; }
+details.about { margin: 10px 0 0; max-width: 75ch; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; }
+details.about summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+details.about h3 { font-size: .95rem; margin: 14px 0 4px; }
+details.about p, details.about li { font-size: .92rem; }
+details.about ol { padding-left: 1.3em; margin: 6px 0; }
+details.about li { margin: 0 0 8px; }
 .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px 24px; max-width: 1500px; margin: 0 auto; }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
 .seg button { border: 0; background: var(--surface); color: var(--ink); padding: 6px 12px; font: inherit; cursor: pointer; }
@@ -92,6 +99,21 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   <h1 id="title"></h1>
   <p class="sub" id="sub"></p>
   <p class="banner" id="banner"></p>
+  <p class="lead">Every dot is an article from the journal <i>African Music</i>. Articles that talk about similar things sit close together, judged by everything they say rather than by their titles and keywords alone.</p>
+  <details class="about">
+    <summary>How this map was made, in plain terms</summary>
+    <ol>
+      <li><strong>Reading the articles.</strong> We took the full text of each article, as read from the scanned pages, and cut it into passages of about a page each (300 to 400 words).</li>
+      <li><strong>Turning text into numbers.</strong> A language model, Google's EmbeddingGemma 2 (the same one AMIRA uses to find similar records), reads each passage and gives it a kind of fingerprint: a list of 768 numbers. Passages about similar subjects get similar fingerprints, even when they use different words. An article's fingerprint is the average of its passages' fingerprints.</li>
+      <li><strong>Drawing the map.</strong> Because every article is about African music, all fingerprints have a lot in common; we first take away that shared part, so the map shows how articles differ. A method called UMAP then flattens the 768 numbers into two, a position on the page, trying to keep articles that were close still close. Read it like a sketch map: nearby dots are usually alike, but the axes mean nothing, and the size of the gaps between distant groups is not a measure of anything.</li>
+      <li><strong>Finding groups.</strong> A clustering method called HDBSCAN looks for places where many articles crowd together, and each group gets a colour. Articles that belong to no crowd stay grey. The words shown for a group are the ones most typical of its articles, picked by the computer. Treat them as a hint, not as a title someone wrote.</li>
+      <li><strong>Nearest articles.</strong> Click a dot to see the ten articles whose fingerprints are most alike. The score goes up to 1 for identical texts. In this journal almost every pair of articles scores above 0.8 because they share a subject, so small differences count: 0.95 is very close, 0.90 is ordinary. "Also a metadata neighbour" means AMIRA's existing map, built from titles, abstracts and subjects only, links the two articles as well.</li>
+      <li><strong>Elsewhere in AMIRA.</strong> The same fingerprints let us compare an article with records from the rest of AMIRA (recordings, projects, publications, podcasts) and suggest a few that may be related.</li>
+    </ol>
+    <h3>Keep in mind</h3>
+    <p>Everything here is machine-made and has not yet been checked by experts. The scanned text contains reading errors. Pages that are not articles, such as lists of books received, subscription notices and notes on contributors, have text too, so they form groups of their own. A link between two articles says their texts resemble each other, not that one cites the other or that the link is meaningful.</p>
+    <p id="aboutPrivacy"></p>
+  </details>
 </header>
 <div class="controls">
   <div class="seg" role="group" aria-label="Colour points by">
@@ -115,7 +137,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 </main>
 <section class="clusters">
   <h2>Clusters</h2>
-  <table><thead><tr><th>#</th><th class="num">Articles</th><th>c-TF-IDF keywords</th></tr></thead><tbody id="clusterRows"></tbody></table>
+  <table><thead><tr><th>#</th><th class="num">Articles</th><th>Typical words (picked automatically, c-TF-IDF)</th></tr></thead><tbody id="clusterRows"></tbody></table>
 </section>
 <script id="data" type="application/json">__DATA__</script>
 <script>
@@ -141,9 +163,11 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   if (PRIVATE) {
     banner.className = 'banner private';
     banner.textContent = 'Private review copy: it quotes passages of private full text. Do not share or publish it.';
+    document.getElementById('aboutPrivacy').textContent = 'In this review copy, "Show the matching passages" opens the two passages, one from each article, whose fingerprints are most alike, with the rarer words they share highlighted, so you can judge why the model linked them. Please mark what you find in the review sheet.';
   } else {
     banner.className = 'banner public';
     banner.textContent = 'Each article\'s position comes from its full text, which is not shown here. Scores are cosine similarities of article vectors (EmbeddingGemma 2).';
+    document.getElementById('aboutPrivacy').textContent = 'The full text itself stays private: this page shows only titles, authors, positions, groups and scores.';
     document.getElementById('dimWrap').hidden = true;
   }
 
