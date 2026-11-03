@@ -515,6 +515,7 @@
     function buildTimeline(photos, lightbox, grouping, toc) {
         var view = document.createElement('div');
         view.className = 'photo-view photo-timeline';
+        if (grouping === 'issue') view.classList.add('is-issues');
 
         // Units to place on the timeline: issues for an issue collection, else the
         // photos themselves. Each keeps a year, a representative image (`rep`), an

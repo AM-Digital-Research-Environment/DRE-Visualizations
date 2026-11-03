@@ -3157,6 +3157,11 @@ button.rv-colour-mode-btn:focus-visible {
     box-shadow: var(--rv-shadow);
     outline: 2px solid transparent;
 }
+/* Journal covers are portrait (ILAM scans run 0.67–0.74 wide per high): a
+   square frame cut off the masthead and the foot of every cover. */
+.photo-timeline.is-issues .photo-timeline-thumb {
+    aspect-ratio: 7 / 10;
+}
 .photo-timeline-thumb .photo-card-frame {
     height: 100%;
     border-radius: 0;
