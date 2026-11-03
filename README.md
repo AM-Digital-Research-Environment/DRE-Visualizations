@@ -539,6 +539,7 @@ DreVisualizations/
 ├── tests/                                           # 252 files — PHP harnesses, the Omeka-core and golden suites, node and Playwright tests
 ├── tools/
 │   ├── embeddings/                                  # 6 files — the Build semantic embeddings Action (EmbeddingGemma 2)
+│   ├── fulltext/                                    # 5 files — offline full-text semantic map prototype for the ILAM journal (not shipped)
 │   ├── wordclouds/
 │   │   ├── build_wordclouds.py
 │   │   └── requirements.txt

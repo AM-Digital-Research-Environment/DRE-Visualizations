@@ -40,6 +40,7 @@ const SUMMARIZE = {
   'src/Site/ResourcePageBlockLayout/': 'item and item-set page blocks',
   'tests/': 'PHP harnesses, the Omeka-core and golden suites, node and Playwright tests',
   'tools/embeddings/': 'the Build semantic embeddings Action (EmbeddingGemma 2)',
+  'tools/fulltext/': 'offline full-text semantic map prototype for the ILAM journal (not shipped)',
   'view/common/block-layout/': 'one template per site-page block, plus the shared partials',
   'view/common/resource-page-block-layout/': 'one template per resource-page block',
 };

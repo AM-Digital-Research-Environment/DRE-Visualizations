@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<style>
+:root {
+  --bg: #f7f6f2; --surface: #ffffff; --ink: #1d2327; --muted: #5b6670; --line: #dcdad3;
+  --accent: #0b6e4f; --accent-soft: #e2f1ea; --warn: #9a4d00; --warn-soft: #fbecd9; --mark: #fde68a;
+  --grey: #b4b8bc; color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15191c; --surface: #1d2226; --ink: #e8eaeb; --muted: #9aa5ad; --line: #333a40;
+    --accent: #5cc8a0; --accent-soft: #1c3a30; --warn: #f0a75a; --warn-soft: #3d2a14; --mark: #6b5a12;
+    --grey: #5d6469; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15191c; --surface: #1d2226; --ink: #e8eaeb; --muted: #9aa5ad; --line: #333a40;
+  --accent: #5cc8a0; --accent-soft: #1c3a30; --warn: #f0a75a; --warn-soft: #3d2a14; --mark: #6b5a12;
+  --grey: #5d6469; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { padding: 20px 24px 8px; max-width: 1500px; margin: 0 auto; }
+h1 { font-size: 1.45rem; margin: 0 0 4px; letter-spacing: -0.01em; }
+.sub { color: var(--muted); margin: 0; }
+.banner { margin: 12px 0 0; padding: 8px 12px; border-radius: 6px; font-size: .9rem; }
+.banner.private { background: var(--warn-soft); color: var(--warn); }
+.banner.public { background: var(--accent-soft); color: var(--accent); }
+.controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px 24px; max-width: 1500px; margin: 0 auto; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); color: var(--ink); padding: 6px 12px; font: inherit; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
+.search { position: relative; flex: 1 1 260px; max-width: 420px; }
+.search input { width: 100%; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); font: inherit; }
+.results { position: absolute; z-index: 5; left: 0; right: 0; top: 100%; margin: 2px 0 0; padding: 0; list-style: none; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; max-height: 320px; overflow: auto; }
+.results:empty { display: none; }
+.results button { display: block; width: 100%; text-align: left; border: 0; background: none; color: var(--ink); padding: 6px 10px; font: inherit; cursor: pointer; }
+.results button:hover, .results button:focus { background: var(--accent-soft); }
+label.check { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); }
+label.check[hidden] { display: none; }
+main { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(320px, 1fr); gap: 16px; padding: 0 24px 24px; max-width: 1500px; margin: 0 auto; }
+@media (max-width: 900px) { main { grid-template-columns: 1fr; padding: 0 16px 16px; } header, .controls { padding-left: 16px; padding-right: 16px; } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.plot { position: relative; padding: 8px; }
+canvas { display: block; width: 100%; aspect-ratio: 1 / 1; max-height: 78vh; cursor: crosshair; touch-action: none; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); padding: 4px 8px; border-radius: 4px; font-size: .82rem; max-width: 320px; display: none; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 10px; padding: 8px 8px 4px; font-size: .82rem; }
+.legend button { display: inline-flex; gap: 5px; align-items: center; border: 0; background: none; color: var(--ink); padding: 2px 4px; border-radius: 4px; font: inherit; cursor: pointer; max-width: 100%; text-align: left; }
+.legend button[aria-pressed="true"] { background: var(--accent-soft); }
+.legend button.dim { opacity: .4; }
+.sw { width: 11px; height: 11px; border-radius: 50%; flex: none; }
+.hint { color: var(--muted); font-size: .82rem; padding: 0 8px 6px; margin: 0; }
+.side { padding: 16px; max-height: calc(78vh + 90px); overflow: auto; }
+.side h2 { font-size: 1.1rem; margin: 0 0 4px; }
+.meta { color: var(--muted); font-size: .88rem; margin: 0 0 8px; }
+.kw { font-size: .85rem; margin: 0 0 10px; }
+.chip { display: inline-block; font-size: .72rem; padding: 1px 6px; border-radius: 10px; background: var(--warn-soft); color: var(--warn); margin-left: 4px; vertical-align: 1px; }
+ol.nb { list-style: none; margin: 8px 0 0; padding: 0; counter-reset: nb; }
+ol.nb > li { border-top: 1px solid var(--line); padding: 8px 0; }
+.nbhead { display: grid; grid-template-columns: 1.6em minmax(0, 1fr) auto; gap: 6px; align-items: baseline; }
+.nbhead .rank { color: var(--muted); font-variant-numeric: tabular-nums; }
+.nbhead button.go { border: 0; background: none; color: var(--accent); padding: 0; font: inherit; text-align: left; cursor: pointer; }
+.nbhead button.go:hover { text-decoration: underline; }
+.score { font-variant-numeric: tabular-nums; font-size: .85rem; text-align: right; white-space: nowrap; }
+.bar { height: 4px; background: var(--line); border-radius: 2px; margin: 4px 0 0 1.6em; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--accent); }
+.why { margin: 4px 0 0 1.6em; font-size: .82rem; color: var(--muted); }
+details.pp { margin: 6px 0 0 1.6em; }
+details.pp summary { cursor: pointer; color: var(--accent); font-size: .85rem; }
+.side { container-type: inline-size; }
+.pair { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 6px; }
+@container (min-width: 620px) { .pair { grid-template-columns: 1fr 1fr; } }
+.pair blockquote { margin: 0; padding: 8px; background: var(--bg); border-radius: 6px; font-size: .82rem; line-height: 1.45; max-height: 320px; overflow: auto; }
+.pair h3 { font-size: .78rem; color: var(--muted); margin: 0 0 4px; font-weight: 600; }
+mark { background: var(--mark); color: inherit; padding: 0 1px; }
+a { color: var(--accent); }
+section.clusters { max-width: 1500px; margin: 0 auto; padding: 0 24px 32px; }
+section.clusters h2 { font-size: 1.1rem; }
+table { width: 100%; border-collapse: collapse; font-size: .86rem; background: var(--surface); }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title"></h1>
+  <p class="sub" id="sub"></p>
+  <p class="banner" id="banner"></p>
+</header>
+<div class="controls">
+  <div class="seg" role="group" aria-label="Colour points by">
+    <button type="button" data-mode="cluster" aria-pressed="true">Cluster</button>
+    <button type="button" data-mode="decade" aria-pressed="false">Decade</button>
+  </div>
+  <div class="search">
+    <input id="q" type="search" placeholder="Find an article by title or author" aria-label="Find an article" autocomplete="off">
+    <ul class="results" id="results"></ul>
+  </div>
+  <label class="check" id="dimWrap"><input type="checkbox" id="dimFlagged"> Fade journal furniture</label>
+</div>
+<main>
+  <div class="panel plot">
+    <canvas id="plot" aria-label="Scatter plot of articles; use the search box to select one"></canvas>
+    <div class="tip" id="tip"></div>
+    <div class="legend" id="legend"></div>
+    <p class="hint">Click a point to see its neighbours. Scroll to zoom, drag to pan, double-click to reset. Click a legend entry to highlight it.</p>
+  </div>
+  <aside class="panel side" id="side" aria-live="polite"><p class="empty">Select an article on the map or through the search box.</p></aside>
+</main>
+<section class="clusters">
+  <h2>Clusters</h2>
+  <table><thead><tr><th>#</th><th class="num">Articles</th><th>c-TF-IDF keywords</th></tr></thead><tbody id="clusterRows"></tbody></table>
+</section>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(() => {
+  const D = JSON.parse(document.getElementById('data').textContent);
+  const PRIVATE = D.private;
+  const points = D.points;
+  const byId = new Map(points.map(p => [p.id, p]));
+  const clusters = new Map(D.clusters.map(c => [c.id, c]));
+  const PALETTE = ['#1f77b4','#d62728','#2ca02c','#ff7f0e','#9467bd','#8c564b','#e377c2','#17becf','#bcbd22','#393b79','#ad494a','#637939','#8c6d31','#7b4173','#3182bd','#e6550d','#31a354','#756bb1','#636363','#9c9ede','#cedb9c','#e7969c','#6baed6','#fd8d3c','#74c476'];
+  const DECADES = ['1950s','1960s','1970s','1980s','1990s','2000s','2010s','2020s'];
+  const DECADE_COLOURS = ['#440154','#46327e','#365c8d','#277f8e','#1fa187','#4ac16d','#a0da39','#d4c21a'];
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let mode = 'cluster', selected = null, highlight = null, hover = null;
+  const view = { k: 1, x: 0, y: 0 };
+
+  const totalPassages = D.report ? D.report.passages.count : null;
+  document.getElementById('title').textContent = document.title;
+  document.getElementById('sub').textContent = `${points.length} articles of the journal African Music (ILAM), placed by the similarity of their full text` +
+    (totalPassages ? ` (${totalPassages.toLocaleString('en')} passages)` : '') + `. ${D.clusters.length} clusters; grey points belong to none.`;
+  const banner = document.getElementById('banner');
+  if (PRIVATE) {
+    banner.className = 'banner private';
+    banner.textContent = 'Private review copy: it quotes passages of private full text. Do not share or publish it.';
+  } else {
+    banner.className = 'banner public';
+    banner.textContent = 'Each article\'s position comes from its full text, which is not shown here. Scores are cosine similarities of article vectors (EmbeddingGemma 2).';
+    document.getElementById('dimWrap').hidden = true;
+  }
+
+  const colourOf = p => mode === 'cluster'
+    ? (p.cluster ? PALETTE[(p.cluster - 1) % PALETTE.length] : css('--grey'))
+    : (DECADES.includes(p.decade) ? DECADE_COLOURS[DECADES.indexOf(p.decade)] : css('--grey'));
+  const groupOf = p => mode === 'cluster' ? p.cluster : p.decade;
+
+  const canvas = document.getElementById('plot');
+  const ctx = canvas.getContext('2d');
+  const tip = document.getElementById('tip');
+  const PAD = 18;
+  let W = 0, H = 0;
+  function resize() {
+    const r = canvas.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+    W = r.width; H = r.height;
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
+  }
+  const sx = p => (PAD + p.x * (W - 2 * PAD)) * view.k + view.x;
+  const sy = p => (PAD + (1 - p.y) * (H - 2 * PAD)) * view.k + view.y;
+  const dimmed = p => (highlight !== null && groupOf(p) !== highlight) || (PRIVATE && document.getElementById('dimFlagged').checked && p.flags.includes('furniture'));
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const r = Math.max(2.5, Math.min(6, 3.2 * Math.sqrt(view.k)));
+    for (const p of points) {
+      if (!dimmed(p)) continue;
+      ctx.globalAlpha = 0.15; ctx.fillStyle = colourOf(p);
+      ctx.beginPath(); ctx.arc(sx(p), sy(p), r, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 0.85;
+    for (const p of points) {
+      if (dimmed(p)) continue;
+      ctx.fillStyle = colourOf(p);
+      ctx.beginPath(); ctx.arc(sx(p), sy(p), r, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    if (selected) {
+      const s = byId.get(selected);
+      ctx.strokeStyle = css('--ink'); ctx.lineWidth = 1;
+      for (const n of D.neighbours[selected] || []) {
+        const q = byId.get(n.id);
+        ctx.globalAlpha = 0.25 + 0.75 * Math.max(0, (n.score - 0.5) / 0.5);
+        ctx.beginPath(); ctx.moveTo(sx(s), sy(s)); ctx.lineTo(sx(q), sy(q)); ctx.stroke();
+        ctx.beginPath(); ctx.arc(sx(q), sy(q), r + 2, 0, 7); ctx.stroke();
+      }
+      ctx.globalAlpha = 1; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(sx(s), sy(s), r + 4, 0, 7); ctx.stroke();
+    }
+    if (hover && hover.id !== selected) {
+      ctx.strokeStyle = css('--ink'); ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(sx(hover), sy(hover), r + 3, 0, 7); ctx.stroke();
+    }
+  }
+
+  function nearest(mx, my) {
+    let best = null, bd = 100;
+    for (const p of points) {
+      const d = (sx(p) - mx) ** 2 + (sy(p) - my) ** 2;
+      if (d < bd) { bd = d; best = p; }
+    }
+    return best;
+  }
+  let drag = null, moved = false;
+  canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, vx: view.x, vy: view.y }; moved = false; canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener('pointermove', e => {
+    const r = canvas.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+    if (drag) {
+      const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
+      if (moved) { view.x = drag.vx + dx; view.y = drag.vy + dy; draw(); return; }
+    }
+    hover = nearest(mx, my);
+    if (hover) {
+      tip.style.display = 'block';
+      tip.textContent = `${hover.title} (${hover.year || 'n.d.'})`;
+      const left = Math.min(mx + 14, r.width - 200);
+      tip.style.left = left + 8 + 'px'; tip.style.top = my + 16 + 'px';
+    } else tip.style.display = 'none';
+    draw();
+  });
+  canvas.addEventListener('pointerup', e => {
+    if (!moved) { const r = canvas.getBoundingClientRect(); const p = nearest(e.clientX - r.left, e.clientY - r.top); if (p) select(p.id); }
+    drag = null;
+  });
+  canvas.addEventListener('pointerleave', () => { hover = null; tip.style.display = 'none'; draw(); });
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    const r = canvas.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+    const f = Math.exp(-e.deltaY * 0.0015), k = Math.min(20, Math.max(1, view.k * f)), g = k / view.k;
+    view.x = mx - (mx - view.x) * g; view.y = my - (my - view.y) * g; view.k = k;
+    draw();
+  }, { passive: false });
+  canvas.addEventListener('dblclick', () => { view.k = 1; view.x = 0; view.y = 0; draw(); });
+
+  function legend() {
+    const el = document.getElementById('legend');
+    const groups = mode === 'cluster'
+      ? [...D.clusters.map(c => ({ key: c.id, label: `${c.id}. ${c.keywords.slice(0, 3).join(', ')}`, colour: PALETTE[(c.id - 1) % PALETTE.length] })), { key: 0, label: 'No cluster', colour: css('--grey') }]
+      : [...DECADES.map((d, i) => ({ key: d, label: d, colour: DECADE_COLOURS[i] })), { key: 'undated', label: 'Undated', colour: css('--grey') }];
+    el.innerHTML = groups.map(g => `<button type="button" data-key="${esc(g.key)}" aria-pressed="${highlight === g.key}" class="${highlight !== null && highlight !== g.key ? 'dim' : ''}"><span class="sw" style="background:${g.colour}"></span>${esc(g.label)}</button>`).join('');
+    el.querySelectorAll('button').forEach((b, i) => b.addEventListener('click', () => {
+      const key = groups[i].key; highlight = highlight === key ? null : key; legend(); draw();
+    }));
+  }
+
+  const flagNames = { furniture: 'journal furniture', short: 'short text', ocr: 'OCR noise', 'list-passages': 'list-like passages', duplicate: 'duplicate text' };
+  const chips = flags => (flags || []).map(f => `<span class="chip">${esc(flagNames[f] || f)}</span>`).join('');
+  function marked(text, terms) {
+    let out = esc(text);
+    if (!terms.length) return out;
+    const re = new RegExp(`\\b(${terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\b`, 'gi');
+    return out.replace(re, '<mark>$1</mark>');
+  }
+  function select(id) {
+    selected = id;
+    const p = byId.get(id), c = clusters.get(p.cluster);
+    const side = document.getElementById('side');
+    const authors = (p.authors || []).join('; ');
+    let h = `<h2>${esc(p.title)}${chips(p.flags)}</h2>
+      <p class="meta">${esc(p.year || 'n.d.')}${authors ? ' · ' + esc(authors) : ''}${p.words ? ` · ${p.words.toLocaleString('en')} words, ${p.passages} passages` : ''} · <a href="${esc(p.url)}" target="_blank" rel="noopener">AMIRA record</a></p>
+      <p class="kw">${c ? `<strong>Cluster ${c.id}</strong>: ${esc(c.keywords.join(', '))}` : 'In no cluster'}</p>
+      <strong>Nearest articles by full text</strong><ol class="nb">`;
+    (D.neighbours[id] || []).forEach((n, i) => {
+      const q = byId.get(n.id);
+      h += `<li><div class="nbhead"><span class="rank">${i + 1}</span><button type="button" class="go" data-id="${q.id}">${esc(q.title)}</button><span class="score">${n.score.toFixed(3)}</span></div>
+        <div class="bar"><span style="width:${Math.max(0, (n.score - 0.4) / 0.6 * 100).toFixed(1)}%"></span></div>
+        <div class="why">${esc(q.year || 'n.d.')}${q.cluster === p.cluster && q.cluster ? ' · same cluster' : ''}${n.metadataNeighbour ? ' · also a metadata neighbour' : ''}`;
+      if (PRIVATE) {
+        h += ` · higher than ${n.percentile.toFixed(1)}% of all pairs · best passage pair ${n.passageScore.toFixed(3)}${chips(n.flags)}`;
+        h += n.sharedTerms.length ? `<br>Shared rare words: ${esc(n.sharedTerms.join(', '))}` : '';
+        const a = D.passages[n.sourcePassage], b = D.passages[n.neighbourPassage];
+        h += `</div><details class="pp"><summary>Show the matching passages</summary><div class="pair">
+          <div><h3>This article, passage ${a.index + 1}</h3><blockquote>${marked(a.text, n.sharedTerms)}</blockquote></div>
+          <div><h3>Neighbour, passage ${b.index + 1}</h3><blockquote>${marked(b.text, n.sharedTerms)}</blockquote></div></div></details>`;
+      } else h += '</div>';
+      h += '</li>';
+    });
+    h += '</ol>';
+    if ((p.bridges || []).length) {
+      h += `<p class="kw" style="margin-top:14px"><strong>Elsewhere in AMIRA</strong><br><span class="meta">This article's full text compared with the metadata of other AMIRA records</span></p><ol class="nb">` +
+        p.bridges.map(b => `<li><div class="nbhead"><span class="rank">·</span><a href="https://data.africamultiple.uni-bayreuth.de/s/amira/item/${b.id}" target="_blank" rel="noopener">${esc(b.title || 'Record ' + b.id)}</a><span class="score">${b.score.toFixed(3)}</span></div><div class="why">${esc(b.type)}</div></li>`).join('') + '</ol>';
+    }
+    side.innerHTML = h;
+    side.querySelectorAll('button.go').forEach(b => b.addEventListener('click', () => select(+b.dataset.id)));
+    side.scrollTop = 0;
+    draw();
+  }
+
+  const q = document.getElementById('q'), results = document.getElementById('results');
+  q.addEventListener('input', () => {
+    const s = q.value.trim().toLowerCase();
+    const hits = s.length < 2 ? [] : points.filter(p => p.title.toLowerCase().includes(s) || (p.authors || []).some(a => a.toLowerCase().includes(s))).slice(0, 15);
+    results.innerHTML = hits.map(p => `<li><button type="button" data-id="${p.id}">${esc(p.title)} <span class="meta">(${esc(p.year || 'n.d.')})</span></button></li>`).join('');
+    results.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { select(+b.dataset.id); results.innerHTML = ''; q.value = ''; }));
+  });
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+    mode = b.dataset.mode; highlight = null;
+    document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    legend(); draw();
+  }));
+  document.getElementById('dimFlagged').addEventListener('change', draw);
+
+  document.getElementById('clusterRows').innerHTML = D.clusters.map(c =>
+    `<tr><td><span class="sw" style="display:inline-block;background:${PALETTE[(c.id - 1) % PALETTE.length]}"></span> ${c.id}</td><td class="num">${c.size}</td><td>${esc(c.keywords.join(', '))}</td></tr>`).join('') +
+    `<tr><td>none</td><td class="num">${points.filter(p => !p.cluster).length}</td><td class="empty">Articles HDBSCAN placed in no cluster</td></tr>`;
+
+  legend();
+  new ResizeObserver(resize).observe(canvas);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { legend(); draw(); });
+})();
+</script>
+</body>
+</html>
