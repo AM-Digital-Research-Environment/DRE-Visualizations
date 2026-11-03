@@ -13,6 +13,14 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.45.3] - 2026-11-03
+
+The module is unchanged: this release adds a development tool that is not part of the module archive. No regeneration is needed.
+
+### Added
+
+- An offline prototype that maps the ILAM journal *African Music* by the full text of its articles rather than their metadata, for curators and experts to judge before anything is published (`tools/fulltext/`). It harvests the private full text through the authenticated API, embeds about 8,600 passages with the module's own EmbeddingGemma 2 contract, and writes a public-ready map without any full text plus a private review page and sheet that quote the matching passages. Both pages explain in plain terms how the map was made and what it cannot tell. Nothing it produces is committed or served by the module.
+
 ## [2.45.2] - 2026-11-03
 
 No regeneration is needed: the generated data is unchanged.
