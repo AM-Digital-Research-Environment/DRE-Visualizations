@@ -13,6 +13,14 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.45.2] - 2026-11-03
+
+No regeneration is needed: the generated data is unchanged.
+
+### Fixed
+
+- The timeline of a journal collection (ILAM) shows each issue's cover whole. Its square frame cut off the masthead and the foot of every portrait cover; issue covers now sit in a 7:10 frame, while photo collections keep the square.
+
 ## [2.45.1] - 2026-11-02
 
 Regenerate once after updating, so the projects without records get their map.
