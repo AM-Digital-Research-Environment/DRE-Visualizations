@@ -35,6 +35,7 @@
         embed: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
         check: '<polyline points="20 6 9 17 4 12"/>',
         close: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+        plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
         reset: '<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>',
         // Zoom a chart in / out (a magnifier with plus / minus).
         zoomIn: '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'

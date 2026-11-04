@@ -47,6 +47,10 @@ msgstr ""
 msgid "{type} B"
 msgstr ""
 
+#: config/client-strings.json:contentWordsOption
+msgid "{word}, {count} occurrences"
+msgstr ""
+
 #: view/common/block-layout/photo-browse.phtml:179
 msgid "%1$s issues · %2$s articles"
 msgstr ""
@@ -91,6 +95,14 @@ msgstr ""
 
 #: src/Form/ConfigForm.php:66
 msgid "A token is saved. Leave blank to keep it, or paste a new one to replace it."
+msgstr ""
+
+#: config/client-strings.json:contentWordsAdd
+msgid "Add {word}"
+msgstr ""
+
+#: config/client-strings.json:contentWordsMore
+msgid "Add a word…"
 msgstr ""
 
 #: view/dre-visualizations/admin/maintenance/index.phtml:154
@@ -208,6 +220,10 @@ msgstr ""
 
 #: config/client-strings.json:contentPlacesArticlesDecade
 msgid "Articles of the {decade}s that write about {country}"
+msgstr ""
+
+#: config/client-strings.json:contentPlacesLegend
+msgid "Articles per country"
 msgstr ""
 
 #: config/client-strings.json:contentPlacesArticles
@@ -525,7 +541,10 @@ msgstr ""
 msgid "Counted in the full texts of the {articles} articles on the map, from {first} to {last}. Only words found in at least {min} articles are counted, and the texts themselves stay private: the page receives only the counts. Years with few articles swing widely; the {years}-year average evens them out."
 msgstr ""
 
-#: config/client-strings.json:contentCountryOther
+#: config/client-strings.json:contentWordsOptions
+msgid "Counted words"
+msgstr ""
+
 #: config/client-strings.json:spatialCountryOther
 msgid "countries"
 msgstr ""
@@ -538,7 +557,6 @@ msgstr ""
 msgid "Countries the articles write about"
 msgstr ""
 
-#: config/client-strings.json:contentCountryOne
 #: config/client-strings.json:spatialCountryOne
 msgid "country"
 msgstr ""
@@ -736,6 +754,10 @@ msgstr ""
 msgid "French"
 msgstr ""
 
+#: config/client-strings.json:contentWordsFrequent
+msgid "Frequent words"
+msgstr ""
+
 #: config/client-strings.json:chartLabel.sankey
 msgid "From contributor to project to resource type"
 msgstr ""
@@ -895,7 +917,7 @@ msgid "How many of each decade’s articles fall in each group. The shade shows 
 msgstr ""
 
 #: config/client-strings.json:contentWordsIntro
-msgid "How often words occur in the articles of each year, per 10,000 words. Type up to six words, separated by commas, to compare them."
+msgid "How often words occur in the articles of each year, per 10,000 words. Compare up to six: type a word and press Enter, or add one of the frequent words."
 msgstr ""
 
 #: config/client-strings.json:chartDescription.subjectTrends
@@ -1222,10 +1244,6 @@ msgstr ""
 
 #: config/client-strings.json:contentMapAria
 msgid "Map of the articles by the content of their full text. Articles about similar things appear close to each other."
-msgstr ""
-
-#: config/client-strings.json:contentPlacesAria
-msgid "Map of the countries the articles write about, shaded by the number of articles."
 msgstr ""
 
 #: config/client-strings.json:spatialMapLabel
@@ -1896,6 +1914,10 @@ msgstr ""
 msgid "Relationship"
 msgstr ""
 
+#: config/client-strings.json:contentWordsRemove
+msgid "Remove {word}"
+msgstr ""
+
 #: src/Form/ConfigForm.php:55
 msgid "Required when a basemap URL is configured, but shown only when that style does not already credit its own sources. Most providers (CARTO included) do credit themselves, so this is normally an unused fallback rather than the text on the map."
 msgstr ""
@@ -2091,10 +2113,6 @@ msgstr ""
 msgid "shared subject overlap"
 msgstr ""
 
-#: config/client-strings.json:contentWordsShow
-msgid "Show"
-msgstr ""
-
 #: config/client-strings.json:showAbstract
 msgid "Show abstract"
 msgstr ""
@@ -2153,6 +2171,10 @@ msgstr ""
 
 #: src/Site/BlockRegistry.php:242
 msgid "Similar Items"
+msgstr ""
+
+#: config/client-strings.json:contentWordsFull
+msgid "Six words at most: remove one to add another."
 msgstr ""
 
 #: config/client-strings.json:smallerGroups
@@ -2555,6 +2577,10 @@ msgstr ""
 
 #: config/client-strings.json:degType
 msgid "Type"
+msgstr ""
+
+#: config/client-strings.json:contentWordsType
+msgid "Type a word…"
 msgstr ""
 
 #: config/client-strings.json:undated

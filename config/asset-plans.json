@@ -112,7 +112,7 @@
     },
     "photoBrowse": {
       "stylesheet": true,
-      "publish": ["echarts"],
+      "publish": ["echarts", "maplibre", "maplibreWorker", "maplibreCss"],
       "scripts": ["@core", "js/item-set-content-map.js", "js/item-set-content-extras.js", "js/item-set-photo-views.js"]
     },
     "embedFrame": {

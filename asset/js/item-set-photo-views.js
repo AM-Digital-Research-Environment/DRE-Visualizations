@@ -54,12 +54,11 @@
     /*  Lazy MapLibre loader (shared across every gallery on the page)     */
     /* ------------------------------------------------------------------ */
 
-    // The block template loads dashboard-core.js but, unlike the blocks that go
-    // through the DashboardAssets helper, emits no window.RV_LIBS: it hands the
-    // vendored MapLibre URLs over on the container instead. Merge them in BELOW
-    // any RV_LIBS another block on the page already set, then load through the
-    // shared ns.ensureLibs, so a page carrying this gallery and a map block
-    // imports MapLibre (an ES module, published as window.maplibregl) once.
+    // The photoBrowse plan publishes the vendored MapLibre URLs in
+    // window.RV_LIBS (the Places view loads through it directly); the container
+    // carries them too. Merge those in BELOW any RV_LIBS already set, then load
+    // through the shared ns.ensureLibs, so a page carrying this gallery and a
+    // map block imports MapLibre (an ES module, published as window.maplibregl) once.
     function loadMapLibre(cssUrl, jsUrl, workerUrl) {
         window.RV_LIBS = Object.assign({ maplibre: jsUrl, maplibreWorker: workerUrl, maplibreCss: cssUrl },
             window.RV_LIBS || {});

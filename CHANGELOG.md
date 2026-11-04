@@ -13,6 +13,12 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Changed
+
+- **Words: chips and frequent words instead of a comma-separated field.** Each word to compare is a chip in the field, in the colour of its line, with a button to remove it. Typing offers the counted words that start with the text, most frequent first, with their number of occurrences (arrow keys and Enter, or a click); a comma also adds. Under the field, the collection's sixteen most frequent words add with one click: the export now lists them (`suggested`, function words left out), and the committed ILAM words file carries them. The Show button is gone: the chart follows every change. The averaging switch sits on the label's line, so the field no longer shares a row with controls of other heights.
+- **Places is a MapLibre map like the module's other country maps**, not an ECharts geo chart: the self-hosted basemap with country names, the choropleth's accent ramp and legend, zoom controls and the globe switch. The ECharts map stretched the countries to fill the panel. A decade repaints the map without moving it, and the selected country is outlined. The country-shading helpers (`ns.countryShading`) move from the choropleth chart into the shared core, so the gallery page can use them without the chart bundle, and the gallery's plan publishes MapLibre.
+- The intros of the gallery's By content, Words and Places views run the full width of the view instead of a narrow column.
+
 ## [2.48.0] - 2026-11-04
 
 Update the module to see the changes. No regeneration is needed: the generated data is unchanged.

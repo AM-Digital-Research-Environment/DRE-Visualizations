@@ -246,26 +246,53 @@ test.describe('content map', () => {
     await expect(page.locator('.photo-content-detail').getByRole('link', { name: 'Article 12 on hip hop' })).toBeVisible();
   });
 
-  test('Words charts the default words from the committed counts and names those not counted', async ({ page }) => {
+  test('Words compares chips: frequent words add, the combobox suggests, uncounted words are named', async ({ page }) => {
     await openSurface(page, 'content-map');
     await page.getByRole('tab', { name: 'Words' }).click();
     await page.waitForFunction(() => window.RV._allCharts.length === 3);
-    const lines = await page.evaluate(() => window.RV._allCharts[2].getOption().series.map((s) => s.name));
-    expect(lines).toEqual(['mbira', 'guitar', 'church', 'jazz', 'women']);
-    await page.getByLabel('Words to compare').fill('mbira, zzqq');
-    await page.getByRole('button', { name: 'Show' }).click();
+    const lines = () => page.evaluate(() => window.RV._allCharts[2].getOption().series.map((s) => s.name));
+    expect(await lines()).toEqual(['mbira', 'guitar', 'church', 'jazz', 'women']);
+
+    // A chip removes its line; a frequent word adds one in the colour the removed line freed.
+    const colourOf = (word) => page.evaluate((w) => window.RV._allCharts[2].getOption().series.find((s) => s.name === w).lineStyle.color, word);
+    const jazzColour = await colourOf('jazz');
+    await page.getByRole('button', { name: 'Remove jazz', exact: true }).click();
+    expect(await lines()).toEqual(['mbira', 'guitar', 'church', 'women']);
+    await page.getByRole('button', { name: 'Add music', exact: true }).click();
+    expect(await lines()).toEqual(['mbira', 'guitar', 'church', 'women', 'music']);
+    expect(await colourOf('music')).toBe(jazzColour);
+
+    // The combobox offers counted words that start with the text, most frequent first.
+    const input = page.getByRole('combobox', { name: 'Words to compare' });
+    await input.fill('dru');
+    await expect(page.getByRole('option').first()).toHaveAttribute('data-word', 'drum');
+    await input.press('ArrowDown');
+    await expect(input).toHaveAttribute('aria-activedescendant', /-0$/);
+    await input.press('Enter');
+    expect(await lines()).toEqual(['mbira', 'guitar', 'church', 'women', 'music', 'drum']);
+
+    // Six is the most; a seventh, or a word too rare to be counted, is refused and named.
+    await expect(page.getByRole('button', { name: 'Add dance', exact: true })).toBeDisabled();
+    await input.fill('zzqq');
+    await input.press('Enter');
     await expect(page.locator('.photo-content-words__missing')).toContainText('zzqq');
+    // Backspace in the empty field removes the last chip.
+    await input.press('Backspace');
+    expect(await lines()).toEqual(['mbira', 'guitar', 'church', 'women', 'music']);
   });
 
-  test('Places shades countries by articles, filters by decade and lists a country\'s articles', async ({ page }) => {
+  test('Places shades countries on the shared MapLibre map, filters by decade and lists a country\'s articles', async ({ page }) => {
     await openSurface(page, 'content-map');
     await page.getByRole('tab', { name: 'Places' }).click();
-    await page.waitForFunction(() => window.RV._allCharts.length === 3);
-    const data = await page.evaluate(() => window.RV._allCharts[2].getOption().series[0].data
-      .filter((d) => d.value > 0).map((d) => [d.name, d.value]));
-    expect(data).toEqual([['Ghana', 10], ['Uganda', 10], ['Brazil', 10]]);
+    await page.waitForFunction(() => window.RV._allMaps.length === 1
+      && window.RV._allMaps[0].map.getSource('content-places'));
+    const shaded = () => page.evaluate(async () => (await window.RV._allMaps[0].map.getSource('content-places').getData())
+      .features.filter((f) => f.properties.count > 0).map((f) => [f.properties.ADMIN, f.properties.count]).sort());
+    expect(await shaded()).toEqual([['Brazil', 10], ['Ghana', 10], ['Uganda', 10]]);
+    await expect(page.locator('.photo-content-places .rv-choropleth-legend')).toContainText('Articles per country');
     await page.getByRole('button', { name: '1950s' }).click();
     await expect(page.locator('.photo-content-places .semantic-map-status')).toContainText('3 articles');
+    expect(await shaded()).toEqual([['Brazil', 1], ['Ghana', 1], ['Uganda', 1]]);
     await page.locator('.photo-content-places details.semantic-map-list > summary').click();
     await page.getByRole('button', { name: /^Ghana/ }).click();
     await expect(page.locator('.photo-content-places .photo-content-detail ol > li')).toHaveCount(1);

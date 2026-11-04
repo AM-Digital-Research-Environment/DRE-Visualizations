@@ -2587,9 +2587,8 @@
  * Data: [{ country, count }] — joined against the GeoJSON ADMIN/NAME property
  * (lower-cased), matching the dashboard's ChoroplethMap so the two render the
  * same country set. MapLibre fill layer with a log-spaced step ramp derived
- * from the DRE --primary accent; theme-aware via ns.getBasemapStyle +
- * ns.trackMap (rebuilds on light/dark toggle). The shared countries.geojson is
- * fetched once and cached on the namespace.
+ * from the DRE --primary accent (ns.countryShading, core/maps.js); theme-aware
+ * via ns.getBasemapStyle + ns.trackMap (rebuilds on light/dark toggle).
  *
  * Registers into window.RV.charts for the dashboard orchestrator.
  */
@@ -2601,105 +2600,15 @@
 
     ns.charts = ns.charts || {};
 
-    var NAME_PROPS = ['ADMIN', 'NAME', 'NAME_EN', 'NAME_LONG'];
-
-    /** Fetch + cache the shared countries GeoJSON (promise reused across charts). */
-    function loadCountries() {
-        if (ns._countriesGeoJSON) return ns._countriesGeoJSON;
-        ns._countriesGeoJSON = fetch(ns.moduleAsset('data/geo/countries.geojson'))
-            .then(function (r) {
-                if (!r.ok) throw new Error('countries.geojson ' + r.status);
-                return r.json();
-            });
-        return ns._countriesGeoJSON;
-    }
-
-    /**
-     * Five sequential stops (light tint → accent) + a neutral no-data fill. The
-     * shared ns.accentRamp, a touch lighter at the low end than a visualMap's so
-     * the faintest countries still read against the basemap's land fill.
-     */
-    function buildRamp() {
-        return {
-            stops: ns.accentRamp([0.82, 0.62, 0.42, 0.22, 0]), // toward the surface; 0 = full accent
-            empty: ns._darkMode ? ns.cssColor('--border-light', '#1e2622') : ns.cssColor('--border-light', '#eae8e3')
-        };
-    }
-
-    /** Log-spaced breakpoints (5) matching the ramp stops. */
-    function buildBreaks(maxCount) {
-        var log = Math.log(Math.max(maxCount, 1) + 1);
-        return [0, 1, 2, 3, 4].map(function (i) {
-            return Math.round(Math.exp(log * i / 4) - 1);
-        });
-    }
-
-    /** Build a strictly-ascending MapLibre step expression for fill-color. */
-    function fillExpression(ramp, breaks) {
-        var t = [Math.max(1, breaks[0])];
-        for (var i = 1; i < 5; i++) t[i] = Math.max(breaks[i], t[i - 1] + 1);
-        return [
-            'step', ['get', 'count'],
-            ramp.empty,
-            t[0], ramp.stops[0],
-            t[1], ramp.stops[1],
-            t[2], ramp.stops[2],
-            t[3], ramp.stops[3],
-            t[4], ramp.stops[4]
-        ];
-    }
-
-    /** Walk Polygon / MultiPolygon rings to extend a LngLatBounds. */
-    function extendBounds(bounds, geom) {
-        if (!geom) return;
-        if (geom.type === 'Polygon') {
-            geom.coordinates.forEach(function (ring) {
-                ring.forEach(function (c) { bounds.extend([c[0], c[1]]); });
-            });
-        } else if (geom.type === 'MultiPolygon') {
-            geom.coordinates.forEach(function (poly) {
-                poly.forEach(function (ring) {
-                    ring.forEach(function (c) { bounds.extend([c[0], c[1]]); });
-                });
-            });
-        }
-    }
-
-    /** The first name property a GeoJSON feature carries (its display name). */
-    function featureName(props) {
-        for (var i = 0; i < NAME_PROPS.length; i++) {
-            if (typeof props[NAME_PROPS[i]] === 'string') return props[NAME_PROPS[i]];
-        }
-        return null;
-    }
-
-    /**
-     * The entry of `byName` (lower-cased country name → value) that a feature's
-     * ADMIN / NAME / NAME_EN / NAME_LONG names, or undefined.
-     */
-    function featureMatch(props, byName) {
-        for (var i = 0; i < NAME_PROPS.length; i++) {
-            var v = props[NAME_PROPS[i]];
-            if (typeof v === 'string' && byName[v.toLowerCase()] !== undefined) return byName[v.toLowerCase()];
-        }
-        return undefined;
-    }
-
-    /**
-     * Country shading shared with the other MapLibre charts: the cached
-     * outlines, the accent ramp with its log-spaced breaks and fill expression,
-     * the name join and polygon bounds. The publications map shades the
-     * countries its works appeared in under its city bubbles with these.
-     */
-    ns.countryShading = {
-        load: loadCountries,
-        ramp: buildRamp,
-        breaks: buildBreaks,
-        fill: fillExpression,
-        extendBounds: extendBounds,
-        featureName: featureName,
-        featureMatch: featureMatch
-    };
+    // The outlines, ramp, breaks and name join every country map shares (core/maps.js).
+    var shading = ns.countryShading;
+    var loadCountries = shading.load;
+    var buildRamp = shading.ramp;
+    var buildBreaks = shading.breaks;
+    var fillExpression = shading.fill;
+    var extendBounds = shading.extendBounds;
+    var featureName = shading.featureName;
+    var featureMatch = shading.featureMatch;
 
     ns.charts.buildChoropleth = function (el, data, siteBase) {
         if (!data || !data.length || typeof maplibregl === 'undefined') return null;

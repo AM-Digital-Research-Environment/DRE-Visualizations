@@ -32,6 +32,33 @@ MIN_ARTICLES = 10
 MIN_MENTIONS = 3
 WORD_RE = re.compile(r"[^\W\d_](?:[^\W\d_]|['’-](?=[^\W\d_]))+", re.UNICODE)
 
+# The Words view offers the most frequent words as one-click suggestions. The
+# counts keep every word (someone may well chart "we" against "they"); only the
+# suggestions skip function words, reporting verbs and the scholarly apparatus,
+# English and the French a few articles are written in.
+SUGGESTED = 40
+SUGGEST_STOP = frozenset("""
+a about above after again against all almost along already also although always am among an and another any
+are around as at away back be became because become been before being below best better between both but by
+can cannot could did do does done down during each either else enough etc even ever every few first for found
+from further get given gives go going good got great had has have having he her here hers herself him himself
+his how however i if in instance into is it its itself just know known last least less let like little made
+main make many may me might more most mostly much must my myself near nearly never new next no nor not now
+of off often on once one only or other others our ours out over own part per perhaps quite rather really
+same see seem seen several shall she should show shown since so some something sometimes still such than that
+the their theirs them themselves then there therefore these they this those though three through thus to
+together too took toward towards two under until up upon us use used using usually very was way we well were
+what when where whether which while who whom whose why will with within without would yet you your
+also called certain different example fact four general given important kind kinds number order particular
+place point possible present quite say says said second seems taken take takes thing things think time times
+whole word words work works year years end form forms case cases far high long large small right left
+fig figure figures ibid op cit pp vol page pages note notes ex cf eg ie
+university press book books author authors article articles editor edited chapter journal hand parts
+various name names line lines based following common early members
+au aux avec ce ces dans de des du elle elles en est et il ils la le les leur leurs mais ne nous on ou par
+pas plus pour qu que qui sa se ses son sont sur un une vous été être fait comme cette tout tous même
+""".split())
+
 # country ADMIN name -> the names that point to it, matched case-sensitively as
 # whole words. Ambiguous short forms are resolved in PLACE_OVERRIDES below.
 COUNTRIES: dict[str, list[str]] = {
@@ -147,6 +174,26 @@ def places_in(text: str) -> dict[str, int]:
     return {country: n for country, n in counts.items() if n >= MIN_MENTIONS}
 
 
+def suggested_words(words: dict[str, list[int]]) -> list[str]:
+    """The most frequent words, function words and a second form of one word (song, songs) left out.
+
+    Ranked by occurrences, read from the counts the file already carries, so
+    the list can be rebuilt from a committed words file without the texts.
+    """
+    totals = {word: sum(counts[1::2]) for word, counts in words.items()}
+    ranked = sorted((w for w in totals if len(w) >= 3 and w not in SUGGEST_STOP and "'" not in w and "-" not in w),
+                    key=lambda w: (-totals[w], w))
+    kept: list[str] = []
+    for word in ranked:
+        forms = {word + "s", word[:-1] if word.endswith("s") else word}
+        if forms & set(kept):
+            continue
+        kept.append(word)
+        if len(kept) == SUGGESTED:
+            break
+    return kept
+
+
 def features(work_dir: Path, map_path: Path, words_path: Path) -> int:
     payload = json.loads(map_path.read_text(encoding="utf-8"))
     shown = {row[0] for row in payload["items"]}
@@ -188,6 +235,7 @@ def features(work_dir: Path, map_path: Path, words_path: Path) -> int:
         # word -> flat [yearIndex, count, yearIndex, count, ...] for the years it occurs in
         "words": {word: [v for year, n in sorted(by_word[word].items()) for v in (index[year], n)] for word in kept},
     }
+    words["suggested"] = suggested_words(words["words"])
     words_path.parent.mkdir(parents=True, exist_ok=True)
     words_path.write_text(json.dumps(words, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8", newline="\n")
 

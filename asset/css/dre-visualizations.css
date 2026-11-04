@@ -349,18 +349,33 @@ button.photo-content-search__pick:focus-visible {
     min-height: 16rem;
 }
 
-/* Words: the words to compare, Show, and the averaging switch on one line. */
-.photo-content-words__form {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    gap: var(--rv-space-3);
+/* The photo views' intros run the full width of the stage, as wide as the
+   map or chart under them: the narrow measure left half the row empty. */
+.photo-view .semantic-map-intro {
+    max-width: none;
+}
+
+/* Words: the words to compare are chips in one field, each in its line's
+   colour; the averaging switch shares the label's line, and the collection's
+   frequent words sit under the field. */
+.photo-content-words__picker {
+    position: relative;
     margin-bottom: var(--rv-space-3);
 }
 
-.photo-content-words__form .semantic-map-search__label {
-    flex: 1 1 18rem;
-    min-width: 0;
+.photo-content-words__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--rv-space-1) var(--rv-space-4);
+    margin-bottom: var(--rv-space-2);
+}
+
+.photo-content-words__label {
+    color: var(--rv-text-strong);
+    font-size: var(--rv-text-xs);
+    font-weight: 700;
 }
 
 .photo-content-words__smooth {
@@ -369,16 +384,252 @@ button.photo-content-search__pick:focus-visible {
     gap: var(--rv-space-2);
     color: var(--rv-text-color);
     font-size: var(--rv-text-sm);
+    cursor: pointer;
+}
+
+.photo-content-words__smooth input {
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
+    accent-color: var(--rv-accent);
+}
+
+.photo-content-words__field {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--rv-space-2);
+    min-height: var(--rv-control-lg);
+    padding: var(--rv-space-1) var(--rv-space-2);
+    border: 1px solid var(--rv-field-border);
+    border-radius: var(--rv-radius-md);
+    background: var(--rv-bg);
+    cursor: text;
+}
+
+.photo-content-words__field:focus-within {
+    border-color: var(--rv-accent);
+    box-shadow: var(--rv-focus-ring);
+}
+
+.photo-content-words__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--rv-space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.photo-content-words__chips:empty {
+    display: none;
+}
+
+.photo-content-words__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--rv-space-2);
+    height: 2rem;
+    padding: 0 var(--rv-space-1) 0 var(--rv-space-3);
+    border: 1px solid var(--rv-border);
+    border-radius: var(--rv-radius-full);
+    background: var(--rv-bg-sunken);
+    color: var(--rv-text-strong);
+    font-size: var(--rv-text-sm);
+    font-weight: 650;
+    line-height: 1;
+    cursor: default;
+}
+
+/* A short stroke in the line's colour: the chip is the line's legend entry. */
+.photo-content-words__swatch {
+    flex: none;
+    width: 0.875rem;
+    height: 3px;
+    border-radius: var(--rv-radius-full);
+}
+
+button.photo-content-words__remove {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 1.5rem;
+    min-width: 0;
+    height: 1.5rem;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--rv-radius-full);
+    background: transparent;
+    box-shadow: none;
+    color: var(--rv-text-color);
+    cursor: pointer;
+    transition: background var(--rv-transition-fast), color var(--rv-transition-fast);
+}
+
+button.photo-content-words__remove:hover {
+    background: var(--rv-border);
+    color: var(--rv-text-strong);
+}
+
+button.photo-content-words__remove:focus-visible {
+    outline: 2px solid transparent;
+    box-shadow: var(--rv-focus-ring);
+}
+
+.photo-content-words__field input.photo-content-words__input {
+    flex: 1 1 10rem;
+    width: auto;
+    min-width: 8rem;
+    height: 2rem;
+    min-height: 0;
+    margin: 0;
+    padding: 0 var(--rv-space-1);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--rv-text-strong);
+    font: inherit;
+    font-size: var(--rv-text-sm);
+    outline: none;
+}
+
+.photo-content-words__field input.photo-content-words__input::placeholder {
+    color: var(--rv-text-color);
+    opacity: 1;
+}
+
+/* The field draws the focus ring (:focus-within); the bare input would draw a second one. */
+.photo-content-words__field input.photo-content-words__input:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.photo-content-words__options {
+    position: absolute;
+    z-index: var(--rv-z-dropdown);
+    width: min(100%, 22rem);
+    margin: var(--rv-space-1) 0 0;
+    padding: var(--rv-space-1);
+    border: 1px solid var(--rv-border);
+    border-radius: var(--rv-radius-md);
+    background: var(--rv-bg-raised);
+    box-shadow: var(--rv-shadow);
+    list-style: none;
+}
+
+.photo-content-words__options[hidden] {
+    display: none;
+}
+
+.photo-content-words__option {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--rv-space-4);
+    padding: var(--rv-space-2) var(--rv-space-3);
+    border-radius: var(--rv-radius-sm);
+    color: var(--rv-text-strong);
+    font-size: var(--rv-text-sm);
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.photo-content-words__option:hover,
+.photo-content-words__option.is-active {
+    background: var(--rv-bg-sunken);
+}
+
+.photo-content-words__option-count {
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-xs);
+    font-variant-numeric: tabular-nums;
+    font-weight: 400;
+}
+
+.photo-content-words__suggest {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--rv-space-2) var(--rv-space-3);
+    margin: 0 0 var(--rv-space-5);
+}
+
+.photo-content-words__suggest[hidden] {
+    display: none;
+}
+
+.photo-content-words__suggest-label {
+    color: var(--rv-text-strong);
+    font-size: var(--rv-text-xs);
+    font-weight: 700;
+}
+
+.photo-content-words__suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--rv-space-2);
+}
+
+button.photo-content-words__suggestion {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--rv-space-1);
+    height: 1.75rem;
+    min-height: 0;
+    margin: 0;
+    padding: 0 var(--rv-space-3) 0 var(--rv-space-2);
+    border: 1px solid var(--rv-border);
+    border-radius: var(--rv-radius-full);
+    background: var(--rv-bg);
+    box-shadow: none;
+    color: var(--rv-text-strong);
+    font: inherit;
+    font-size: var(--rv-text-xs);
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: background var(--rv-transition-fast), border-color var(--rv-transition-fast), color var(--rv-transition-fast);
+}
+
+button.photo-content-words__suggestion svg {
+    color: var(--rv-accent);
+}
+
+button.photo-content-words__suggestion:hover:not(:disabled) {
+    border-color: var(--rv-accent);
+    background: var(--rv-bg-raised);
+    color: var(--rv-accent);
+}
+
+button.photo-content-words__suggestion:focus-visible {
+    outline: 2px solid transparent;
+    box-shadow: var(--rv-focus-ring);
+}
+
+button.photo-content-words__suggestion:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .photo-content-words__missing {
-    margin: 0 0 var(--rv-space-3);
+    margin: var(--rv-space-2) 0 0;
     color: var(--rv-text-color);
     font-size: var(--rv-text-sm);
 }
 
 .photo-content-words__missing:empty {
     display: none;
+}
+
+/* Places: a MapLibre country map, as tall as the content map. */
+.chart-container.photo-content-places-map {
+    height: 34rem;
+    min-height: 24rem;
+    padding: 0;
+    overflow: hidden;
 }
 
 .chart-container.photo-content-words-chart {
@@ -545,6 +796,11 @@ button.photo-content-search__pick:focus-visible {
     .chart-container.semantic-map-chart {
         height: 29rem;
         min-height: 24rem;
+    }
+
+    .chart-container.photo-content-places-map {
+        height: 26rem;
+        min-height: 20rem;
     }
 
     .semantic-similar-link {
