@@ -40,7 +40,8 @@ const SUMMARIZE = {
   'src/Site/ResourcePageBlockLayout/': 'item and item-set page blocks',
   'tests/': 'PHP harnesses, the Omeka-core and golden suites, node and Playwright tests',
   'tools/embeddings/': 'the Build semantic embeddings Action (EmbeddingGemma 2)',
-  'tools/fulltext/': 'offline full-text semantic map prototype for the ILAM journal (not shipped)',
+  'tools/fulltext/': 'full-text map of the ILAM journal: offline build and public export (not shipped)',
+  'config/fulltext-maps/': 'Full-text maps by collection slug, exported by tools/fulltext (ids and coordinates only)',
   'view/common/block-layout/': 'one template per site-page block, plus the shared partials',
   'view/common/resource-page-block-layout/': 'one template per resource-page block',
 };
@@ -48,6 +49,7 @@ const SUMMARIZE = {
 /** Paths whose reasoning a bare listing cannot carry. */
 const ANNOTATIONS = {
   'Module.php': 'Wiring only: lifecycle hooks, configuration, ACL, listeners',
+  'src/FeaturedCollections/ContentMap.php': "A collection's committed full-text map, restricted to the public gallery",
   'config/module.ini': 'Module metadata; the version drives the asset ?v= cache-bust',
   'config/module.config.php': 'Block layouts, routes, controllers, helpers',
   'config/amira-profile.json': 'Templates, item sets and authorities the precompute reads',
@@ -134,6 +136,7 @@ const ANNOTATIONS = {
   'asset/js/graph-chrome.js': 'Reusable: graph toolbar, legend, fullscreen',
   'asset/js/graph-force.js': 'Reusable: d3-force simulation + pointer/keyboard interaction',
   'asset/js/item-location-map.js': 'MapLibre origin / current-location panel',
+  'asset/js/item-set-content-map.js': 'Photo Browsing: the "By content" full-text map',
   'asset/js/item-set-photo-views.js': 'Photo Browsing: masonry / map / timeline + lightbox',
   'asset/js/knowledge-graph-data.js': 'Protected payload load + IDF filters (pure data)',
   'asset/js/knowledge-graph-ui.js': 'Toolbar, filter panel, legend, text alternative',

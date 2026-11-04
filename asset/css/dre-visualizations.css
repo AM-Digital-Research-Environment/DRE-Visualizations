@@ -291,6 +291,74 @@ button.semantic-map-mode__button:focus-visible {
     font-size: var(--rv-text-sm);
 }
 
+/* The full-text map's search selects an article on the map instead of opening
+   it, so its results are buttons, dressed as the semantic map's result links. */
+button.photo-content-search__pick {
+    min-height: 0;
+    margin: 0;
+    padding: var(--rv-space-2) var(--rv-space-3);
+    border: 0;
+    border-radius: var(--rv-radius-sm);
+    background: none;
+    color: var(--rv-text-strong);
+    font: inherit;
+    font-size: var(--rv-text-sm);
+    font-weight: 650;
+    text-align: left;
+    cursor: pointer;
+}
+
+.semantic-map-search__result:has(button:hover),
+.semantic-map-search__result:has(button:focus-visible) {
+    background: var(--rv-bg-sunken);
+}
+
+button.photo-content-search__pick:focus-visible {
+    outline: 2px solid transparent;
+    box-shadow: var(--rv-focus-ring);
+}
+
+/* The selected article and its closest articles by full text. */
+.photo-content-detail {
+    margin-top: var(--rv-space-4);
+}
+
+.photo-content-detail__hint {
+    margin: 0;
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-sm);
+}
+
+.photo-content-detail__heading {
+    margin: 0 0 var(--rv-space-2);
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.photo-content-detail__source {
+    margin: 0 0 var(--rv-space-3);
+    font-size: var(--rv-text-base);
+    font-weight: 650;
+}
+
+.photo-content-detail__list {
+    display: grid;
+    gap: var(--rv-space-2);
+    margin: 0;
+    padding-left: var(--rv-space-5);
+    font-size: var(--rv-text-sm);
+}
+
+.photo-content-detail__meta {
+    display: block;
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-2xs);
+    font-weight: 400;
+}
+
 .semantic-map-panel {
     min-width: 0;
 }

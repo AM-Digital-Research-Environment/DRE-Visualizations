@@ -69,6 +69,35 @@ function dashboardBlock(itemId, extra = {}) {
 }
 
 /**
+ * photo-browse.phtml for an issue-grouped collection with a full-text map
+ * (FeaturedCollections\ContentMap), opened on its "By content" view: the
+ * gallery payload and the map payload the template inlines.
+ */
+function contentMapBlock() {
+  const photos = Array.from({ length: 30 }, (_, i) => ({
+    id: i + 1, title: `Article ${i + 1} on ${['xylophones', 'church music', 'hip hop'][i % 3]}`,
+    url: `/s/test/item/${i + 1}`, thumb: '', full: '', year: 1955 + i * 2, date: null, place: null,
+    lat: null, lon: null, volume: 1 + Math.floor(i / 6), issue: 1 + (i % 4), pages: null,
+  }));
+  const content = {
+    items: photos.map((photo, i) => [photo.id, (i % 3) + Math.cos(i) * 0.3, Math.floor(i / 3) % 4 + Math.sin(i) * 0.3, i % 7 === 0 ? 0 : (i % 3) + 1]),
+    neighbours: Object.fromEntries(photos.map((photo, i) => [String(photo.id),
+      [1, 2, 3, 4, 5].map((step) => ((i + step * 3) % 30) + 1)])),
+    groups: 3,
+    excluded: { sharedText: 4, furniture: 6, short: 2 },
+  };
+  const views = ['masonry', 'timeline', 'similarity'];
+  const labels = { masonry: 'Grid', timeline: 'Timeline', similarity: 'By content' };
+  const buttons = views.map((view) => `<button type="button" role="tab" class="photo-view-btn${view === 'similarity' ? ' is-active' : ''}" data-view="${view}" aria-selected="${view === 'similarity'}">${labels[view]}</button>`).join('');
+  return `<div class="resource-vis-block photo-browse-block"><div class="photo-browse-container" data-default-view="similarity" data-grouping="issue">`
+    + `<div class="photo-browse-toolbar"><div class="photo-view-toggle" role="tablist" aria-label="View as">${buttons}</div>`
+    + `<span class="photo-browse-count">8 issues · 30 articles</span></div>`
+    + surface('photo-browse-stage')
+    + `<script type="application/json" class="photo-data">${inertJson(photos)}</script>`
+    + `<script type="application/json" class="photo-content-map">${inertJson(content)}</script></div></div>`;
+}
+
+/**
  * name → { plan, body, data }. `data` says which generated data the suite
  * serves: 'synthetic' (small hand-made answers in lifecycle.spec.mjs) or
  * 'golden' (tests/golden/, the precompute's output on the synthetic corpus).
@@ -118,6 +147,11 @@ const PAGES = {
     plan: 'entityGraph',
     data: 'golden',
     body: `<div class="resource-vis-block communities-block">${surface('dre-entity-graph', { 'embed-slug': 'discursive-communities', fullscreen: 'own' })}</div>`,
+  },
+  'content-map': {
+    plan: 'photoBrowse',
+    data: 'synthetic',
+    body: contentMapBlock(),
   },
   'spatial-exploration': {
     plan: 'spatial',

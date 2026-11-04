@@ -206,6 +206,35 @@ test.describe('lifecycle', () => {
   });
 });
 
+test.describe('content map', () => {
+  test('a title search selects an article, rings its closest articles and lists them as links', async ({ page }) => {
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await openSurface(page, 'content-map');
+    await page.waitForFunction(() => window.RV._allCharts.length === 1);
+    await expect(page.locator('.photo-content-detail__hint')).toBeVisible();
+
+    await page.getByLabel('Find an article on the map').fill('article 7 ');
+    await page.getByRole('button', { name: 'Article 7 on xylophones' }).click();
+    const detail = page.locator('.photo-content-detail');
+    await expect(detail.getByRole('link', { name: 'Article 7 on xylophones' })).toHaveAttribute('href', '/s/test/item/7');
+    await expect(detail.locator('ol > li')).toHaveCount(5);
+    await expect(detail.locator('ol > li').first().getByRole('link')).toHaveAttribute('href', '/s/test/item/10');
+    const overlay = await page.evaluate(() => {
+      const option = window.RV._allCharts[0].getOption();
+      const series = (id) => option.series.find((s) => s.id === id).data.length;
+      return [series('rv-content-selected'), series('rv-content-neighbours')];
+    });
+    expect(overlay).toEqual([1, 5]);
+
+    // Colouring by decade keeps the selection.
+    await page.getByRole('button', { name: 'Decade' }).click();
+    await expect(page.getByRole('button', { name: 'Decade' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(detail.locator('ol > li')).toHaveCount(5);
+    expect(errors).toEqual([]);
+  });
+});
+
 test.describe('every block boots', () => {
   for (const name of FIXTURES.filter((fixture) => FIXTURE_DATA[fixture] === 'golden')) {
     test(`${name}: renders golden data with no page or console error`, async ({ page }) => {

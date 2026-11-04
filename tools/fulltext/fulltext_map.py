@@ -9,6 +9,7 @@ averages each article's passages into one re-normalised vector in that space.
 
     python fulltext_map.py embed   --work-dir <private dir>
     python fulltext_map.py analyse --work-dir <private dir>
+    python fulltext_map.py export  --work-dir <private dir> --out ../../config/fulltext-maps/<collection>.json
 
 `analyse` lays the articles out with UMAP, clusters them with HDBSCAN, labels
 clusters with c-TF-IDF keywords and lists ten neighbours per article, each
@@ -273,7 +274,7 @@ def embed(work_dir: Path, batch: int, engine: str, threads: int, shard: int, sha
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("stage", choices=("embed", "analyse"))
+    parser.add_argument("stage", choices=("embed", "analyse", "export"))
     parser.add_argument("--work-dir", required=True, type=Path)
     parser.add_argument("--batch", type=int, default=1)
     parser.add_argument("--engine", choices=("reference", "onnx"), default="reference",
@@ -282,9 +283,17 @@ def main() -> int:
     parser.add_argument("--shard", type=int, default=0)
     parser.add_argument("--shards", type=int, default=1)
     parser.add_argument("--amira-dir", type=Path, help="a downloaded semantic-embeddings + semantic-inputs release, for the comparison with metadata cards")
+    parser.add_argument("--out", type=Path, help="export: the module's public map file (config/fulltext-maps/<collection>.json)")
+    parser.add_argument("--item-set", type=int, default=27724, help="export: the collection's item set")
     args = parser.parse_args()
     if args.stage == "embed":
         return embed(args.work_dir, args.batch, args.engine, args.threads, args.shard, args.shards)
+    if args.stage == "export":
+        if args.out is None:
+            parser.error("export needs --out")
+        from fulltext_export import export
+
+        return export(args.work_dir, args.out, args.item_set)
     from fulltext_analyse import analyse
 
     return analyse(args.work_dir, args.amira_dir)

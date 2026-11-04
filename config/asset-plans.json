@@ -112,7 +112,8 @@
     },
     "photoBrowse": {
       "stylesheet": true,
-      "scripts": ["@core", "js/item-set-photo-views.js"]
+      "publish": ["echarts"],
+      "scripts": ["@core", "js/item-set-content-map.js", "js/item-set-photo-views.js"]
     },
     "embedFrame": {
       "scripts": ["js/embed-height.js"]

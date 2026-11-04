@@ -15,6 +15,8 @@
  *   - `data-grouping="issue"`: tiles become journal issues (Vol. N No. M), and
  *     clicking opens a table-of-contents modal listing the issue's articles.
  *   - map: clustered MapLibre, lazy-loaded the first time the Map tab is opened.
+ *   - similarity ("By content"): the collection's full-text map, when the block
+ *     renders one (script.photo-content-map), drawn by item-set-content-map.js.
  *
  * THEMING — follows the DRE theme via the --rv-* tokens (masonry/timeline/TOC are
  * pure DOM) and ns.cssColor / ns.trackMap (the map).
@@ -94,8 +96,9 @@
         var lightbox = makeLightbox(container, photos);
         var toc = grouping === 'issue' ? makeTocModal(container) : null;
         var views = {};   // name -> { el, built }
+        var contentEl = container.querySelector('script.photo-content-map');
 
-        ['masonry', 'map', 'timeline'].forEach(function (name) {
+        ['masonry', 'map', 'timeline', 'similarity'].forEach(function (name) {
             views[name] = { el: null, built: false };
         });
 
@@ -112,6 +115,8 @@
             if (!views[name].built) {
                 if (name === 'map') {
                     buildMap(views[name], photos, lightbox, mlCss, mlJs, mlWorker, stage);
+                } else if (name === 'similarity') {
+                    buildContent(views[name], photos, contentEl, stage);
                 } else if (name === 'timeline') {
                     views[name].el = buildTimeline(photos, lightbox, grouping, toc);
                     views[name].built = true;
@@ -132,6 +137,9 @@
             if (name === 'map' && views.map._map) {
                 requestAnimationFrame(function () { try { views.map._map.resize(); } catch (e) {} });
             }
+            if (name === 'similarity' && views.similarity._chart) {
+                requestAnimationFrame(function () { try { views.similarity._chart.resize(); } catch (e) {} });
+            }
         }
 
         buttons.forEach(function (b) {
@@ -140,6 +148,25 @@
 
         showView(defaultView);
         state.ready();
+    }
+
+    /** The "By content" view, or an error in its place when its payload or script is missing. */
+    function buildContent(slot, photos, dataEl, stage) {
+        var data = null;
+        try {
+            data = dataEl ? JSON.parse(dataEl.textContent || 'null') : null;
+        } catch (e) {
+            console.error('DreVisualizations content map:', e);
+        }
+        if (data && typeof ns.buildContentMap === 'function') {
+            ns.buildContentMap(slot, photos, data, stage);
+            return;
+        }
+        var view = document.createElement('div');
+        view.className = 'photo-view';
+        view.appendChild(ns.errorNotice(ns.t('visualizationLoadError', 'The visualisation could not be loaded.')));
+        slot.el = view;
+        slot.built = true;
     }
 
     function clearLoading(stage) {

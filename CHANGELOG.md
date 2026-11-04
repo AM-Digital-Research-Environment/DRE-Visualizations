@@ -13,6 +13,10 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Added
+
+- The ILAM journal page can be explored by what its articles say. Its gallery gains a third view, **By content**, beside Grid and Timeline: each of 657 articles is a dot placed by the words of its full text, so articles on the same subject sit together whatever their decade, coloured by group of similar articles or by decade. Selecting an article, by clicking its dot or finding it by title, rings its closest articles on the map and lists them under it as links; for "The structure of Kiganda xylophone music" (1960) they run from 1962 to 2012. The items that only carry their section's text (88), journal notices and lists such as contributors and books received (196) and very short texts (47) are left out. The full text stays private: the map is built offline and the module ships only ids, positions and neighbours (`config/fulltext-maps/`), shown for the records of the public gallery. It appears once the module is updated; no regeneration is needed.
+
 ## [2.45.3] - 2026-11-03
 
 The module is unchanged: this release adds a development tool that is not part of the module archive. No regeneration is needed.

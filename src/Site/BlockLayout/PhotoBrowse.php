@@ -8,6 +8,7 @@ use Omeka\Api\Representation\SitePageBlockRepresentation;
 use Omeka\Api\Representation\SitePageRepresentation;
 use Omeka\Api\Representation\SiteRepresentation;
 use DreVisualizations\Site\BlockRegistry;
+use DreVisualizations\FeaturedCollections\ContentMap;
 use DreVisualizations\FeaturedCollections\Registry;
 use DreVisualizations\Precompute\PublishedSnapshot;
 
@@ -157,6 +158,9 @@ class PhotoBrowse extends AbstractDreBlockLayout
             'grouping'        => $grouping,
             'partner'         => $partner,
             'allowedViews'    => $allowedViews,
+            // The "By content" view: a committed full-text map, when the
+            // collection has one (FeaturedCollections\ContentMap).
+            'contentMap'      => $entry ? ContentMap::load($entry['slug']) : null,
         ] + BlockRegistry::viewVars(self::SLUG));
     }
 

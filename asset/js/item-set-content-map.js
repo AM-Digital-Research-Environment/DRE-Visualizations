@@ -1,0 +1,380 @@
+/**
+ * Photo Browsing "By content" view: a collection's articles placed by the words
+ * of their full text, not their metadata (FeaturedCollections\ContentMap, built
+ * offline from the private texts; the payload carries ids, coordinates, group
+ * numbers and each article's closest articles, nothing quoted from the texts).
+ *
+ * Coloured by group of similar articles or by decade. Selecting an article (a
+ * click on its dot, or a title search) rings its closest articles on the map
+ * and lists them under it, so the links between decades the map is for can be
+ * followed with a keyboard as well. ECharts is lazy-loaded through
+ * ns.ensureLibs; item-set-photo-views.js calls ns.buildContentMap the first
+ * time the view opens.
+ */
+(function () {
+    'use strict';
+
+    var ns = window.RV = window.RV || {};
+
+    function node(tag, className, text) {
+        var el = document.createElement(tag);
+        if (className) el.className = className;
+        if (text !== undefined) el.textContent = text;
+        return el;
+    }
+
+    function decadeOf(year) {
+        var y = Number(year);
+        return Number.isFinite(y) && y > 0 ? Math.floor(y / 10) * 10 : null;
+    }
+
+    /** "1971 · Vol. 5 No. 1": the article's place in the journal. */
+    function metaLine(photo) {
+        var parts = [];
+        if (photo.year != null) parts.push(String(photo.year));
+        if (photo.volume != null && photo.issue != null) {
+            parts.push(ns.fill(ns.t('issueCaption', 'Vol. {volume} No. {issue}'), { volume: photo.volume, issue: photo.issue }));
+        }
+        return parts.join(' · ');
+    }
+
+    /** One legend entry per group (or decade), "Not in a group" / "Undated" last in a muted grey. */
+    function categories(points, mode) {
+        var keys = {};
+        points.forEach(function (point) {
+            var key = mode === 'decade' ? decadeOf(point.photo.year) : (point.group || null);
+            keys[key === null ? '' : String(key)] = true;
+        });
+        return Object.keys(keys).sort(function (a, b) {
+            if (a === '') return 1;
+            if (b === '') return -1;
+            return Number(a) - Number(b);
+        }).map(function (key, index) {
+            var name;
+            if (key === '') {
+                name = mode === 'decade' ? ns.t('undated', 'Undated') : ns.t('contentUngrouped', 'Not in a group');
+            } else {
+                name = mode === 'decade'
+                    ? ns.fill(ns.t('contentDecade', '{decade}s'), { decade: key })
+                    : ns.t('contentGroup', 'Group') + ' ' + key;
+            }
+            return {
+                key: key,
+                name: name,
+                color: key === '' ? ns.THEME.muted : ns.COLORS[index % ns.COLORS.length]
+            };
+        });
+    }
+
+    function keyOf(point, mode) {
+        var key = mode === 'decade' ? decadeOf(point.photo.year) : (point.group || null);
+        return key === null ? '' : String(key);
+    }
+
+    function option(points, mode, selection) {
+        var series = categories(points, mode).map(function (category) {
+            return {
+                name: category.name,
+                type: 'scatter',
+                symbolSize: 9,
+                itemStyle: { color: category.color, opacity: category.key === '' ? 0.45 : 0.8 },
+                emphasis: { focus: 'series', scale: 1.5 },
+                data: points.filter(function (point) { return keyOf(point, mode) === category.key; })
+                    .map(function (point) { return { value: [point.x, point.y], id: point.id }; })
+            };
+        });
+        // The selected article and its closest articles, drawn over the groups.
+        // Not in the legend: they are a selection, not a category.
+        series.push({
+            id: 'rv-content-neighbours',
+            type: 'scatter',
+            symbol: 'emptyCircle',
+            symbolSize: 16,
+            silent: true,
+            z: 3,
+            itemStyle: { color: ns.THEME.heading, borderWidth: 2 },
+            data: selection ? selection.neighbours.map(function (point) { return { value: [point.x, point.y], id: point.id }; }) : []
+        }, {
+            id: 'rv-content-selected',
+            type: 'scatter',
+            symbol: 'diamond',
+            symbolSize: 18,
+            silent: true,
+            z: 4,
+            itemStyle: { color: ns.THEME.accent, borderColor: ns.THEME.surface, borderWidth: 2 },
+            data: selection ? [{ value: [selection.point.x, selection.point.y], id: selection.point.id }] : []
+        });
+        return {
+            animation: !ns.prefersReducedMotion(),
+            animationDuration: 450,
+            tooltip: {
+                trigger: 'item',
+                confine: true,
+                formatter: function (params) {
+                    var point = points.byId[params.data && params.data.id];
+                    if (!point) return '';
+                    return '<strong>' + echarts.format.encodeHTML(point.photo.title || '') + '</strong><br>'
+                        + echarts.format.encodeHTML(metaLine(point.photo));
+                }
+            },
+            // The container carries its own description; ECharts' generated
+            // label would enumerate every point.
+            aria: { enabled: false },
+            legend: {
+                type: 'scroll',
+                bottom: 0,
+                left: 'center',
+                data: series.filter(function (s) { return !s.id; }).map(function (s) { return s.name; }),
+                textStyle: { color: ns.THEME.text, fontFamily: ns.THEME.fontFamily }
+            },
+            grid: { left: 18, right: 18, top: 18, bottom: 72 },
+            xAxis: { type: 'value', show: false, scale: true },
+            yAxis: { type: 'value', show: false, scale: true },
+            dataZoom: [
+                { type: 'inside', xAxisIndex: 0, filterMode: 'none', zoomOnMouseWheel: 'ctrl', moveOnMouseMove: true },
+                { type: 'inside', yAxisIndex: 0, filterMode: 'none', zoomOnMouseWheel: 'ctrl', moveOnMouseMove: true }
+            ],
+            series: series
+        };
+    }
+
+    function articleLink(photo) {
+        var link = node('a', '', photo.title || ns.t('untitled', 'Untitled'));
+        link.href = photo.url;
+        return link;
+    }
+
+    /** The selected article and its closest articles by content, as links. */
+    function renderDetail(detail, selection) {
+        if (!selection) {
+            ns.setChildren(detail, [node('p', 'photo-content-detail__hint',
+                ns.t('contentSelectHint', 'Select an article on the map, or find it by its title, to list the articles closest to it in content.'))]);
+            return;
+        }
+        var heading = node('h4', 'photo-content-detail__heading', ns.t('contentClosestTo', 'Closest in content to'));
+        var source = node('p', 'photo-content-detail__source');
+        source.appendChild(articleLink(selection.point.photo));
+        var sourceMeta = metaLine(selection.point.photo);
+        if (sourceMeta) source.appendChild(node('span', 'photo-content-detail__meta', sourceMeta));
+        var list = node('ol', 'photo-content-detail__list');
+        selection.neighbours.forEach(function (point) {
+            var li = node('li', '');
+            li.appendChild(articleLink(point.photo));
+            var meta = metaLine(point.photo);
+            if (meta) li.appendChild(node('span', 'photo-content-detail__meta', meta));
+            list.appendChild(li);
+        });
+        ns.setChildren(detail, selection.neighbours.length
+            ? [heading, source, list]
+            : [heading, source, node('p', 'photo-content-detail__hint', ns.t('contentNoNeighbours', 'No other article on the map is close to this one.'))]);
+    }
+
+    function searchControl(points, onSelect) {
+        var wrap = node('div', 'semantic-map-search');
+        var label = node('label', 'semantic-map-search__label', ns.t('contentSearch', 'Find an article on the map'));
+        var input = node('input', 'semantic-map-search__input');
+        input.type = 'search';
+        input.placeholder = ns.t('semanticSearchPlaceholder', 'Search by title…');
+        input.autocomplete = 'off';
+        label.appendChild(input);
+        wrap.appendChild(label);
+        var results = node('ul', 'semantic-map-search__results');
+        results.hidden = true;
+        wrap.appendChild(results);
+
+        input.addEventListener('input', function () {
+            var query = ns.fold(input.value.trim());
+            ns.setChildren(results);
+            if (query.length < 2) {
+                results.hidden = true;
+                return;
+            }
+            var matches = points.filter(function (point) {
+                return ns.fold(point.photo.title || '').indexOf(query) !== -1;
+            }).slice(0, 8);
+            if (!matches.length) {
+                results.appendChild(node('li', 'semantic-map-search__empty', ns.t('contentNoSearchResults', 'No article on the map matches that search.')));
+            } else {
+                matches.forEach(function (point) {
+                    var li = node('li', 'semantic-map-search__result');
+                    var button = node('button', 'photo-content-search__pick', point.photo.title || ns.t('untitled', 'Untitled'));
+                    button.type = 'button';
+                    button.addEventListener('click', function () {
+                        results.hidden = true;
+                        input.value = '';
+                        onSelect(point);
+                    });
+                    li.appendChild(button);
+                    var meta = metaLine(point.photo);
+                    if (meta) li.appendChild(node('span', 'semantic-map-search__type', meta));
+                    results.appendChild(li);
+                });
+            }
+            results.hidden = false;
+        });
+        return wrap;
+    }
+
+    function modeControl(initial, onChange) {
+        var group = node('div', 'semantic-map-mode');
+        group.setAttribute('role', 'group');
+        group.setAttribute('aria-label', ns.t('semanticColorBy', 'Colour by'));
+        [['group', ns.t('contentByGroup', 'Group of similar articles')], ['decade', ns.t('contentByDecade', 'Decade')]]
+            .forEach(function (config) {
+                var button = node('button', 'semantic-map-mode__button', config[1]);
+                button.type = 'button';
+                var on = config[0] === initial;
+                button.setAttribute('aria-pressed', on ? 'true' : 'false');
+                if (on) button.classList.add('is-active');
+                button.addEventListener('click', function () {
+                    group.querySelectorAll('button').forEach(function (candidate) {
+                        candidate.classList.remove('is-active');
+                        candidate.setAttribute('aria-pressed', 'false');
+                    });
+                    button.classList.add('is-active');
+                    button.setAttribute('aria-pressed', 'true');
+                    onChange(config[0]);
+                });
+                group.appendChild(button);
+            });
+        return group;
+    }
+
+    /** The map's text alternative: every article on it, by group, as links. */
+    function recordList(points) {
+        var details = node('details', 'rv-data-table semantic-map-list');
+        var summary = node('summary', 'rv-data-table-toggle', ns.t('contentRecordList', 'List of the articles on the map, by group'));
+        details.appendChild(summary);
+        details.addEventListener('toggle', function () {
+            if (!details.open || details.querySelector('.rv-data-table-scroll')) return;
+            var wrap = node('div', 'rv-data-table-scroll');
+            wrap.tabIndex = 0;
+            wrap.setAttribute('role', 'region');
+            wrap.setAttribute('aria-label', summary.textContent);
+            categories(points, 'group').forEach(function (category) {
+                var members = points.filter(function (point) { return keyOf(point, 'group') === category.key; });
+                wrap.appendChild(node('h4', 'semantic-map-list__type', category.name + ' (' + ns.formatNumber(members.length) + ')'));
+                var list = node('ul', 'semantic-map-list__items');
+                members.slice().sort(function (a, b) {
+                    return String(a.photo.title || '').localeCompare(String(b.photo.title || ''), ns.locale);
+                }).forEach(function (point) {
+                    var li = node('li', '');
+                    li.appendChild(articleLink(point.photo));
+                    list.appendChild(li);
+                });
+                wrap.appendChild(list);
+            });
+            details.appendChild(wrap);
+        });
+        return details;
+    }
+
+    /**
+     * Build the view into `slot` ({el, built}) and append it to the stage.
+     * `photos` is the gallery payload (the public records); `data` the
+     * ContentMap payload, already restricted to them.
+     */
+    ns.buildContentMap = function (slot, photos, data, stage) {
+        var view = node('div', 'photo-view photo-content-map');
+        slot.el = view;
+        slot.built = true;
+        stage.appendChild(view);
+
+        var byId = {};
+        photos.forEach(function (photo) { byId[photo.id] = photo; });
+        var points = [];
+        points.byId = {};
+        (data.items || []).forEach(function (row) {
+            var photo = byId[row[0]];
+            if (!photo) return;
+            var point = { id: row[0], x: row[1], y: row[2], group: row[3], photo: photo };
+            points.push(point);
+            points.byId[point.id] = point;
+        });
+        var excluded = data.excluded || {};
+
+        var intro = node('p', 'semantic-map-intro', ns.t('contentIntro',
+            'Each dot is an article, placed by the words of its full text rather than by its title or keywords. Articles that discuss similar things sit close together, whatever their decade. Only the distance between dots matters: the axes have no meaning, and the groups are found by the computer, not chosen by an editor.'));
+        var toolbar = node('div', 'semantic-map-toolbar');
+        var panel = node('section', 'chart-panel chart-panel-wide semantic-map-panel');
+        var chartHeading = node('h3', '', ns.t('contentMapTitle', 'Articles by content'));
+        var chartEl = node('div', 'chart-container semantic-map-chart');
+        var chartLabel = ns.t('contentMapAria', 'Map of the articles by the content of their full text. Articles about similar things appear close to each other.');
+        chartEl.setAttribute('role', 'img');
+        chartEl.setAttribute('aria-label', chartLabel);
+        var status = node('p', 'semantic-map-status',
+            ns.plural(points.length, 'contentArticle', 'article', 'articles', true)
+            + ' · ' + ns.plural(data.groups || 0, 'contentGroupCount', 'group', 'groups', true));
+        var note = node('p', 'semantic-map-note', ns.fill(ns.t('contentExcluded',
+            'Not shown: {furniture} notices and lists (contributors, books received, back matter), {short} very short texts, and {shared} items with no text of their own.'), {
+            furniture: ns.formatNumber(excluded.furniture || 0),
+            short: ns.formatNumber(excluded.short || 0),
+            shared: ns.formatNumber(excluded.sharedText || 0)
+        }) + ' ' + ns.t('semanticZoomHint', 'To zoom, use the buttons above the map or hold Ctrl and scroll. Drag to move around.'));
+        var detail = node('div', 'photo-content-detail');
+        detail.setAttribute('aria-live', 'polite');
+
+        panel.appendChild(chartHeading);
+        panel.appendChild(chartEl);
+        panel.appendChild(status);
+        panel.appendChild(note);
+        ns.setChildren(view, [intro, toolbar, panel, detail]);
+
+        var mode = 'group';
+        var selection = null;
+        var chart = null;
+
+        function restoreLabel() {
+            chartEl.setAttribute('role', 'img');
+            chartEl.setAttribute('aria-label', chartLabel);
+        }
+
+        function draw(replace) {
+            if (!chart) return;
+            chart.setOption(option(points, mode, selection), replace ? true : { replaceMerge: ['series', 'legend'] });
+            restoreLabel();
+        }
+
+        function select(point) {
+            selection = point ? {
+                point: point,
+                neighbours: ((data.neighbours || {})[point.id] || []).map(function (id) { return points.byId[id]; }).filter(Boolean)
+            } : null;
+            renderDetail(detail, selection);
+            draw(false);
+        }
+
+        toolbar.appendChild(modeControl(mode, function (next) {
+            if (next === mode) return;
+            mode = next;
+            if (chart) chart.setOption({ legend: { selected: {} }, series: [] }, { replaceMerge: ['series'] });
+            draw(false);
+        }));
+        toolbar.appendChild(searchControl(points, select));
+        renderDetail(detail, null);
+        panel.appendChild(recordList(points));
+
+        function load() {
+            ns.ensureLibs({ echarts: true }).then(function () {
+                chart = ns.initChart(chartEl);
+                chart._noDecal = true;
+                chart._noDataTable = true;   // the article list is this map's alternative
+                chart._zoomable = true;
+                slot._chart = chart;
+                draw(true);
+                chart.on('click', function (params) {
+                    var point = points.byId[params.data && params.data.id];
+                    if (point) select(point);
+                });
+                chart._rvRebuild = function () { draw(true); };
+                ns.attachToolbar(panel, chart, { fullscreen: false });
+            }).catch(function (error) {
+                console.error('DreVisualizations content map:', error);
+                var failed = ns.t('mapLoadError', 'The map could not be loaded.');
+                ns.setChildren(chartEl, [ns.errorNotice(failed, load)]);
+                ns.announce(failed);
+            });
+        }
+        load();
+    };
+})();

@@ -7,7 +7,9 @@
  * for featured collections, the creator and journal volume/issue/pages) that
  * asset/js/item-set-photo-views.js turns into masonry / map / timeline browsers
  * with a lightbox, or — for an issue-grouped collection (ILAM) — issue cards
- * that open a table-of-contents modal.
+ * that open a table-of-contents modal. A featured collection with a committed
+ * full-text map (FeaturedCollections\ContentMap) also gets a "By content" view,
+ * drawn by asset/js/item-set-content-map.js.
  *
  * Data comes only from the published snapshot (photo-galleries/{itemSetId}.json,
  * built by the admin "Regenerate" job). Without it — e.g. a freshly added block
@@ -28,8 +30,10 @@
  * @var string    $grouping            'photo' (default) | 'issue' (journal issues + TOC)
  * @var string|null $partner           partner credit line
  * @var array{masonry:bool,map:bool,timeline:bool} $allowedViews
+ * @var array|null  $contentMap        committed full-text map (FeaturedCollections\ContentMap)
  */
 
+use DreVisualizations\FeaturedCollections\ContentMap;
 use DreVisualizations\View\Helper\DashboardAssets;
 
 if (!$itemSetId) {
@@ -127,6 +131,15 @@ if (!empty($allow['map']) && $geoCount > 0 && !$issueMode) {
 if (!empty($allow['timeline']) && $datedCount > 0) {
     $views[] = 'timeline';
 }
+// By content: the full-text map, restricted to the records shown here, so a
+// record missing from the public snapshot is missing from the map too.
+$contentPayload = null;
+if (($contentMap ?? null) !== null) {
+    $contentPayload = ContentMap::forGallery($contentMap, array_flip(array_column($photos, 'id')));
+    if ($contentPayload !== null) {
+        $views[] = 'similarity';
+    }
+}
 if (!$views) {
     $views = ['masonry'];
 }
@@ -138,6 +151,7 @@ $viewLabels = [
     'masonry'  => $this->translate('Grid'),
     'map'      => $this->translate('Map'),
     'timeline' => $this->translate('Timeline'),
+    'similarity' => $this->translate('By content'),
 ];
 
 // Count summary. Issue collections report distinct issues + articles.
@@ -207,5 +221,8 @@ $this->dashboardAssets(['plan' => $plan]);
         ]) ?>
 
         <script type="application/json" class="photo-data"><?= $payload ?></script>
+        <?php if ($contentPayload !== null): ?>
+        <script type="application/json" class="photo-content-map"><?= DashboardAssets::scriptJson($contentPayload) ?></script>
+        <?php endif; ?>
     </div>
 </div>

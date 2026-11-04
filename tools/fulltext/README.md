@@ -1,10 +1,17 @@
-# Full-text semantic map: evaluation prototype
+# Full-text semantic map
 
-An offline prototype that maps the ILAM *African Music* journal (item set
-27724) by its full text instead of its metadata card, for curators and experts
-to judge before anything is published. It is not part of the module: nothing
-here runs in Omeka, changes `config/amira-profile.json` or feeds a release, and
-`/tools` is `export-ignore`d from the module zip.
+Maps the ILAM *African Music* journal (item set 27724) by its full text instead
+of its metadata card. The scripts run offline and are not part of the module
+(`/tools` is `export-ignore`d from the zip). Two outputs:
+
+- the **review** outputs (`analyse`), for curators and experts, which quote the
+  matching passages and stay private;
+- the **public map** (`export`), `config/fulltext-maps/<collection slug>.json`,
+  which the module ships: the collection's Photo Browsing block shows it as its
+  "By content" view (`src/FeaturedCollections/ContentMap.php`,
+  `asset/js/item-set-content-map.js`). It holds Omeka ids, coordinates, group
+  numbers and neighbour scores, nothing quoted from the texts, and the block
+  shows only the records of the current public gallery snapshot.
 
 The full text (`bibo:content`) is private. The harvest needs an API key, and
 everything the scripts write (texts, passages, vectors, review pages) belongs
@@ -22,7 +29,14 @@ python fulltext_map.py embed --work-dir <private dir> --engine onnx --threads 8 
 
 # 3. Layout, clusters, neighbours, review outputs
 python fulltext_map.py analyse --work-dir <private dir> [--amira-dir <downloaded releases>]
+
+# 4. The public map the module ships (numpy, umap-learn, scikit-learn)
+python fulltext_map.py export --work-dir <private dir> --out ../../config/fulltext-maps/international-library-of-african-music-ilam.json
 ```
+
+`export` reuses the cached passage vectors, so after `embed` has run once it
+needs no model. Re-run it after the full text changes, commit the file and
+release the module; the map changes on the site with the module update.
 
 `--amira-dir` takes a folder holding a `semantic-embeddings-v1-*` release
 (`vectors.f32`, `ids.json`, `manifest.json`) and the `map.php` of the matching
@@ -59,6 +73,14 @@ neighbours.
   contributors, editorial, back matter…), texts under 300 words, OCR noise
   (under 80% of tokens read as words), pairs whose matching passages are both
   list-like (references, discographies), and duplicate texts.
+- **Public map** (`export`): before the layout it leaves out the items with no
+  text of their own (identical text, or article vectors at cosine 0.99 or more:
+  a review or notes section's text attached to every item in it), journal
+  furniture by title and texts under 300 words; for ILAM that leaves 657 of the
+  935 articles with text. Layout and groups as above, recomputed on what is
+  left; eight neighbours per article. Groups carry no labels: full-text
+  keywords would quote the texts, and title words proved misleading
+  (publishers' names labelled the review groups).
 
 ## Outputs (in the work directory)
 
@@ -68,6 +90,9 @@ neighbours.
 | `review.csv` | curators, private | one row per neighbour pair, passage excerpts, columns to mark meaningful / artefact / unsure |
 | `map-public.html`, `map-public.json` | public-ready | titles, coordinates, clusters, keywords, neighbour scores; no full-text passages |
 | `analysis-report.json` | team | coverage, passage counts, clusters, score distribution, AMIRA comparison |
+
+`export` writes outside the work directory, into the repository: the only
+output meant to be committed.
 
 Keyword labels are no evidence that a cluster means something: on random
 vectors c-TF-IDF still produces plausible-looking labels. Judge the clusters

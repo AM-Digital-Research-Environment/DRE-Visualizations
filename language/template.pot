@@ -15,12 +15,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/Site/BlockLayout/PhotoBrowse.php:52
+#: src/Site/BlockLayout/PhotoBrowse.php:53
 msgid "— None (plain item-set gallery) —"
 msgstr ""
 
 #: config/client-strings.json:degOrMore
 msgid "{count} or more"
+msgstr ""
+
+#: config/client-strings.json:contentDecade
+msgid "{decade}s"
 msgstr ""
 
 #: config/client-strings.json:rangeOfTotal
@@ -35,7 +39,7 @@ msgstr ""
 msgid "{type} B"
 msgstr ""
 
-#: view/common/block-layout/photo-browse.phtml:153
+#: view/common/block-layout/photo-browse.phtml:167
 msgid "%1$s issues · %2$s articles"
 msgstr ""
 
@@ -51,7 +55,7 @@ msgstr ""
 msgid "%1$s, downloaded %2$s. Records were made private since, so the semantic map shows this build without them until the next one."
 msgstr ""
 
-#: view/common/block-layout/photo-browse.phtml:161
+#: view/common/block-layout/photo-browse.phtml:175
 msgid "%s image"
 msgid_plural "%s images"
 msgstr[0] ""
@@ -160,6 +164,7 @@ msgid "Any visualisation on this site can be placed on another website. Copy the
 msgstr ""
 
 #: config/client-strings.json:articleOne
+#: config/client-strings.json:contentArticleOne
 msgid "article"
 msgstr ""
 
@@ -168,7 +173,12 @@ msgid "article in this issue."
 msgstr ""
 
 #: config/client-strings.json:articleOther
+#: config/client-strings.json:contentArticleOther
 msgid "articles"
+msgstr ""
+
+#: config/client-strings.json:contentMapTitle
+msgid "Articles by content"
 msgstr ""
 
 #: config/client-strings.json:articleInIssueOther
@@ -222,6 +232,10 @@ msgstr ""
 
 #: view/dre-visualizations/admin/maintenance/index.phtml:91
 msgid "Built on GitHub for the current data (%s)."
+msgstr ""
+
+#: view/common/block-layout/photo-browse.phtml:154
+msgid "By content"
 msgstr ""
 
 #: src/Form/ConfigForm.php:30
@@ -278,6 +292,10 @@ msgstr ""
 
 #: config/client-strings.json:mapClosePopup
 msgid "Close popup"
+msgstr ""
+
+#: config/client-strings.json:contentClosestTo
+msgid "Closest in content to"
 msgstr ""
 
 #: config/client-strings.json:chartLabel.coAuthorNetwork
@@ -494,7 +512,11 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:90
+#: config/client-strings.json:contentByDecade
+msgid "Decade"
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:91
 msgid "Default view"
 msgstr ""
 
@@ -528,6 +550,10 @@ msgstr ""
 
 #: config/client-strings.json:chartDescription.similarity
 msgid "Each dot is a record. Records about similar topics appear close to each other, even when they are in different languages. Click a dot to open the record. To zoom, use the buttons above the chart or hold Ctrl and scroll. Drag to move around."
+msgstr ""
+
+#: config/client-strings.json:contentIntro
+msgid "Each dot is an article, placed by the words of its full text rather than by its title or keywords. Articles that discuss similar things sit close together, whatever their decade. Only the distance between dots matters: the axes have no meaning, and the groups are found by the computer, not chosen by an editor."
 msgstr ""
 
 #: config/client-strings.json:semanticMapIntro
@@ -618,7 +644,7 @@ msgstr ""
 msgid "external name"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:78
+#: src/Site/BlockLayout/PhotoBrowse.php:79
 msgid "Featured collection"
 msgstr ""
 
@@ -636,6 +662,10 @@ msgstr ""
 
 #: config/client-strings.json:semanticSearch
 msgid "Find a record on the map"
+msgstr ""
+
+#: config/client-strings.json:contentSearch
+msgid "Find an article on the map"
 msgstr ""
 
 #: config/client-strings.json:firstPage
@@ -674,7 +704,7 @@ msgstr ""
 msgid "Funders"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:86
+#: src/Site/BlockLayout/PhotoBrowse.php:87
 msgid "Gallery title"
 msgstr ""
 
@@ -707,28 +737,35 @@ msgstr ""
 msgid "GitHub token for embedding builds"
 msgstr ""
 
-#: view/common/block-layout/photo-browse.phtml:138
+#: view/common/block-layout/photo-browse.phtml:151
 msgid "Grid"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:72
+#: src/Site/BlockLayout/PhotoBrowse.php:73
 msgid "Grid (masonry)"
 msgstr ""
 
+#: config/client-strings.json:contentGroupCountOne
 #: config/client-strings.json:degGroupOne
 msgid "group"
 msgstr ""
 
 #: config/client-strings.json:community
+#: config/client-strings.json:contentGroup
 #: config/client-strings.json:degCluster
 #: config/client-strings.json:semanticClusterName
 msgid "Group"
+msgstr ""
+
+#: config/client-strings.json:contentByGroup
+msgid "Group of similar articles"
 msgstr ""
 
 #: config/client-strings.json:semanticCluster
 msgid "Group of similar records"
 msgstr ""
 
+#: config/client-strings.json:contentGroupCountOther
 #: config/client-strings.json:degGroupOther
 msgid "groups"
 msgstr ""
@@ -877,7 +914,7 @@ msgstr ""
 msgid "Item pages use the default blocks, which include the Visualisations."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:82
+#: src/Site/BlockLayout/PhotoBrowse.php:83
 msgid "Item set"
 msgstr ""
 
@@ -1064,6 +1101,10 @@ msgstr ""
 msgid "Links between them"
 msgstr ""
 
+#: config/client-strings.json:contentRecordList
+msgid "List of the articles on the map, by group"
+msgstr ""
+
 #: config/client-strings.json:semanticRecordList
 msgid "List of the records on the map"
 msgstr ""
@@ -1086,8 +1127,8 @@ msgid "Locations"
 msgstr ""
 
 #: config/client-strings.json:mapTitle
-#: src/Site/BlockLayout/PhotoBrowse.php:73
-#: view/common/block-layout/photo-browse.phtml:139
+#: src/Site/BlockLayout/PhotoBrowse.php:74
+#: view/common/block-layout/photo-browse.phtml:152
 msgid "Map"
 msgstr ""
 
@@ -1097,6 +1138,10 @@ msgstr ""
 
 #: config/client-strings.json:mapMarker
 msgid "Map marker"
+msgstr ""
+
+#: config/client-strings.json:contentMapAria
+msgid "Map of the articles by the content of their full text. Articles about similar things appear close to each other."
 msgstr ""
 
 #: config/client-strings.json:spatialMapLabel
@@ -1224,6 +1269,10 @@ msgstr ""
 msgid "nightly check"
 msgstr ""
 
+#: config/client-strings.json:contentNoSearchResults
+msgid "No article on the map matches that search."
+msgstr ""
+
 #: view/dre-visualizations/config-form.phtml:67
 msgid "No build downloaded yet."
 msgstr ""
@@ -1238,6 +1287,10 @@ msgstr ""
 
 #: config/client-strings.json:noItems
 msgid "No items"
+msgstr ""
+
+#: config/client-strings.json:contentNoNeighbours
+msgid "No other article on the map is close to this one."
 msgstr ""
 
 #: config/client-strings.json:noSearchMatch
@@ -1256,6 +1309,14 @@ msgstr ""
 
 #: src/Controller/Site/EmbedController.php:157
 msgid "Not found"
+msgstr ""
+
+#: config/client-strings.json:contentUngrouped
+msgid "Not in a group"
+msgstr ""
+
+#: config/client-strings.json:contentExcluded
+msgid "Not shown: {furniture} notices and lists (contributors, books received, back matter), {short} very short texts, and {shared} items with no text of their own."
 msgstr ""
 
 #: view/dre-visualizations/config-form.phtml:49
@@ -1358,7 +1419,7 @@ msgstr ""
 msgid "Open this subject’s page →"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:67
+#: src/Site/BlockLayout/PhotoBrowse.php:68
 msgid "Optional gallery title"
 msgstr ""
 
@@ -1366,7 +1427,7 @@ msgstr ""
 msgid "Optional heading shown above the collection grid. The collections themselves come from the module registry."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:87
+#: src/Site/BlockLayout/PhotoBrowse.php:88
 msgid "Optional heading shown above the gallery."
 msgstr ""
 
@@ -1390,7 +1451,7 @@ msgstr ""
 msgid "Optional. Lets the button below start a build on GitHub. Create a fine-grained token for the AM-Digital-Research-Environment/DRE-Visualizations repository only, with “Actions: Read and write”."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:79
+#: src/Site/BlockLayout/PhotoBrowse.php:80
 msgid "Optional. Pick a curated collection to apply its item set, sub-collection filter, journal-issue grouping and views automatically. Leave as “None” to configure a plain gallery below."
 msgstr ""
 
@@ -1862,7 +1923,11 @@ msgstr ""
 msgid "Select a public site"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:62
+#: config/client-strings.json:contentSelectHint
+msgid "Select an article on the map, or find it by its title, to list the articles closest to it in content."
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:63
 msgid "Select an item set…"
 msgstr ""
 
@@ -1950,7 +2015,7 @@ msgstr ""
 msgid "Showing the first {count} rows. Download data (CSV) for all of them."
 msgstr ""
 
-#: view/common/block-layout/photo-browse.phtml:158
+#: view/common/block-layout/photo-browse.phtml:172
 msgid "Showing the first %s images"
 msgstr ""
 
@@ -2145,7 +2210,7 @@ msgstr ""
 msgid "The genres assigned most often across the research items."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:83
+#: src/Site/BlockLayout/PhotoBrowse.php:84
 msgid "The image-heavy item set to display as a photo gallery. Ignored when a Featured collection is selected above."
 msgstr ""
 
@@ -2331,8 +2396,8 @@ msgstr ""
 msgid "This visualisation needs JavaScript."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:74
-#: view/common/block-layout/photo-browse.phtml:140
+#: src/Site/BlockLayout/PhotoBrowse.php:75
+#: view/common/block-layout/photo-browse.phtml:153
 msgid "Timeline"
 msgstr ""
 
@@ -2404,7 +2469,7 @@ msgstr ""
 msgid "Videos counted by the playlist they belong to."
 msgstr ""
 
-#: view/common/block-layout/photo-browse.phtml:191
+#: view/common/block-layout/photo-browse.phtml:205
 msgid "View as"
 msgstr ""
 
@@ -2472,7 +2537,7 @@ msgstr ""
 msgid "Where research items come from and where they are held today, with lines linking the two."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:91
+#: src/Site/BlockLayout/PhotoBrowse.php:92
 msgid "Which browser opens first. Timeline needs dated items; Map needs coordinates (and is off for journal-issue collections). Each is hidden automatically when it does not apply."
 msgstr ""
 

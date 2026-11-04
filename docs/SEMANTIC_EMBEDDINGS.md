@@ -28,6 +28,16 @@ from its title and metadata alone. Full text runs to tens of thousands of words,
 its opening describes a record poorly, and the profile validators reject it as
 a card field. It is reserved for a separate full-text layer.
 
+The first such layer is the ILAM journal's "By content" view in its Photo
+Browsing block. Its full text is private, so the map is built offline with the
+same model contract (`tools/fulltext/`) and only its public result is
+committed: `config/fulltext-maps/<collection slug>.json`, holding Omeka ids,
+coordinates, group numbers and neighbour scores, never text, keywords or
+vectors. `FeaturedCollections\ContentMap` shows a point only when its record is
+in the current public gallery snapshot, so a record made private since the
+export leaves the map and every neighbour list at the next regeneration. It is
+not part of the shared space above and needs no workflow run.
+
 Every corpus receives the same 900-word maximum. HTML is stripped before the
 content hash and model input are calculated.
 

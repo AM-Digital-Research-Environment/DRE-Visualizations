@@ -12,6 +12,7 @@
  * Usage: node scripts/check-release-archive.mjs DreVisualizations.zip
  */
 import { execFileSync } from 'node:child_process';
+import { readdirSync } from 'node:fs';
 import { MINIFIED, minifiedPath, runtimeAssets as planAssets } from './lib/frontend-sources.mjs';
 
 const archive = process.argv[2];
@@ -33,7 +34,9 @@ const debugAssets = MINIFIED.flatMap((path) => [path, minifiedPath(path) + '.map
 for (const required of [...runtimeAssets, ...debugAssets,
   'config/asset-plans.json', 'config/dashboard-layouts.json', 'config/client-strings.json', 'config/module.ini', 'Module.php',
   // The translation catalogue Omeka's translator is pointed at (module.config.php).
-  'language/template.pot']) {
+  'language/template.pot',
+  // The committed full-text maps the Photo Browsing block reads (FeaturedCollections\ContentMap).
+  ...readdirSync(new URL('../config/fulltext-maps/', import.meta.url)).map((name) => `config/fulltext-maps/${name}`)]) {
   if (!entries.has(prefix + required)) failures.push(`missing runtime file: ${required}`);
 }
 
