@@ -13,6 +13,11 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Added
+
+- The ILAM "By content" map says how it is made: a short paragraph under its introduction explains semantic embeddings and names the model (EmbeddingGemma 2, `google/embeddinggemma-2`), the passages of about 300 words, UMAP, HDBSCAN and cosine similarity.
+- Experimental group names on the same map. An AI model (Claude Opus 5.5, Anthropic) named the 21 groups from the titles of their articles, never from the full text, so the legend reads "9 · Church music and Christian worship" instead of "Group 9". The names are marked as AI-generated wherever they appear: a notice above the map that names the model and says no editor has checked them, the tooltip ("named by AI") and the article list. A map whose file does not say who made its names shows none. The names live in `tools/fulltext/labels/` and are applied with `fulltext_map.py label`.
+
 ## [2.46.0] - 2026-11-04
 
 Update the module to see the new view. No regeneration is needed: the generated data is unchanged.

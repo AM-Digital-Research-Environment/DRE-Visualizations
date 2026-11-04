@@ -213,6 +213,10 @@ test.describe('content map', () => {
     await openSurface(page, 'content-map');
     await page.waitForFunction(() => window.RV._allCharts.length === 1);
     await expect(page.locator('.photo-content-detail__hint')).toBeVisible();
+    // AI-generated group names are announced as such, naming the model.
+    await expect(page.locator('.photo-content-ai-note')).toContainText('AI-generated group names');
+    await expect(page.locator('.photo-content-ai-note')).toContainText('An AI model');
+    await expect(page.locator('.photo-content-method')).toContainText('google/embeddinggemma-2');
 
     await page.getByLabel('Find an article on the map').fill('article 7 ');
     await page.getByRole('button', { name: 'Article 7 on xylophones' }).click();

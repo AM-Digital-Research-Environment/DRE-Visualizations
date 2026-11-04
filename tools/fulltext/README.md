@@ -34,6 +34,11 @@ python fulltext_map.py analyse --work-dir <private dir> [--amira-dir <downloaded
 python fulltext_map.py export --work-dir <private dir> --out ../../config/fulltext-maps/international-library-of-african-music-ilam.json
 ```
 
+```bash
+# 5. Optional, experimental: name the groups (needs no private data)
+python fulltext_map.py label --out ../../config/fulltext-maps/international-library-of-african-music-ilam.json --labels labels/international-library-of-african-music-ilam.json
+```
+
 `export` reuses the cached passage vectors, so after `embed` has run once it
 needs no model. Re-run it after the full text changes, commit the file and
 release the module; the map changes on the site with the module update.
@@ -81,6 +86,13 @@ neighbours.
   left; eight neighbours per article. Groups carry no labels: full-text
   keywords would quote the texts, and title words proved misleading
   (publishers' names labelled the review groups).
+- **Group labels** (`label`, experimental): `labels/<collection>.json` names
+  each group and who named it. The ILAM labels were written by an AI model
+  (Claude Opus 5.5) from the public titles of each group's articles, never from
+  the full text. The page marks them as AI-generated wherever they appear, and
+  shows none if the file does not say who made them. A label is applied only
+  while its group keeps the size recorded beside it, so a re-export that
+  changes the groups drops the labels instead of misplacing them.
 
 ## Outputs (in the work directory)
 

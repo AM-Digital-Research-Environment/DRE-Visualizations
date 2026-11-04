@@ -32,8 +32,11 @@ foreach (glob(dirname(__DIR__) . '/config/fulltext-maps/*.json') as $path) {
     contentMapCheck($map !== null, "$slug: the committed map loads");
     contentMapCheck(in_array($slug, $slugs, true), "$slug: names a featured collection");
     if ($map === null) continue;
-    contentMapCheck(array_keys($map) === ['schemaVersion', 'itemSetId', 'generatedAt', 'model', 'counts', 'groups', 'items', 'neighbours'],
+    contentMapCheck(array_diff(array_keys($map), ['schemaVersion', 'itemSetId', 'generatedAt', 'model', 'counts', 'groups', 'items', 'neighbours', 'labels']) === [],
         "$slug: only the exported keys (no titles, passages or keywords)");
+    $labelled = array_filter($map['groups'], static fn (array $g): bool => isset($g['label']));
+    contentMapCheck(!$labelled || isset($map['labels']['by'], $map['labels']['from']),
+        "$slug: labelled groups name who labelled them and from what");
     $rowsOk = true;
     foreach ($map['items'] as $row) {
         $rowsOk = $rowsOk && is_array($row) && count($row) === 4 && is_int($row[0]) && is_int($row[3]);
@@ -57,6 +60,15 @@ contentMapCheck(($payload['neighbours']['1'] ?? null) === [2, 3], 'neighbours ke
 contentMapCheck(!isset($payload['neighbours']['99']), 'a record not on the map has no neighbour list');
 contentMapCheck(($payload['groups'] ?? null) === 2, 'groups counts the groups of the placed records (0 is none)');
 contentMapCheck(($payload['excluded'] ?? null) === ['sharedText' => 3, 'furniture' => 2], 'only integer exclusion counts pass');
+contentMapCheck(!isset($payload['labels']), 'no labels in the file: none on the page');
+
+$map['groups'] = [['id' => 1, 'size' => 9, 'label' => '  Hymns  '], ['id' => 2, 'size' => 8, 'label' => ''], ['id' => 3, 'size' => 1, 'label' => 'Gone']];
+$unsigned = ContentMap::forGallery($map, $public);
+contentMapCheck(!isset($unsigned['labels']), 'labels without their author are not shown');
+$map['labels'] = ['by' => 'An AI model', 'from' => 'titles'];
+$signed = ContentMap::forGallery($map, $public);
+contentMapCheck(($signed['labels'] ?? null) === ['1' => 'Hymns'] && $signed['labelledBy'] === 'An AI model',
+    'labels are trimmed, empty ones and those of groups not on the map dropped, and their author passed on');
 contentMapCheck(ContentMap::forGallery($map, array_fill_keys(range(1, ContentMap::MIN_RECORDS - 1), true)) === null,
     'too few public records: no map');
 

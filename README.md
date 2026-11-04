@@ -542,7 +542,7 @@ DreVisualizations/
 ├── tests/                                           # 253 files — PHP harnesses, the Omeka-core and golden suites, node and Playwright tests
 ├── tools/
 │   ├── embeddings/                                  # 6 files — the Build semantic embeddings Action (EmbeddingGemma 2)
-│   ├── fulltext/                                    # 6 files — full-text map of the ILAM journal: offline build and public export (not shipped)
+│   ├── fulltext/                                    # 7 files — full-text map of the ILAM journal: offline build and public export (not shipped)
 │   ├── wordclouds/
 │   │   ├── build_wordclouds.py
 │   │   └── requirements.txt

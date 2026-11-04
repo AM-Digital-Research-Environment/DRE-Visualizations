@@ -85,6 +85,9 @@ function contentMapBlock() {
       [1, 2, 3, 4, 5].map((step) => ((i + step * 3) % 30) + 1)])),
     groups: 3,
     excluded: { sharedText: 4, furniture: 6, short: 2 },
+    model: 'google/embeddinggemma-2',
+    labels: { 1: 'Xylophone music', 2: 'Church music' },
+    labelledBy: 'An AI model',
   };
   const views = ['masonry', 'timeline', 'similarity'];
   const labels = { masonry: 'Grid', timeline: 'Timeline', similarity: 'By content' };

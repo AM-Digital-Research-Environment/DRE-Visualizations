@@ -10,6 +10,7 @@ averages each article's passages into one re-normalised vector in that space.
     python fulltext_map.py embed   --work-dir <private dir>
     python fulltext_map.py analyse --work-dir <private dir>
     python fulltext_map.py export  --work-dir <private dir> --out ../../config/fulltext-maps/<collection>.json
+    python fulltext_map.py label   --out ../../config/fulltext-maps/<collection>.json --labels labels/<collection>.json
 
 `analyse` lays the articles out with UMAP, clusters them with HDBSCAN, labels
 clusters with c-TF-IDF keywords and lists ten neighbours per article, each
@@ -274,8 +275,8 @@ def embed(work_dir: Path, batch: int, engine: str, threads: int, shard: int, sha
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("stage", choices=("embed", "analyse", "export"))
-    parser.add_argument("--work-dir", required=True, type=Path)
+    parser.add_argument("stage", choices=("embed", "analyse", "export", "label"))
+    parser.add_argument("--work-dir", type=Path, help="the private work directory (every stage but label)")
     parser.add_argument("--batch", type=int, default=1)
     parser.add_argument("--engine", choices=("reference", "onnx"), default="reference",
                         help="reference: sentence-transformers, as in the module's build; onnx: the checked ONNX export")
@@ -285,7 +286,16 @@ def main() -> int:
     parser.add_argument("--amira-dir", type=Path, help="a downloaded semantic-embeddings + semantic-inputs release, for the comparison with metadata cards")
     parser.add_argument("--out", type=Path, help="export: the module's public map file (config/fulltext-maps/<collection>.json)")
     parser.add_argument("--item-set", type=int, default=27724, help="export: the collection's item set")
+    parser.add_argument("--labels", type=Path, help="label: group labels (labels/<collection>.json), applied to --out")
     args = parser.parse_args()
+    if args.stage == "label":
+        if args.out is None or args.labels is None:
+            parser.error("label needs --out and --labels")
+        from fulltext_export import label
+
+        return label(args.out, args.labels)
+    if args.work_dir is None:
+        parser.error(f"{args.stage} needs --work-dir")
     if args.stage == "embed":
         return embed(args.work_dir, args.batch, args.engine, args.threads, args.shard, args.shards)
     if args.stage == "export":

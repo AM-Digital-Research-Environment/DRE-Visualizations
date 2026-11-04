@@ -111,7 +111,35 @@ def export(work_dir: Path, out_path: Path, item_set: int) -> int:
         "neighbours": neighbours,
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+    out_path.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8", newline="\n")
     print(json.dumps(payload["counts"], indent=2))
     print(f"{len(payload['groups'])} groups, {sum(1 for l in labels if not l)} articles in none")
+    return 0
+
+
+def label(map_path: Path, labels_path: Path) -> int:
+    """Name the groups of an exported map from a labels file (`labels/<collection>.json`).
+
+    Labels are an experiment, made from public data only (an AI model read the
+    titles of each group's articles), and the page says so. A label applies
+    only while its group keeps the size recorded beside it, so a re-export that
+    changes the groups drops the labels rather than putting them on the wrong
+    group. Needs no private data: it reads and rewrites the public map.
+    """
+    payload = json.loads(map_path.read_text(encoding="utf-8"))
+    labels = json.loads(labels_path.read_text(encoding="utf-8"))
+    applied = skipped = 0
+    for group in payload["groups"]:
+        group.pop("label", None)
+        entry = labels["groups"].get(str(group["id"]))
+        if entry and entry.get("size") == group["size"] and str(entry.get("label", "")).strip():
+            group["label"] = str(entry["label"]).strip()[:80]
+            applied += 1
+        else:
+            skipped += 1
+    payload.pop("labels", None)
+    if applied:
+        payload["labels"] = {"by": labels["labelledBy"], "from": labels["from"], "date": labels["date"]}
+    map_path.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8", newline="\n")
+    print(f"{applied} groups labelled, {skipped} without a label")
     return 0

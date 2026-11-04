@@ -10,7 +10,9 @@ namespace DreVisualizations\FeaturedCollections;
  * (`tools/fulltext/fulltext_map.py export`) and committed as
  * `config/fulltext-maps/<collection slug>.json`: Omeka ids, coordinates, group
  * numbers and neighbour scores, nothing quoted from the texts. A collection
- * without such a file has no "By content" view.
+ * without such a file has no "By content" view. Group labels, when the file
+ * has them, are an experiment made by an AI model from the articles' public
+ * titles (`fulltext_map.py label`); the page names the model.
  *
  * {@see self::forGallery()} keeps only the records of the current public
  * gallery snapshot, so a record made private or deleted since the export
@@ -37,7 +39,8 @@ final class ContentMap
     /**
      * The map restricted to $publicIds, as the browser payload:
      * `{items: [[id, x, y, group]], neighbours: {id: [id, …]}, groups: int,
-     * excluded: {reason: count}}`, or null below MIN_RECORDS.
+     * excluded: {reason: count}, model: string, labels?: {group: label},
+     * labelledBy?: string}`, or null below MIN_RECORDS.
      *
      * Neighbours keep their order (closest first) but lose their scores: raw
      * cosines bunch between 0.93 and 0.97 and would read as precision they
@@ -72,11 +75,33 @@ final class ContentMap
         foreach ((array) ($map['counts']['excluded'] ?? []) as $reason => $count) {
             if (is_string($reason) && is_int($count)) $excluded[$reason] = $count;
         }
-        return [
+        $payload = [
             'items' => array_values($items),
             'neighbours' => $neighbours,
             'groups' => count($groups),
             'excluded' => $excluded,
+            'model' => self::text($map['model']['name'] ?? null, 120) ?? '',
         ];
+        $labels = [];
+        foreach ((array) ($map['groups'] ?? []) as $group) {
+            $id = is_array($group) ? ($group['id'] ?? null) : null;
+            $label = is_array($group) ? self::text($group['label'] ?? null, 80) : null;
+            if (is_int($id) && isset($groups[$id]) && $label !== null) $labels[(string) $id] = $label;
+        }
+        $by = self::text($map['labels']['by'] ?? null, 120);
+        // Labels without the name of who made them would pass for editorial ones.
+        if ($labels && $by !== null) {
+            $payload['labels'] = $labels;
+            $payload['labelledBy'] = $by;
+        }
+        return $payload;
+    }
+
+    /** A trimmed non-empty string of at most $max characters, or null. */
+    private static function text(mixed $value, int $max): ?string
+    {
+        if (!is_string($value)) return null;
+        $value = trim($value);
+        return $value === '' ? null : mb_substr($value, 0, $max);
     }
 }

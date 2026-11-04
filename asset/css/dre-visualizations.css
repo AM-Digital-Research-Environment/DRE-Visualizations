@@ -318,6 +318,28 @@ button.photo-content-search__pick:focus-visible {
     box-shadow: var(--rv-focus-ring);
 }
 
+/* How the full-text map is made: secondary to the intro above it. */
+.photo-content-method {
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-sm);
+}
+
+/* The AI-generated group names are announced above the map, badge first, so
+   they are never read as an editor's. */
+.photo-content-ai-note {
+    margin: 0 0 var(--rv-space-3);
+    padding: var(--rv-space-2) var(--rv-space-3);
+    border-left: 3px solid var(--rv-accent);
+    border-radius: var(--rv-radius-sm);
+    background: var(--rv-bg-sunken);
+    color: var(--rv-text-strong);
+    font-size: var(--rv-text-sm);
+}
+
+.photo-content-ai-note__badge {
+    font-weight: 700;
+}
+
 /* The selected article and its closest articles by full text. */
 .photo-content-detail {
     margin-top: var(--rv-space-4);

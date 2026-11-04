@@ -1,0 +1,92 @@
+{
+  "$comment": "Group labels for the ILAM full-text map, applied with `fulltext_map.py label`. A label applies only while its group keeps the recorded size: a re-export that changes the groups drops the labels instead of misplacing them.",
+  "labelledBy": "Claude Opus 5.5 (Anthropic)",
+  "from": "the titles of each group's articles",
+  "date": "2026-11-04",
+  "groups": {
+    "1": {
+      "size": 47,
+      "label": "Popular music, identity and politics"
+    },
+    "2": {
+      "size": 34,
+      "label": "ILAM, Hugh Tracey and record releases"
+    },
+    "3": {
+      "size": 34,
+      "label": "Dance, ritual and spirit possession"
+    },
+    "4": {
+      "size": 32,
+      "label": "Musical instruments and their classification"
+    },
+    "5": {
+      "size": 31,
+      "label": "Xylophone, mbira and harp music: tunings and structure"
+    },
+    "6": {
+      "size": 28,
+      "label": "Colleges, societies and conferences"
+    },
+    "7": {
+      "size": 28,
+      "label": "Book reviews: jazz and urban popular music"
+    },
+    "8": {
+      "size": 23,
+      "label": "Reviews of reference works and recordings"
+    },
+    "9": {
+      "size": 22,
+      "label": "Church music and Christian worship"
+    },
+    "10": {
+      "size": 22,
+      "label": "Early reviews of books and records"
+    },
+    "11": {
+      "size": 19,
+      "label": "Music, society and education"
+    },
+    "12": {
+      "size": 19,
+      "label": "Rhythm, melody and musical analysis"
+    },
+    "13": {
+      "size": 18,
+      "label": "Sahara, North Africa and the Swahili coast"
+    },
+    "14": {
+      "size": 17,
+      "label": "Yoruba and Nigerian music"
+    },
+    "15": {
+      "size": 16,
+      "label": "Ghanaian drumming: Akan and Ewe"
+    },
+    "16": {
+      "size": 16,
+      "label": "Mbira and lamellophones: names and history"
+    },
+    "17": {
+      "size": 16,
+      "label": "Hip hop, highlife and urban youth"
+    },
+    "18": {
+      "size": 14,
+      "label": "Guitar music in East and Central Africa"
+    },
+    "19": {
+      "size": 13,
+      "label": "Recording tours and fieldwork"
+    },
+    "20": {
+      "size": 11,
+      "label": "Reviews: German-language and Afro-Brazilian studies"
+    },
+    "21": {
+      "size": 10,
+      "label": "Early reviews of periodicals and studies"
+    }
+  }
+}
