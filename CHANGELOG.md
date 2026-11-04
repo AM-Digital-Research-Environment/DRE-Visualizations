@@ -13,6 +13,10 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.47.0] - 2026-11-04
+
+Update the module to see the change. No regeneration is needed: the generated data is unchanged.
+
 ### Added
 
 - The ILAM "By content" map says how it is made: a short paragraph under its introduction explains semantic embeddings and names the model (EmbeddingGemma 2, `google/embeddinggemma-2`), the passages of about 300 words, UMAP, HDBSCAN and cosine similarity.
