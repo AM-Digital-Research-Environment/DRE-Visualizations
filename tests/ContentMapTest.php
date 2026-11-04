@@ -50,9 +50,13 @@ foreach (glob(dirname(__DIR__) . '/config/fulltext-maps/*.json') as $path) {
     $words = ContentMap::wordsAsset($slug);
     if ($words !== null) {
         $counts = json_decode((string) file_get_contents(dirname(__DIR__) . '/asset/' . $words), true);
-        contentMapCheck(array_keys($counts) === ['schemaVersion', 'itemSetId', 'generatedAt', 'minArticles', 'articles', 'years', 'totals', 'words']
+        contentMapCheck(array_keys($counts) === ['schemaVersion', 'itemSetId', 'generatedAt', 'minArticles', 'articles', 'years', 'totals', 'words', 'suggested']
             && count($counts['years']) === count($counts['totals']) && $counts['minArticles'] >= 10,
             "$slug: the word counts are aggregates by year of words in at least ten articles");
+        // The suggestions only name counted words, so they disclose nothing the counts do not.
+        contentMapCheck(is_array($counts['suggested']) && $counts['suggested'] !== []
+            && array_diff($counts['suggested'], array_keys($counts['words'])) === [],
+            "$slug: the suggested words are counted words");
     }
 }
 contentMapCheck(ContentMap::wordsAsset('../x') === null && ContentMap::wordsAsset('no-such-collection') === null,

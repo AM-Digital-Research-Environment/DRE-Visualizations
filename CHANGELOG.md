@@ -13,9 +13,9 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
-## [2.49.0] - 2026-11-04
+## [2.49.1] - 2026-11-04
 
-Update the module to see the changes. No regeneration is needed: the generated data is unchanged.
+Update the module to see the changes. No regeneration is needed: the generated data is unchanged. 2.49.0 was tagged but never published: its PHP checks failed on a contract test that did not yet allow the words file's new `suggested` list.
 
 ### Changed
 
