@@ -9,7 +9,9 @@
  * with a lightbox, or — for an issue-grouped collection (ILAM) — issue cards
  * that open a table-of-contents modal. A featured collection with a committed
  * full-text map (FeaturedCollections\ContentMap) also gets a "By content" view,
- * drawn by asset/js/item-set-content-map.js.
+ * drawn by asset/js/item-set-content-map.js, and, from the same export, Words
+ * (word frequencies by year) and Places (the countries the texts name), drawn
+ * by asset/js/item-set-content-extras.js.
  *
  * Data comes only from the published snapshot (photo-galleries/{itemSetId}.json,
  * built by the admin "Regenerate" job). Without it — e.g. a freshly added block
@@ -31,6 +33,7 @@
  * @var string|null $partner           partner credit line
  * @var array{masonry:bool,map:bool,timeline:bool} $allowedViews
  * @var array|null  $contentMap        committed full-text map (FeaturedCollections\ContentMap)
+ * @var string|null $contentWords      its word counts, a module asset path (ContentMap::wordsAsset)
  */
 
 use DreVisualizations\FeaturedCollections\ContentMap;
@@ -138,6 +141,13 @@ if (($contentMap ?? null) !== null) {
     $contentPayload = ContentMap::forGallery($contentMap, array_flip(array_column($photos, 'id')));
     if ($contentPayload !== null) {
         $views[] = 'similarity';
+        // Words over time and the countries the texts name, from the same export.
+        if (($contentWords ?? null) !== null) {
+            $views[] = 'words';
+        }
+        if (!empty($contentPayload['places'])) {
+            $views[] = 'places';
+        }
     }
 }
 if (!$views) {
@@ -152,6 +162,8 @@ $viewLabels = [
     'map'      => $this->translate('Map'),
     'timeline' => $this->translate('Timeline'),
     'similarity' => $this->translate('By content'),
+    'words'    => $this->translate('Words'),
+    'places'   => $this->translate('Places'),
 ];
 
 // Count summary. Issue collections report distinct issues + articles.
@@ -196,6 +208,7 @@ $this->dashboardAssets(['plan' => $plan]);
     <div class="photo-browse-container"
          data-default-view="<?= $this->escapeHtmlAttr($defaultView) ?>"
          data-grouping="<?= $this->escapeHtmlAttr($issueMode ? 'issue' : 'photo') ?>"
+         <?php if (in_array('words', $views, true)): ?>data-content-words="<?= $this->escapeHtmlAttr($this->assetUrl($contentWords, 'DreVisualizations')) ?>"<?php endif; ?>
          data-maplibre-css="<?= $this->escapeHtmlAttr($this->assetUrl(\DreVisualizations\Site\AssetPlans::lib('maplibreCss'), 'DreVisualizations')) ?>"
          data-maplibre-js="<?= $this->escapeHtmlAttr($this->assetUrl(\DreVisualizations\Site\AssetPlans::lib('maplibre'), 'DreVisualizations')) ?>"
          data-maplibre-worker="<?= $this->escapeHtmlAttr($this->assetUrl(\DreVisualizations\Site\AssetPlans::lib('maplibreWorker'), 'DreVisualizations')) ?>">

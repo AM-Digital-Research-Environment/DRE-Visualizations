@@ -32,7 +32,7 @@ foreach (glob(dirname(__DIR__) . '/config/fulltext-maps/*.json') as $path) {
     contentMapCheck($map !== null, "$slug: the committed map loads");
     contentMapCheck(in_array($slug, $slugs, true), "$slug: names a featured collection");
     if ($map === null) continue;
-    contentMapCheck(array_diff(array_keys($map), ['schemaVersion', 'itemSetId', 'generatedAt', 'model', 'counts', 'groups', 'items', 'neighbours', 'labels']) === [],
+    contentMapCheck(array_diff(array_keys($map), ['schemaVersion', 'itemSetId', 'generatedAt', 'model', 'counts', 'groups', 'items', 'neighbours', 'places', 'labels']) === [],
         "$slug: only the exported keys (no titles, passages or keywords)");
     $labelled = array_filter($map['groups'], static fn (array $g): bool => isset($g['label']));
     contentMapCheck(!$labelled || isset($map['labels']['by'], $map['labels']['from']),
@@ -42,7 +42,21 @@ foreach (glob(dirname(__DIR__) . '/config/fulltext-maps/*.json') as $path) {
         $rowsOk = $rowsOk && is_array($row) && count($row) === 4 && is_int($row[0]) && is_int($row[3]);
     }
     contentMapCheck($rowsOk, "$slug: every point is [id, x, y, group]");
+    $placesOk = true;
+    foreach ((array) ($map['places']['items'] ?? []) as $rows) {
+        foreach ($rows as $row) $placesOk = $placesOk && is_string($row[0]) && is_int($row[1]);
+    }
+    contentMapCheck($placesOk, "$slug: places are [country, mentions] pairs");
+    $words = ContentMap::wordsAsset($slug);
+    if ($words !== null) {
+        $counts = json_decode((string) file_get_contents(dirname(__DIR__) . '/asset/' . $words), true);
+        contentMapCheck(array_keys($counts) === ['schemaVersion', 'itemSetId', 'generatedAt', 'minArticles', 'articles', 'years', 'totals', 'words']
+            && count($counts['years']) === count($counts['totals']) && $counts['minArticles'] >= 10,
+            "$slug: the word counts are aggregates by year of words in at least ten articles");
+    }
 }
+contentMapCheck(ContentMap::wordsAsset('../x') === null && ContentMap::wordsAsset('no-such-collection') === null,
+    'no word counts for an unknown or unsafe slug');
 
 contentMapCheck(ContentMap::load('../amira-profile') === null, 'a slug cannot leave the maps directory');
 contentMapCheck(ContentMap::load('no-such-collection') === null, 'a collection without a map has none');
@@ -61,6 +75,15 @@ contentMapCheck(!isset($payload['neighbours']['99']), 'a record not on the map h
 contentMapCheck(($payload['groups'] ?? null) === 2, 'groups counts the groups of the placed records (0 is none)');
 contentMapCheck(($payload['excluded'] ?? null) === ['sharedText' => 3, 'furniture' => 2], 'only integer exclusion counts pass');
 contentMapCheck(!isset($payload['labels']), 'no labels in the file: none on the page');
+contentMapCheck(ContentMap::neighboursOf($map, 1, $public) === [2, 3], 'an item page lists its public neighbours, closest first');
+contentMapCheck(ContentMap::neighboursOf($map, 26, $public) === [], 'a record outside the public gallery lists none');
+contentMapCheck(ContentMap::neighboursOf($map, 99, $public + [99 => true]) === [], 'a record not on the map lists none');
+
+$map['places'] = ['minMentions' => 3, 'items' => ['1' => [['Ghana', 5], ['Togo', 'x']], '26' => [['Mali', 4]]]];
+$placed = ContentMap::forGallery($map, $public);
+contentMapCheck(($placed['places'] ?? null) === ['1' => [['Ghana', 5]]] && $placed['placesMinMentions'] === 3,
+    'places keep only public records and well-formed pairs');
+unset($map['places']);
 
 $map['groups'] = [['id' => 1, 'size' => 9, 'label' => '  Hymns  '], ['id' => 2, 'size' => 8, 'label' => ''], ['id' => 3, 'size' => 1, 'label' => 'Gone']];
 $unsigned = ContentMap::forGallery($map, $public);

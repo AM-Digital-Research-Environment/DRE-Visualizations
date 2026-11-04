@@ -10,7 +10,6 @@ use Omeka\Api\Representation\SiteRepresentation;
 use DreVisualizations\Site\BlockRegistry;
 use DreVisualizations\FeaturedCollections\ContentMap;
 use DreVisualizations\FeaturedCollections\Registry;
-use DreVisualizations\Precompute\PublishedSnapshot;
 
 /**
  * Photo Browsing site-page block.
@@ -153,7 +152,7 @@ class PhotoBrowse extends AbstractDreBlockLayout
             'itemSetId'       => $itemSetId,
             'heading'         => $heading,
             'defaultView'     => $defaultView,
-            'precomputed'     => $itemSetId ? $this->loadGallery($entry ? 'collection-' . $entry['slug'] : (string) $itemSetId) : null,
+            'precomputed'     => $itemSetId ? ContentMap::gallery($entry ? 'collection-' . $entry['slug'] : (string) $itemSetId) : null,
             'identifierPrefix' => $prefix,
             'grouping'        => $grouping,
             'partner'         => $partner,
@@ -161,19 +160,9 @@ class PhotoBrowse extends AbstractDreBlockLayout
             // The "By content" view: a committed full-text map, when the
             // collection has one (FeaturedCollections\ContentMap).
             'contentMap'      => $entry ? ContentMap::load($entry['slug']) : null,
+            // Its Words view: the committed word counts, when there are any.
+            'contentWords'    => $entry ? ContentMap::wordsAsset($entry['slug']) : null,
         ] + BlockRegistry::viewVars(self::SLUG));
-    }
-
-    /**
-     * Load a current protected gallery, or null when publication is unavailable.
-     *
-     * @return array{total:int,photos:array<int,array<string,mixed>>}|null
-     */
-    private function loadGallery(string $itemSetId): ?array
-    {
-        $dataDir = \DreVisualizations\Precompute\SnapshotStore::tryDefault()?->directory;
-        $data = $dataDir === null ? null : PublishedSnapshot::readJson($dataDir, 'photo-galleries/' . $itemSetId . '.json');
-        return (is_array($data) && isset($data['photos']) && is_array($data['photos'])) ? $data : null;
     }
 
     /** Build the `field` markup Omeka's page editor expects. */

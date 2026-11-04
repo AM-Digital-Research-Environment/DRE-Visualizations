@@ -340,6 +340,65 @@ button.photo-content-search__pick:focus-visible {
     font-weight: 700;
 }
 
+/* Groups over time sits under the map and its article list. */
+.photo-content-groups {
+    margin-top: var(--rv-space-5);
+}
+
+.chart-container.photo-content-groups-chart {
+    min-height: 16rem;
+}
+
+/* Words: the words to compare, Show, and the averaging switch on one line. */
+.photo-content-words__form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--rv-space-3);
+    margin-bottom: var(--rv-space-3);
+}
+
+.photo-content-words__form .semantic-map-search__label {
+    flex: 1 1 18rem;
+    min-width: 0;
+}
+
+.photo-content-words__smooth {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--rv-space-2);
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-sm);
+}
+
+.photo-content-words__missing {
+    margin: 0 0 var(--rv-space-3);
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-sm);
+}
+
+.photo-content-words__missing:empty {
+    display: none;
+}
+
+.chart-container.photo-content-words-chart {
+    height: 26rem;
+    min-height: 20rem;
+}
+
+/* "Closest in content" on an article's page. */
+.content-neighbours-intro {
+    margin: 0 0 var(--rv-space-3);
+    color: var(--rv-text-color);
+    font-size: var(--rv-text-sm);
+}
+
+.content-neighbours-more {
+    margin: var(--rv-space-3) 0 0;
+    font-size: var(--rv-text-sm);
+    font-weight: 650;
+}
+
 /* The selected article and its closest articles by full text. */
 .photo-content-detail {
     margin-top: var(--rv-space-4);
@@ -2959,6 +3018,9 @@ button.rv-colour-mode-btn:focus-visible {
    under DRE this scoping is simply defensive.) */
 .photo-view-toggle {
     display: inline-flex;
+    /* Five views (a journal with a full-text map) outrun a phone's width. */
+    flex-wrap: wrap;
+    max-width: 100%;
     gap: 2px;
     padding: 3px;
     background: var(--rv-bg-sunken);

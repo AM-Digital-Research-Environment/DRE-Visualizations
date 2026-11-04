@@ -211,7 +211,7 @@ test.describe('content map', () => {
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await openSurface(page, 'content-map');
-    await page.waitForFunction(() => window.RV._allCharts.length === 1);
+    await page.waitForFunction(() => window.RV._allCharts.length === 2);
     await expect(page.locator('.photo-content-detail__hint')).toBeVisible();
     // AI-generated group names are announced as such, naming the model.
     await expect(page.locator('.photo-content-ai-note')).toContainText('AI-generated group names');
@@ -235,7 +235,40 @@ test.describe('content map', () => {
     await page.getByRole('button', { name: 'Decade' }).click();
     await expect(page.getByRole('button', { name: 'Decade' })).toHaveAttribute('aria-pressed', 'true');
     await expect(detail.locator('ol > li')).toHaveCount(5);
+    // Groups over time: one row per group (the "not in a group" articles left out).
+    const rows = await page.evaluate(() => window.RV._allCharts[1].getOption().yAxis[0].data.length);
+    expect(rows).toBe(3);
     expect(errors).toEqual([]);
+  });
+
+  test('a page opened at #content-<id> starts on the map with that article selected', async ({ page }) => {
+    await page.goto('/fixture/content-map#content-12');
+    await expect(page.locator('.photo-content-detail').getByRole('link', { name: 'Article 12 on hip hop' })).toBeVisible();
+  });
+
+  test('Words charts the default words from the committed counts and names those not counted', async ({ page }) => {
+    await openSurface(page, 'content-map');
+    await page.getByRole('tab', { name: 'Words' }).click();
+    await page.waitForFunction(() => window.RV._allCharts.length === 3);
+    const lines = await page.evaluate(() => window.RV._allCharts[2].getOption().series.map((s) => s.name));
+    expect(lines).toEqual(['mbira', 'guitar', 'church', 'jazz', 'women']);
+    await page.getByLabel('Words to compare').fill('mbira, zzqq');
+    await page.getByRole('button', { name: 'Show' }).click();
+    await expect(page.locator('.photo-content-words__missing')).toContainText('zzqq');
+  });
+
+  test('Places shades countries by articles, filters by decade and lists a country\'s articles', async ({ page }) => {
+    await openSurface(page, 'content-map');
+    await page.getByRole('tab', { name: 'Places' }).click();
+    await page.waitForFunction(() => window.RV._allCharts.length === 3);
+    const data = await page.evaluate(() => window.RV._allCharts[2].getOption().series[0].data
+      .filter((d) => d.value > 0).map((d) => [d.name, d.value]));
+    expect(data).toEqual([['Ghana', 10], ['Uganda', 10], ['Brazil', 10]]);
+    await page.getByRole('button', { name: '1950s' }).click();
+    await expect(page.locator('.photo-content-places .semantic-map-status')).toContainText('3 articles');
+    await page.locator('.photo-content-places details.semantic-map-list > summary').click();
+    await page.getByRole('button', { name: /^Ghana/ }).click();
+    await expect(page.locator('.photo-content-places .photo-content-detail ol > li')).toHaveCount(1);
   });
 });
 

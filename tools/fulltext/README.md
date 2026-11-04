@@ -35,12 +35,16 @@ python fulltext_map.py export --work-dir <private dir> --out ../../config/fullte
 ```
 
 ```bash
-# 5. Optional, experimental: name the groups (needs no private data)
+# 5. Word counts by year and the countries each article names (standard library only)
+python fulltext_map.py features --work-dir <private dir> --out ../../config/fulltext-maps/international-library-of-african-music-ilam.json --words-out ../../asset/data/fulltext/international-library-of-african-music-ilam-words.json
+
+# 6. Optional, experimental: name the groups (needs no private data)
 python fulltext_map.py label --out ../../config/fulltext-maps/international-library-of-african-music-ilam.json --labels labels/international-library-of-african-music-ilam.json
 ```
 
-`export` reuses the cached passage vectors, so after `embed` has run once it
-needs no model. Re-run it after the full text changes, commit the file and
+Run them in this order: `export` rewrites the map file, `features` adds the
+places to it, `label` the group names. `export` reuses the cached passage
+vectors, so after `embed` has run once it needs no model. Re-run it after the full text changes, commit the file and
 release the module; the map changes on the site with the module update.
 
 `--amira-dir` takes a folder holding a `semantic-embeddings-v1-*` release
@@ -86,6 +90,21 @@ neighbours.
   left; eight neighbours per article. Groups carry no labels: full-text
   keywords would quote the texts, and title words proved misleading
   (publishers' names labelled the review groups).
+- **Words** (`features`): for every word found in at least ten of the
+  articles on the map, its occurrences in each year beside the year's total
+  word count (`asset/data/fulltext/<collection>-words.json`, about 290 KiB
+  gzipped). Aggregates only, as HathiTrust's extracted features do for works
+  still in copyright: no article is identified and word order is gone. The
+  gallery's Words view charts them per 10,000 words.
+- **Places** (`features`): for each article, the countries its text names at
+  least three times, by present or colonial name, adjective, or a few regions
+  and cities (Buganda, Zanzibar, Lagos…), after cutting the journal's own
+  addresses and university affiliations, which named South Africa in articles
+  about anywhere else. A bare "Congo" counts for the Democratic Republic of the
+  Congo. Africa and the African Americas only: European and North American
+  names mostly come from publishers' addresses. Written into the map file and
+  filtered with it, so only public records count; the gallery's Places view
+  shows them.
 - **Group labels** (`label`, experimental): `labels/<collection>.json` names
   each group and who named it. The ILAM labels were written by an AI model
   (Claude Opus 5.5) from the public titles of each group's articles, never from

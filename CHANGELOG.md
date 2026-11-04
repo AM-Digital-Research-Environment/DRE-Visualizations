@@ -13,6 +13,17 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Added
+
+- **Closest in content on every ILAM article's page.** The Similar Items block now opens, for an article of the ILAM journal, with the eight articles whose full text is closest to it, from any decade, each with its year and issue, and a link that opens the collection's "By content" map with the article selected. It needs no setup: the block is already on item pages.
+- **Groups over time**, under the ILAM "By content" map: a grid of the 21 groups against the decades, each cell the number of articles, shaded by the group's share of the decade. It shows the journal moving from church music, instruments and colleges in the 1950s and 1960s to popular music, jazz and hip hop after 2000.
+- **Words**, a new view of the ILAM gallery: how often words occur in each year's articles, per 10,000 words, for up to six words typed by the reader (mbira, guitar, church, jazz and women to start), averaged over five years or not. The counts come from the full text, for the 9,537 words found in at least ten articles; the page receives only the counts.
+- **Places**, a new view of the ILAM gallery: the countries the articles write about, on a map of Africa and the African Americas shaded by the number of articles, for every decade or one. Selecting a country, on the map or in the list under it, lists its articles with how often each names it. An article counts for a country it names at least three times, by present or colonial name (Gold Coast, Nyasaland, Belgian Congo…), adjective or a few regions; the journal's own addresses are left out.
+
+### Changed
+
+- The gallery's view switch wraps on a narrow screen, now that a journal can have five views.
+
 ## [2.47.0] - 2026-11-04
 
 Update the module to see the change. No regeneration is needed: the generated data is unchanged.

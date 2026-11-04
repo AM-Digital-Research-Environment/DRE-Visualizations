@@ -36,7 +36,9 @@ for (const required of [...runtimeAssets, ...debugAssets,
   // The translation catalogue Omeka's translator is pointed at (module.config.php).
   'language/template.pot',
   // The committed full-text maps the Photo Browsing block reads (FeaturedCollections\ContentMap).
-  ...readdirSync(new URL('../config/fulltext-maps/', import.meta.url)).map((name) => `config/fulltext-maps/${name}`)]) {
+  ...readdirSync(new URL('../config/fulltext-maps/', import.meta.url)).map((name) => `config/fulltext-maps/${name}`),
+  // …and the word counts their Words view fetches.
+  ...readdirSync(new URL('../asset/data/fulltext/', import.meta.url)).map((name) => `asset/data/fulltext/${name}`)]) {
   if (!entries.has(prefix + required)) failures.push(`missing runtime file: ${required}`);
 }
 

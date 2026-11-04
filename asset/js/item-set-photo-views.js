@@ -16,7 +16,10 @@
  *     clicking opens a table-of-contents modal listing the issue's articles.
  *   - map: clustered MapLibre, lazy-loaded the first time the Map tab is opened.
  *   - similarity ("By content"): the collection's full-text map, when the block
- *     renders one (script.photo-content-map), drawn by item-set-content-map.js.
+ *     renders one (script.photo-content-map), drawn by item-set-content-map.js;
+ *     words and places, from the same export, by item-set-content-extras.js.
+ *     A page opened at #content-<id> starts on "By content" with that article
+ *     selected (the link under an article's "Closest in content" list).
  *
  * THEMING — follows the DRE theme via the --rv-* tokens (masonry/timeline/TOC are
  * pure DOM) and ns.cssColor / ns.trackMap (the map).
@@ -97,8 +100,23 @@
         var toc = grouping === 'issue' ? makeTocModal(container) : null;
         var views = {};   // name -> { el, built }
         var contentEl = container.querySelector('script.photo-content-map');
+        var contentData;   // parsed once, on first use
+        function content() {
+            if (contentData === undefined) {
+                try {
+                    contentData = contentEl ? JSON.parse(contentEl.textContent || 'null') : null;
+                } catch (e) {
+                    console.error('DreVisualizations content map:', e);
+                    contentData = null;
+                }
+            }
+            return contentData;
+        }
+        var linked = /^#content-(\d+)$/.exec(window.location.hash || '');
+        var selectId = linked && buttons.some(function (b) { return b.dataset.view === 'similarity'; }) ? Number(linked[1]) : null;
+        if (selectId) defaultView = 'similarity';
 
-        ['masonry', 'map', 'timeline', 'similarity'].forEach(function (name) {
+        ['masonry', 'map', 'timeline', 'similarity', 'words', 'places'].forEach(function (name) {
             views[name] = { el: null, built: false };
         });
 
@@ -115,8 +133,10 @@
             if (!views[name].built) {
                 if (name === 'map') {
                     buildMap(views[name], photos, lightbox, mlCss, mlJs, mlWorker, stage);
-                } else if (name === 'similarity') {
-                    buildContent(views[name], photos, contentEl, stage);
+                } else if (name === 'similarity' || name === 'places') {
+                    buildContent(name, views[name], photos, content(), stage, selectId);
+                } else if (name === 'words') {
+                    buildWords(views[name], container.dataset.contentWords || '', stage);
                 } else if (name === 'timeline') {
                     views[name].el = buildTimeline(photos, lightbox, grouping, toc);
                     views[name].built = true;
@@ -137,9 +157,10 @@
             if (name === 'map' && views.map._map) {
                 requestAnimationFrame(function () { try { views.map._map.resize(); } catch (e) {} });
             }
-            if (name === 'similarity' && views.similarity._chart) {
-                requestAnimationFrame(function () { try { views.similarity._chart.resize(); } catch (e) {} });
-            }
+            // A chart drawn while its view was hidden has no size until resized.
+            (views[name]._charts || []).forEach(function (chart) {
+                requestAnimationFrame(function () { try { chart.resize(); } catch (e) {} });
+            });
         }
 
         buttons.forEach(function (b) {
@@ -148,20 +169,32 @@
 
         showView(defaultView);
         state.ready();
+        if (selectId) container.scrollIntoView({ block: 'start' });
     }
 
-    /** The "By content" view, or an error in its place when its payload or script is missing. */
-    function buildContent(slot, photos, dataEl, stage) {
-        var data = null;
-        try {
-            data = dataEl ? JSON.parse(dataEl.textContent || 'null') : null;
-        } catch (e) {
-            console.error('DreVisualizations content map:', e);
-        }
-        if (data && typeof ns.buildContentMap === 'function') {
-            ns.buildContentMap(slot, photos, data, stage);
+    /**
+     * The "By content" or "Places" view, or an error in its place when the
+     * payload or its script is missing.
+     */
+    function buildContent(name, slot, photos, data, stage, selectId) {
+        var build = name === 'places' ? ns.buildContentPlaces : ns.buildContentMap;
+        if (data && typeof build === 'function') {
+            build(slot, photos, data, stage, selectId);
             return;
         }
+        viewError(slot);
+    }
+
+    /** The "Words" view, which fetches its own counts. */
+    function buildWords(slot, url, stage) {
+        if (url && typeof ns.buildContentWords === 'function') {
+            ns.buildContentWords(slot, url, stage);
+            return;
+        }
+        viewError(slot);
+    }
+
+    function viewError(slot) {
         var view = document.createElement('div');
         view.className = 'photo-view';
         view.appendChild(ns.errorNotice(ns.t('visualizationLoadError', 'The visualisation could not be loaded.')));

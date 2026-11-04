@@ -1,0 +1,52 @@
+<?php
+/**
+ * "Closest in content": an article's closest articles in its collection by
+ * the words of their full texts (FeaturedCollections\ContentMap), from the
+ * committed map, restricted to the public gallery. Rendered on the server: a
+ * short list of links that needs no script. The last link opens the
+ * collection's "By content" view with this article selected (#content-<id>,
+ * read by item-set-photo-views.js).
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\ItemRepresentation $resource
+ * @var array $collection   its FeaturedCollections\Registry entry
+ * @var list<array<string,mixed>> $neighbours  gallery records, closest first
+ * @var string $model       the embedding model the map was built with
+ * @var string $slug
+ * @var string $plan
+ */
+
+$this->dashboardAssets(['plan' => $plan]);
+$siteBase = $this->basePath() . '/s/' . $this->currentSite()->slug();
+$headingId = 'content-neighbours-title-' . $resource->id();
+$meta = function (array $record): string {
+    $parts = [];
+    if (($record['year'] ?? null) !== null) $parts[] = (string) $record['year'];
+    if (isset($record['volume'], $record['issue'])) {
+        $parts[] = sprintf($this->translate('Vol. %1$s No. %2$s'), (int) $record['volume'], (int) $record['issue']);
+    }
+    return implode(' · ', $parts);
+};
+?>
+
+<section class="resource-vis-block content-neighbours-block" aria-labelledby="<?= $headingId ?>">
+    <h2 id="<?= $headingId ?>"><?= $this->escapeHtml($this->translate('Closest in content')) ?></h2>
+    <p class="content-neighbours-intro"><?= $this->escapeHtml(sprintf(
+        $this->translate('The articles in the %1$s collection whose full text is closest to this one, from any decade. They are found by comparing semantic embeddings of the full texts, made with the open model %2$s; the texts themselves stay private.'),
+        $collection['title'],
+        $model !== '' ? $model : 'EmbeddingGemma'
+    )) ?></p>
+    <ol class="photo-content-detail__list content-neighbours-list">
+        <?php foreach ($neighbours as $record): ?>
+        <li>
+            <a href="<?= $this->escapeHtmlAttr($siteBase . '/item/' . (int) $record['id']) ?>"><?= $this->escapeHtml((string) ($record['title'] ?? $this->translate('Untitled'))) ?></a>
+            <?php if (($line = $meta($record)) !== ''): ?>
+            <span class="photo-content-detail__meta"><?= $this->escapeHtml($line) ?></span>
+            <?php endif; ?>
+        </li>
+        <?php endforeach; ?>
+    </ol>
+    <p class="content-neighbours-more">
+        <a href="<?= $this->escapeHtmlAttr($siteBase . '/page/' . rawurlencode($collection['pageSlug']) . '#content-' . $resource->id()) ?>"><?= $this->escapeHtml($this->translate('See this article on the map of the collection')) ?></a>
+    </p>
+</section>

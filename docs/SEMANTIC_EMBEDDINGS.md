@@ -38,6 +38,13 @@ in the current public gallery snapshot, so a record made private since the
 export leaves the map and every neighbour list at the next regeneration. It is
 not part of the shared space above and needs no workflow run.
 
+The same export gives an ILAM article's page its "Closest in content" list
+(inside the Similar Items block) and the gallery two more views: Words, from
+word counts by year (`asset/data/fulltext/<slug>-words.json`, words found in
+at least ten articles, no article identified), and Places, from the countries
+each article names. Both are counts only; `tools/fulltext/README.md` describes
+how they are made.
+
 Every corpus receives the same 900-word maximum. HTML is stripped before the
 content hash and model input are calculated.
 

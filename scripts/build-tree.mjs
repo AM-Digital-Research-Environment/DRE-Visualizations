@@ -137,6 +137,7 @@ const ANNOTATIONS = {
   'asset/js/graph-force.js': 'Reusable: d3-force simulation + pointer/keyboard interaction',
   'asset/js/item-location-map.js': 'MapLibre origin / current-location panel',
   'asset/js/item-set-content-map.js': 'Photo Browsing: the "By content" full-text map',
+  'asset/js/item-set-content-extras.js': 'Photo Browsing: the Words and Places views of a full-text export',
   'asset/js/item-set-photo-views.js': 'Photo Browsing: masonry / map / timeline + lightbox',
   'asset/js/knowledge-graph-data.js': 'Protected payload load + IDF filters (pure data)',
   'asset/js/knowledge-graph-ui.js': 'Toolbar, filter panel, legend, text alternative',

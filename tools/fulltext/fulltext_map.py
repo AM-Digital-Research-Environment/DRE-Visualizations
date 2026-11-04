@@ -10,6 +10,7 @@ averages each article's passages into one re-normalised vector in that space.
     python fulltext_map.py embed   --work-dir <private dir>
     python fulltext_map.py analyse --work-dir <private dir>
     python fulltext_map.py export  --work-dir <private dir> --out ../../config/fulltext-maps/<collection>.json
+    python fulltext_map.py features --work-dir <private dir> --out ../../config/fulltext-maps/<collection>.json --words-out ../../asset/data/fulltext/<collection>-words.json
     python fulltext_map.py label   --out ../../config/fulltext-maps/<collection>.json --labels labels/<collection>.json
 
 `analyse` lays the articles out with UMAP, clusters them with HDBSCAN, labels
@@ -275,7 +276,7 @@ def embed(work_dir: Path, batch: int, engine: str, threads: int, shard: int, sha
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("stage", choices=("embed", "analyse", "export", "label"))
+    parser.add_argument("stage", choices=("embed", "analyse", "export", "features", "label"))
     parser.add_argument("--work-dir", type=Path, help="the private work directory (every stage but label)")
     parser.add_argument("--batch", type=int, default=1)
     parser.add_argument("--engine", choices=("reference", "onnx"), default="reference",
@@ -287,6 +288,7 @@ def main() -> int:
     parser.add_argument("--out", type=Path, help="export: the module's public map file (config/fulltext-maps/<collection>.json)")
     parser.add_argument("--item-set", type=int, default=27724, help="export: the collection's item set")
     parser.add_argument("--labels", type=Path, help="label: group labels (labels/<collection>.json), applied to --out")
+    parser.add_argument("--words-out", type=Path, help="features: the word counts by year (asset/data/fulltext/<collection>-words.json)")
     args = parser.parse_args()
     if args.stage == "label":
         if args.out is None or args.labels is None:
@@ -298,6 +300,12 @@ def main() -> int:
         parser.error(f"{args.stage} needs --work-dir")
     if args.stage == "embed":
         return embed(args.work_dir, args.batch, args.engine, args.threads, args.shard, args.shards)
+    if args.stage == "features":
+        if args.out is None or args.words_out is None:
+            parser.error("features needs --out (the exported map) and --words-out")
+        from fulltext_features import features
+
+        return features(args.work_dir, args.out, args.words_out)
     if args.stage == "export":
         if args.out is None:
             parser.error("export needs --out")

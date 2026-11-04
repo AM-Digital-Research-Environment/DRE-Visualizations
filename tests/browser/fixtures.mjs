@@ -88,11 +88,13 @@ function contentMapBlock() {
     model: 'google/embeddinggemma-2',
     labels: { 1: 'Xylophone music', 2: 'Church music' },
     labelledBy: 'An AI model',
+    places: Object.fromEntries(photos.map((photo, i) => [String(photo.id), [[['Ghana', 'Uganda', 'Brazil'][i % 3], 3 + (i % 4)]]])),
+    placesMinMentions: 3,
   };
-  const views = ['masonry', 'timeline', 'similarity'];
-  const labels = { masonry: 'Grid', timeline: 'Timeline', similarity: 'By content' };
+  const views = ['masonry', 'timeline', 'similarity', 'words', 'places'];
+  const labels = { masonry: 'Grid', timeline: 'Timeline', similarity: 'By content', words: 'Words', places: 'Places' };
   const buttons = views.map((view) => `<button type="button" role="tab" class="photo-view-btn${view === 'similarity' ? ' is-active' : ''}" data-view="${view}" aria-selected="${view === 'similarity'}">${labels[view]}</button>`).join('');
-  return `<div class="resource-vis-block photo-browse-block"><div class="photo-browse-container" data-default-view="similarity" data-grouping="issue">`
+  return `<div class="resource-vis-block photo-browse-block"><div class="photo-browse-container" data-default-view="similarity" data-grouping="issue" data-content-words="/asset/data/fulltext/international-library-of-african-music-ilam-words.json">`
     + `<div class="photo-browse-toolbar"><div class="photo-view-toggle" role="tablist" aria-label="View as">${buttons}</div>`
     + `<span class="photo-browse-count">8 issues · 30 articles</span></div>`
     + surface('photo-browse-stage')
