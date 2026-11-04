@@ -13,6 +13,10 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.48.0] - 2026-11-04
+
+Update the module to see the changes. No regeneration is needed: the generated data is unchanged.
+
 ### Added
 
 - **Closest in content on every ILAM article's page.** The Similar Items block now opens, for an article of the ILAM journal, with the eight articles whose full text is closest to it, from any decade, each with its year and issue, and a link that opens the collection's "By content" map with the article selected. It needs no setup: the block is already on item pages.
