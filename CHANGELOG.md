@@ -13,6 +13,10 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.49.0] - 2026-11-04
+
+Update the module to see the changes. No regeneration is needed: the generated data is unchanged.
+
 ### Changed
 
 - **Words: chips and frequent words instead of a comma-separated field.** Each word to compare is a chip in the field, in the colour of its line, with a button to remove it. Typing offers the counted words that start with the text, most frequent first, with their number of occurrences (arrow keys and Enter, or a click); a comma also adds. Under the field, the collection's sixteen most frequent words add with one click: the export now lists them (`suggested`, function words left out), and the committed ILAM words file carries them. The Show button is gone: the chart follows every change. The averaging switch sits on the label's line, so the field no longer shares a row with controls of other heights.
