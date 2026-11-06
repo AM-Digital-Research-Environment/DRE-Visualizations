@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace DreVisualizations\Site\ResourcePageBlockLayout;
 
+use DreVisualizations\FeaturedCollections\ContentMap;
 use DreVisualizations\Site\PublishedData;
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
@@ -19,12 +20,20 @@ class LinkedItemsDashboard extends AbstractDreResourcePageBlockLayout
         // The publisher is authoritative: not every item has an aggregate
         // dashboard. In particular, research records may have a knowledge graph
         // without a dashboard. Do not mount a loader for a nonexistent artifact.
-        if (!PublishedData::available($view, 'item-dashboards/' . $resource->id() . '.json', $this->dataDir)) {
+        $dashboard = PublishedData::available($view, 'item-dashboards/' . $resource->id() . '.json', $this->dataDir);
+        // A research project's images, from all of its collections
+        // (photo-galleries/project-<item id>.json, written for projects only).
+        $gallery = PublishedData::onCanonicalSite($view)
+            ? ContentMap::gallery('project-' . $resource->id(), $this->dataDir)
+            : null;
+        if (!$dashboard && ($gallery === null || !$gallery['photos'])) {
             return '';
         }
 
         return $this->renderTemplate($view, [
             'resource' => $resource,
+            'dashboard' => $dashboard,
+            'gallery' => $gallery && $gallery['photos'] ? $gallery : null,
         ]);
     }
 }

@@ -69,5 +69,24 @@ collectionsCheck(ProjectCollections::resolve($items, $literals, $itemSets, $reco
 collectionsCheck(ProjectCollections::resolve($items, $literals, $itemSets, [], PROJECT_TEMPLATE) === [],
     'no item-set records, no collections');
 
+// members(): a project's records are its dcterms:isPartOf children plus the
+// items of its collections, so they outlive a set made private.
+$childrenOf = [1 => [30, 20, 1], 3 => [31], 9 => [32]];
+$members = ProjectCollections::members($items, $childrenOf, $itemSets, $result, PROJECT_TEMPLATE);
+collectionsCheck(array_keys($members) === [1, 2, 3, 4], 'every project with records has members, in id order');
+collectionsCheck(($members[1] ?? null) === [20, 21, 30], 'children and collection items merge once, ascending, without the project itself');
+collectionsCheck(($members[3] ?? null) === [20, 21, 31], 'a dre:id collection adds to the children');
+collectionsCheck(!isset($members[9]), 'a non-project item has no members, even with children');
+$noSets = ProjectCollections::members($items, $childrenOf, [], [], PROJECT_TEMPLATE);
+collectionsCheck(($noSets[1] ?? null) === [20, 30] && ($noSets[3] ?? null) === [31] && !isset($noSets[2]),
+    'with every set private, the dcterms:isPartOf children remain');
+
+// byDreId(): how the profile names a project.
+$byDreId = ProjectCollections::byDreId($items + [5 => ['template_id' => PROJECT_TEMPLATE]],
+    $literals + [5 => ['dre:id' => ['UBT_One']]], PROJECT_TEMPLATE);
+collectionsCheck(($byDreId['UBT_One'] ?? null) === 1, 'a shared dre:id resolves to the lower project id');
+collectionsCheck(($byDreId['UBT_Three'] ?? null) === 3, 'dre:id lookup ignores surrounding whitespace');
+collectionsCheck(!isset($byDreId['UBT_Nine']), 'a non-project item is never named by its dre:id');
+
 echo $failures ? "\n$failures FAILURE(S)\n" : "\nALL PROJECT COLLECTION TESTS PASS\n";
 exit($failures ? 1 : 0);

@@ -54,9 +54,14 @@ profileCheck(($featured[4]['producerId'] ?? null) === 1219
     && ($featured[4]['externalUrl'] ?? null) === '/item?property[0][property]=568&property[0][type]=res&property[0][text]=1219',
     'featured collection filters resolve property and authority keys');
 $registry = Registry::all();
-profileCheck(($registry[4]['itemSetId'] ?? null) === $profile->itemSet('beyondDigitalReturn')
+profileCheck(array_key_exists('itemSetId', $registry[4] ?? []) && $registry[4]['itemSetId'] === null
+    && ($registry[4]['projectDreId'] ?? null) === $profile->project('beyondDigitalReturn')
     && ($registry[4]['producerId'] ?? null) === 1219,
     'featured registry normalizes resolved profile entries');
+profileCheck(($registry[0]['itemSetId'] ?? null) === $profile->itemSet('ilam') && $registry[0]['projectDreId'] === null,
+    'a featured collection over an item set has no project');
+profileCheck($profile->project('museuAfroDigital') === 'UFB_AfroDigital',
+    'projects are pinned by dre:id, not by Omeka id');
 
 $raw = json_decode((string) file_get_contents($profilePath), true, 512, JSON_THROW_ON_ERROR);
 $invalidCases = [
@@ -72,6 +77,12 @@ $invalidCases = [
     'duplicate embedding corpus id' => static function (array &$data): void { $data['embeddingCorpora'][1]['id'] = $data['embeddingCorpora'][0]['id']; },
     'duplicate featured collection slug' => static function (array &$data): void { $data['featuredCollections'][1]['slug'] = $data['featuredCollections'][0]['slug']; },
     'unknown featured item-set key' => static function (array &$data): void { $data['featuredCollections'][0]['itemSetKey'] = 'missing'; },
+    'unknown featured project key' => static function (array &$data): void { $data['featuredCollections'][1]['projectKey'] = 'missing'; },
+    'featured collection over an item set and a project' => static function (array &$data): void { $data['featuredCollections'][1]['itemSetKey'] = 'ilam'; },
+    'featured collection over nothing' => static function (array &$data): void { unset($data['featuredCollections'][1]['projectKey']); },
+    'project pinned by an Omeka id' => static function (array &$data): void { $data['projects']['museuAfroDigital'] = 1845; },
+    'missing projects section' => static function (array &$data): void { unset($data['projects']); },
+    'unused project pinned by an Omeka id' => static function (array &$data): void { $data['projects']['unused'] = 42; },
 ];
 foreach ($invalidCases as $label => $mutate) {
     $case = $raw;

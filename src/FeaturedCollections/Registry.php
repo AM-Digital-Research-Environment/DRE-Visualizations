@@ -22,21 +22,28 @@ use DreVisualizations\Precompute\AmiraProfile;
  *     each card is one issue (Vol. N No. M), clicking opens a table of contents.
  *     Its DOI (`bibo:doi`, …amj.vNiM…) encodes the volume/issue; a map view is
  *     pointless (one host location) so it is disabled.
- *   - Museu Afro-Digital is one Omeka item set (6295) holding three distinct
+ *   - Museu Afro-Digital is one research project holding three distinct
  *     sub-collections; each registry entry pins an `identifierPrefix` so the
  *     gallery shows only that sub-collection's items (split by the
  *     `dcterms:identifier` prefix: APMESTRENO / TRABNEGRBA / ORIXAFGM).
  *   - DECCA and Jambo are record-label producers (`producerId`) of image-less
- *     Audio recordings inside the DigiRet collection (6262), not item sets of
- *     their own. They are featured as link-out cards (`externalUrl`): the card
- *     shows a count and links to the producer-filtered Omeka listing, with no
- *     in-module photo gallery.
+ *     Audio recordings inside the "Beyond the Digital Return" project, not
+ *     collections of their own. They are featured as link-out cards
+ *     (`externalUrl`): the card shows a count and links to the
+ *     producer-filtered Omeka listing, with no in-module photo gallery.
+ *
+ * An entry draws on one item set (`itemSetId`: ILAM, an external collection
+ * with no project) or on one research project (`projectDreId`: the project
+ * item's dre:id, resolved by the precompute). A project's records are the
+ * items that name it in dcterms:isPartOf plus those of its collection sets
+ * (Precompute\ProjectCollections::members), so its galleries survive the set
+ * being made private and no item-set id is pinned for it.
  */
 final class Registry
 {
     /**
      * @return list<array{
-     *   slug:string, pageSlug:string, itemSetId:int, identifierPrefix:?string,
+     *   slug:string, pageSlug:string, itemSetId:?int, projectDreId:?string, identifierPrefix:?string,
      *   title:string, tagline:?string, description:string, partner:?string,
      *   thumbnail:?string, externalUrl:?string, producerId:?int,
      *   views:array{masonry:bool,map:bool,timeline:bool},
@@ -60,23 +67,13 @@ final class Registry
         return null;
     }
 
-    /** All entries that draw from a given item set (Museu's three share 6295). */
+    /** All entries that draw from a given item set (projects' entries never match). */
     public static function forItemSet(int $itemSetId): array
     {
         return array_values(array_filter(
             self::all(),
             static fn (array $e): bool => $e['itemSetId'] === $itemSetId
         ));
-    }
-
-    /** Distinct item-set ids referenced by the registry — used by the precompute. */
-    public static function itemSetIds(): array
-    {
-        $ids = [];
-        foreach (self::all() as $entry) {
-            $ids[$entry['itemSetId']] = true;
-        }
-        return array_keys($ids);
     }
 
     /** `slug => title`, for a block's editor dropdown. */
@@ -97,7 +94,8 @@ final class Registry
             // Cards link to the Omeka page that hosts this collection's gallery;
             // defaults to the slug (create the page with a matching slug).
             'pageSlug' => (string) ($e['pageSlug'] ?? $e['slug']),
-            'itemSetId' => (int) $e['itemSetId'],
+            'itemSetId' => isset($e['itemSetId']) ? (int) $e['itemSetId'] : null,
+            'projectDreId' => isset($e['projectDreId']) ? (string) $e['projectDreId'] : null,
             'identifierPrefix' => isset($e['identifierPrefix']) ? (string) $e['identifierPrefix'] : null,
             'title' => (string) $e['title'],
             'tagline' => isset($e['tagline']) ? (string) $e['tagline'] : null,

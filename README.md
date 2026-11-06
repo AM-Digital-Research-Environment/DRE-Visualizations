@@ -51,7 +51,7 @@ For a research item that belongs to a project, a compact sparkline of the projec
 
 Contextual charts adapted per entity type. All chart elements are clickable, linking to the corresponding Omeka S item page. ~2,500 dashboards pre-computed across all entity types. The whole dashboard sits in a collapsible `<details>` header (matching the Knowledge Graph and the theme's *Linked resources* accordion); charts re-fit when a collapsed section is re-opened. The block (**Visualisations**, `dreLinkedItemsDashboard`) places itself on item pages — see [Configure Resource Pages](#configure-resource-pages) — and stays hidden on any record without a dashboard.
 
-**Research projects: the project item page comes first.** A research project is an item (template *Projects*, `foaf:Project`) and usually also an item set holding its records. The project item page is the one page for both: its Visualisations block shows the project dashboard, and the project's item-set pages redirect to it (DRE SEO). The dashboard opens with what it covers: the number of records, the project's collections ("Collection: *title* (*n* records)", not linked, since their pages redirect back here) and, when the site has a page with the [Project Explorer](#project-explorer) block, a link to the same project there (`?project=ID`). A collection belongs to a project when its `dcterms:isPartOf` links the project item (written by the sync) or, for a project with no such link, when it shares the project's `dre:id`. The precompute writes the same `collections` list (`[{id, title, items}]`) into the project's dashboard JSON and its `projects-index.json` entry.
+**Research projects: the project item page comes first.** A research project is an item (template *Projects*, `foaf:Project`) and usually also an item set holding its records. The project item page is the one page for both: its Visualisations block shows the project dashboard, and the project's item-set pages redirect to it (DRE SEO). The dashboard opens with what it covers: the number of records, the project's collections ("Collection: *title* (*n* records)", not linked, since their pages redirect back here) and, when the site has a page with the [Project Explorer](#project-explorer) block, a link to the same project there (`?project=ID`). A collection belongs to a project when its `dcterms:isPartOf` links the project item (written by the sync) or, for a project with no such link, when it shares the project's `dre:id`. The precompute writes the same `collections` list (`[{id, title, items}]`) into the project's dashboard JSON and its `projects-index.json` entry. A project with images also shows them under its dashboard, in the [Photo Browsing](#photo-browsing) gallery: every image-bearing record that names the project in `dcterms:isPartOf` or sits in one of its collections (`photo-galleries/project-<item id>.json`).
 
 #### Charts by Entity Type
 
@@ -219,22 +219,24 @@ A recent-additions feed with a **3 / 6 / 12-month** window selector and a "most 
 
 ### Featured Collections
 
-A curated landing grid of **collection cards** (cover mosaic, title, description, partner credit and an item/photo count), added as a **site-page block** (Admin > Sites > [site] > Pages). The collections come from the module registry (`src/FeaturedCollections/Registry.php`) — add an entry and it appears here; the only per-block setting is an optional heading. Counts and cover thumbnails come from the current protected snapshot, and most cards link to an in-module **Photo Browsing** detail page.
+A curated landing grid of **collection cards** (cover mosaic, title, description, partner credit and an item/photo count), added as a **site-page block** (Admin > Sites > [site] > Pages). The collections come from the module registry (`src/FeaturedCollections/Registry.php`, its entries in `config/amira-profile.json`) — add an entry and it appears here; the only per-block setting is an optional heading. Counts and cover thumbnails come from the current protected snapshot, and most cards link to an in-module **Photo Browsing** detail page.
+
+An entry draws on a **research project** (`projectKey`, which `projects` maps to the project item's `dre:id`, such as `UFB_AfroDigital`) or, for a collection that belongs to no project, an **item set** (`itemSetKey`: ILAM). A project's records are the items that name it in `dcterms:isPartOf` together with those of its collection sets, so a card keeps its records if the set is made private, and the profile pins no Omeka id for it.
 
 Two kinds of card are special:
 
-- **Sub-collections** — one item set split into several cards, either by `dcterms:identifier` prefix (the three Museu Afro-Digital sub-collections share item set 6295) or grouped into journal issues by DOI (ILAM).
-- **Link-out cards** — a collection with no in-module gallery. The **DECCA** and **Jambo** record-label catalogues are image-less **Audio** recordings credited as the *producer* (`marcrel:prn`) of items inside the "Beyond the Digital Return" collection (item set 6262), so they are not item sets of their own. Their cards show a producer-filtered count and link straight to the matching Omeka listing (the entry's `externalUrl`); set the entry's `thumbnail` to give the card a cover.
+- **Sub-collections** — one project or item set split into several cards, either by `dcterms:identifier` prefix (the three Museu Afro-Digital sub-collections belong to one project) or grouped into journal issues by DOI (ILAM).
+- **Link-out cards** — a collection with no in-module gallery. The **DECCA** and **Jambo** record-label catalogues are image-less **Audio** recordings credited as the *producer* (`marcrel:prn`) of records of the "Beyond the Digital Return" project, so they are not collections of their own. Their cards show a producer-filtered count and link straight to the matching Omeka listing (the entry's `externalUrl`); set the entry's `thumbnail` to give the card a cover.
 
 ### Photo Browsing
 
-Image-first browsing for an image-heavy item set, as a **site-page block** (Admin > Sites > [site] > Pages). Pick an item set in the block settings; the page renders that set's image-bearing items into three browsers sharing one keyboard-navigable **lightbox** (← / → / Esc, with a metadata sidebar and an item deep-link):
+Image-first browsing for an image-heavy collection, as a **site-page block** (Admin > Sites > [site] > Pages). Pick a featured collection, a research project (its records from all of its collections) or an item set in the block settings, in that order of precedence; the page renders their image-bearing items into three browsers sharing one keyboard-navigable **lightbox** (← / → / Esc, with a metadata sidebar and an item deep-link):
 
 - **Grid** — a responsive masonry of lazy-loaded thumbnails;
 - **Map** — a clustered MapLibre map of the geolocated photos, loaded on demand so the default Grid view ships zero map weight. Coordinates are resolved by following each photo's `dcterms:spatial` link to a Location item (`geo:lat` / `geo:long`) — the photos themselves rarely carry coordinates;
 - **Timeline** — a chronological grid that fills the row width, with a year tick above the first cover of each year (a single-year collection shows one year header instead of repeating it). For a journal-issue collection (ILAM) the units are **issues** placed by year, each opening its table of contents; otherwise they are the photos, each opening the lightbox.
 
-The gallery is **precomputed** per item set (like every other dataset — see [Pre-computing Data](#pre-computing-data)), and only for sets that have at least one image-bearing item. Until the first "Regenerate", the block falls back to resolving the gallery live through the Omeka API, so it still works the moment it is added. The Timeline tab appears when the set has dated items and the Map tab when it has coordinates (Map is off for journal-issue collections); the default tab is configurable.
+The gallery is **precomputed** per item set, per research project and per featured collection (like every other dataset — see [Pre-computing Data](#pre-computing-data)), and only for those with at least one image-bearing item. Until the next "Regenerate" a newly added block renders nothing: a live API fallback would depend on the viewer's permissions. The Timeline tab appears when the set has dated items and the Map tab when it has coordinates (Map is off for journal-issue collections); the default tab is configurable.
 
 ### Item Set Dashboard
 
@@ -313,7 +315,7 @@ the repository's Python-based GitHub Action.
 - the **Discursive Communities** graph
 - the **Spatial Exploration** places map (`spatial-exploration.json`)
 - the **Publications** analytics (`publications.json`)
-- the **Photo Browsing** galleries (one JSON per image-bearing item set)
+- the **Photo Browsing** galleries (one JSON per image-bearing item set, research project and featured collection)
 - the per-item **knowledge graphs** + item location maps
 
 Watch progress and any errors at **Admin → Jobs → the job's log**. After an edit, deletion or import, the published snapshot stays online and the same job runs by itself once edits have been quiet for five minutes; making something private hides the visualisations until it has run. "Regenerate now" is for when you want the update straight away.
@@ -542,7 +544,7 @@ DreVisualizations/
 │           ├── FileUrlFactory.php
 │           ├── ProjectExplorerUrl.php
 │           └── ProjectExplorerUrlFactory.php
-├── tests/                                           # 253 files — PHP harnesses, the Omeka-core and golden suites, node and Playwright tests
+├── tests/                                           # 260 files — PHP harnesses, the Omeka-core and golden suites, node and Playwright tests
 ├── tools/
 │   ├── embeddings/                                  # 6 files — the Build semantic embeddings Action (EmbeddingGemma 2)
 │   ├── fulltext/                                    # 8 files — full-text map of the ILAM journal: offline build and public export (not shipped)

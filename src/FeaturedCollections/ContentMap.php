@@ -58,15 +58,17 @@ final class ContentMap
     }
 
     /**
-     * A featured collection's published gallery (photo-galleries/collection-<slug>.json):
-     * the public records with their titles, years and journal issues, or null
-     * when publication is unavailable.
+     * A published gallery (photo-galleries/<key>.json: collection-<slug>,
+     * project-<item id> or an item-set id): the public records with their
+     * titles, years and journal issues, or null when publication is
+     * unavailable. $dataDir overrides the default store (tests).
      *
      * @return array{total:int,photos:array<int,array<string,mixed>>}|null
      */
-    public static function gallery(string $key): ?array
+    public static function gallery(string $key, ?string $dataDir = null): ?array
     {
-        $dataDir = SnapshotStore::tryDefault()?->directory;
+        if (!preg_match('/^[a-z0-9-]{1,120}$/', $key)) return null;
+        $dataDir ??= SnapshotStore::tryDefault()?->directory;
         $data = $dataDir === null ? null : PublishedSnapshot::readJson($dataDir, 'photo-galleries/' . $key . '.json');
         return (is_array($data) && isset($data['photos']) && is_array($data['photos'])) ? $data : null;
     }

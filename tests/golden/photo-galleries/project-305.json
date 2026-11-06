@@ -1,0 +1,9 @@
+{
+  "photos": [
+    {"date":"2019-12-22","ext":"jpg","id":1006,"lat":0.3476,"lon":32.5825,"place":"Kampala","storage":"research-0006","title":"Mosque memory archive (7)","year":2019},
+    {"date":"2025-10-17","ext":"jpg","id":1043,"lat":12.3714,"lon":-1.5197,"place":"Ouagadougou","storage":"research-0043","title":"Mosque healing (44)","year":2025},
+    {"date":"2021","ext":"jpg","id":1060,"lat":null,"lon":null,"place":null,"storage":"research-0060","title":"Festival mosque harvest (61)","year":2021},
+    {"date":"2019","ext":"jpg","id":1099,"lat":null,"lon":null,"place":"Timbuktu","storage":"research-0099","title":"Festival road mosque voices (100)","year":2019}
+  ],
+  "total": 4
+}

@@ -1,6 +1,8 @@
 [
   {
-    "collections": [],
+    "collections": [
+      {"id":6295,"items":17,"title":"Museu Afro-Digital"}
+    ],
     "id": 304,
     "items": 19,
     "name": "Afro-Brazilian Memory Work",

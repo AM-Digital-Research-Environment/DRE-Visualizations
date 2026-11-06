@@ -5,9 +5,11 @@ namespace Laminas\View\Renderer {
     class PhpRenderer
     {
         public int $calls = 0;
+        public array $last = [];
         public function partial(string $template, array $values): string
         {
             ++$this->calls;
+            $this->last = $values;
             return 'dashboard:' . $values['resource']->id();
         }
         public bool $canonical = true;
@@ -50,6 +52,7 @@ namespace {
     $published = $root . '/generations/' . $generation;
     mkdir($published . '/item-dashboards', 0777, true);
     mkdir($published . '/knowledge-graphs', 0777, true);
+    mkdir($published . '/photo-galleries', 0777, true);
     mkdir($root . '/item-dashboards', 0777, true);
     $view = new PhpRenderer();
     $block = new LinkedItemsDashboard($root);
@@ -77,6 +80,20 @@ namespace {
         file_put_contents($published . '/item-dashboards/32328.json', '{}');
         $check($block->render($view, $item) === 'dashboard:32328', 'A published dashboard must render.');
         $check($view->calls === 1, 'Eligible dashboard must render exactly once.');
+        $check($view->last['dashboard'] === true && $view->last['gallery'] === null, 'An item without a project gallery shows the dashboard alone.');
+
+        // A research project's gallery (photo-galleries/project-<id>.json).
+        $photo = ['id' => 5, 'title' => 'Photo', 'storage' => 'abc', 'ext' => 'jpg'];
+        file_put_contents($published . '/photo-galleries/project-32328.json', json_encode(['total' => 1, 'photos' => [$photo]]));
+        $check($block->render($view, $item) === 'dashboard:32328' && $view->last['dashboard'] === true
+            && ($view->last['gallery']['photos'][0]['id'] ?? null) === 5, 'A project shows its gallery under its dashboard.');
+        rename($published . '/item-dashboards/32328.json', $published . '/item-dashboards/32328.tmp');
+        $check($block->render($view, $item) === 'dashboard:32328' && $view->last['dashboard'] === false
+            && $view->last['gallery'] !== null, 'A project gallery shows without a dashboard.');
+        file_put_contents($published . '/photo-galleries/project-32328.json', json_encode(['total' => 0, 'photos' => []]));
+        $check($block->render($view, $item) === '', 'An empty gallery and no dashboard render nothing.');
+        unlink($published . '/photo-galleries/project-32328.json');
+        rename($published . '/item-dashboards/32328.tmp', $published . '/item-dashboards/32328.json');
 
         $view->canonical = false;
         $check($block->render($view, $item) === '', 'A non-canonical site must not mount a loader the data endpoint refuses.');
@@ -99,13 +116,15 @@ namespace {
             $root . '/.policy.lock',
             $published . '/knowledge-graphs/32328.json',
             $published . '/item-dashboards/32328.json',
+            $published . '/item-dashboards/32328.tmp',
+            $published . '/photo-galleries/project-32328.json',
             $root . '/item-dashboards/32328.json',
         ] as $file) {
             if (is_file($file)) {
                 unlink($file);
             }
         }
-        foreach ([$published . '/knowledge-graphs', $published . '/item-dashboards', $published, $root . '/generations', $root . '/item-dashboards', $root] as $directory) {
+        foreach ([$published . '/knowledge-graphs', $published . '/item-dashboards', $published . '/photo-galleries', $published, $root . '/generations', $root . '/item-dashboards', $root] as $directory) {
             rmdir($directory);
         }
     }

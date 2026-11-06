@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/Site/BlockLayout/PhotoBrowse.php:52
+#: src/Site/BlockLayout/PhotoBrowse.php:58
 msgid "— None (plain item-set gallery) —"
 msgstr ""
 
@@ -51,7 +51,7 @@ msgstr ""
 msgid "{word}, {count} occurrences"
 msgstr ""
 
-#: view/common/block-layout/photo-browse.phtml:179
+#: view/common/block-layout/photo-browse.phtml:180
 msgid "%1$s issues · %2$s articles"
 msgstr ""
 
@@ -67,7 +67,7 @@ msgstr ""
 msgid "%1$s, downloaded %2$s. Records were made private since, so the semantic map shows this build without them until the next one."
 msgstr ""
 
-#: view/common/block-layout/photo-browse.phtml:187
+#: view/common/block-layout/photo-browse.phtml:188
 msgid "%s image"
 msgid_plural "%s images"
 msgstr[0] ""
@@ -91,6 +91,10 @@ msgstr ""
 
 #: src/Site/BlockRegistry.php:141
 msgid "A project selector that retunes a full dashboard beneath it. No configuration needed."
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:95
+msgid "A research project whose images to display, from all of its collections. Ignored when a Featured collection is selected above."
 msgstr ""
 
 #: src/Form/ConfigForm.php:66
@@ -283,7 +287,7 @@ msgstr ""
 msgid "Built on GitHub for the current data (%s)."
 msgstr ""
 
-#: view/common/block-layout/photo-browse.phtml:164
+#: view/common/block-layout/photo-browse.phtml:165
 msgid "By content"
 msgstr ""
 
@@ -586,7 +590,7 @@ msgstr ""
 msgid "Decade"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:90
+#: src/Site/BlockLayout/PhotoBrowse.php:106
 msgid "Default view"
 msgstr ""
 
@@ -714,7 +718,7 @@ msgstr ""
 msgid "external name"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:78
+#: src/Site/BlockLayout/PhotoBrowse.php:90
 msgid "Featured collection"
 msgstr ""
 
@@ -778,7 +782,7 @@ msgstr ""
 msgid "Funders"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:86
+#: src/Site/BlockLayout/PhotoBrowse.php:102
 msgid "Gallery title"
 msgstr ""
 
@@ -811,11 +815,11 @@ msgstr ""
 msgid "GitHub token for embedding builds"
 msgstr ""
 
-#: view/common/block-layout/photo-browse.phtml:161
+#: view/common/block-layout/photo-browse.phtml:162
 msgid "Grid"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:72
+#: src/Site/BlockLayout/PhotoBrowse.php:84
 msgid "Grid (masonry)"
 msgstr ""
 
@@ -928,6 +932,10 @@ msgstr ""
 msgid "How widely project sizes vary within each research section: the smallest and largest project, the middle value, and the quarter marks in between."
 msgstr ""
 
+#: view/common/resource-page-block-layout/linked-items-dashboard.phtml:31
+msgid "Images"
+msgstr ""
+
 #: config/client-strings.json:inCountry
 #: config/client-strings.json:spatialInCountry
 msgid "in {country}"
@@ -1012,7 +1020,7 @@ msgstr ""
 msgid "Item pages use the default blocks, which include the Visualisations."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:82
+#: src/Site/BlockLayout/PhotoBrowse.php:98
 msgid "Item set"
 msgstr ""
 
@@ -1229,8 +1237,8 @@ msgid "Locations"
 msgstr ""
 
 #: config/client-strings.json:mapTitle
-#: src/Site/BlockLayout/PhotoBrowse.php:73
-#: view/common/block-layout/photo-browse.phtml:162
+#: src/Site/BlockLayout/PhotoBrowse.php:85
+#: view/common/block-layout/photo-browse.phtml:163
 msgid "Map"
 msgstr ""
 
@@ -1541,7 +1549,7 @@ msgstr ""
 msgid "Open this subject’s page →"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:67
+#: src/Site/BlockLayout/PhotoBrowse.php:79
 msgid "Optional gallery title"
 msgstr ""
 
@@ -1549,7 +1557,7 @@ msgstr ""
 msgid "Optional heading shown above the collection grid. The collections themselves come from the module registry."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:87
+#: src/Site/BlockLayout/PhotoBrowse.php:103
 msgid "Optional heading shown above the gallery."
 msgstr ""
 
@@ -1573,7 +1581,7 @@ msgstr ""
 msgid "Optional. Lets the button below start a build on GitHub. Create a fine-grained token for the AM-Digital-Research-Environment/DRE-Visualizations repository only, with “Actions: Read and write”."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:79
+#: src/Site/BlockLayout/PhotoBrowse.php:91
 msgid "Optional. Pick a curated collection to apply its item set, sub-collection filter, journal-issue grouping and views automatically. Leave as “None” to configure a plain gallery below."
 msgstr ""
 
@@ -1705,7 +1713,7 @@ msgstr ""
 msgid "places"
 msgstr ""
 
-#: view/common/block-layout/photo-browse.phtml:166
+#: view/common/block-layout/photo-browse.phtml:167
 msgid "Places"
 msgstr ""
 
@@ -1756,7 +1764,12 @@ msgstr ""
 
 #: config/client-strings.json:compareTypeProject
 #: config/client-strings.json:explorerProject
+#: src/Site/BlockLayout/PhotoBrowse.php:94
 msgid "Project"
+msgstr ""
+
+#: src/Site/BlockLayout/PhotoBrowse.php:231
+msgid "Project %s"
 msgstr ""
 
 #: config/client-strings.json:explorerTitle
@@ -2053,6 +2066,10 @@ msgstr ""
 msgid "Select a country on the map, or in the table under it, to list the articles that write about it."
 msgstr ""
 
+#: src/Site/BlockLayout/PhotoBrowse.php:63
+msgid "Select a project…"
+msgstr ""
+
 #: Module.php:142
 msgid "Select a public canonical site."
 msgstr ""
@@ -2065,7 +2082,7 @@ msgstr ""
 msgid "Select an article on the map, or find it by its title, to list the articles closest to it in content."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:62
+#: src/Site/BlockLayout/PhotoBrowse.php:74
 msgid "Select an item set…"
 msgstr ""
 
@@ -2153,7 +2170,7 @@ msgstr ""
 msgid "Showing the first {count} rows. Download data (CSV) for all of them."
 msgstr ""
 
-#: view/common/block-layout/photo-browse.phtml:184
+#: view/common/block-layout/photo-browse.phtml:185
 msgid "Showing the first %s images"
 msgstr ""
 
@@ -2364,8 +2381,8 @@ msgstr ""
 msgid "The group names were generated by AI."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:83
-msgid "The image-heavy item set to display as a photo gallery. Ignored when a Featured collection is selected above."
+#: src/Site/BlockLayout/PhotoBrowse.php:99
+msgid "The image-heavy item set to display as a photo gallery. Ignored when a Featured collection or a Project is selected above."
 msgstr ""
 
 #: config/client-strings.json:chartDescription.topJournals
@@ -2550,8 +2567,8 @@ msgstr ""
 msgid "This visualisation needs JavaScript."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:74
-#: view/common/block-layout/photo-browse.phtml:163
+#: src/Site/BlockLayout/PhotoBrowse.php:86
+#: view/common/block-layout/photo-browse.phtml:164
 msgid "Timeline"
 msgstr ""
 
@@ -2628,7 +2645,7 @@ msgstr ""
 msgid "Videos counted by the playlist they belong to."
 msgstr ""
 
-#: view/common/block-layout/photo-browse.phtml:218
+#: view/common/block-layout/photo-browse.phtml:219
 msgid "View as"
 msgstr ""
 
@@ -2700,7 +2717,7 @@ msgstr ""
 msgid "Where research items come from and where they are held today, with lines linking the two."
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:91
+#: src/Site/BlockLayout/PhotoBrowse.php:107
 msgid "Which browser opens first. Timeline needs dated items; Map needs coordinates (and is off for journal-issue collections). Each is hidden automatically when it does not apply."
 msgstr ""
 
@@ -2740,7 +2757,7 @@ msgstr ""
 msgid "Without a token, start a build on GitHub:"
 msgstr ""
 
-#: view/common/block-layout/photo-browse.phtml:165
+#: view/common/block-layout/photo-browse.phtml:166
 msgid "Words"
 msgstr ""
 

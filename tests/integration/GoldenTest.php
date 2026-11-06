@@ -490,8 +490,10 @@ try {
         'item-dashboards/800.json', 'item-dashboards/810.json', 'item-dashboards/820.json',
         // A journal and a series (venue), and a country that only publications reach.
         'item-dashboards/3100.json', 'item-dashboards/3111.json', 'item-dashboards/646.json',
-        // Galleries: plain item set, ILAM issues, the Museu Afro-Digital split.
-        'photo-galleries/50000.json', 'photo-galleries/collection-international-library-of-african-music-ilam.json',
+        // Galleries: plain item set, a research project's, ILAM issues, the
+        // Museu Afro-Digital split (by project, not by item set).
+        'photo-galleries/50000.json', 'photo-galleries/project-304.json',
+        'photo-galleries/collection-international-library-of-african-music-ilam.json',
         'photo-galleries/collection-memorias-perifericas-capoeira-angola-salvador.json',
         'photo-galleries/collection-trabalhadores-na-da-bahia.json',
         'photo-galleries/collection-orixas-fundacao-gregorio-de-mattos.json',

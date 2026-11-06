@@ -7,14 +7,26 @@
  * The artifact's resourceType picks the layout (section, project, person, …).
  * A research project's dashboard opens with its coverage, its collections and,
  * when the site has a Project explorer page, a link to the project there
- * (data-explorer-url; dashboard.js shows it for projects only).
+ * (data-explorer-url; dashboard.js shows it for projects only). A project with
+ * images then shows them in the Photo Browsing gallery, drawn from all of its
+ * collections.
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\ItemRepresentation $resource
+ * @var bool $dashboard           whether the item has a published dashboard
+ * @var array|null $gallery       the project's published gallery
  */
+
+use DreVisualizations\Site\BlockLayout\PhotoBrowse;
 ?>
+<?php if ($dashboard): ?>
 <?= $this->partial('common/block-layout/partials/dashboard-async', [
     'itemId' => (string) $resource->id(),
     'explorerUrl' => $this->dreProjectExplorerUrl((int) $resource->id()),
     'plan' => $plan,
 ]) ?>
+<?php endif; ?>
+<?php if ($gallery !== null): ?>
+<?= $this->partial('common/block-layout/photo-browse',
+    PhotoBrowse::projectGalleryVars((int) $resource->id(), $gallery, $this->translate('Images'))) ?>
+<?php endif; ?>

@@ -31,9 +31,11 @@
     "youtube": 39192,
     "youtubePlaylists": 39193,
     "ilam": 27724,
-    "bayglo": 27601,
-    "museuAfroDigital": 6295,
-    "beyondDigitalReturn": 6262
+    "bayglo": 27601
+  },
+  "projects": {
+    "museuAfroDigital": "UFB_AfroDigital",
+    "beyondDigitalReturn": "UBT_DigiRet2021"
   },
   "overviewItems": {
     "genre": 22198,
@@ -90,7 +92,7 @@
     },
     {
       "slug": "memorias-perifericas-capoeira-angola-salvador",
-      "itemSetKey": "museuAfroDigital",
+      "projectKey": "museuAfroDigital",
       "identifierPrefix": "APMESTRENO",
       "title": "Memórias Periféricas da Capoeira Angola de Salvador",
       "description": "Peripheral Memories of Capoeira Angola in Salvador: the personal archive of Mestre Nô.",
@@ -98,7 +100,7 @@
     },
     {
       "slug": "trabalhadores-na-da-bahia",
-      "itemSetKey": "museuAfroDigital",
+      "projectKey": "museuAfroDigital",
       "identifierPrefix": "TRABNEGRBA",
       "title": "Trabalhadores na/da Bahia",
       "description": "Workers in and from Bahia: Black labour in the city and in the Recôncavo.",
@@ -106,7 +108,7 @@
     },
     {
       "slug": "orixas-fundacao-gregorio-de-mattos",
-      "itemSetKey": "museuAfroDigital",
+      "projectKey": "museuAfroDigital",
       "identifierPrefix": "ORIXAFGM",
       "title": "Orixás – Fundação Gregório de Mattos",
       "description": "Orishas, from the Gregório de Mattos Foundation.",
@@ -114,7 +116,7 @@
     },
     {
       "slug": "decca",
-      "itemSetKey": "beyondDigitalReturn",
+      "projectKey": "beyondDigitalReturn",
       "externalFilter": { "propertyKey": "productionCompany", "resourceKey": "deccaProducer" },
       "title": "DECCA",
       "description": "Nigerian Yoruba popular music issued by the DECCA label: waka, apala, highlife and other styles, digitised from the Gramophone Library of the Ghana Broadcasting Corporation.",
@@ -122,7 +124,7 @@
     },
     {
       "slug": "jambo",
-      "itemSetKey": "beyondDigitalReturn",
+      "projectKey": "beyondDigitalReturn",
       "externalFilter": { "propertyKey": "productionCompany", "resourceKey": "jamboProducer" },
       "title": "Jambo",
       "description": "Swahili and Ganda recordings issued by the East African label Jambo, among them The Kiko Kids, digitised from the Gramophone Library of the Ghana Broadcasting Corporation.",

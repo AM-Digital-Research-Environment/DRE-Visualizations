@@ -1,0 +1,13 @@
+{
+  "photos": [
+    {"date":"2025-01-16","ext":"jpg","id":1022,"lat":-6.1659,"lon":39.2026,"place":"Zanzibar","storage":"research-0022","title":"Ritual radio (23)","year":2025},
+    {"date":null,"ext":"jpg","id":1024,"lat":12.6392,"lon":-8.0029,"place":"Bamako","storage":"research-0024","title":"Migration city voices (25)","year":null},
+    {"date":"2021-05-10","ext":"jpg","id":1066,"lat":-6.1659,"lon":39.2026,"place":"Zanzibar","storage":"research-0066","title":"Migration river festival (67)","year":2021},
+    {"date":"2019-09-06","ext":"jpg","id":1080,"lat":null,"lon":null,"place":null,"storage":"research-0080","title":"City harvest (81)","year":2019},
+    {"date":"2024-12-10","ext":"jpg","id":1086,"lat":12.3714,"lon":-1.5197,"place":"Ouagadougou","storage":"research-0086","title":"Song migration church migration (87)","year":2024},
+    {"date":null,"ext":"jpg","id":1087,"lat":-33.3106,"lon":26.5256,"place":"Makhanda","storage":"research-0087","title":"Harvest city (88)","year":null},
+    {"date":null,"ext":"jpg","id":1089,"lat":7.18,"lon":1.99,"place":"Abomey","storage":"research-0089","title":"River migration healing (90)","year":null},
+    {"date":null,"ext":"jpg","id":1115,"lat":null,"lon":null,"place":null,"storage":"research-0115","title":"River radio (116)","year":null}
+  ],
+  "total": 8
+}

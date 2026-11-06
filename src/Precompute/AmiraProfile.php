@@ -14,6 +14,8 @@ final class AmiraProfile
      */
     private const AUTHORITY_ITEM_SETS = ['genre', 'language', 'resourceType', 'targetAudience', 'person', 'institution', 'subject'];
     private const AUTHORITY_TEMPLATES = ['organisation', 'location', 'persons', 'authority'];
+    /** A project's dre:id: its MongoDB collection code. */
+    private const DRE_ID_PATTERN = '/^[A-Za-z0-9][A-Za-z0-9_.-]*$/';
 
     private function __construct(private readonly array $data)
     {
@@ -45,6 +47,20 @@ final class AmiraProfile
     public function itemSet(string $key): int
     {
         return $this->id('itemSets', $key);
+    }
+
+    /**
+     * A research project's dre:id (its collection code, e.g. UFB_AfroDigital):
+     * the precompute finds the project item by it, so the profile pins no
+     * Omeka id for a project.
+     */
+    public function project(string $key): string
+    {
+        $value = $this->data['projects'][$key] ?? null;
+        if (!is_string($value) || !preg_match(self::DRE_ID_PATTERN, $value)) {
+            throw new RuntimeException(sprintf('AMIRA profile projects.%s must be a dre:id.', $key));
+        }
+        return $value;
     }
 
     public function overview(string $key): int
@@ -129,8 +145,10 @@ final class AmiraProfile
     public function featuredCollections(): array
     {
         return array_map(function (array $collection): array {
-            $collection['itemSetId'] = $this->itemSet($collection['itemSetKey']);
-            unset($collection['itemSetKey']);
+            // A collection draws on one item set or on one research project.
+            $collection['itemSetId'] = isset($collection['itemSetKey']) ? $this->itemSet($collection['itemSetKey']) : null;
+            $collection['projectDreId'] = isset($collection['projectKey']) ? $this->project($collection['projectKey']) : null;
+            unset($collection['itemSetKey'], $collection['projectKey']);
             $filter = $collection['externalFilter'] ?? null;
             if (is_array($filter)) {
                 $propertyId = $this->id('properties', $filter['propertyKey']);
@@ -169,7 +187,7 @@ final class AmiraProfile
         }
         $required = [
             'templates' => ['organisation', 'location', 'persons', 'projects', 'authority', 'sections', 'researchItems'],
-            'itemSets' => ['genre', 'language', 'resourceType', 'targetAudience', 'person', 'institution', 'subject', 'project', 'publications', 'podcasts', 'youtube', 'youtubePlaylists', 'ilam', 'bayglo', 'museuAfroDigital', 'beyondDigitalReturn'],
+            'itemSets' => ['genre', 'language', 'resourceType', 'targetAudience', 'person', 'institution', 'subject', 'project', 'publications', 'podcasts', 'youtube', 'youtubePlaylists', 'ilam', 'bayglo'],
             'authorities' => ['deccaProducer', 'jamboProducer'],
             'properties' => ['productionCompany'],
             'overviewItems' => ['genre', 'language', 'resourceType', 'targetAudience', 'person', 'institution', 'group', 'lcsh', 'tag', 'project'],
@@ -182,6 +200,10 @@ final class AmiraProfile
                 throw new RuntimeException('AMIRA profile section is missing or empty: ' . $section);
             }
         }
+        if (!is_array($this->data['projects'] ?? null)) {
+            throw new RuntimeException('AMIRA profile section is missing: projects');
+        }
+        foreach (array_keys($this->data['projects']) as $key) $this->project((string) $key);
         foreach ($this->data['externalCollections'] as $route) {
             if (!is_array($route)
                 || !is_string($route['itemSetKey'] ?? null)
@@ -207,11 +229,15 @@ final class AmiraProfile
         foreach ($this->data['featuredCollections'] as $collection) {
             $slug = is_array($collection) ? ($collection['slug'] ?? null) : null;
             $itemSetKey = is_array($collection) ? ($collection['itemSetKey'] ?? null) : null;
+            $projectKey = is_array($collection) ? ($collection['projectKey'] ?? null) : null;
             $title = is_array($collection) ? ($collection['title'] ?? null) : null;
             $filter = is_array($collection) ? ($collection['externalFilter'] ?? null) : null;
+            $hasItemSet = is_string($itemSetKey) && isset($this->data['itemSets'][$itemSetKey]);
+            $hasProject = is_string($projectKey) && isset($this->data['projects'][$projectKey]);
             if (!is_string($slug) || !preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $slug)
                 || isset($collectionSlugs[$slug])
-                || !is_string($itemSetKey) || !isset($this->data['itemSets'][$itemSetKey])
+                || $hasItemSet === $hasProject
+                || ($itemSetKey !== null && !$hasItemSet) || ($projectKey !== null && !$hasProject)
                 || !is_string($title) || trim($title) === ''
                 || ($filter !== null && (!is_array($filter)
                     || !is_string($filter['propertyKey'] ?? null)
@@ -220,7 +246,7 @@ final class AmiraProfile
                     || !isset($this->data['authorities'][$filter['resourceKey']])))) {
                 throw new RuntimeException('AMIRA profile has an invalid featured collection.');
             }
-            $this->itemSet($itemSetKey);
+            $hasItemSet ? $this->itemSet($itemSetKey) : $this->project($projectKey);
             if (is_array($filter)) {
                 $this->id('properties', $filter['propertyKey']);
                 $this->id('authorities', $filter['resourceKey']);

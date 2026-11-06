@@ -13,6 +13,18 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+**Upgrading:** install this release, then **Regenerate now**: the project galleries and the featured collections' new source arrive with the next snapshot. The installation profile changed, so semantic inputs and word clouds built against the earlier profile no longer match it. Until a new build is installed, the Semantic Map and Similar Items stay hidden and the word clouds use the module's own tokeniser. The nightly **Build semantic embeddings** run rebuilds after the deploy (or run it by hand with scope `all`); the word clouds need **Actions → Build word clouds**, its pull request merged and a release.
+
+### Added
+
+- **A research project's images on its page.** The Visualisations block of a project item shows, under the project dashboard, a Photo Browsing gallery (Grid, Map, Timeline) of every image-bearing record of the project, whichever of its collections holds it (`photo-galleries/project-<item id>.json`). A project with images but no dashboard shows the gallery alone.
+- The **Photo Browsing** block can show a research project, picked by title, as well as a featured collection or an item set.
+
+### Changed
+
+- **Featured collections name their research project, not its item set.** The profile pins Museu Afro-Digital and "Beyond the Digital Return" by the project item's `dre:id` (`projects`, `projectKey`), not by item-set ids 6295 and 6262. A project's records are the items that name it in `dcterms:isPartOf` together with those of its collection sets, so the Museu Afro-Digital galleries and the DECCA and Jambo counts no longer come out empty if a set is made private. On the live data both ways give the same records (110 and 298), and the generated galleries are unchanged. ILAM, which belongs to no project, keeps its item set.
+- The item-set gallery of a set that a sub-collection used to split (Museu Afro-Digital's) no longer carries each photo's identifier: only the featured galleries need it.
+
 ## [2.49.1] - 2026-11-04
 
 Update the module to see the changes. No regeneration is needed: the generated data is unchanged. 2.49.0 was tagged but never published: its PHP checks failed on a contract test that did not yet allow the words file's new `suggested` list.

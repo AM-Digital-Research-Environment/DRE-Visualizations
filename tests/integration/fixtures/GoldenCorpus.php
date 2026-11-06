@@ -381,6 +381,10 @@ final class GoldenCorpus
      * contract); East African Field Recordings shares project 301's dre:id (the
      * fallback); the Afro-Brazilian Archive names no project, so it stays an
      * ordinary item set with its own dashboard.
+     *
+     * The profile's featured collections name their projects by dre:id: Museu
+     * Afro-Digital (project 304) through its item set's dcterms:isPartOf, the
+     * Digital Return (project 306) through its records' own dcterms:isPartOf.
      */
     private function projectCollections(): void
     {
@@ -391,6 +395,10 @@ final class GoldenCorpus
         $this->link(self::SET_SAHEL_SOUND, 'dcterms:isPartOf', 300);
         $this->literal(self::SET_EAST_AFRICA, 'dre:id', 'UBT_EastAfrica2019');
         $this->literal(301, 'dre:id', 'UBT_EastAfrica2019');
+        $this->literal(self::SET_MUSEU, 'dcterms:title', 'Museu Afro-Digital');
+        $this->link(self::SET_MUSEU, 'dcterms:isPartOf', 304);
+        $this->literal(304, 'dre:id', 'UFB_AfroDigital');
+        $this->literal(306, 'dre:id', 'UBT_DigiRet2021');
         // A private title never reaches a project dashboard.
         $this->literal(self::SET_BRAZIL, 'dcterms:title', 'PRIVATE archive title', false);
     }

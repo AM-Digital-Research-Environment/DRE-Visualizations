@@ -1,0 +1,25 @@
+{
+  "photos": [
+    {"date":"2020-10-05","ext":"jpg","id":1014,"lat":null,"lon":null,"place":null,"storage":"research-0014","title":"Radio market (15)","year":2020},
+    {"date":"2019-08-14","ext":"jpg","id":1021,"lat":7.3775,"lon":3.947,"place":"Ibadan","storage":"research-0021","title":"Road radio harvest (22)","year":2019},
+    {"date":"2022","ext":"jpg","id":1072,"lat":14.15,"lon":-16.07,"place":"Kaolack","storage":"research-0072","title":"Language language (73)","year":2022},
+    {"date":"2025-09-19","ext":"jpg","id":1092,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"research-0092","title":"City song language (93)","year":2025},
+    {"date":"2021","ext":"jpg","id":1118,"lat":11.1771,"lon":-4.2979,"place":"Bobo-Dioulasso","storage":"research-0118","title":"Radio church language (119)","year":2021},
+    {"date":"1970","ext":"jpg","id":2450,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno001","title":"Acervo APMESTRENO001","year":1970},
+    {"date":"1973","ext":"jpg","id":2451,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno002","title":"Acervo APMESTRENO002","year":1973},
+    {"date":"1976","ext":"jpg","id":2452,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno003","title":"Acervo APMESTRENO003","year":1976},
+    {"date":"1979","ext":"jpg","id":2453,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno004","title":"Acervo APMESTRENO004","year":1979},
+    {"date":"1982","ext":"jpg","id":2454,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno005","title":"Acervo APMESTRENO005","year":1982},
+    {"date":"1988","ext":"jpg","id":2456,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-apmestreno007","title":"Acervo APMESTRENO007","year":1988},
+    {"date":"1991","ext":"jpg","id":2457,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-trabnegrba001","title":"Acervo TRABNEGRBA001","year":1991},
+    {"date":"1994","ext":"jpg","id":2458,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-trabnegrba002","title":"Acervo TRABNEGRBA002","year":1994},
+    {"date":"1997","ext":"jpg","id":2459,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-trabnegrba003","title":"Acervo TRABNEGRBA003","year":1997},
+    {"date":"2000","ext":"jpg","id":2460,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-trabnegrba004","title":"Acervo TRABNEGRBA004","year":2000},
+    {"date":"2006","ext":"jpg","id":2462,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-orixafgm001","title":"Acervo ORIXAFGM001","year":2006},
+    {"date":"2009","ext":"jpg","id":2463,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-orixafgm002","title":"Acervo ORIXAFGM002","year":2009},
+    {"date":"2012","ext":"jpg","id":2464,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-orixafgm003","title":"Acervo ORIXAFGM003","year":2012},
+    {"date":"2015","ext":"jpg","id":2465,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-orixafgm004","title":"Acervo ORIXAFGM004","year":2015},
+    {"date":"2018","ext":"jpg","id":2466,"lat":-12.9777,"lon":-38.5016,"place":"Salvador","storage":"museu-otherprefix001","title":"Acervo OTHERPREFIX001","year":2018}
+  ],
+  "total": 20
+}

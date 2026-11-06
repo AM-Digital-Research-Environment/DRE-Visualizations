@@ -60,6 +60,9 @@
     {"count":1,"country":"South Africa"},
     {"count":1,"country":"Uganda"}
   ],
+  "collections": [
+    {"id":6295,"items":17,"title":"Museu Afro-Digital"}
+  ],
   "contributorNetwork": {
     "categories": ["person","project"],
     "links": [

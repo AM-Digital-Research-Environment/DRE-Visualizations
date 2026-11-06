@@ -10,6 +10,7 @@ use Omeka\Api\Representation\SiteRepresentation;
 use DreVisualizations\Site\BlockRegistry;
 use DreVisualizations\FeaturedCollections\ContentMap;
 use DreVisualizations\FeaturedCollections\Registry;
+use DreVisualizations\Precompute\AmiraProfile;
 
 /**
  * Photo Browsing site-page block.
@@ -20,12 +21,17 @@ use DreVisualizations\FeaturedCollections\Registry;
  * geo:lat/geo:long, dates from the usual date properties.
  *
  * Optionally the editor instead picks a **Featured collection** (see
- * {@see Registry}); the block then pulls the item set, an optional
- * sub-collection filter (e.g. one of Museu Afro-Digital's three sub-collections,
- * split by dcterms:identifier prefix), the grouping mode (journal issues for
- * ILAM) and the allowed views from the registry — so the three Museu pages can
- * all draw from item set 6295 yet show different sub-collections, and ILAM
- * renders as issues with a table of contents.
+ * {@see Registry}); the block then pulls its records (an item set or a research
+ * project), an optional sub-collection filter (e.g. one of Museu Afro-Digital's
+ * three sub-collections, split by dcterms:identifier prefix), the grouping mode
+ * (journal issues for ILAM) and the allowed views from the registry — so the
+ * three Museu pages can all draw from one project yet show different
+ * sub-collections, and ILAM renders as issues with a table of contents.
+ *
+ * Or the editor picks a **Project**: the gallery then shows every record of
+ * that research project (photo-galleries/project-<item id>.json), whichever of
+ * its collections holds it. The project item page shows the same gallery in
+ * its Visualisations block ({@see self::projectGalleryVars()}).
  *
  * Editorial control by design (Phase 6): drop one block per gallery on any
  * curated site page. The rendering engine (asset/js/item-set-photo-views.js) is
@@ -51,6 +57,12 @@ class PhotoBrowse extends AbstractDreBlockLayout
         $featured->setValueOptions(Registry::selectOptions())
             ->setEmptyOption($view->translate('— None (plain item-set gallery) —'))
             ->setValue($data['featured_collection'] ?? '');
+
+        $project = new Element\Select('o:block[__blockIndex__][o:data][project]');
+        $project->setValueOptions($this->projectOptions($view, $site))
+            ->setEmptyOption($view->translate('Select a project…'))
+            ->setAttribute('class', 'chosen-select')
+            ->setValue($data['project'] ?? '');
 
         // Item-set options: prefer the sets assigned to this site; fall back to
         // every item set when the site has none assigned (research collections
@@ -79,8 +91,12 @@ class PhotoBrowse extends AbstractDreBlockLayout
                 $view->translate('Optional. Pick a curated collection to apply its item set, sub-collection filter, journal-issue grouping and views automatically. Leave as “None” to configure a plain gallery below.'),
                 $view->formSelect($featured))
             . $this->field($view,
+                $view->translate('Project'),
+                $view->translate('A research project whose images to display, from all of its collections. Ignored when a Featured collection is selected above.'),
+                $view->formSelect($project))
+            . $this->field($view,
                 $view->translate('Item set'),
-                $view->translate('The image-heavy item set to display as a photo gallery. Ignored when a Featured collection is selected above.'),
+                $view->translate('The image-heavy item set to display as a photo gallery. Ignored when a Featured collection or a Project is selected above.'),
                 $view->formSelect($itemSet))
             . $this->field($view,
                 $view->translate('Gallery title'),
@@ -97,28 +113,36 @@ class PhotoBrowse extends AbstractDreBlockLayout
     {
         $site = $view->currentSite();
         if (!$site || !$site->isPublic() || $site->id() !== (int) $view->setting(\DreVisualizations\Module::SETTING_SITE_ID, 0)) return '';
-        // A featured collection wins over an explicit item set.
+        // A featured collection wins over a project, and a project over an
+        // explicit item set.
         $entry = null;
         $slug = (string) $block->dataValue('featured_collection', '');
         if ($slug !== '') {
             $entry = Registry::bySlug($slug);
         }
+        $projectId = $entry === null ? (int) $block->dataValue('project', 0) : 0;
 
-        // Auto-apply: when no collection was picked but the chosen item set maps
-        // to exactly one whole-set registry entry (e.g. ILAM — not the
-        // prefix-split Museu sub-collections, which are ambiguous and must be
-        // chosen), use it. So those existing gallery pages gain issue grouping /
-        // partner credit without re-wiring.
-        $rawSet = $block->dataValue('item_set');
-        if ($entry === null && $rawSet) {
-            $candidates = Registry::forItemSet((int) $rawSet);
+        // Auto-apply: when no collection or project was picked but the chosen
+        // item set maps to exactly one whole-set registry entry (ILAM; a
+        // prefix-split sub-collection is ambiguous and must be chosen), use it.
+        // So those existing gallery pages gain issue grouping / partner credit
+        // without re-wiring.
+        $rawSet = (int) $block->dataValue('item_set', 0);
+        if ($entry === null && $projectId < 1 && $rawSet > 0) {
+            $candidates = Registry::forItemSet($rawSet);
             if (count($candidates) === 1 && $candidates[0]['identifierPrefix'] === null) {
                 $entry = $candidates[0];
             }
         }
 
-        $itemSetId = $entry ? $entry['itemSetId'] : $rawSet;
-        $itemSetId = $itemSetId ? (int) $itemSetId : null;
+        // The published gallery: photo-galleries/<key>.json.
+        if ($entry !== null) {
+            $galleryKey = 'collection-' . $entry['slug'];
+        } elseif ($projectId > 0) {
+            $galleryKey = 'project-' . $projectId;
+        } else {
+            $galleryKey = $rawSet > 0 ? (string) $rawSet : null;
+        }
 
         $grouping = $entry ? $entry['grouping'] : 'photo';
         $prefix = $entry ? ($entry['identifierPrefix'] ?? null) : null;
@@ -148,11 +172,10 @@ class PhotoBrowse extends AbstractDreBlockLayout
         }
 
         return $view->partial($templateViewScript ?? BlockRegistry::template(self::SLUG), [
-            'block'           => $block,
-            'itemSetId'       => $itemSetId,
+            'galleryKey'      => $galleryKey,
             'heading'         => $heading,
             'defaultView'     => $defaultView,
-            'precomputed'     => $itemSetId ? ContentMap::gallery($entry ? 'collection-' . $entry['slug'] : (string) $itemSetId) : null,
+            'precomputed'     => $galleryKey !== null ? ContentMap::gallery($galleryKey) : null,
             'identifierPrefix' => $prefix,
             'grouping'        => $grouping,
             'partner'         => $partner,
@@ -163,6 +186,52 @@ class PhotoBrowse extends AbstractDreBlockLayout
             // Its Words view: the committed word counts, when there are any.
             'contentWords'    => $entry ? ContentMap::wordsAsset($entry['slug']) : null,
         ] + BlockRegistry::viewVars(self::SLUG));
+    }
+
+    /**
+     * The template variables of a research project's gallery, for the project
+     * item page's Visualisations block: every view its records allow, and none
+     * of a featured collection's extras. $precomputed is the published
+     * photo-galleries/project-<item id>.json.
+     *
+     * @param array{total:int,photos:array} $precomputed
+     */
+    public static function projectGalleryVars(int $projectId, array $precomputed, string $heading): array
+    {
+        return [
+            'galleryKey'       => 'project-' . $projectId,
+            'heading'          => $heading,
+            'defaultView'      => 'masonry',
+            'precomputed'      => $precomputed,
+            'identifierPrefix' => null,
+            'grouping'         => 'photo',
+            'partner'          => null,
+            'allowedViews'     => ['masonry' => true, 'map' => true, 'timeline' => true],
+            'contentMap'       => null,
+            'contentWords'     => null,
+        ] + BlockRegistry::viewVars(self::SLUG);
+    }
+
+    /**
+     * Research projects by title: this site's, else every project. Read as
+     * scalars, so the form costs one query rather than a representation per
+     * project.
+     *
+     * @return array<int,string> project item id => title
+     */
+    private function projectOptions(PhpRenderer $view, SiteRepresentation $site): array
+    {
+        $template = AmiraProfile::fromFile(dirname(__DIR__, 3) . '/config/amira-profile.json')->template('projects');
+        $query = ['resource_template_id' => $template];
+        $titles = $view->api()->search('items', $query + ['site_id' => $site->id()], ['returnScalar' => 'title'])->getContent()
+            ?: $view->api()->search('items', $query, ['returnScalar' => 'title'])->getContent();
+        $opts = [];
+        foreach ($titles as $id => $title) {
+            $title = trim((string) $title);
+            $opts[(int) $id] = $title !== '' ? $title : sprintf($view->translate('Project %s'), $id);
+        }
+        natcasesort($opts);
+        return $opts;
     }
 
     /** Build the `field` markup Omeka's page editor expects. */

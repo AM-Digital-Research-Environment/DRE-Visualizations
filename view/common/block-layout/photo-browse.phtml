@@ -13,18 +13,19 @@
  * (word frequencies by year) and Places (the countries the texts name), drawn
  * by asset/js/item-set-content-extras.js.
  *
- * Data comes only from the published snapshot (photo-galleries/{itemSetId}.json,
- * built by the admin "Regenerate" job). Without it — e.g. a freshly added block
- * before the next regeneration — the block renders nothing: a live API fallback
- * would depend on the viewer's permissions.
+ * Data comes only from the published snapshot (photo-galleries/{galleryKey}.json:
+ * collection-<slug>, project-<item id> or an item-set id, built by the admin
+ * "Regenerate" job). Without it — e.g. a freshly added block before the next
+ * regeneration — the block renders nothing: a live API fallback would depend
+ * on the viewer's permissions. The project item page's Visualisations block
+ * renders this template too, for the project's gallery.
  *
- * A featured collection may draw a SUB-collection from a shared item set:
+ * A featured collection may draw a SUB-collection from a shared project:
  * `$identifierPrefix` keeps only items whose dcterms:identifier begins with it
- * (Museu Afro-Digital's three sub-collections all live in item set 6295).
+ * (Museu Afro-Digital's three sub-collections all belong to one project).
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
- * @var \Omeka\Api\Representation\SitePageBlockRepresentation $block
- * @var int|null  $itemSetId
+ * @var string|null $galleryKey
  * @var string    $heading
  * @var string    $defaultView
  * @var array{total:int,photos:array}|null $precomputed
@@ -39,7 +40,7 @@
 use DreVisualizations\FeaturedCollections\ContentMap;
 use DreVisualizations\View\Helper\DashboardAssets;
 
-if (!$itemSetId) {
+if (($galleryKey ?? null) === null) {
     return; // block not configured yet
 }
 

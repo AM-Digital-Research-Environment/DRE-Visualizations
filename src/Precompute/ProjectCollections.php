@@ -17,6 +17,10 @@ namespace DreVisualizations\Precompute;
  *      in 1. is never matched again here.
  * Only public item sets holding scoped items and public, scoped project items
  * take part (CorpusSnapshot guarantees both). Nothing pins item-set ids.
+ *
+ * members() and byDreId() give the featured collections and the photo
+ * galleries their project: what a project holds, and which project item a
+ * profile's dre:id names.
  */
 final class ProjectCollections
 {
@@ -70,6 +74,58 @@ final class ProjectCollections
         }
         ksort($collections, SORT_NUMERIC);
         return $collections;
+    }
+
+    /**
+     * Every project's records: the items whose dcterms:isPartOf links the
+     * project item, together with the items of its collections. The link
+     * alone keeps a project's records when its item set is private (whose
+     * membership the loader never reads); the collections keep the records a
+     * set holds before the sync links them.
+     *
+     * @param array<int,array<string,mixed>> $items
+     * @param array<int,list<int>> $childrenOf item id => items whose dcterms:isPartOf links it
+     * @param array<int,list<int>> $itemSets
+     * @param array<int,list<array{id:int,title:string,items:int}>> $collections resolve()'s result
+     * @return array<int,list<int>> project item id => its record ids, ascending; projects without records are absent.
+     */
+    public static function members(array $items, array $childrenOf, array $itemSets, array $collections, int $projectTemplateId): array
+    {
+        $members = [];
+        foreach ($items as $id => $item) {
+            if (($item['template_id'] ?? null) !== $projectTemplateId) continue;
+            $ids = array_fill_keys($childrenOf[(int) $id] ?? [], true);
+            foreach ($collections[(int) $id] ?? [] as $collection) {
+                foreach ($itemSets[(int) $collection['id']] ?? [] as $itemId) $ids[(int) $itemId] = true;
+            }
+            unset($ids[(int) $id]);
+            if (!$ids) continue;
+            $ids = array_keys($ids);
+            sort($ids, SORT_NUMERIC);
+            $members[(int) $id] = $ids;
+        }
+        ksort($members, SORT_NUMERIC);
+        return $members;
+    }
+
+    /**
+     * Project item ids by their dre:id (the project's collection code, such as
+     * UFB_AfroDigital): how the profile names a project without pinning an
+     * Omeka id. Two projects sharing a dre:id resolve to the lower id.
+     *
+     * @param array<int,array<string,mixed>> $items
+     * @param array<int,array<string,list<string>>> $literals
+     * @return array<string,int>
+     */
+    public static function byDreId(array $items, array $literals, int $projectTemplateId): array
+    {
+        $ids = [];
+        foreach ($items as $id => $item) {
+            if (($item['template_id'] ?? null) !== $projectTemplateId) continue;
+            $dreId = trim((string) ($literals[(int) $id]['dre:id'][0] ?? ''));
+            if ($dreId !== '' && (!isset($ids[$dreId]) || (int) $id < $ids[$dreId])) $ids[$dreId] = (int) $id;
+        }
+        return $ids;
     }
 
     /**
