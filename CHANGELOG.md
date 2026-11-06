@@ -13,6 +13,8 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.50.0] - 2026-11-06
+
 **Upgrading:** install this release, then **Regenerate now**: the project galleries and the featured collections' new source arrive with the next snapshot. The installation profile changed, so semantic inputs and word clouds built against the earlier profile no longer match it. Until a new build is installed, the Semantic Map and Similar Items stay hidden and the word clouds use the module's own tokeniser. The nightly **Build semantic embeddings** run rebuilds after the deploy (or run it by hand with scope `all`); the word clouds need **Actions → Build word clouds**, its pull request merged and a release.
 
 ### Added
