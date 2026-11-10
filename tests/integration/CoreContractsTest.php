@@ -36,13 +36,9 @@ $request = static function (string $path) use ($controller): Laminas\Http\Respon
     $controller->setEvent($event);
     return $controller->indexAction();
 };
-$check = static function (bool $condition, string $message): void {
-    if (!$condition) throw new RuntimeException($message);
-    echo "ok: $message\n";
-};
 try {
     $source = $request('source.json');
-    $check($source->getStatusCode() === 200 && isset(json_decode($source->getContent(), true)['revision']), 'Source endpoint exposes the canonical revision');
+    verify($source->getStatusCode() === 200 && isset(json_decode($source->getContent(), true)['revision']), 'Source endpoint exposes the canonical revision');
     $publish = static function () use ($root): array {
         return (new SnapshotPublisher($root, 1, 'test', 0.0))->publish(static function ($dir): array {
             $writer = new JsonArtifactWriter();
@@ -54,14 +50,14 @@ try {
     };
     $old = $publish();
     $current = $publish();
-    $check($request('generations/' . $old['generationId'] . '/network-explorer.json')->getStatusCode() === 404, 'Retained old URL is inaccessible');
+    verify($request('generations/' . $old['generationId'] . '/network-explorer.json')->getStatusCode() === 404, 'Retained old URL is inaccessible');
     $response = $request('generations/' . $current['generationId'] . '/network-explorer.json');
-    $check($response->getStatusCode() === 200 && str_contains($response->getHeaders()->get('Cache-Control')->getFieldValue(), 'no-store'), 'Current artifact is served with no-store');
-    $check($response instanceof Laminas\Http\Response\Stream && $response->getBody() === '[]', 'Artifacts stream from the open file');
+    verify($response->getStatusCode() === 200 && str_contains($response->getHeaders()->get('Cache-Control')->getFieldValue(), 'no-store'), 'Current artifact is served with no-store');
+    verify($response instanceof Laminas\Http\Response\Stream && $response->getBody() === '[]', 'Artifacts stream from the open file');
     $site->public = false;
-    $check($request('current.json')->getStatusCode() === 404, 'Private site denied even for a privileged viewer');
+    verify($request('current.json')->getStatusCode() === 404, 'Private site denied even for a privileged viewer');
     $site->public = true; $site->siteId = 2;
-    $check($request('current.json')->getStatusCode() === 404, 'Noncanonical site denied');
+    verify($request('current.json')->getStatusCode() === 404, 'Noncanonical site denied');
     $site->siteId = 1;
     $shared = new Laminas\EventManager\SharedEventManager();
     (new DreVisualizations\Module())->attachListeners($shared);
@@ -71,17 +67,17 @@ try {
         $events = new Laminas\EventManager\EventManager($shared, ['Omeka\\Api\\Adapter\\' . $name . 'Adapter']);
         $apiRequest = new Omeka\Api\Request(Omeka\Api\Request::CREATE, $resource);
         $events->trigger('api.create.pre', null, ['request' => $apiRequest]);
-        $check($request('current.json')->getStatusCode() === 200 && !$fresh(), $name . ' API write keeps serving the snapshot, now stale');
+        verify($request('current.json')->getStatusCode() === 200 && !$fresh(), $name . ' API write keeps serving the snapshot, now stale');
         try {
             $publish();
             throw new RuntimeException('Published during a source write');
         } catch (RuntimeException $e) {
-            $check(str_contains($e->getMessage(), 'source write'), 'Active API write blocks publication');
+            verify(str_contains($e->getMessage(), 'source write'), 'Active API write blocks publication');
         }
         $events->trigger('api.create.post', null, ['request' => $apiRequest, 'response' => new Omeka\Api\Response()]);
-        $check($request('current.json')->getStatusCode() === 200 && !$fresh(), $name . ' write leaves a stale snapshot served after .post');
+        verify($request('current.json')->getStatusCode() === 200 && !$fresh(), $name . ' write leaves a stale snapshot served after .post');
         $publish();
-        $check($request('current.json')->getStatusCode() === 200 && $fresh(), $name . ' write releases its lock after .post');
+        verify($request('current.json')->getStatusCode() === 200 && $fresh(), $name . ' write releases its lock after .post');
     }
 
     // Updates compare what the public could see before (the database) and after (the entities).
@@ -139,12 +135,12 @@ try {
     ] as $message => [$after, $status]) {
         $publish();
         $update($after);
-        $check($request('current.json')->getStatusCode() === $status, $message);
+        verify($request('current.json')->getStatusCode() === $status, $message);
     }
-    $check($store->reading(fn () => $store->refreshAllowed()), 'The automatic refresh may republish after a privatising write');
+    verify($store->reading(fn () => $store->refreshAllowed()), 'The automatic refresh may republish after a privatising write');
     $publish();
     $update($entity(true), new class {});
-    $check($request('current.json')->getStatusCode() === 404, 'An update whose earlier state cannot be read is treated as privatising');
+    verify($request('current.json')->getStatusCode() === 404, 'An update whose earlier state cannot be read is treated as privatising');
 
     // A write that throws never fires .post; its lock must die with the request.
     $events = new Laminas\EventManager\EventManager($shared, ['Omeka\\Api\\Adapter\\ItemAdapter']);
@@ -153,7 +149,7 @@ try {
     unset($failed);
     gc_collect_cycles();
     $publish();
-    $check($request('current.json')->getStatusCode() === 200, 'An abandoned write does not keep blocking publication');
+    verify($request('current.json')->getStatusCode() === 200, 'An abandoned write does not keep blocking publication');
     $head = (function () use ($plugins): Laminas\Http\Response {
         // dispatch(), unlike indexAction(), installs this request on the controller.
         $headController = new DataController();
@@ -164,12 +160,12 @@ try {
         $headController->dispatch((new Laminas\Http\PhpEnvironment\Request())->setMethod('HEAD'), new Laminas\Http\PhpEnvironment\Response());
         return $event->getResult();
     })();
-    $check($head->getStatusCode() === 200 && $head->getContent() === '', 'HEAD answers without a body');
+    verify($head->getStatusCode() === 200 && $head->getContent() === '', 'HEAD answers without a body');
     $config = (new DreVisualizations\Module())->getConfig();
     $route = Laminas\Router\Http\Segment::factory($config['router']['routes']['site']['child_routes']['dre-data']['options']);
     $url = $route->assemble(['path' => 'generations/' . $current['generationId'] . '/network-explorer.json']);
     $http = new Laminas\Http\Request(); $http->setUri('https://example.test' . $url);
-    $check($route->match($http)?->getParam('path') === 'generations/' . $current['generationId'] . '/network-explorer.json', 'Nested data path routes and assembles correctly');
+    verify($route->match($http)?->getParam('path') === 'generations/' . $current['generationId'] . '/network-explorer.json', 'Nested data path routes and assembles correctly');
 } finally {
     if (is_dir($root)) {
         foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST) as $entry) {

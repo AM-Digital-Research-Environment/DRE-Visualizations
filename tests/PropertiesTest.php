@@ -12,13 +12,6 @@ use DreVisualizations\Precompute\Aggregators;
 use DreVisualizations\Precompute\PublishedSnapshot;
 
 $aggregators = new Aggregators(4, 5);
-$failures = 0;
-$check = static function (bool $condition, string $message) use (&$failures): void {
-    if (!$condition) {
-        $failures++;
-        fwrite(STDERR, "FAIL: $message\n");
-    }
-};
 
 /** A random research corpus: persons (template 4) credited on items, linked to projects (5). */
 $corpus = static function (int $seed): array {
@@ -45,16 +38,16 @@ for ($seed = 1; $seed <= 200; $seed++) {
     // Duplicated ids never inflate the total.
     $dup = array_merge($itemIds, array_slice($itemIds, 0, mt_rand(0, count($itemIds))));
     $agg = $aggregators->aggregateItems($dup, $items, $links, [], []);
-    $check(($agg['totalItems'] ?? null) === count($itemIds), "seed $seed: aggregateItems counts distinct items");
+    checkQuietly(($agg['totalItems'] ?? null) === count($itemIds), "seed $seed: aggregateItems counts distinct items");
 
     // Community detection partitions the drawn nodes exactly once.
     $net = $aggregators->buildPersonCollaborationNetwork($itemIds, $items, $links, 1);
     if ($net !== null) {
         $sizes = array_sum(array_column($net['communities'], 'size'));
-        $check($sizes === count($net['nodes']), "seed $seed: community sizes sum to the node count");
+        checkQuietly($sizes === count($net['nodes']), "seed $seed: community sizes sum to the node count");
         $ids = array_column($net['communities'], 'id');
         foreach ($net['nodes'] as $node) {
-            $check(in_array($node['community'], $ids, true), "seed $seed: every node's community is listed");
+            checkQuietly(in_array($node['community'], $ids, true), "seed $seed: every node's community is listed");
         }
     }
 
@@ -64,9 +57,9 @@ for ($seed = 1; $seed <= 200; $seed++) {
         $graph = $aggregators->$builder(...$args);
         if ($graph === null) continue;
         $names = array_count_values(array_column($graph['nodes'], 'name'));
-        $check(max($names) === 1, "seed $seed: $builder node names are unique");
+        checkQuietly(max($names) === 1, "seed $seed: $builder node names are unique");
         foreach ($graph['links'] as $link) {
-            $check(isset($names[$link['source']], $names[$link['target']]), "seed $seed: $builder link endpoints are nodes");
+            checkQuietly(isset($names[$link['source']], $names[$link['target']]), "seed $seed: $builder link endpoints are nodes");
         }
     }
 
@@ -76,7 +69,7 @@ for ($seed = 1; $seed <= 200; $seed++) {
         $cards[] = ['key' => 'k' . $i, 'label' => 'L' . $i, 'value' => mt_rand(-3, 3), 'subtitle' => mt_rand(0, 1) ? 'sub' : ''];
     }
     foreach ($aggregators->buildStatCards($cards) as $card) {
-        $check(is_int($card['value']) && $card['value'] > 0, "seed $seed: stat card values are positive integers");
+        checkQuietly(is_int($card['value']) && $card['value'] > 0, "seed $seed: stat card values are positive integers");
     }
 }
 
@@ -93,17 +86,17 @@ $real = $root . '/generations/20260101T000000Z-aaaaaaaaaaaa/item-dashboards/a.js
 file_put_contents($real, '{}');
 file_put_contents($root . '/revision.json', '{}'); // a file beside, never inside, the generation
 try {
-    $check(PublishedSnapshot::artifactPath($root, $manifest, 'item-dashboards/a.json') === realpath($real), 'a real artifact resolves');
+    checkQuietly(PublishedSnapshot::artifactPath($root, $manifest, 'item-dashboards/a.json') === realpath($real), 'a real artifact resolves');
     foreach (['../revision.json', '../../revision.json', 'item-dashboards/../a.json', '/item-dashboards/a.json',
         'item-dashboards\a.json', 'item-dashboards/a.json/', 'ITEM-dashboards/a.json', 'item-dashboards/a.json.php',
         "item-dashboards/a.json\0", 'item-dashboards//a.json', './item-dashboards/a.json'] as $hostile) {
-        $check(PublishedSnapshot::artifactPath($root, $manifest, $hostile) === null, 'refused: ' . json_encode($hostile));
+        checkQuietly(PublishedSnapshot::artifactPath($root, $manifest, $hostile) === null, 'refused: ' . json_encode($hostile));
     }
     for ($i = 0; $i < 2000; $i++) {
         $path = '';
         for ($n = mt_rand(1, 8); $n > 0; $n--) $path .= $alphabet[array_rand($alphabet)];
         $resolved = PublishedSnapshot::artifactPath($root, $manifest, $path);
-        $check($resolved === null || (preg_match('~^(?:[a-z-]+/)?[a-zA-Z0-9_-]+\.json$~D', $path) === 1
+        checkQuietly($resolved === null || (preg_match('~^(?:[a-z-]+/)?[a-zA-Z0-9_-]+\.json$~D', $path) === 1
             && str_starts_with($resolved, realpath($root) . DIRECTORY_SEPARATOR)), 'artifact path ' . json_encode($path) . ' is refused or contained');
     }
 } finally {
@@ -115,5 +108,4 @@ try {
     rmdir($root);
 }
 
-echo $failures ? "\n$failures FAILURE(S)\n" : "\nALL PROPERTY TESTS PASS\n";
-exit($failures ? 1 : 0);
+finish('ALL PROPERTY TESTS PASS');

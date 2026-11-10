@@ -3,12 +3,13 @@
  * Browser-HTML safety contracts for curator/imported metadata.
  *
  * This is intentionally dependency-free. It inventories high-risk DOM/MapLibre
- * sinks so new ones cannot arrive unnoticed, asserts the reviewed fixes remain
- * in place, and executes the treemap formatter with a malicious label fixture.
+ * sinks so new ones cannot arrive unnoticed and asserts the reviewed fixes
+ * remain in place. What runs code lives in tests/js: the treemap formatter
+ * against a malicious label (html-safety.test.mjs) and every tooltip
+ * formatter against hostile golden data (formatters.test.mjs).
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
-import vm from 'node:vm';
 import { isGeneratedJs } from './lib/frontend-sources.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
@@ -97,36 +98,6 @@ for (const [file, fragment] of requiredFixes) {
 if (sources.some((file) => relative(ROOT, file.path).split(sep).join('/')
   === 'asset/js/dashboard-charts-geo-flows.js')) {
   fail('unused dashboard-charts-geo-flows.js must not be shipped');
-}
-
-// Execute the highest-risk custom formatter against a stored-XSS fixture.
-let option;
-const encodeHTML = (value) => String(value).replace(/[&<>"']/g, (character) => ({
-  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-})[character]);
-const context = {
-  echarts: { format: { encodeHTML } },
-  window: {
-    RV: {
-      THEME: { fontSize: 12, border: '#000' },
-      charts: {},
-      initChart: () => ({ setOption: (value) => { option = value; } }),
-      truncateLabel: (value) => value,
-    },
-  },
-};
-vm.createContext(context);
-vm.runInContext(read(join(JS_DIR, 'dashboard-charts-treemap.js')), context, {
-  filename: 'asset/js/dashboard-charts-treemap.js',
-});
-context.window.RV.charts.buildTreemap({}, [{ name: 'fixture', value: 1 }]);
-const malicious = '<img src=x onerror="globalThis.__xss=1">';
-const rendered = option.tooltip.formatter({
-  treePathInfo: [{ name: malicious }],
-  value: 1,
-});
-if (rendered.includes('<img') || !rendered.includes('&lt;img')) {
-  fail('treemap tooltip did not encode the malicious-label fixture');
 }
 
 // No executable inline script anywhere the module renders: configuration

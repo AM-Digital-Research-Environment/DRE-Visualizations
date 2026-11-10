@@ -44,7 +44,17 @@ it runs the dependency-free harnesses only. With a local PHP the same commands
 are listed in `.github/workflows/ci.yml`.
 
 The PHP harnesses fail on any warning, notice or deprecation the module raises
-(`tests/lib/strict-errors.php`). The aggregators are dependency-free and
+(`tests/lib/strict-errors.php`), and share one assertion helper,
+`tests/lib/assert.php` (`check()`, `checkSame()`, `verify()`, `finish()`),
+which `tests/bootstrap.php` loads.
+
+**Where a check belongs.** What runs code is a test: the JavaScript unit tests
+in `tests/js/*.test.mjs` (`npm test`, run first by `npm run check`; the formatter
+sweep, the registry and graph contracts and the palette-equals-brand check live
+there), the PHP harnesses in `tests/`, and the browser suite for what needs a
+rendered page. The `scripts/check-*.mjs` scripts are for source policies no
+rendered test can see (sink inventories, no inline script, one spinner partial,
+token rules). Prefer a rendered assertion to a substring check on the source. The aggregators are dependency-free and
 unit-tested — add a mock-data case for every new builder.
 
 **Omeka boot.** `tests/integration/OmekaBootTest.php` is the one suite that

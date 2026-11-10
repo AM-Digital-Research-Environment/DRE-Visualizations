@@ -7,18 +7,6 @@ use DreVisualizations\Precompute\ItemSetDashboardGenerator;
 use DreVisualizations\Precompute\JsonArtifactWriter;
 use DreVisualizations\Precompute\ProjectCollections;
 
-$failures = 0;
-function itemSetCheck(bool $condition, string $message): void
-{
-    global $failures;
-    if ($condition) {
-        echo "ok: $message\n";
-        return;
-    }
-    $failures++;
-    fwrite(STDERR, "FAIL: $message\n");
-}
-
 $items = [
     1 => ['title' => 'A project', 'template_id' => 5, 'class_term' => 'foaf:Project', 'public' => true],
     2 => ['title' => 'Recording', 'template_id' => 10, 'class_term' => 'dctype:Sound', 'public' => true],
@@ -41,17 +29,17 @@ $dir = sys_get_temp_dir() . '/dre-item-set-dashboards-' . bin2hex(random_bytes(6
 try {
     $skip = ProjectCollections::setIds(ProjectCollections::resolve($corpus->items, $corpus->literals,
         $corpus->itemSets, $corpus->itemSetRecords, 5));
-    itemSetCheck(array_keys($skip) === [40], 'the project collection is its linked set (an explicit link suppresses the dre:id fallback)');
+    check(array_keys($skip) === [40], 'the project collection is its linked set (an explicit link suppresses the dre:id fallback)');
 
     $written = (new ItemSetDashboardGenerator(new JsonArtifactWriter(), $dir, null, $skip))->generate($corpus);
-    itemSetCheck($written === 2 && !is_file($dir . '/40.json'), 'no dashboard is written for a project collection');
-    itemSetCheck(is_file($dir . '/41.json') && is_file($dir . '/42.json'), 'every other item set keeps its dashboard');
+    check($written === 2 && !is_file($dir . '/40.json'), 'no dashboard is written for a project collection');
+    check(is_file($dir . '/41.json') && is_file($dir . '/42.json'), 'every other item set keeps its dashboard');
     $dashboard = json_decode((string) file_get_contents($dir . '/42.json'), true);
-    itemSetCheck(($dashboard['totalItems'] ?? null) === 2 && ($dashboard['resourceType'] ?? null) === 'researchItem',
+    check(($dashboard['totalItems'] ?? null) === 2 && ($dashboard['resourceType'] ?? null) === 'researchItem',
         'a kept dashboard is unchanged');
 
     $all = (new ItemSetDashboardGenerator(new JsonArtifactWriter(), $dir . '-all'))->generate($corpus);
-    itemSetCheck($all === 3, 'without project collections, every item set gets a dashboard');
+    check($all === 3, 'without project collections, every item set gets a dashboard');
 } finally {
     foreach ([$dir, $dir . '-all'] as $directory) {
         foreach (glob($directory . '/*') ?: [] as $file) unlink($file);
@@ -59,5 +47,4 @@ try {
     }
 }
 
-echo $failures ? "\n$failures FAILURE(S)\n" : "\nALL ITEM-SET DASHBOARD TESTS PASS\n";
-exit($failures ? 1 : 0);
+finish('ALL ITEM-SET DASHBOARD TESTS PASS');

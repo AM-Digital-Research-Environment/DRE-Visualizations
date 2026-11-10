@@ -6,18 +6,6 @@ require dirname(__DIR__) . '/src/Precompute/PublicCorpus.php';
 
 use DreVisualizations\Precompute\PublicCorpus;
 
-$failures = 0;
-function corpusCheck(bool $condition, string $message): void
-{
-    global $failures;
-    if ($condition) {
-        echo "ok: $message\n";
-        return;
-    }
-    $failures++;
-    fwrite(STDERR, "FAIL: $message\n");
-}
-
 $snapshot = [
     'items' => [
         1 => ['title' => 'Public source', 'public' => true],
@@ -52,29 +40,28 @@ $snapshot = [
 ];
 
 $corpus = (new PublicCorpus(7))->project($snapshot, [1, 2, 3, 6]);
-corpusCheck(array_keys($corpus['items']) === [1, 2], 'private and deleted records are absent');
-corpusCheck(count($corpus['links'][1] ?? []) === 1 && $corpus['links'][1][0][2] === 2,
+check(array_keys($corpus['items']) === [1, 2], 'private and deleted records are absent');
+check(count($corpus['links'][1] ?? []) === 1 && $corpus['links'][1][0][2] === 2,
     'private and cross-site relationship targets are absent');
-corpusCheck(!isset($corpus['links'][3]), 'private relationship sources are absent');
-corpusCheck(($corpus['reverseLinks'][2]['dcterms:isPartOf'] ?? []) === [1],
+check(!isset($corpus['links'][3]), 'private relationship sources are absent');
+check(($corpus['reverseLinks'][2]['dcterms:isPartOf'] ?? []) === [1],
     'reverse links are rebuilt from scoped relationships');
-corpusCheck(($corpus['childrenOf'][2] ?? []) === [1], 'hierarchy is rebuilt from scoped relationships');
-corpusCheck(($corpus['itemSets'][10] ?? []) === [1], 'memberships are scoped and deduplicated');
-corpusCheck(!isset($corpus['itemSets'][11]), 'empty cross-site item sets are absent');
-corpusCheck(array_keys($corpus['itemYear']) === [1] && array_keys($corpus['primaryMedia']) === [1],
+check(($corpus['childrenOf'][2] ?? []) === [1], 'hierarchy is rebuilt from scoped relationships');
+check(($corpus['itemSets'][10] ?? []) === [1], 'memberships are scoped and deduplicated');
+check(!isset($corpus['itemSets'][11]), 'empty cross-site item sets are absent');
+check(array_keys($corpus['itemYear']) === [1] && array_keys($corpus['primaryMedia']) === [1],
     'item-keyed values and media are scoped');
-corpusCheck(($corpus['scope']['siteId'] ?? null) === 7 && ($corpus['scope']['itemCount'] ?? null) === 2,
+check(($corpus['scope']['siteId'] ?? null) === 7 && ($corpus['scope']['itemCount'] ?? null) === 2,
     'scope metadata declares the canonical site and count');
-corpusCheck(($corpus['itemSetRecords'][10]['partOf'] ?? null) === [2],
+check(($corpus['itemSetRecords'][10]['partOf'] ?? null) === [2],
     'an item set names only scoped items as its project');
-corpusCheck(!isset($corpus['itemSetRecords'][11]), 'an item set without scoped members has no record');
+check(!isset($corpus['itemSetRecords'][11]), 'an item set without scoped members has no record');
 
 // Public-to-private transition: an id still present in the earlier site query
 // is rejected by the current item visibility flag.
 $transition = $snapshot;
 $transition['items'][1]['public'] = false;
 $afterPrivacyChange = (new PublicCorpus(7))->project($transition, [1, 2]);
-corpusCheck(array_keys($afterPrivacyChange['items']) === [2], 'public-to-private transition fails closed');
+check(array_keys($afterPrivacyChange['items']) === [2], 'public-to-private transition fails closed');
 
-echo $failures ? "\n$failures FAILURE(S)\n" : "\nALL PUBLIC CORPUS TESTS PASS\n";
-exit($failures ? 1 : 0);
+finish('ALL PUBLIC CORPUS TESTS PASS');

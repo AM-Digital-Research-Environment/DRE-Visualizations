@@ -6,18 +6,6 @@ require dirname(__DIR__) . '/src/Precompute/KnowledgeGraphs.php';
 
 use DreVisualizations\Precompute\KnowledgeGraphs;
 
-$failures = 0;
-function graphCheck(bool $condition, string $message): void
-{
-    global $failures;
-    if ($condition) {
-        echo "ok: $message\n";
-        return;
-    }
-    $failures++;
-    fwrite(STDERR, "FAIL: $message\n");
-}
-
 /** Find an edge between two node ids, in either direction. */
 function findEdge(array $edges, string $a, string $b): ?array
 {
@@ -41,13 +29,13 @@ function findEdge(array $edges, string $a, string $b): ?array
     3 => [['dcterms:subject', 'Subject', 100], ['dcterms:subject', 'Subject', 300]],
 ], 3);
 
-graphCheck(($freqPct[100] ?? null) === 100.0,
+check(($freqPct[100] ?? null) === 100.0,
     'a resource on every item is 100% common — and counting it twice on one item still counts once');
-graphCheck(($idf[100] ?? null) === 0.0, 'a universal resource carries no distinctiveness');
-graphCheck(($freqPct[300] ?? null) === 33.3, 'a resource on one of three items is 33.3% common');
-graphCheck(($idf[300] ?? null) === round(log(3), 2),
+check(($idf[100] ?? null) === 0.0, 'a universal resource carries no distinctiveness');
+check(($freqPct[300] ?? null) === 33.3, 'a resource on one of three items is 33.3% common');
+check(($idf[300] ?? null) === round(log(3), 2),
     'a resource on one item carries the full ln(N/df) weight');
-graphCheck(($idf[300] ?? null) > ($idf[100] ?? null),
+check(($idf[300] ?? null) > ($idf[100] ?? null),
     'a rare resource outranks a universal one');
 
 /* ------------------------------------------------------------------ */
@@ -76,15 +64,15 @@ $links = [
 
 $edges = KnowledgeGraphs::addCrossEdges($nodes, $starEdges, $links, 1);
 
-graphCheck(count($edges) === 5, 'two cross edges are added to the three spokes');
+check(count($edges) === 5, 'two cross edges are added to the three spokes');
 $personProject = findEdge($edges, 'resource_10', 'resource_20');
-graphCheck($personProject !== null && ($personProject['kind'] ?? null) === 'cross',
+check($personProject !== null && ($personProject['kind'] ?? null) === 'cross',
     'the person-to-project statement is drawn and tagged as a cross edge');
-graphCheck($personProject !== null && $personProject['name'] === 'Member Of',
+check($personProject !== null && $personProject['name'] === 'Member Of',
     'a cross edge carries the property label from the data');
-graphCheck(findEdge($edges, 'resource_20', 'resource_30') !== null,
+check(findEdge($edges, 'resource_20', 'resource_30') !== null,
     'the project-to-subject statement is drawn');
-graphCheck(findEdge($edges, 'resource_10', 'resource_30') === null,
+check(findEdge($edges, 'resource_10', 'resource_30') === null,
     'no edge is invented between neighbours the data does not connect');
 
 // A link out to a resource that is not on this graph must be ignored (999), and
@@ -95,15 +83,15 @@ foreach ($edges as $e) {
         $centreDupes++;
     }
 }
-graphCheck($centreDupes === 3, 'a neighbour linking back to the centre adds no second spoke');
+check($centreDupes === 3, 'a neighbour linking back to the centre adds no second spoke');
 
 // Idempotence: running the pass again must add nothing, since every statement is
 // already drawn in one direction or the other.
-graphCheck(count(KnowledgeGraphs::addCrossEdges($nodes, $edges, $links, 1)) === count($edges),
+check(count(KnowledgeGraphs::addCrossEdges($nodes, $edges, $links, 1)) === count($edges),
     'the cross pass is idempotent');
 
 // A graph with a single neighbour has no triangles to close.
-graphCheck(KnowledgeGraphs::addCrossEdges(
+check(KnowledgeGraphs::addCrossEdges(
     [['id' => 'item_1', 'itemId' => 1, 'isCenter' => true], ['id' => 'resource_10', 'itemId' => 10]],
     [['source' => 'item_1', 'target' => 'resource_10', 'name' => 'Creator']],
     $links,
@@ -140,11 +128,11 @@ $graph = KnowledgeGraphs::buildGraph(
     []    // freqPct
 );
 
-graphCheck($graph !== null, 'a graph is built for an item with relationships');
-graphCheck(count($graph['nodes']) === 3, 'a resource named twice becomes one node');
-graphCheck($graph['nodes'][0]['isCenter'] === true && $graph['nodes'][0]['name'] === 'A photograph',
+check($graph !== null, 'a graph is built for an item with relationships');
+check(count($graph['nodes']) === 3, 'a resource named twice becomes one node');
+check($graph['nodes'][0]['isCenter'] === true && $graph['nodes'][0]['name'] === 'A photograph',
     'the centre is the item itself');
-graphCheck(($graph['categories'][0]['name'] ?? null) === 'Still Image',
+check(($graph['categories'][0]['name'] ?? null) === 'Still Image',
     'the centre category comes from the resource class label');
 
 $spokes = 0;
@@ -153,16 +141,16 @@ foreach ($graph['edges'] as $e) {
         $spokes++;
     }
 }
-graphCheck($spokes === 3,
+check($spokes === 3,
     'a subject repeated on one property is one spoke, but one person under two roles is two');
 
 $crossEdge = findEdge($graph['edges'], 'resource_10', 'resource_11');
-graphCheck($crossEdge !== null && ($crossEdge['kind'] ?? null) === 'cross',
+check($crossEdge !== null && ($crossEdge['kind'] ?? null) === 'cross',
     'buildGraph runs the cross pass, so a statement between two neighbours is drawn');
 
-graphCheck(KnowledgeGraphs::buildGraph(1, $items, [1 => []], [], [], [], []) === null,
+check(KnowledgeGraphs::buildGraph(1, $items, [1 => []], [], [], [], []) === null,
     'an item with no relationships yields no graph');
-graphCheck(KnowledgeGraphs::buildGraph(999, $items, [], [], [], [], []) === null,
+check(KnowledgeGraphs::buildGraph(999, $items, [], [], [], [], []) === null,
     'an unknown item yields no graph');
 
 // A node carries ONE category, decided by the highest-priority property that
@@ -170,7 +158,7 @@ graphCheck(KnowledgeGraphs::buildGraph(999, $items, [], [], [], [], []) === null
 // Person outranks Contributor in CAT_PRIORITY, so no Contributor category is
 // created at all. The second role still gets its own edge (checked above).
 $cats = array_column($graph['categories'], 'name');
-graphCheck(in_array('Person', $cats, true) && !in_array('Contributor', $cats, true),
+check(in_array('Person', $cats, true) && !in_array('Contributor', $cats, true),
     'the highest-priority role decides a node category, and unused categories are not created');
 $person = null;
 foreach ($graph['nodes'] as $n) {
@@ -178,10 +166,10 @@ foreach ($graph['nodes'] as $n) {
         $person = $n;
     }
 }
-graphCheck($person !== null && ($cats[$person['category']] ?? null) === 'Person',
+check($person !== null && ($cats[$person['category']] ?? null) === 'Person',
     'the person is filed under Person, not Contributor');
-graphCheck($graph['nodes'][0]['symbolSize'] === 45, 'the centre is the largest node');
-graphCheck(count($graph['edges']) === 4, 'three spokes plus one cross edge');
+check($graph['nodes'][0]['symbolSize'] === 45, 'the centre is the largest node');
+check(count($graph['edges']) === 4, 'three spokes plus one cross edge');
 
 /* ------------------------------------------------------------------ */
 /*  Publications: the bibo: author/editor terms                        */
@@ -207,16 +195,16 @@ $pubLinks = [
 $pubReverse = KnowledgeGraphs::buildShareableReverse([
     20 => ['bibo:authorList' => [5, 22]],
 ]);
-graphCheck(isset($pubReverse[20][22]),
+check(isset($pubReverse[20][22]),
     'bibo:authorList is shareable, so the reverse index reaches a second work by that author');
 $pubGraph = KnowledgeGraphs::buildGraph(5, $pubItems, $pubLinks, [], $pubReverse, [], []);
 
-graphCheck($pubGraph !== null, 'a publication with only bibo: people yields a graph');
+check($pubGraph !== null, 'a publication with only bibo: people yields a graph');
 $pubCats = array_column($pubGraph['categories'] ?? [], 'name');
 $pubNames = array_column($pubGraph['nodes'] ?? [], 'name');
-graphCheck(in_array('An author', $pubNames, true) && in_array('An editor', $pubNames, true),
+check(in_array('An author', $pubNames, true) && in_array('An editor', $pubNames, true),
     'bibo:authorList and bibo:editorList both put their person on the graph');
-graphCheck(in_array('Person', $pubCats, true) && !in_array('Editor', $pubCats, true),
+check(in_array('Person', $pubCats, true) && !in_array('Editor', $pubCats, true),
     'an editor is filed under Person — the edge label carries the role, not the category');
 $authorNode = null;
 foreach ($pubGraph['nodes'] as $n) {
@@ -224,12 +212,12 @@ foreach ($pubGraph['nodes'] as $n) {
         $authorNode = $n;
     }
 }
-graphCheck($authorNode !== null && findEdge($pubGraph['edges'], 'item_5', $authorNode['id']) !== null,
+check($authorNode !== null && findEdge($pubGraph['edges'], 'item_5', $authorNode['id']) !== null,
     'the author is joined to the publication');
 $authorEdge = findEdge($pubGraph['edges'], 'item_5', $authorNode['id']);
-graphCheck(($authorEdge['name'] ?? null) === 'Author',
+check(($authorEdge['name'] ?? null) === 'Author',
     'the edge is named by the property label, so Author and Editor stay distinguishable');
-graphCheck(in_array('Another article by the same author', $pubNames, true),
+check(in_array('Another article by the same author', $pubNames, true),
     'bibo:authorList is shareable, so a second work by the same author co-occurs');
 
 // A publication's containers, place and publisher are typed by what they link to:
@@ -257,12 +245,12 @@ $venueCatOf = [];
 foreach ($venueGraph['nodes'] ?? [] as $n) {
     $venueCatOf[$n['itemId']] = $venueCats[$n['category']] ?? null;
 }
-graphCheck(($venueCatOf[31] ?? null) === 'Publication venue' && ($venueCatOf[32] ?? null) === 'Publication venue',
+check(($venueCatOf[31] ?? null) === 'Publication venue' && ($venueCatOf[32] ?? null) === 'Publication venue',
     'the book and series of a chapter are publication venues');
-graphCheck(($venueCatOf[33] ?? null) === 'Location', 'a place of publication is a Location, not a Contributor');
-graphCheck(($venueCatOf[34] ?? null) === 'Institution', 'a publisher is an Institution');
-graphCheck(($venueCatOf[35] ?? null) === 'Project', 'dcterms:isPartOf still files a project under Project');
-graphCheck(($venueCatOf[36] ?? null) === 'Institution', 'an organisation in a marcrel role is an Institution');
+check(($venueCatOf[33] ?? null) === 'Location', 'a place of publication is a Location, not a Contributor');
+check(($venueCatOf[34] ?? null) === 'Institution', 'a publisher is an Institution');
+check(($venueCatOf[35] ?? null) === 'Project', 'dcterms:isPartOf still files a project under Project');
+check(($venueCatOf[36] ?? null) === 'Institution', 'an organisation in a marcrel role is an Institution');
 
 /* ------------------------------------------------------------------ */
 /*  assignCommunities                                                  */
@@ -287,12 +275,12 @@ foreach ($withComms as $n) {
     $commOf[$n['id']] = $n['community'];
 }
 
-graphCheck($count === 2, 'two disjoint triangles are found as two communities');
-graphCheck($commOf['a1'] === $commOf['a2'] && $commOf['a2'] === $commOf['a3'],
+check($count === 2, 'two disjoint triangles are found as two communities');
+check($commOf['a1'] === $commOf['a2'] && $commOf['a2'] === $commOf['a3'],
     'a triangle shares one community id');
-graphCheck($commOf['a1'] !== $commOf['b1'], 'the two triangles get different community ids');
-graphCheck($commOf['item_1'] === -1, 'the centre is excluded from the communities');
-graphCheck($commOf['leaf'] === -1, 'a node reachable only through the centre gets no community');
+check($commOf['a1'] !== $commOf['b1'], 'the two triangles get different community ids');
+check($commOf['item_1'] === -1, 'the centre is excluded from the communities');
+check($commOf['leaf'] === -1, 'a node reachable only through the centre gets no community');
 
 // Determinism: the same input must produce the same labels on a second run.
 [$again] = KnowledgeGraphs::assignCommunities($commNodes, $commEdges);
@@ -300,7 +288,7 @@ $againOf = [];
 foreach ($again as $n) {
     $againOf[$n['id']] = $n['community'];
 }
-graphCheck($againOf === $commOf, 'community assignment is reproducible');
+check($againOf === $commOf, 'community assignment is reproducible');
 
 /* ------------------------------------------------------------------ */
 /*  buildItemMap                                                       */
@@ -321,16 +309,15 @@ $map = KnowledgeGraphs::buildItemMap(1, [
     ],
 ], $geo);
 
-graphCheck($map !== null && count($map['origins']) === 1, 'a repeated origin is listed once');
-graphCheck($map !== null && $map['origins'][0]['name'] === 'Ouagadougou', 'the origin carries its name');
-graphCheck($map !== null && count($map['current']) === 1, 'provenance becomes the current location');
-graphCheck($map !== null && $map['current'][0]['itemId'] === 60, 'the current location links to its own item');
-graphCheck($map !== null
+check($map !== null && count($map['origins']) === 1, 'a repeated origin is listed once');
+check($map !== null && $map['origins'][0]['name'] === 'Ouagadougou', 'the origin carries its name');
+check($map !== null && count($map['current']) === 1, 'provenance becomes the current location');
+check($map !== null && $map['current'][0]['itemId'] === 60, 'the current location links to its own item');
+check($map !== null
     && !in_array(70, array_column($map['origins'], 'itemId'), true)
     && !in_array(70, array_column($map['current'], 'itemId'), true),
     'a non-place property is not mapped even when the target has coordinates');
-graphCheck(KnowledgeGraphs::buildItemMap(2, [2 => [['dcterms:subject', 'Subject', 70]]], $geo) === null,
+check(KnowledgeGraphs::buildItemMap(2, [2 => [['dcterms:subject', 'Subject', 70]]], $geo) === null,
     'an item with no located places yields no map');
 
-echo $failures ? "\n$failures FAILURE(S)\n" : "\nALL KNOWLEDGE GRAPH TESTS PASS\n";
-exit($failures ? 1 : 0);
+finish('ALL KNOWLEDGE GRAPH TESTS PASS');

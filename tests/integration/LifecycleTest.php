@@ -20,11 +20,8 @@ if ($hook === null) {
 require $omeka . '/vendor/autoload.php';
 // Warnings fail the run here too; this harness deliberately skips bootstrap.php.
 require __DIR__ . '/../lib/strict-errors.php';
+require __DIR__ . '/../lib/assert.php';
 
-$check = static function (bool $condition, string $message): void {
-    if (!$condition) throw new RuntimeException($message);
-    echo "ok: $message\n";
-};
 $put = static function (string $path, string $content = '{}'): void {
     if (!is_dir(dirname($path))) mkdir(dirname($path), 0777, true);
     file_put_contents($path, $content);
@@ -38,7 +35,7 @@ try {
         $put($moduleDir . '/src/' . substr($file->getPathname(), strlen($root . '/src/')), (string) file_get_contents($file->getPathname()));
     }
     putenv('DRE_VISUALIZATIONS_DATA_DIR=' . $tmp . '/store');
-    $check(!class_exists('DreVisualizations\Precompute\SnapshotStore'), 'Module classes start unloaded before ' . $hook . '(), as in Omeka');
+    verify(!class_exists('DreVisualizations\Precompute\SnapshotStore'), 'Module classes start unloaded before ' . $hook . '(), as in Omeka');
     require $moduleDir . '/Module.php';
     $settings = new class {
         public array $deleted = [];
@@ -92,27 +89,27 @@ try {
         $before = $connection->fetchAllAssociative('SELECT * FROM site_setting WHERE site_id <> 1 ORDER BY site_id, id');
 
         $module->upgrade('2.28.5', '2.29.1', $services);
-        $check(array_values(array_diff(scandir($moduleDir . '/asset/data'), ['.', '..'])) === ['geo'],
+        verify(array_values(array_diff(scandir($moduleDir . '/asset/data'), ['.', '..'])) === ['geo'],
             'Upgrade purges old public outputs and keeps static geography');
         $site1 = $stored(1, 'theme_settings_dre-theme');
-        $check($site1['resource_page_blocks']['items']['main'] === ['mediaEmbeds', 'values', 'itemSets', 'sitePages',
+        verify($site1['resource_page_blocks']['items']['main'] === ['mediaEmbeds', 'values', 'itemSets', 'sitePages',
             'mediaList', 'dreLinkedItemsDashboard', 'linkedResources'],
             'Upgrade adds the Visualisations block to a saved item-page configuration, after the record blocks');
-        $check($site1['logo'] === 7 && $site1['resource_page_blocks']['media'] === $themeDefaults['media'],
+        verify($site1['logo'] === 7 && $site1['resource_page_blocks']['media'] === $themeDefaults['media'],
             'Upgrade keeps every other theme setting and resource');
-        $check($connection->fetchAllAssociative('SELECT * FROM site_setting WHERE site_id <> 1 ORDER BY site_id, id') === $before,
+        verify($connection->fetchAllAssociative('SELECT * FROM site_setting WHERE site_id <> 1 ORDER BY site_id, id') === $before,
             'Upgrade leaves unsaved, already-placed, inactive-theme and empty configurations alone');
         $afterFirst = $connection->fetchAllAssociative('SELECT * FROM site_setting ORDER BY site_id, id');
         $module->upgrade('2.37.2', '2.38.0', $services);
-        $check($connection->fetchAllAssociative('SELECT * FROM site_setting ORDER BY site_id, id') === $afterFirst,
+        verify($connection->fetchAllAssociative('SELECT * FROM site_setting ORDER BY site_id, id') === $afterFirst,
             'Placing the block again changes nothing');
         // An administrator then removes it; a later upgrade does not put it back.
         $connection->update('site_setting', ['value' => json_encode(['resource_page_blocks' => $themeDefaults])],
             ['site_id' => 1, 'id' => 'theme_settings_dre-theme']);
         $module->upgrade('2.38.0', '2.38.1', $services);
-        $check(!in_array('dreLinkedItemsDashboard', $stored(1, 'theme_settings_dre-theme')['resource_page_blocks']['items']['main'], true),
+        verify(!in_array('dreLinkedItemsDashboard', $stored(1, 'theme_settings_dre-theme')['resource_page_blocks']['items']['main'], true),
             'Upgrades from 2.38.0 on respect an administrator who removed the block');
-        $check(DreVisualizations\Site\ResourcePagePlacement::repair($connection, [2, 3, 4, 5]) === []
+        verify(DreVisualizations\Site\ResourcePagePlacement::repair($connection, [2, 3, 4, 5]) === []
             && DreVisualizations\Site\ResourcePagePlacement::repair($connection, [1]) === [1],
             'The maintenance repair touches only the sites it is given');
     } elseif ($hook === 'upgrade-compatible') {
@@ -132,18 +129,18 @@ try {
         });
         $module->upgrade('2.29.1', '2.30.0', $services);
         $store = new DreVisualizations\Precompute\SnapshotStore($tmp . '/store');
-        $check(($store->reading(fn () => $store->manifest())['generationId'] ?? null) === $published['generationId'],
+        verify(($store->reading(fn () => $store->manifest())['generationId'] ?? null) === $published['generationId'],
             'A schema-compatible upgrade keeps serving the published snapshot');
         return;
     } else {
         $put($tmp . '/store/generations/20260101T000000Z-aaaaaaaaaaaa/network-explorer.json');
         $put($tmp . '/store/layout-cache/abc.json');
         $module->uninstall($services);
-        $check(in_array(DreVisualizations\Module::SETTING_SITE_ID, $settings->deleted, true), 'Uninstall removes module settings');
-        $check(!is_dir($tmp . '/store/generations') && !is_dir($tmp . '/store/layout-cache'), 'Uninstall removes generated data from the private store');
+        verify(in_array(DreVisualizations\Module::SETTING_SITE_ID, $settings->deleted, true), 'Uninstall removes module settings');
+        verify(!is_dir($tmp . '/store/generations') && !is_dir($tmp . '/store/layout-cache'), 'Uninstall removes generated data from the private store');
     }
     $state = json_decode((string) file_get_contents($tmp . '/store/current.json'), true);
-    $check(($state['withdrawn'] ?? false) === true, ucfirst($hook) . ' withdraws publication');
+    verify(($state['withdrawn'] ?? false) === true, ucfirst($hook) . ' withdraws publication');
 } finally {
     putenv('DRE_VISUALIZATIONS_DATA_DIR');
     if (is_dir($tmp)) {

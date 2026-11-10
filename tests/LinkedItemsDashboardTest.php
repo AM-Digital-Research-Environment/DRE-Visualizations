@@ -57,58 +57,51 @@ namespace {
     $view = new PhpRenderer();
     $block = new LinkedItemsDashboard($root);
     $item = new AbstractResourceEntityRepresentation(32328);
-    $checks = 0;
-    $check = static function (bool $condition, string $message) use (&$checks): void {
-        if (!$condition) {
-            throw new \RuntimeException($message);
-        }
-        ++$checks;
-    };
     try {
-        $check($block->render($view, $item) === '', 'Missing data must not create a loader.');
-        $check($view->calls === 0, 'Ineligible items must not render the asset-loading partial.');
+        verify($block->render($view, $item) === '', 'Missing data must not create a loader.');
+        verify($view->calls === 0, 'Ineligible items must not render the asset-loading partial.');
 
         $manifest = ['schemaVersion' => \DreVisualizations\Precompute\SnapshotPublisher::SCHEMA_VERSION,
             'generationId' => $generation, 'revision' => (new \DreVisualizations\Precompute\SnapshotStore($root))->revision()];
         file_put_contents($root . '/current.json', json_encode($manifest));
         file_put_contents($published . '/knowledge-graphs/32328.json', '{"nodes":[]}');
-        $check($block->render($view, $item) === '', 'A knowledge graph does not imply a dashboard.');
+        verify($block->render($view, $item) === '', 'A knowledge graph does not imply a dashboard.');
 
         file_put_contents($root . '/item-dashboards/32328.json', '{}');
-        $check($block->render($view, $item) === '', 'A stale flat dashboard must not override the published generation.');
+        verify($block->render($view, $item) === '', 'A stale flat dashboard must not override the published generation.');
 
         file_put_contents($published . '/item-dashboards/32328.json', '{}');
-        $check($block->render($view, $item) === 'dashboard:32328', 'A published dashboard must render.');
-        $check($view->calls === 1, 'Eligible dashboard must render exactly once.');
-        $check($view->last['dashboard'] === true && $view->last['gallery'] === null, 'An item without a project gallery shows the dashboard alone.');
+        verify($block->render($view, $item) === 'dashboard:32328', 'A published dashboard must render.');
+        verify($view->calls === 1, 'Eligible dashboard must render exactly once.');
+        verify($view->last['dashboard'] === true && $view->last['gallery'] === null, 'An item without a project gallery shows the dashboard alone.');
 
         // A research project's gallery (photo-galleries/project-<id>.json).
         $photo = ['id' => 5, 'title' => 'Photo', 'storage' => 'abc', 'ext' => 'jpg'];
         file_put_contents($published . '/photo-galleries/project-32328.json', json_encode(['total' => 1, 'photos' => [$photo]]));
-        $check($block->render($view, $item) === 'dashboard:32328' && $view->last['dashboard'] === true
+        verify($block->render($view, $item) === 'dashboard:32328' && $view->last['dashboard'] === true
             && ($view->last['gallery']['photos'][0]['id'] ?? null) === 5, 'A project shows its gallery under its dashboard.');
         rename($published . '/item-dashboards/32328.json', $published . '/item-dashboards/32328.tmp');
-        $check($block->render($view, $item) === 'dashboard:32328' && $view->last['dashboard'] === false
+        verify($block->render($view, $item) === 'dashboard:32328' && $view->last['dashboard'] === false
             && $view->last['gallery'] !== null, 'A project gallery shows without a dashboard.');
         file_put_contents($published . '/photo-galleries/project-32328.json', json_encode(['total' => 0, 'photos' => []]));
-        $check($block->render($view, $item) === '', 'An empty gallery and no dashboard render nothing.');
+        verify($block->render($view, $item) === '', 'An empty gallery and no dashboard render nothing.');
         unlink($published . '/photo-galleries/project-32328.json');
         rename($published . '/item-dashboards/32328.tmp', $published . '/item-dashboards/32328.json');
 
         $view->canonical = false;
-        $check($block->render($view, $item) === '', 'A non-canonical site must not mount a loader the data endpoint refuses.');
+        verify($block->render($view, $item) === '', 'A non-canonical site must not mount a loader the data endpoint refuses.');
         $view->canonical = true;
 
         file_put_contents($root . '/current.json', json_encode(['schemaVersion' => 0] + $manifest));
-        $check($block->render($view, $item) === '', 'A snapshot of another artifact schema must not render.');
+        verify($block->render($view, $item) === '', 'A snapshot of another artifact schema must not render.');
         file_put_contents($root . '/current.json', json_encode($manifest));
 
         unlink($published . '/item-dashboards/32328.json');
-        $check($block->render($view, $item) === '', 'Removal from the current snapshot must take effect immediately.');
+        verify($block->render($view, $item) === '', 'Removal from the current snapshot must take effect immediately.');
 
         unlink($root . '/current.json');
-        $check($block->render($view, $item) === '', 'Missing manifest never exposes legacy flat publication.');
-        echo "LinkedItemsDashboard: $checks checks passed.\n";
+        verify($block->render($view, $item) === '', 'Missing manifest never exposes legacy flat publication.');
+        echo "LinkedItemsDashboard passed.\n";
     } finally {
         foreach ([
             $root . '/current.json',

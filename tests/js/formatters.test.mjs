@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Executes every ECharts tooltip formatter the chart builders produce against hostile
  * labels, and fails if any returns raw markup.
@@ -13,12 +12,16 @@
  *
  * String templates ('{b}: {c}') are not executed here: ECharts encodes those
  * itself in HTML tooltips.
+ *
+ * A unit test since it executes code (it was scripts/check-formatters.mjs).
  */
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
 
-const ROOT = join(import.meta.dirname, '..');
+const ROOT = join(import.meta.dirname, '..', '..');
 const HOSTILE = '<img src=x onerror=alert(1)>';
 const goldenDir = join(ROOT, 'tests', 'golden', 'item-dashboards');
 
@@ -139,48 +142,42 @@ function paramsFor(option) {
   return [single, [single, { ...single }]];
 }
 
-let builders = 0;
-let executed = 0;
-const failures = [];
-if (!existsSync(goldenDir)) {
-  console.error('tests/golden/item-dashboards/ is missing; run the golden test first.');
-  process.exit(1);
-}
-for (const file of readdirSync(goldenDir).filter((f) => f.endsWith('.json')).sort()) {
-  const dashboard = JSON.parse(readFileSync(join(goldenDir, file), 'utf8'));
-  if (!dashboard || Array.isArray(dashboard)) continue;
-  const hostile = poison(dashboard);
-  for (const key of Object.keys(dashboard)) {
-    const builder = (ns.builderFor && ns.builderFor(hostile, key)) || (ns.CHART_MAP || {})[key];
-    if (typeof builder !== 'function' || !hostile[key]) continue;
-    recorded.length = 0;
-    try {
-      builder(element(), hostile[key], '/s/test', hostile);
-    } catch {
-      continue; // DOM-heavy builders (maps, canvas graphs) need a browser; their HTML is covered elsewhere
-    }
-    builders++;
-    for (const option of recorded) {
-      for (const [path, fn] of formatters(option)) {
-        for (const params of paramsFor(option)) {
-          let output;
-          try { output = fn(params); } catch { continue; }
-          executed++;
-          if (typeof output === 'string' && /<img\b/i.test(output)) {
-            failures.push(`${file} ${key} ${path}: ${output.slice(0, 120)}`);
+test('every tooltip formatter escapes hostile golden data', () => {
+  let builders = 0;
+  let executed = 0;
+  const failures = [];
+  assert.ok(existsSync(goldenDir), 'tests/golden/item-dashboards/ is missing; run the golden test first.');
+  for (const file of readdirSync(goldenDir).filter((f) => f.endsWith('.json')).sort()) {
+    const dashboard = JSON.parse(readFileSync(join(goldenDir, file), 'utf8'));
+    if (!dashboard || Array.isArray(dashboard)) continue;
+    const hostile = poison(dashboard);
+    for (const key of Object.keys(dashboard)) {
+      const builder = (ns.builderFor && ns.builderFor(hostile, key)) || (ns.CHART_MAP || {})[key];
+      if (typeof builder !== 'function' || !hostile[key]) continue;
+      recorded.length = 0;
+      try {
+        builder(element(), hostile[key], '/s/test', hostile);
+      } catch {
+        continue; // DOM-heavy builders (maps, canvas graphs) need a browser; their HTML is covered elsewhere
+      }
+      builders++;
+      for (const option of recorded) {
+        for (const [path, fn] of formatters(option)) {
+          for (const params of paramsFor(option)) {
+            let output;
+            try { output = fn(params); } catch { continue; }
+            executed++;
+            if (typeof output === 'string' && /<img\b/i.test(output)) {
+              failures.push(`${file} ${key} ${path}: ${output.slice(0, 120)}`);
+            }
           }
         }
       }
     }
   }
-}
 
-// A sweep that runs nothing proves nothing: keep a floor under it.
-if (executed < 20) failures.push(`only ${executed} formatter calls ran; the sweep has lost its coverage`);
+  // A sweep that runs nothing proves nothing: keep a floor under it.
+  if (executed < 20) failures.push(`only ${executed} formatter calls ran over ${builders} chart builds; the sweep has lost its coverage`);
 
-if (failures.length) {
-  console.error(`Formatter sweep: ${failures.length} finding(s)`);
-  for (const failure of [...new Set(failures)].slice(0, 40)) console.error('  ' + failure);
-  process.exit(1);
-}
-console.log(`Formatter sweep: clean (${executed} formatter calls across ${builders} chart builds on hostile golden data).`);
+  assert.deepEqual([...new Set(failures)].slice(0, 40), []);
+});

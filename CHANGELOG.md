@@ -20,6 +20,13 @@ workflow publishes it as the notes of the GitHub release
 ### Added
 
 - `npm run i18n:check` (part of `npm run check`) and `npm run i18n:extract` fail on an American spelling in any catalogue string (`visualiz…`, `organiz…`, `color`, `center`, `behavior` and similar), so it cannot return. The names "DRE Visualizations" and the repository's stay as they are.
+- A unit test holds stops 1–6 of the categorical palette to the vendored `--brand-*` tokens, as the data-colour contract requires; nothing checked it before.
+
+### Changed
+
+- **Checks that run code are tests now.** The tooltip-formatter sweep, the registry contracts and the graph contracts moved from `scripts/check-*.mjs` into `tests/js/` (`npm test`), and so did the treemap formatter's hostile-label run from `check-html-safety.mjs`, which keeps the static sink inventory. `npm run check:formatters`, `check:registry` and `check:graph` are gone; `npm run check` runs the same checks through `npm test`.
+- **Rendered assertions instead of substring checks.** `check-accessibility-contracts.mjs` keeps only the source policies (one spinner partial, the touch-target and status styles, map popups). The async-surface markup is now checked on the real partial rendered through PHP (`tests/AsyncSurfaceTest.php`), the loading, ready, empty and error states on `core/async.js` itself (`tests/js/async.test.mjs`), and the chart headings and toolbars on every rendered golden block in the browser suite. The two checks that pinned the dashboard's second state implementation are gone.
+- The PHP harnesses share one assertion helper, `tests/lib/assert.php`, instead of a copy of its own in each.
 
 ## [2.50.0] - 2026-11-06
 

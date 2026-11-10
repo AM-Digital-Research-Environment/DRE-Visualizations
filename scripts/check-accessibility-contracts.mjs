@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 /**
- * Dependency-free contracts for dashboard headings, toolbars, and async state.
- *
- * These assertions intentionally pin the source-level integration boundary.
- * Browser smoke tests can prove that a deployed dashboard mounts; this check
- * prevents the module from silently rebuilding inaccessible markup first.
+ * Source-level accessibility policies that no rendered test can see: the one
+ * spinner partial, the stylesheet's touch-target and status rules, and how map
+ * popups are built. Everything a rendered page or a unit test can check lives
+ * there instead: the async-surface markup in tests/AsyncSurfaceTest.php (the
+ * real partial, rendered), the async state machine in tests/js/async.test.mjs,
+ * and the chart headings and toolbars in the browser suite
+ * (tests/browser/lifecycle.spec.mjs, "every block boots").
  */
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { CORE_SOURCES } from './lib/frontend-sources.mjs';
 
 const ROOT = join(import.meta.dirname, '..');
 const failures = [];
@@ -21,72 +22,7 @@ function requireFragment(source, fragment, message) {
   if (!source.includes(fragment)) failures.push(message);
 }
 
-function rejectFragment(source, fragment, message) {
-  if (source.includes(fragment)) failures.push(message);
-}
-
-const dashboard = read('asset/js/dashboard.js');
-// The core's sources (the served dashboard-core.js is generated from them): the
-// chart toolbar lives in toolbar.js, the per-chart embed button in embed.js.
-const core = CORE_SOURCES.map((path) => read('asset/' + path)).join('\n');
-const template = read('view/common/block-layout/partials/async-surface.phtml');
-const dashboardTemplate = read('view/common/block-layout/partials/dashboard-async.phtml');
-const asyncCore = read('asset/js/core/async.js');
 const css = read('asset/css/dre-visualizations.css');
-
-requireFragment(
-  dashboard,
-  '<div class="rv-chart-heading"><h3>',
-  'dashboard chart titles must use the heading wrapper',
-);
-requireFragment(
-  core,
-  "bar.setAttribute('role', 'toolbar')",
-  'chart action groups must expose the toolbar role',
-);
-requireFragment(
-  core,
-  "bar.setAttribute('aria-label'",
-  'chart toolbars must have a stable accessible name',
-);
-requireFragment(
-  core,
-  "heading.appendChild(bar)",
-  'chart toolbars must be siblings of the chart heading',
-);
-rejectFragment(
-  core,
-  'h3.appendChild(bar)',
-  'chart controls must never be appended inside an h3',
-);
-rejectFragment(
-  core,
-  'title.appendChild(bar)',
-  'chart controls must never be appended inside a heading element',
-);
-requireFragment(
-  core,
-  'aria-label="\' + ns.escapeHtml(saveTitle)',
-  'icon-only chart controls must carry explicit accessible names',
-);
-
-for (const fragment of [
-  'class="rv-dashboard-status rv-async-status"',
-  'role="status"',
-  'aria-live="polite"',
-  'aria-atomic="true"',
-  'class="rv-dashboard-content"',
-  'class="rv-loading rv-async-loading" aria-hidden="true"',
-  '<noscript>',
-  "translate('This visualisation needs JavaScript.')",
-  "translate('Loading…')",
-]) {
-  requireFragment(template, fragment, `async surface partial is missing ${fragment}`);
-}
-rejectFragment(template, 'aria-busy="', 'aria-busy is set by the script while work is active, never server-side');
-for (const fragment of ['ready-status', 'empty-status', 'error-status', 'partials/async-surface']) {
-  requireFragment(dashboardTemplate, fragment, `async dashboard template is missing ${fragment}`);
-}
 
 // Every block that shows a spinner must get it — and its live region and
 // <noscript> — from the one partial, never from hand-written markup.
@@ -97,27 +33,6 @@ for (const file of readdirSync(join(ROOT, 'view'), { recursive: true })) {
     failures.push(`view/${path} renders its own spinner; use partials/async-surface`);
   }
 }
-for (const fragment of [
-  "container.setAttribute('aria-busy', state === 'loading' ? 'true' : 'false')",
-  "ns.t('retry', 'Try again')",
-]) {
-  requireFragment(asyncCore, fragment, `core/async.js is missing ${fragment}`);
-}
-requireFragment(
-  dashboard,
-  "container.setAttribute('aria-busy', 'true')",
-  'async dashboards must expose their busy state while loading',
-);
-requireFragment(
-  dashboard,
-  "container.setAttribute('aria-busy', 'false')",
-  'async dashboards must clear their busy state when loading finishes',
-);
-requireFragment(
-  dashboard,
-  'status.textContent = message',
-  'async dashboard completion must update the persistent live region',
-);
 requireFragment(
   css,
   '.rv-dashboard-status {',
@@ -147,8 +62,8 @@ requireFragment(
 // Map popups: every one comes from ns.mapPopup (core/maps.js), which closes it
 // on Escape, and a marker gets its popup only after addTo() (MapLibre's addTo
 // drops the Enter / Space listener an earlier setPopup attached).
-requireFragment(core, 'ns.mapPopup = function', 'core/maps.js must provide ns.mapPopup');
 const mapsCore = read('asset/js/core/maps.js');
+requireFragment(mapsCore, 'ns.mapPopup = function', 'core/maps.js must provide ns.mapPopup');
 for (const file of readdirSync(join(ROOT, 'asset/js'), { recursive: true })) {
   const path = 'asset/js/' + String(file).replace(/\\/g, '/');
   if (!path.endsWith('.js') || path.endsWith('.bundle.js') || path.endsWith('dashboard-core.js') || path.endsWith('.min.js')) continue;
@@ -169,5 +84,5 @@ if (failures.length) {
 }
 
 console.log(
-  'Accessibility contracts: clean (headings, toolbars, async status, map touch targets, and map popups).',
+  'Accessibility contracts: clean (one spinner partial, status and map touch-target styles, map popups).',
 );

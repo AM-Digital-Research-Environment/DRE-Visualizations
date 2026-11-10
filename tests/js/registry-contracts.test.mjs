@@ -1,18 +1,20 @@
-#!/usr/bin/env node
 /**
- * Static contract checks for hand-maintained visualization registries.
+ * Contract checks for the hand-maintained visualisation registries.
  *
  * The asset plans (config/asset-plans.json), the chart layouts and the chart
  * registry need to move together. This script catches drift without requiring
  * Omeka or a browser. The block registry (slugs, templates, embeds, plans per
- * block) is checked by tests/BlockRegistryTest.php.
+ * block) is checked by tests/BlockRegistryTest.php. A unit test since it
+ * runs the registry scripts (it was scripts/check-registry-contracts.mjs).
  */
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import vm from 'node:vm';
-import { assetPlans, runtimeAssets } from './lib/frontend-sources.mjs';
+import { assetPlans, runtimeAssets } from '../../scripts/lib/frontend-sources.mjs';
 
-const ROOT = join(import.meta.dirname, '..');
+const ROOT = join(import.meta.dirname, '..', '..');
 const failures = [];
 
 function fail(message) {
@@ -99,13 +101,14 @@ function checkLayouts(rv) {
   }
 }
 
-checkAssetPlans();
-checkLayouts(loadRegistries());
+test('the asset plans name existing files, and every loaded chart builder is registered', () => {
+  failures.length = 0;
+  checkAssetPlans();
+  assert.deepEqual(failures, []);
+});
 
-if (failures.length) {
-  console.error(`Registry contracts: ${failures.length} finding(s)\n`);
-  for (const message of failures) console.error('  ' + message);
-  process.exit(1);
-}
-
-console.log('Registry contracts: clean.');
+test('every layout key has a builder and every builder a label', () => {
+  failures.length = 0;
+  checkLayouts(loadRegistries());
+  assert.deepEqual(failures, []);
+});

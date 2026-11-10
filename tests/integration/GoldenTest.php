@@ -111,14 +111,6 @@ $module = dirname(__DIR__, 2);
 $goldenDir = $module . '/tests/golden';
 $update = getenv('UPDATE_GOLDEN') === '1';
 
-function verify(bool $condition, string $message): void
-{
-    if (!$condition) {
-        throw new RuntimeException($message);
-    }
-    echo "ok: $message\n";
-}
-
 function removeTree(string $dir): void
 {
     if (!is_dir($dir)) {

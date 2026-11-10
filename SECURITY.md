@@ -30,7 +30,8 @@ their artifact is not published. Nothing generated may be written under
 `asset/`.
 
 Markup built from catalogue data passes an escaper (`eslint-plugin-no-unsanitized`,
-`scripts/check-html-safety.mjs` with a hostile-label fixture), and the module
+`scripts/check-html-safety.mjs`, and unit tests that run every tooltip formatter
+on hostile labels), and the module
 renders no inline script, so a host may set `script-src 'self'`. The details,
 including the map and privacy choices, are in
 [docs/SECURITY_AND_PRIVACY.md](docs/SECURITY_AND_PRIVACY.md).

@@ -31,18 +31,6 @@ $aggregators = new A(4, 5, [
     'Rhodes University' => 'Rhodes University',
 ]);
 
-$failures = 0;
-function check(bool $cond, string $msg): void
-{
-    global $failures;
-    if ($cond) {
-        echo "ok: $msg\n";
-    } else {
-        $failures++;
-        fwrite(STDERR, "FAIL: $msg\n");
-    }
-}
-
 // --- aggregateItems ---
 $items = [
     10 => ['title' => 'Book', 'template_id' => null],
@@ -971,5 +959,4 @@ $hPerson = $aggregators->buildContributorNetwork(910, 'Project X', [920, 921], $
 $hValues = array_column($hPerson['nodes'] ?? [], 'value', 'itemId');
 check(($hValues[900] ?? null) === 1, 'contributor network: two roles on one item count once');
 
-echo $failures ? "\n$failures FAILURE(S)\n" : "\nALL PHP AGGREGATOR TESTS PASS\n";
-exit($failures ? 1 : 0);
+finish('ALL PHP AGGREGATOR TESTS PASS');

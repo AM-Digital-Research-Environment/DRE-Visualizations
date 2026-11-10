@@ -8,3 +8,4 @@ spl_autoload_register(static function (string $class): void {
     }
 });
 require_once __DIR__ . '/lib/strict-errors.php';
+require_once __DIR__ . '/lib/assert.php';

@@ -41,7 +41,6 @@ $conn->insert('item',['id'=>3]);
 $conn->insert('resource',['id'=>77,'title'=>'Private set','resource_type'=>'Omeka\\Entity\\ItemSet','is_public'=>0]);
 $conn->insert('item_item_set',['item_id'=>1,'item_set_id'=>77]);
 
-function verify(bool $condition, string $message): void { if (!$condition) throw new RuntimeException($message); echo "ok: $message\n"; }
 $s = (new DataLoader($conn, 1))->load();
 verify(count($s->items) === 3, 'Only scoped public items load');
 verify(empty($s->links) && empty($s->literals) && empty($s->geo), 'Private relationships, literals, transcript and coordinates are excluded');

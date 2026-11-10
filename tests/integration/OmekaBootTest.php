@@ -92,10 +92,8 @@ set_error_handler(static function (int $severity, string $message, string $file,
     throw new ErrorException($message, 0, $severity, $file, $line);
 });
 
-$check = static function (bool $condition, string $message): void {
-    if (!$condition) throw new RuntimeException($message);
-    echo "ok: $message\n";
-};
+// The harnesses' shared check()/verify() (tests/lib/assert.php).
+require dirname(__DIR__) . '/lib/assert.php';
 
 require $omeka . '/bootstrap.php';
 $application = \Omeka\Mvc\Application::init(require $omeka . '/application/config/application.config.php');
@@ -106,12 +104,12 @@ $services->get('Omeka\Acl')->allow();
 
 if ($phase === 'omeka') {
     $expected = trim((string) getenv('EXPECTED_OMEKA_VERSION'));
-    if ($expected !== '') $check(\Omeka\Module::VERSION === $expected, "Omeka S $expected booted");
+    if ($expected !== '') verify(\Omeka\Module::VERSION === $expected, "Omeka S $expected booted");
     $series = trim((string) getenv('EXPECTED_PHP_SERIES'));
-    if ($series !== '') $check(PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION === $series, "PHP $series is running");
+    if ($series !== '') verify(PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION === $series, "PHP $series is running");
     // The module manager is what records whether Omeka is installed.
     $services->get('Omeka\ModuleManager');
-    $check(!$services->get('Omeka\Status')->isInstalled(), 'The database starts empty');
+    verify(!$services->get('Omeka\Status')->isInstalled(), 'The database starts empty');
     // The install screen's form, filled in. The administrator never logs in:
     // the password is random and not kept.
     $installer = $services->get('Omeka\Installer');
@@ -125,14 +123,14 @@ if ($phase === 'omeka') {
     ]);
     $installed = $installer->install();
     if (!$installed) echo implode("\n", $installer->getErrors()) . "\n";
-    $check($installed, 'Omeka S installs itself with its own Installer');
+    verify($installed, 'Omeka S installs itself with its own Installer');
     echo "Phase omeka passed.\n";
     exit(0);
 }
 
 $modules = $services->get('Omeka\ModuleManager');
 $module = $modules->getModule(MODULE_ID);
-$check($module !== null, 'Omeka finds the module in modules/' . MODULE_ID);
+verify($module !== null, 'Omeka finds the module in modules/' . MODULE_ID);
 $api = $services->get('Omeka\ApiManager');
 $connection = $services->get('Omeka\Connection');
 $settings = $services->get('Omeka\Settings');
@@ -162,7 +160,7 @@ $savedOnItemPage = static function (int $siteId) use ($connection): bool {
 
 switch ($phase) {
     case 'install':
-        $check($module->getState() === ModuleManager::STATE_NOT_INSTALLED, 'The module starts not installed');
+        verify($module->getState() === ModuleManager::STATE_NOT_INSTALLED, 'The module starts not installed');
 
         $site = $api->create('sites', [
             'o:slug' => SITE_SLUG, 'o:title' => 'Boot test', 'o:theme' => 'default', 'o:is_public' => true,
@@ -184,21 +182,21 @@ switch ($phase) {
         $siteSettings = $services->get('Omeka\Settings\Site');
         $siteSettings->setTargetId($site->id());
         $siteSettings->set('theme_settings_default', ['resource_page_blocks' => ['items' => ['main' => ['values', 'linkedResources']]]]);
-        $check(!$savedOnItemPage($site->id()), 'The saved item page lacks the Visualisations block');
-        $check(!class_exists(ResourcePagePlacement::class), 'The module classes are not loadable before install(), as in Omeka');
+        verify(!$savedOnItemPage($site->id()), 'The saved item page lacks the Visualisations block');
+        verify(!class_exists(ResourcePagePlacement::class), 'The module classes are not loadable before install(), as in Omeka');
 
         $modules->install($module);
-        $check($module->getState() === ModuleManager::STATE_ACTIVE, 'The ModuleManager installs and activates the module');
-        $check((int) $settings->get(Module::SETTING_SITE_ID) === $site->id(), 'install() takes the only public site as canonical');
-        $check($placement($site->id()) === ResourcePagePlacement::STATE_PRESENT, 'install() places the block in the saved item page');
+        verify($module->getState() === ModuleManager::STATE_ACTIVE, 'The ModuleManager installs and activates the module');
+        verify((int) $settings->get(Module::SETTING_SITE_ID) === $site->id(), 'install() takes the only public site as canonical');
+        verify($placement($site->id()) === ResourcePagePlacement::STATE_PRESENT, 'install() places the block in the saved item page');
         break;
 
     case 'boot':
-        $check($module->getState() === ModuleManager::STATE_ACTIVE, 'The installed module boots active');
-        $check($module->getIni('version') === $module->getDb('version'), 'module.ini and the installed version agree');
-        $check($services->get('ModuleManager')->getModule(MODULE_ID) instanceof Module, 'Laminas loads the module class');
+        verify($module->getState() === ModuleManager::STATE_ACTIVE, 'The installed module boots active');
+        verify($module->getIni('version') === $module->getDb('version'), 'module.ini and the installed version agree');
+        verify($services->get('ModuleManager')->getModule(MODULE_ID) instanceof Module, 'Laminas loads the module class');
         [$site, $items] = $fixture();
-        $check(count($items) === 2, 'The seeded site and items read back through the API');
+        verify(count($items) === 2, 'The seeded site and items read back through the API');
 
         // Routes, resolved the way a request is: the match, then the real
         // ModuleRouteListener, then the controller manager.
@@ -215,17 +213,17 @@ switch ($phase) {
             $request = new Request();
             $request->setUri('https://example.test' . $path);
             $match = $router->match($request);
-            $check($match !== null && $match->getMatchedRouteName() === $routeName, "$path matches $routeName");
+            verify($match !== null && $match->getMatchedRouteName() === $routeName, "$path matches $routeName");
             $event = new MvcEvent();
             $event->setRouteMatch($match);
             $routeListener->onRoute($event);
             $controller = (string) $match->getParam('controller');
-            $check($controllers->has($controller), "$path dispatches to a registered controller ($controller)");
+            verify($controllers->has($controller), "$path dispatches to a registered controller ($controller)");
         }
 
         // The loader's queries against the real schema on the real server.
         $corpus = (new DataLoader($connection, $site->id()))->load();
-        $check(count($corpus->items) === 2, 'DataLoader reads the public items of the site from MySQL');
+        verify(count($corpus->items) === 2, 'DataLoader reads the public items of the site from MySQL');
 
         // A page carrying every page-block layout the module registers. Written
         // before the regeneration: once a snapshot is published, a write would
@@ -238,14 +236,14 @@ switch ($phase) {
                 if (str_starts_with((string) $class, 'DreVisualizations\\')) $names[] = $name;
             }
         }
-        $check(count($names) >= 10, count($names) . ' page-block layouts are registered');
+        verify(count($names) >= 10, count($names) . ' page-block layouts are registered');
         foreach ($names as $name) {
-            $check(str_starts_with(get_class($layouts->get($name)), 'DreVisualizations\\'), "$name resolves to the module's layout");
+            verify(str_starts_with(get_class($layouts->get($name)), 'DreVisualizations\\'), "$name resolves to the module's layout");
         }
         // Pages saved before the dre prefix keep their old layout names.
         foreach ($services->get('Config')['block_layouts']['aliases'] ?? [] as $alias => $target) {
             if (!in_array($target, $names, true)) continue;
-            $check(get_class($layouts->get($alias)) === get_class($layouts->get($target)), "The saved name $alias still resolves to $target");
+            verify(get_class($layouts->get($alias)) === get_class($layouts->get($target)), "The saved name $alias still resolves to $target");
         }
         $api->create('site_pages', [
             'o:site' => ['o:id' => $site->id()], 'o:slug' => PAGE_SLUG, 'o:title' => 'Every block', 'o:is_public' => true,
@@ -256,22 +254,22 @@ switch ($phase) {
         $job = $services->get('Omeka\Job\Dispatcher')->dispatch(
             PrecomputeDashboards::class, null, $services->get('Omeka\Job\DispatchStrategy\Synchronous'));
         if ($job->getStatus() !== Job::STATUS_COMPLETED) echo $job->getLog() . "\n";
-        $check($job->getStatus() === Job::STATUS_COMPLETED, 'The regeneration job completes against MySQL');
+        verify($job->getStatus() === Job::STATUS_COMPLETED, 'The regeneration job completes against MySQL');
         $store = SnapshotStore::tryDefault();
-        $check($store !== null && $store->manifest() !== null, 'The regeneration publishes a snapshot');
+        verify($store !== null && $store->manifest() !== null, 'The regeneration publishes a snapshot');
 
         $renderer = $services->get('ViewRenderer');
         $services->get('ViewHelperManager')->get('currentSite')->setSite($site);
         $services->get('Omeka\Settings\Site')->setTargetId($site->id());
         $page = $api->read('site_pages', ['site' => $site->id(), 'slug' => PAGE_SLUG])->getContent();
-        $check(count($page->blocks()) === count($names), 'The page hydrates one block per layout');
+        verify(count($page->blocks()) === count($names), 'The page hydrates one block per layout');
         $rendered = 0;
         foreach ($page->blocks() as $block) {
             $html = $layouts->get($block->layout())->render($renderer, $block);
-            $check(is_string($html), $block->layout() . ' renders');
+            verify(is_string($html), $block->layout() . ' renders');
             if (trim($html) !== '') $rendered++;
         }
-        $check($rendered > 0, "$rendered page blocks render markup");
+        verify($rendered > 0, "$rendered page blocks render markup");
 
         $itemLayouts = $services->get('Omeka\ResourcePageBlockLayoutManager');
         $work = $items['Boot test work'];
@@ -281,13 +279,13 @@ switch ($phase) {
                 if (!str_starts_with((string) $class, 'DreVisualizations\\')) continue;
                 $layout = $itemLayouts->get($name);
                 if (!in_array('items', $layout->getCompatibleResourceNames(), true)) continue;
-                $check(is_string($layout->render($renderer, $work)), "$name renders on an item page");
+                verify(is_string($layout->render($renderer, $work)), "$name renders on an item page");
             }
         }
         $graph = 'knowledge-graphs/' . $work->id() . '.json';
         if (PublishedData::has($graph)) {
             $html = $itemLayouts->get('dreKnowledgeGraph')->render($renderer, $work);
-            $check(str_contains($html, 'knowledge-graph'), 'The published knowledge graph mounts its block on the item page');
+            verify(str_contains($html, 'knowledge-graph'), 'The published knowledge graph mounts its block on the item page');
         } else {
             echo "note: no $graph in this snapshot; the knowledge-graph markup was not checked\n";
         }
@@ -295,37 +293,37 @@ switch ($phase) {
 
     case 'rewind':
         [$site] = $fixture();
-        $check(SnapshotStore::tryDefault()?->manifest() !== null, 'The snapshot the boot phase published is still current');
+        verify(SnapshotStore::tryDefault()?->manifest() !== null, 'The snapshot the boot phase published is still current');
         $connection->executeStatement('UPDATE module SET version = ? WHERE id = ?', [REWIND_TO, MODULE_ID]);
         $siteSettings = $services->get('Omeka\Settings\Site');
         $siteSettings->setTargetId($site->id());
         $siteSettings->set('theme_settings_default', ['resource_page_blocks' => ['items' => ['main' => ['values']]]]);
-        $check($placement($site->id()) === ResourcePagePlacement::STATE_MISSING, 'The block is unplaced again');
+        verify($placement($site->id()) === ResourcePagePlacement::STATE_MISSING, 'The block is unplaced again');
         break;
 
     case 'upgrade':
         [$site] = $fixture();
-        $check($module->getState() === ModuleManager::STATE_NEEDS_UPGRADE, 'A ' . REWIND_TO . ' install needs an upgrade');
-        $check(!class_exists(SnapshotStore::class), 'Omeka does not load a module that needs an upgrade');
-        $check(!$savedOnItemPage($site->id()), 'The saved item page still lacks the block');
+        verify($module->getState() === ModuleManager::STATE_NEEDS_UPGRADE, 'A ' . REWIND_TO . ' install needs an upgrade');
+        verify(!class_exists(SnapshotStore::class), 'Omeka does not load a module that needs an upgrade');
+        verify(!$savedOnItemPage($site->id()), 'The saved item page still lacks the block');
         $modules->upgrade($module);
-        $check($module->getState() === ModuleManager::STATE_ACTIVE, 'The ModuleManager upgrades the module and keeps it active');
+        verify($module->getState() === ModuleManager::STATE_ACTIVE, 'The ModuleManager upgrades the module and keeps it active');
         $installed = $connection->fetchOne('SELECT version FROM module WHERE id = ?', [MODULE_ID]);
-        $check($installed === $module->getIni('version'), "The installed version is now $installed");
-        $check(SnapshotStore::tryDefault()?->manifest() === null, 'Upgrading from before 2.29 withdraws the publication');
-        $check($placement($site->id()) === ResourcePagePlacement::STATE_PRESENT, 'Upgrading through 2.38 places the block again');
+        verify($installed === $module->getIni('version'), "The installed version is now $installed");
+        verify(SnapshotStore::tryDefault()?->manifest() === null, 'Upgrading from before 2.29 withdraws the publication');
+        verify($placement($site->id()) === ResourcePagePlacement::STATE_PRESENT, 'Upgrading through 2.38 places the block again');
         break;
 
     case 'uninstall':
-        $check($module->getState() === ModuleManager::STATE_ACTIVE, 'The upgraded module boots active');
+        verify($module->getState() === ModuleManager::STATE_ACTIVE, 'The upgraded module boots active');
         $store = SnapshotStore::tryDefault();
         $modules->uninstall($module);
-        $check($module->getState() === ModuleManager::STATE_NOT_INSTALLED, 'The ModuleManager uninstalls the module');
-        $check($connection->fetchOne('SELECT COUNT(*) FROM module WHERE id = ?', [MODULE_ID]) == 0, 'The module row is gone');
+        verify($module->getState() === ModuleManager::STATE_NOT_INSTALLED, 'The ModuleManager uninstalls the module');
+        verify($connection->fetchOne('SELECT COUNT(*) FROM module WHERE id = ?', [MODULE_ID]) == 0, 'The module row is gone');
         foreach (Module::SETTINGS as $key) {
-            $check($connection->fetchOne('SELECT COUNT(*) FROM setting WHERE id = ?', [$key]) == 0, "Setting $key is removed");
+            verify($connection->fetchOne('SELECT COUNT(*) FROM setting WHERE id = ?', [$key]) == 0, "Setting $key is removed");
         }
-        $check($store === null || !is_dir($store->directory . '/generations'), 'Uninstalling removes the generated data');
+        verify($store === null || !is_dir($store->directory . '/generations'), 'Uninstalling removes the generated data');
         break;
 }
 echo "Phase $phase passed.\n";

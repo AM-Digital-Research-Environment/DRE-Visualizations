@@ -8,18 +8,6 @@ require dirname(__DIR__) . '/src/Precompute/SnapshotPublisher.php';
 use DreVisualizations\Precompute\JsonArtifactWriter;
 use DreVisualizations\Precompute\SnapshotPublisher;
 
-$failures = 0;
-function snapshotCheck(bool $condition, string $message): void
-{
-    global $failures;
-    if ($condition) {
-        echo "ok: $message\n";
-        return;
-    }
-    $failures++;
-    fwrite(STDERR, "FAIL: $message\n");
-}
-
 function snapshotFixture(string $dir, int $marker): array
 {
     $writer = new JsonArtifactWriter();
@@ -84,23 +72,23 @@ $publisher = new SnapshotPublisher($root, 7, '2.21.0');
 
 try {
     $first = $publisher->publish(static fn (string $dir): array => snapshotFixture($dir, 1));
-    snapshotCheck(($first['scope']['siteId'] ?? null) === 7, 'manifest declares the site scope');
-    snapshotCheck(($first['scope']['itemCount'] ?? null) === 1, 'manifest declares the scoped item count');
-    snapshotCheck(($first['sourceCounts']['items'] ?? null) === 1, 'manifest carries source counts');
-    snapshotCheck(($first['artifactCounts']['total'] ?? null) === 9, 'all staged JSON is counted');
-    snapshotCheck(is_file($root . '/' . $first['basePath'] . '/featured-collections/index.json'),
+    check(($first['scope']['siteId'] ?? null) === 7, 'manifest declares the site scope');
+    check(($first['scope']['itemCount'] ?? null) === 1, 'manifest declares the scoped item count');
+    check(($first['sourceCounts']['items'] ?? null) === 1, 'manifest carries source counts');
+    check(($first['artifactCounts']['total'] ?? null) === 9, 'all staged JSON is counted');
+    check(is_file($root . '/' . $first['basePath'] . '/featured-collections/index.json'),
         'an empty featured-collections index passes validation');
-    snapshotCheck(is_file($root . '/' . $first['basePath'] . '/knowledge-graphs/1.json'),
+    check(is_file($root . '/' . $first['basePath'] . '/knowledge-graphs/1.json'),
         'validated generation is published under an immutable path');
-    snapshotCheck(is_file($root . '/' . $first['basePath'] . '/item-dashboards/beeswarm-all-sections.json'),
+    check(is_file($root . '/' . $first['basePath'] . '/item-dashboards/beeswarm-all-sections.json'),
         'the list-shaped beeswarm artifact passes validation');
-    snapshotCheck(($first['schemaVersion'] ?? null) === SnapshotPublisher::SCHEMA_VERSION, 'manifest records the artifact schema');
+    check(($first['schemaVersion'] ?? null) === SnapshotPublisher::SCHEMA_VERSION, 'manifest records the artifact schema');
     $store = new DreVisualizations\Precompute\SnapshotStore($root);
-    snapshotCheck(($store->reading(fn () => $store->manifest())['generationId'] ?? null) === $first['generationId'],
+    check(($store->reading(fn () => $store->manifest())['generationId'] ?? null) === $first['generationId'],
         'the store serves a manifest of the current schema');
     $manifest = json_decode((string) file_get_contents($root . '/current.json'), true);
     file_put_contents($root . '/current.json', json_encode(['schemaVersion' => SnapshotPublisher::SCHEMA_VERSION + 1] + $manifest));
-    snapshotCheck($store->reading(fn () => $store->manifest()) === null, 'a manifest of another schema is not served');
+    check($store->reading(fn () => $store->manifest()) === null, 'a manifest of another schema is not served');
     file_put_contents($root . '/current.json', json_encode($manifest));
 
     // Generated JSON that pre-2.29 versions wrote under the public asset/data.
@@ -110,9 +98,9 @@ try {
     $fixtureWriter->write($public . '/network-explorer.json', ['legacy' => true]);
     $fixtureWriter->write($public . '/geo/countries.geojson', ['static' => true]);
     DreVisualizations\Precompute\LegacyPublicOutputs::purge($public);
-    snapshotCheck(!is_dir($public . '/item-dashboards') && !is_file($public . '/network-explorer.json'),
+    check(!is_dir($public . '/item-dashboards') && !is_file($public . '/network-explorer.json'),
         'legacy public generated paths are purged');
-    snapshotCheck(is_file($public . '/geo/countries.geojson'), 'static public inputs are preserved');
+    check(is_file($public . '/geo/countries.geojson'), 'static public inputs are preserved');
     removeFixtureTree($public);
 
     $currentBeforeFailure = (string) file_get_contents($root . '/current.json');
@@ -121,13 +109,13 @@ try {
             snapshotFixture($dir, 99);
             throw new RuntimeException('simulated generator failure');
         });
-        snapshotCheck(false, 'generation failure is propagated');
+        check(false, 'generation failure is propagated');
     } catch (RuntimeException $e) {
-        snapshotCheck($e->getMessage() === 'simulated generator failure', 'generation failure is propagated');
+        check($e->getMessage() === 'simulated generator failure', 'generation failure is propagated');
     }
-    snapshotCheck(file_get_contents($root . '/current.json') === $currentBeforeFailure,
+    check(file_get_contents($root . '/current.json') === $currentBeforeFailure,
         'failed generation leaves the current manifest unchanged');
-    snapshotCheck(count(glob($root . '/generations/.staging-*') ?: []) === 0,
+    check(count(glob($root . '/generations/.staging-*') ?: []) === 0,
         'failed staging directory is removed');
 
     try {
@@ -139,9 +127,9 @@ try {
             ]);
             return $stats;
         });
-        snapshotCheck(false, 'invalid artifact schema is rejected');
+        check(false, 'invalid artifact schema is rejected');
     } catch (RuntimeException $e) {
-        snapshotCheck(str_contains($e->getMessage(), 'Photo gallery'), 'invalid artifact schema is rejected');
+        check(str_contains($e->getMessage(), 'Photo gallery'), 'invalid artifact schema is rejected');
     }
 
     try {
@@ -156,11 +144,11 @@ try {
             ]]);
             return $stats;
         });
-        snapshotCheck(false, 'invalid beeswarm point is rejected');
+        check(false, 'invalid beeswarm point is rejected');
     } catch (RuntimeException $e) {
-        snapshotCheck(str_contains($e->getMessage(), 'Beeswarm'), 'invalid beeswarm point is rejected');
+        check(str_contains($e->getMessage(), 'Beeswarm'), 'invalid beeswarm point is rejected');
     }
-    snapshotCheck(file_get_contents($root . '/current.json') === $currentBeforeFailure,
+    check(file_get_contents($root . '/current.json') === $currentBeforeFailure,
         'schema failure leaves the current manifest unchanged');
 
     $nestedLocked = false;
@@ -172,15 +160,14 @@ try {
         }
         return snapshotFixture($dir, 2);
     });
-    snapshotCheck($nestedLocked, 'overlapping generation is rejected by the site lock');
+    check($nestedLocked, 'overlapping generation is rejected by the site lock');
 
     $latest = $publisher->publish(static fn (string $dir): array => snapshotFixture($dir, 3));
     $generationDirs = array_filter(glob($root . '/generations/*') ?: [], 'is_dir');
-    snapshotCheck(count($generationDirs) === 2, 'only current and previous generations are retained');
-    snapshotCheck(is_dir($root . '/' . $latest['basePath']), 'pruning never removes the current generation');
+    check(count($generationDirs) === 2, 'only current and previous generations are retained');
+    check(is_dir($root . '/' . $latest['basePath']), 'pruning never removes the current generation');
 } finally {
     removeFixtureTree($root);
 }
 
-echo $failures ? "\n$failures FAILURE(S)\n" : "\nALL SNAPSHOT PUBLISHER TESTS PASS\n";
-exit($failures ? 1 : 0);
+finish('ALL SNAPSHOT PUBLISHER TESTS PASS');

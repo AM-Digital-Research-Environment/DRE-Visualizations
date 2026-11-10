@@ -23,13 +23,13 @@ for ($i = 0; $i < 600; $i += 13) {
     $error += hypot($ax - $fx, $ay - $fy);
     $scale += hypot($fx, $fy);
 }
-if ($error / $scale > 0.03) throw new RuntimeException('Barnes-Hut aggregate force error exceeds 3%');
+verify($error / $scale <= 0.03, 'Barnes-Hut aggregate force error stays within 3%');
 $edges = [];
 for ($i = 1; $i < 180; $i++) $edges[] = [$i - 1, $i, 1];
 $a = ForceLayout::layout(180, $edges, [], ['iterations' => 8]);
 $b = ForceLayout::layout(180, $edges, [], ['iterations' => 8]);
-if ($a !== $b) throw new RuntimeException('Layout must remain deterministic');
-foreach ($a as [$px, $py]) if (!is_finite($px) || !is_finite($py) || abs($px) > 1.000001 || abs($py) > 1.000001) throw new RuntimeException('Invalid layout extent');
+verify($a === $b, 'Layout remains deterministic');
+verify(array_filter($a, static fn (array $p): bool => !is_finite($p[0]) || !is_finite($p[1]) || abs($p[0]) > 1.000001 || abs($p[1]) > 1.000001) === [], 'Layout extent is finite and within the unit square');
 $coincident = new RepulsionTree([0, 0], [0, 0], [1, 1]);
-if ($coincident->force(0, 1) !== [0.0, 0.0]) throw new RuntimeException('Coincident points must be finite');
+verify($coincident->force(0, 1) === [0.0, 0.0], 'Coincident points get a finite (zero) force');
 printf("Barnes-Hut regression passed; relative force error %.4f%%.\n", 100 * $error / $scale);

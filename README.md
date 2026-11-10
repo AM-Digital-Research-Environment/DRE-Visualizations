@@ -441,13 +441,10 @@ DreVisualizations/
 │   ├── check-accessibility-contracts.mjs
 │   ├── check-css-dead.mjs                           # Fails on a class the stylesheet styles and nothing builds
 │   ├── check-design-tokens.mjs
-│   ├── check-formatters.mjs
-│   ├── check-graph-contracts.mjs
 │   ├── check-html-safety.mjs
 │   ├── check-js-syntax.mjs
 │   ├── check-lighthouse.mjs
 │   ├── check-module-contract.php
-│   ├── check-registry-contracts.mjs
 │   ├── check-release-archive.mjs
 │   ├── check-release-metadata.mjs
 │   ├── check-vendor.mjs                             # asset/vendor against versions.json, npm latest and the tarballs
@@ -544,7 +541,7 @@ DreVisualizations/
 │           ├── FileUrlFactory.php
 │           ├── ProjectExplorerUrl.php
 │           └── ProjectExplorerUrlFactory.php
-├── tests/                                           # 260 files — PHP harnesses, the Omeka-core and golden suites, node and Playwright tests
+├── tests/                                           # 268 files — PHP harnesses, the Omeka-core and golden suites, node and Playwright tests
 ├── tools/
 │   ├── embeddings/                                  # 6 files — the Build semantic embeddings Action (EmbeddingGemma 2)
 │   ├── fulltext/                                    # 8 files — full-text map of the ILAM journal: offline build and public export (not shipped)

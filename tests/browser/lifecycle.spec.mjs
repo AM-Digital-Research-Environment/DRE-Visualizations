@@ -309,9 +309,41 @@ test.describe('every block boots', () => {
       const container = await openSurface(page, name);
       await expect(container).toHaveAttribute('data-state', 'ready');
       expect(errors).toEqual([]);
+      // Chart headings and their toolbars (core/toolbar.js): the toolbar is a
+      // named role="toolbar" BESIDE the heading in .rv-chart-heading, never
+      // inside it (a button in an h3 joins the heading's accessible name), and
+      // every icon-only control has a name of its own.
+      expect(await chartHeadingFindings(page)).toEqual([]);
     });
   }
+
+  test('a dashboard\'s charts carry their toolbars beside their headings', async ({ page }) => {
+    await stubData(page, goldenData);
+    await openSurface(page, 'collection-overview');
+    await expect(page.locator('.rv-chart-heading > [role="toolbar"]').first()).toBeAttached();
+    expect(await chartHeadingFindings(page)).toEqual([]);
+  });
 });
+
+/** Every chart heading or toolbar on the page that breaks the contract above. */
+function chartHeadingFindings(page) {
+  return page.evaluate(() => {
+    const findings = [];
+    const describe = (node) => node.closest('[data-chart]')?.dataset.chart || node.className;
+    for (const bar of document.querySelectorAll('.rv-chart-toolbar')) {
+      if (bar.getAttribute('role') !== 'toolbar' || !(bar.getAttribute('aria-label') || '').trim()) findings.push(`${describe(bar)}: unnamed or role-less toolbar`);
+      if (!bar.parentElement?.classList.contains('rv-chart-heading')) findings.push(`${describe(bar)}: toolbar outside .rv-chart-heading`);
+      if (bar.closest('h1, h2, h3, h4, h5, h6')) findings.push(`${describe(bar)}: toolbar inside a heading`);
+      for (const button of bar.querySelectorAll('button')) {
+        if (!(button.getAttribute('aria-label') || button.textContent).trim()) findings.push(`${describe(bar)}: unnamed toolbar button`);
+      }
+    }
+    for (const heading of document.querySelectorAll('.dashboard-block .chart-panel h3')) {
+      if (!heading.parentElement?.classList.contains('rv-chart-heading')) findings.push(`${describe(heading)}: chart title outside .rv-chart-heading`);
+    }
+    return findings;
+  });
+}
 
 test.describe('interaction contract', () => {
   for (const name of FIXTURES) {

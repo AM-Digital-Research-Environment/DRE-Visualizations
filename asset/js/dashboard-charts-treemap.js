@@ -27,7 +27,7 @@
                     }).filter(Boolean);
                     var count = Number(p.value || 0);
                     // ns.plural comes from dashboard-core; the bare fallback only
-                    // serves a stand-alone harness (scripts/check-html-safety.mjs).
+                    // serves a stand-alone harness (tests/js/html-safety.test.mjs).
                     var items = ns.plural ? ns.plural(count, 'item', 'item', 'items', true) : count + ' items';
                     return path.join(' \u203a ') + '<br/>' + echarts.format.encodeHTML(items);
                 }

@@ -6,18 +6,6 @@ require dirname(__DIR__) . '/src/Precompute/CorpusSnapshot.php';
 
 use DreVisualizations\Precompute\CorpusSnapshot;
 
-$failures = 0;
-function snapshotCheck(bool $condition, string $message): void
-{
-    global $failures;
-    if ($condition) {
-        echo "ok: $message\n";
-        return;
-    }
-    $failures++;
-    fwrite(STDERR, "FAIL: $message\n");
-}
-
 $valid = [
     'items' => [1 => ['public' => true], 2 => ['public' => true]],
     'links' => [1 => [['dcterms:isPartOf', 'Is Part Of', 2]]],
@@ -34,8 +22,8 @@ $valid = [
     'scope' => ['type' => 'canonical-site', 'siteId' => 3, 'itemCount' => 2],
 ];
 $snapshot = CorpusSnapshot::fromArray($valid);
-snapshotCheck($snapshot->scope['siteId'] === 3, 'canonical site scope is retained');
-snapshotCheck($snapshot->sourceCounts() === [
+check($snapshot->scope['siteId'] === 3, 'canonical site scope is retained');
+check($snapshot->sourceCounts() === [
     'items' => 2,
     'relationships' => 1,
     'itemSets' => 1,
@@ -54,11 +42,10 @@ foreach ($invalidCases as $label => $mutate) {
     $mutate($case);
     try {
         CorpusSnapshot::fromArray($case);
-        snapshotCheck(false, $label . ' is rejected');
+        check(false, $label . ' is rejected');
     } catch (InvalidArgumentException) {
-        snapshotCheck(true, $label . ' is rejected');
+        check(true, $label . ' is rejected');
     }
 }
 
-echo $failures ? "\n$failures FAILURE(S)\n" : "\nALL CORPUS SNAPSHOT TESTS PASS\n";
-exit($failures ? 1 : 0);
+finish('ALL CORPUS SNAPSHOT TESTS PASS');

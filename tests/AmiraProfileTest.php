@@ -8,33 +8,21 @@ require dirname(__DIR__) . '/src/FeaturedCollections/Registry.php';
 use DreVisualizations\FeaturedCollections\Registry;
 use DreVisualizations\Precompute\AmiraProfile;
 
-$failures = 0;
-function profileCheck(bool $condition, string $message): void
-{
-    global $failures;
-    if ($condition) {
-        echo "ok: $message\n";
-        return;
-    }
-    $failures++;
-    fwrite(STDERR, "FAIL: $message\n");
-}
-
 $profilePath = dirname(__DIR__) . '/config/amira-profile.json';
 $profile = AmiraProfile::fromFile($profilePath);
-profileCheck($profile->template('projects') === 5, 'template identifiers resolve by semantic key');
-profileCheck($profile->itemSet('youtube') === 39192, 'item-set identifiers resolve by semantic key');
-profileCheck($profile->templateResourceType(4) === 'person'
+check($profile->template('projects') === 5, 'template identifiers resolve by semantic key');
+check($profile->itemSet('youtube') === 39192, 'item-set identifiers resolve by semantic key');
+check($profile->templateResourceType(4) === 'person'
     && $profile->templateResourceType(999999) === null,
     'template resource types resolve without an implicit fallback');
 $corpora = $profile->wordcloudCorpora();
-profileCheck(($corpora[0] ?? null) === [
+check(($corpora[0] ?? null) === [
     'id' => 'podcasts',
     'itemSet' => $profile->itemSet('podcasts'),
     'field' => 'bibo:content',
 ], 'word-cloud corpora resolve the shared item-set key');
 $embeddingCorpora = $profile->embeddingCorpora();
-profileCheck(count($embeddingCorpora) === 6
+check(count($embeddingCorpora) === 6
     && ($embeddingCorpora[0] ?? null) === [
         'id' => 'podcasts',
         'label' => 'Podcast',
@@ -45,22 +33,22 @@ profileCheck(count($embeddingCorpora) === 6
     && ($embeddingCorpora[5]['selector'] ?? null) === 'template'
     && ($embeddingCorpora[5]['selectorId'] ?? null) === $profile->template('researchItems'),
     'six embedding corpora resolve item-set and resource-template selectors');
-profileCheck(count($profile->featuredCollections()) === 6,
+check(count($profile->featuredCollections()) === 6,
     'featured collections are loaded from the validated installation profile');
-profileCheck(($profile->universityLabels()['University Joseph Ki-Zerbo'] ?? null) === 'Université Joseph Ki-Zerbo',
+check(($profile->universityLabels()['University Joseph Ki-Zerbo'] ?? null) === 'Université Joseph Ki-Zerbo',
     'university display labels are loaded from the installation profile');
 $featured = $profile->featuredCollections();
-profileCheck(($featured[4]['producerId'] ?? null) === 1219
+check(($featured[4]['producerId'] ?? null) === 1219
     && ($featured[4]['externalUrl'] ?? null) === '/item?property[0][property]=568&property[0][type]=res&property[0][text]=1219',
     'featured collection filters resolve property and authority keys');
 $registry = Registry::all();
-profileCheck(array_key_exists('itemSetId', $registry[4] ?? []) && $registry[4]['itemSetId'] === null
+check(array_key_exists('itemSetId', $registry[4] ?? []) && $registry[4]['itemSetId'] === null
     && ($registry[4]['projectDreId'] ?? null) === $profile->project('beyondDigitalReturn')
     && ($registry[4]['producerId'] ?? null) === 1219,
     'featured registry normalizes resolved profile entries');
-profileCheck(($registry[0]['itemSetId'] ?? null) === $profile->itemSet('ilam') && $registry[0]['projectDreId'] === null,
+check(($registry[0]['itemSetId'] ?? null) === $profile->itemSet('ilam') && $registry[0]['projectDreId'] === null,
     'a featured collection over an item set has no project');
-profileCheck($profile->project('museuAfroDigital') === 'UFB_AfroDigital',
+check($profile->project('museuAfroDigital') === 'UFB_AfroDigital',
     'projects are pinned by dre:id, not by Omeka id');
 
 $raw = json_decode((string) file_get_contents($profilePath), true, 512, JSON_THROW_ON_ERROR);
@@ -94,13 +82,12 @@ foreach ($invalidCases as $label => $mutate) {
     file_put_contents($tmp, json_encode($case, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
     try {
         AmiraProfile::fromFile($tmp);
-        profileCheck(false, $label . ' is rejected');
+        check(false, $label . ' is rejected');
     } catch (RuntimeException) {
-        profileCheck(true, $label . ' is rejected');
+        check(true, $label . ' is rejected');
     } finally {
         unlink($tmp);
     }
 }
 
-echo $failures ? "\n$failures FAILURE(S)\n" : "\nALL AMIRA PROFILE TESTS PASS\n";
-exit($failures ? 1 : 0);
+finish('ALL AMIRA PROFILE TESTS PASS');
