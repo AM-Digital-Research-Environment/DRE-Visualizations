@@ -203,7 +203,7 @@
                         return;
                     }
                     ns.renderInto(content, data, siteBase);
-                    state.announce(ns.t('visualizationReady', 'Visualization ready.'));
+                    state.announce(ns.t('visualizationReady', 'Visualisation ready.'));
                 }).catch(function (error) {
                     if (error && error.name === 'AbortError') return;
                     if (requestId !== dashboardRequestId) return;

@@ -1848,7 +1848,7 @@ msgid "Published here"
 msgstr ""
 
 #: src/Controller/Admin/MaintenanceController.php:160
-msgid "Published visualizations withdrawn. They stay hidden until you regenerate."
+msgid "Published visualisations withdrawn. They stay hidden until you regenerate."
 msgstr ""
 
 #: config/client-strings.json:chartLabel.topPublishers
@@ -2661,6 +2661,10 @@ msgstr ""
 msgid "View organisation"
 msgstr ""
 
+#: config/client-strings.json:visualizationReady
+msgid "Visualisation ready."
+msgstr ""
+
 #: config/client-strings.json:visualisations
 #: src/Site/BlockRegistry.php:228
 msgid "Visualisations"
@@ -2674,10 +2678,6 @@ msgstr ""
 #: view/common/block-layout/partials/dashboard-async.phtml:47
 #: view/dre-visualizations/embed/block.phtml:37
 msgid "Visualisations ready."
-msgstr ""
-
-#: config/client-strings.json:visualizationReady
-msgid "Visualization ready."
 msgstr ""
 
 #: config/client-strings.json:issueCaption

@@ -13,6 +13,14 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Fixed
+
+- **British spelling in the last American strings.** The announcement after a chart loads reads "Visualisation ready." (it said "Visualization"), the maintenance notice after a withdrawal "Published visualisations withdrawn.", and the snapshot store's errors say "visualisation storage". The module's interface copy is British English, as the shared wording glossary of the DRE theme requires.
+
+### Added
+
+- `npm run i18n:check` (part of `npm run check`) and `npm run i18n:extract` fail on an American spelling in any catalogue string (`visualiz…`, `organiz…`, `color`, `center`, `behavior` and similar), so it cannot return. The names "DRE Visualizations" and the repository's stay as they are.
+
 ## [2.50.0] - 2026-11-06
 
 **Upgrading:** install this release, then **Regenerate now**: the project galleries and the featured collections' new source arrive with the next snapshot. The installation profile changed, so semantic inputs and word clouds built against the earlier profile no longer match it. Until a new build is installed, the Semantic Map and Similar Items stay hidden and the word clouds use the module's own tokeniser. The nightly **Build semantic embeddings** run rebuilds after the deploy (or run it by hand with scope `all`); the word clouds need **Actions → Build word clouds**, its pull request merged and a release.

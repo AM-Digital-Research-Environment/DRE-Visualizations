@@ -35,14 +35,14 @@ final readonly class SnapshotStore
         $root = defined('OMEKA_PATH') ? OMEKA_PATH : dirname(__DIR__, 2);
         $path = self::defaultPath();
         if (!is_dir($path) && !@mkdir($path, 0700, true) && !is_dir($path)) {
-            throw new RuntimeException('Cannot create private visualization storage.');
+            throw new RuntimeException('Cannot create private visualisation storage.');
         }
         $resolved = realpath($path);
         $publicRoot = realpath($root);
         if ($resolved === false || $publicRoot === false || is_link($path)
             || str_starts_with(strtolower($resolved) . DIRECTORY_SEPARATOR,
                 strtolower($publicRoot) . DIRECTORY_SEPARATOR)) {
-            throw new RuntimeException('Visualization storage must be outside the Omeka document root.');
+            throw new RuntimeException('Visualisation storage must be outside the Omeka document root.');
         }
         return $resolved;
     }
@@ -79,7 +79,7 @@ final readonly class SnapshotStore
         $lock = fopen($this->directory . '/.policy.lock', 'c');
         if (!$lock || !flock($lock, $exclusive ? LOCK_EX : LOCK_SH)) {
             if ($lock) fclose($lock);
-            throw new RuntimeException('Cannot lock visualization publication state.');
+            throw new RuntimeException('Cannot lock visualisation publication state.');
         }
         try { return $operation(); }
         finally { flock($lock, LOCK_UN); fclose($lock); }

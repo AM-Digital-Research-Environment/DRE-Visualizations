@@ -71,7 +71,9 @@ published snapshot keeps being served across module upgrades.
 **Interface strings.** Write every visible string as `ns.t('key', 'English')`
 (`ns.plural` for counts, `ns.fill` for placeholders). `npm run build` collects
 them into `config/client-strings.json`, which PHP translates; a key used with
-two different English texts fails the build.
+two different English texts fails the build. The copy is British English
+("visualisation", "organisation"); `npm run i18n:check` fails on the common
+American spellings in any catalogue string.
 
 Whenever you touch a class that extends an Omeka base — `Module.php`, a block
 layout, a controller, a job — remember that `php -l` cannot see a bad override:

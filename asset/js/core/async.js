@@ -94,7 +94,7 @@
                 settle('loading', message);
             },
             ready: function (message) {
-                settle('ready', message || ns.t('visualizationReady', 'Visualization ready.'));
+                settle('ready', message || ns.t('visualizationReady', 'Visualisation ready.'));
             },
             /** Show a quiet message in `target` (default: the container). */
             empty: function (message, target) {

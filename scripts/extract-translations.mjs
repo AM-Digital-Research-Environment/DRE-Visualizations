@@ -95,6 +95,18 @@ for (const [key, english] of Object.entries(client.strings || {})) {
 // Deterministic order so the POT does not churn between runs.
 const sorted = [...entries.keys()].sort((a, b) => a.localeCompare(b, 'en'));
 
+// Interface copy is British English, as the DRE theme's wording glossary
+// (docs/DESIGN-INTEGRATION.md) requires and translations key on: catch the
+// American spellings that have slipped in before. The module's and its
+// repository's names are proper nouns and keep their spelling.
+const AMERICAN = /visualiz|organiz|recogniz|customiz|prioritiz|minimiz|maximiz|normaliz|summariz|categoriz|analyz|\bcolor|\bcenter|behavior|favorite|\bgray\b|\b(?:label|cancel|model|travel)(?:ed|ing)\b|\bcatalog\b/i;
+const american = sorted.filter((key) => AMERICAN.test(key.replace(/DRE[ -]Visualizations/g, '')));
+if (american.length) {
+  console.error('American spelling in interface copy (use British English, e.g. "visualisation"):');
+  for (const key of american) console.error(`  ${key.split(PLURAL_SEPARATOR).join(' / ')}  (${[...entries.get(key)].join(', ')})`);
+  process.exit(1);
+}
+
 const header = `# DRE Visualizations (Omeka S module)
 # Translation template. Regenerate with: npm run i18n:extract
 #

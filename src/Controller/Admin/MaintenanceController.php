@@ -157,7 +157,7 @@ class MaintenanceController extends AbstractActionController
     {
         if ($this->validPost()) {
             SnapshotInvalidation::withdraw();
-            $this->messenger()->addSuccess('Published visualizations withdrawn. They stay hidden until you regenerate.'); // @translate
+            $this->messenger()->addSuccess('Published visualisations withdrawn. They stay hidden until you regenerate.'); // @translate
         }
         return $this->backToIndex();
     }
