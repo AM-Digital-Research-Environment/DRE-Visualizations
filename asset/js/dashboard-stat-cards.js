@@ -106,6 +106,22 @@
      */
     ns.renderStatCards = function (stats) {
         if (!Array.isArray(stats) || !stats.length) return '';
-        return '<div class="rv-stat-cards">' + stats.map(cardHtml).join('') + '</div>';
+        return '<div class="rv-stat-cards ' + STAT_COLUMNS[statColumns(stats.length) - 1] + '">'
+            + stats.map(cardHtml).join('') + '</div>';
     };
+
+    /**
+     * Columns for `count` cards on a wide screen: the fewest rows of at most
+     * four, then as few columns as fill them. 5 cards make 3 + 2 and 9 make
+     * three rows of 3, where a fixed four columns left one card alone on its
+     * row; a short last row's cards widen to fill it (the stylesheet), so no
+     * cell stands empty.
+     */
+    function statColumns(count) {
+        return Math.ceil(count / Math.ceil(count / STAT_COLUMNS.length));
+    }
+
+    var STAT_COLUMNS = ['rv-stat-cards--cols-1', 'rv-stat-cards--cols-2',
+        'rv-stat-cards--cols-3', 'rv-stat-cards--cols-4'];
+    ns.statColumns = statColumns;
 })();

@@ -140,6 +140,44 @@ test('one failing chart does not erase other charts or announce full success', a
     assert.match(result.content.innerHTML, /data-chart="second"/);
 });
 
+// Width packing, run on the real layouts (dashboard-layouts.js).
+function plan(data, dataset = {}) {
+    const ns = { t: (_key, fallback) => fallback };
+    const context = {
+        window: { RV: ns },
+        document: { readyState: 'complete', createElement: element, querySelectorAll: () => [] },
+        console,
+    };
+    vm.createContext(context);
+    vm.runInContext(readFileSync(new URL('../../asset/js/dashboard-layouts.js', import.meta.url), 'utf8'), context);
+    vm.runInContext(source, context);
+    const result = ns.planDashboard(data, { dataset });
+    return Array.from(result.keys, key => (result.wide[key] ? 'wide:' : 'half:') + key);
+}
+
+test('a half-width chart left alone on its row widens instead of leaving a gap', () => {
+    // A subject authority (item 25332): timeline + types pair, languages is the
+    // odd one out before the wide co-subjects, and contributors sits between two
+    // wide charts.
+    assert.deepEqual(plan({
+        resourceType: 'authority', timeline: { 1960: 1 }, types: [1], languages: [1],
+        coSubjects: [1], contributors: [1], locations: [1],
+    }), ['half:timeline', 'half:types', 'wide:languages', 'wide:coSubjects', 'wide:contributors', 'wide:locations']);
+});
+
+test('half-width charts whose partner has no data still fill their row', () => {
+    // researchItem pairs timeline+types and languages alone; without types,
+    // timeline and languages pair instead.
+    assert.deepEqual(plan({ resourceType: 'researchItem', timeline: { 2000: 1 }, languages: [1], subjects: [1] }),
+        ['half:timeline', 'half:languages', 'wide:subjects']);
+    assert.deepEqual(plan({ resourceType: 'researchItem', timeline: { 2000: 1 }, types: [1], languages: [1] }),
+        ['half:timeline', 'half:types', 'wide:languages']);
+});
+
+test('a single-chart embed is always full width', () => {
+    assert.deepEqual(plan({ resourceType: 'authority', types: [1] }, { chartOnly: 'types' }), ['wide:types']);
+});
+
 // The project introduction, run through the real orchestrator and the real
 // text helpers (plural, fill, escaping) from core/base.js.
 function projectIntro(data, dataset = {}) {
@@ -243,4 +281,13 @@ test('one caller aborting does not cancel the shared download for another', asyn
     controller.abort();
     await assert.rejects(aborted, { name: 'AbortError' });
     assert.equal((await other).totalItems, 9);
+});
+
+test('stat cards take balanced columns, at most four, so no row is left with a lone card', () => {
+    // The shared icon set lives in dashboard-core; any glyph will do here.
+    const ns = { ICONS: new Proxy({}, { get: () => '' }) };
+    vm.runInNewContext(readFileSync(new URL('../../asset/js/dashboard-stat-cards.js', import.meta.url), 'utf8'),
+        { window: { RV: ns } });
+    // 4 → one row; 5 → 3 + 2; 9 → 3 × 3; 10 → 4 + 4 + 2.
+    assert.deepEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(ns.statColumns), [1, 2, 3, 4, 3, 3, 4, 4, 3, 4]);
 });

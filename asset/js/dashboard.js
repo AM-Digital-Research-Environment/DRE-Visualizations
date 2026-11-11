@@ -54,7 +54,35 @@
                 && data.stackedTimeline.years && data.stackedTimeline.years.length > 0) return false;
             return hasData;
         });
-        return { layoutKey: layoutKey, layout: layout, chartOnly: chartOnly, keys: keys };
+        return { layoutKey: layoutKey, layout: layout, chartOnly: chartOnly, keys: keys,
+            wide: packWidths(keys, layout, chartOnly) };
+    }
+
+    /**
+     * Which of the drawn charts span both grid columns. A layout pairs its
+     * half-width charts on paper, but charts without data drop out per record,
+     * and a half-width chart whose partner dropped out (or that sits between two
+     * wide ones) would leave an empty half row. Each run of consecutive
+     * half-width charts is closed off in pairs; an odd one out, the run's last,
+     * widens to fill its row.
+     */
+    function packWidths(keys, layout, chartOnly) {
+        var wide = {};
+        var run = [];
+        function closeRun() {
+            if (run.length % 2) wide[run[run.length - 1]] = true;
+            run = [];
+        }
+        keys.forEach(function (key) {
+            if (chartOnly || layout.wide.indexOf(key) >= 0) {
+                closeRun();
+                wide[key] = true;
+            } else {
+                run.push(key);
+            }
+        });
+        closeRun();
+        return wide;
     }
 
     /**
@@ -152,7 +180,7 @@
         var chartsHtml = '<div class="dashboard-charts' + (chartOnly ? ' dashboard-charts--single' : '') + '">';
         plan.keys.forEach(function (key) {
             // A single-chart embed fills the frame: always full-width and tall.
-            var wide = (chartOnly || layout.wide.indexOf(key) >= 0) ? ' chart-panel-wide' : '';
+            var wide = plan.wide[key] ? ' chart-panel-wide' : '';
             var tall = (chartOnly || layout.tall.indexOf(key) >= 0) ? ' chart-container-tall' : '';
             // The registry's translated title/description; the raw tables only
             // when dashboard-registry.js has not loaded.

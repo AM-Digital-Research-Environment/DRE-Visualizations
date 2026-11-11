@@ -13,6 +13,12 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Fixed
+
+- **No half-empty rows in a dashboard.** Layouts pair their half-width charts, but a chart without data drops out per record, and some layouts placed a half-width chart between two wide ones by design, so a chart often sat alone on half a row beside an empty cell: on a subject's page (item 25332) Languages and People linked most often each did. Across the golden dashboards 108 of 173 had at least one such gap, every person, subject and genre page among them. The renderer now pairs the charts that are actually drawn and widens the odd one out of each run (`packWidths` in `dashboard.js`); single-chart embeds stay full width.
+- **Stat cards fill their rows.** The fixed three-column grid left empty cells for 4, 5 and 10 cards (one card alone under three). The row count now sets balanced columns, at most four (5 → 3 + 2, 9 → 3 × 3, 10 → 4 + 4 + 2), and a short last row's cards widen to fill it; narrow screens still drop to two columns, then one.
+- **The comparison's summary cards** take one column each: without anything in common the overlap card is absent, and the fixed third column stood empty.
+
 ### Security
 
 - Development tooling only: npm `overrides` lift `minimatch` to 11.0.7 (GHSA-g3hv-75wg-m249, ReDoS in 10.x) and, with it, `glob` to 14.0.4, the first release built on minimatch 11. eslint 10.14.0 and Lighthouse's Sentry bundler plugins still ask for minimatch 10 and glob 13; both only call `new Minimatch().match()`, `minimatch()` and `glob()`, which minimatch 11 and glob 14 keep. eslint lints the same files as before. Drop the overrides once eslint and Sentry depend on these versions themselves. Nothing in the release zip changes.

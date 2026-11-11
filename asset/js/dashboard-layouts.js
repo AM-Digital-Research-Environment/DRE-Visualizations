@@ -7,7 +7,9 @@
  *   tall  — keys that use the taller container (420px)
  *
  * Half-width charts are paired left-to-right; place them consecutively
- * so the 2-column CSS grid fills both columns without gaps.
+ * so the 2-column CSS grid fills both columns. Charts without data drop out
+ * per record, so the renderer (dashboard.js packWidths) widens any half-width
+ * chart left alone on its row rather than leave half of it empty.
  */
 (function () {
     'use strict';
