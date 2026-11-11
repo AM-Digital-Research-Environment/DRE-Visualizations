@@ -451,6 +451,7 @@ DreVisualizations/
 │   ├── design-token-allowlist.txt
 │   ├── extract-translations.mjs
 │   ├── phpstan.mjs
+│   ├── sync-version.mjs                             # The npm version hook: module.ini, CITATION.cff, CHANGELOG
 │   ├── test-php-docker.mjs
 │   ├── test-php.php
 │   └── vendor-maplibre.mjs
@@ -541,7 +542,7 @@ DreVisualizations/
 │           ├── FileUrlFactory.php
 │           ├── ProjectExplorerUrl.php
 │           └── ProjectExplorerUrlFactory.php
-├── tests/                                           # 268 files — PHP harnesses, the Omeka-core and golden suites, node and Playwright tests
+├── tests/                                           # 269 files — PHP harnesses, the Omeka-core and golden suites, node and Playwright tests
 ├── tools/
 │   ├── embeddings/                                  # 6 files — the Build semantic embeddings Action (EmbeddingGemma 2)
 │   ├── fulltext/                                    # 8 files — full-text map of the ILAM journal: offline build and public export (not shipped)

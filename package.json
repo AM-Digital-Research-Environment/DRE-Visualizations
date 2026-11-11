@@ -18,6 +18,7 @@
     "check:html": "node scripts/check-html-safety.mjs",
     "check:a11y": "node scripts/check-accessibility-contracts.mjs",
     "check:release": "node scripts/check-release-metadata.mjs",
+    "version": "node scripts/sync-version.mjs",
     "i18n:extract": "node scripts/extract-translations.mjs",
     "i18n:check": "node scripts/extract-translations.mjs --check",
     "test": "node --test tests/js/*.test.mjs",

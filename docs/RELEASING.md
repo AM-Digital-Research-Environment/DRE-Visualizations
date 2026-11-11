@@ -1,11 +1,8 @@
 # Releasing
 
-1. Move the `## [Unreleased]` notes in `CHANGELOG.md` (Keep a Changelog) under
-   a new `## [X.Y.Z] - YYYY-MM-DD` heading, and update `config/module.ini`,
-   `package.json`, `package-lock.json` and `CITATION.cff` (version and
-   `date-released`) to the same SemVer version; `npm run check:release`
-   verifies all of them.
-2. Run `npm run build`, `npm run check`, `npm run test:browser`, and with an
+1. Write the release's notes under `## [Unreleased]` in `CHANGELOG.md` (Keep a
+   Changelog), including what an administrator must do after upgrading.
+2. On a clean `main`, run `npm run build`, `npm run check`, `npm run test:browser`, and with an
    Omeka S core checkout `OMEKA_CORE=… npm run test:php` (also with
    `-- --php 8.4`) and `OMEKA_CORE=… npm run phpstan`, plus
    `python -m unittest discover -s tools/embeddings/tests -v` with the embedding
@@ -15,8 +12,15 @@
 3. Commit the generated files (`asset/js/dashboard-core.js`,
    `asset/js/dashboard-charts.bundle.js`, their `.min.js` copies and the
    `asset/css/dre-visualizations.min.css` Omeka serves, each with its `.map`,
-   `config/dashboard-layouts.json`, `config/client-strings.json`). Create and
-   push a signed or annotated `vX.Y.Z` tag pointing at that commit.
+   `config/dashboard-layouts.json`, `config/client-strings.json`). Then bump
+   with `npm version <patch|minor|major> -m "Release v%s"`, never by hand: npm
+   writes `package.json` and `package-lock.json`, and its `version` hook
+   (`scripts/sync-version.mjs`) writes `config/module.ini`, `CITATION.cff`
+   (version and `date-released`) and turns the `[Unreleased]` notes into a
+   dated `## [X.Y.Z] - YYYY-MM-DD` section, before npm commits all of it and
+   tags `vX.Y.Z`; `npm run check:release` verifies the result. The hook refuses
+   a release with no `[Unreleased]` notes. Push the commit and the tag
+   (`git push origin main vX.Y.Z`).
 4. The release workflow runs the whole CI workflow (both PHP versions, the
    integration and golden suites, PHPStan, browser and embedding tests), then
    verifies the tag/metadata match, builds a `git archive` with the required

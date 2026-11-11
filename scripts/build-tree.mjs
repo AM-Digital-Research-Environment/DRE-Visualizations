@@ -150,6 +150,7 @@ const ANNOTATIONS = {
   'scripts/build-tree.mjs': 'Writes this tree (npm run build:tree)',
   'scripts/check-css-dead.mjs': 'Fails on a class the stylesheet styles and nothing builds',
   'scripts/check-vendor.mjs': 'asset/vendor against versions.json, npm latest and the tarballs',
+  'scripts/sync-version.mjs': 'The npm version hook: module.ini, CITATION.cff, CHANGELOG',
   'CHANGELOG.md': 'Version history (Keep a Changelog)',
   'CONTRIBUTING.md': 'How to add a visualization (recipes + guardrails)',
   'THIRD_PARTY_NOTICES': 'Vendored libraries and their licences',

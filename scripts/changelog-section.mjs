@@ -7,7 +7,9 @@
  *
  * release.yml publishes the printed section as the notes of the GitHub
  * release; check-release-metadata.mjs reads the dated heading through
- * changelogDate(). Exit code 1 when the version has no section, or an empty one.
+ * changelogDate(); sync-version.mjs (the `npm version` hook) writes it with
+ * promoteUnreleased(). Exit code 1 when the version has no section, or an
+ * empty one.
  */
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -27,6 +29,40 @@ export function changelogSection(text, name) {
   const rest = source.slice(heading.index + heading[0].length);
   const end = rest.search(/^## |^\[[^\]]+\]: /m);
   return (end === -1 ? rest : rest.slice(0, end)).replace(/<!--[\s\S]*?-->/g, '').trim();
+}
+
+/**
+ * Turn the [Unreleased] notes into a `## [version] - date` section under an
+ * empty [Unreleased] heading, and point the link references at the bottom at
+ * the new tag (scripts/sync-version.mjs, under `npm version`). Unchanged when
+ * the version already has a section; null when there are no notes to release.
+ */
+export function promoteUnreleased(text, version, date) {
+  const source = text.replace(/\r\n/g, '\n');
+  if (headingRe(version).test(source)) return source;
+  const unreleased = source.match(headingRe('Unreleased'));
+  const notes = changelogSection(source, 'Unreleased');
+  if (!unreleased || !notes) return null;
+
+  // The release this one follows: the newest dated heading, which is also
+  // what the compare link starts from.
+  const previous = /^## \[(\d+\.\d+\.\d+)\] - \d{4}-\d{2}-\d{2}/m.exec(source)?.[1];
+  const at = unreleased.index + unreleased[0].length;
+  const rest = source.slice(at);
+  const end = rest.search(/^## |^\[[^\]]+\]: /m);
+  // An HTML-comment placeholder stays behind under [Unreleased] for the next round.
+  const placeholders = ((end === -1 ? rest : rest.slice(0, end)).match(/<!--[\s\S]*?-->/g) ?? []).join('\n');
+  let out = `${source.slice(0, at)}\n${placeholders ? placeholders + '\n\n' : ''}`
+    + `## [${version}] - ${date}\n\n${notes}\n\n${end === -1 ? '' : rest.slice(end)}`;
+
+  const repository = 'https://github.com/AM-Digital-Research-Environment/DRE-Visualizations';
+  if (/^\[Unreleased\]: /m.test(out)) {
+    const reference = previous
+      ? `[${version}]: ${repository}/compare/v${previous}...v${version}`
+      : `[${version}]: ${repository}/releases/tag/v${version}`;
+    out = out.replace(/^\[Unreleased\]: .*$/m, `[Unreleased]: ${repository}/compare/v${version}...HEAD\n${reference}`);
+  }
+  return out;
 }
 
 /** The YYYY-MM-DD of `## [version] - YYYY-MM-DD`, or null. */
