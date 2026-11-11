@@ -13,6 +13,10 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Security
+
+- Development tooling only: npm `overrides` lift `minimatch` to 11.0.7 (GHSA-g3hv-75wg-m249, ReDoS in 10.x) and, with it, `glob` to 14.0.4, the first release built on minimatch 11. eslint 10.14.0 and Lighthouse's Sentry bundler plugins still ask for minimatch 10 and glob 13; both only call `new Minimatch().match()`, `minimatch()` and `glob()`, which minimatch 11 and glob 14 keep. eslint lints the same files as before. Drop the overrides once eslint and Sentry depend on these versions themselves. Nothing in the release zip changes.
+
 ## [2.51.0] - 2026-11-11
 
 ### Fixed
