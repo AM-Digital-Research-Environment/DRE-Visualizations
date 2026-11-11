@@ -522,7 +522,8 @@ DreVisualizations/
 │   │   ├── SemanticCarry.php                        # Keeps the semantic map online after a privatising write
 │   │   ├── SnapshotPublisher.php                    # Locked, validated, atomic publication
 │   │   ├── SnapshotStore.php                        # The private store outside the document root
-│   │   └── SourceChanged.php
+│   │   ├── SourceChanged.php
+│   │   └── Terms.php
 │   ├── Service/
 │   │   ├── AutomaticRefresh.php
 │   │   ├── CanonicalSite.php

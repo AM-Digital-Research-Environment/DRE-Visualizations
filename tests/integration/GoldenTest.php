@@ -60,6 +60,7 @@ require __DIR__ . '/fixtures/GoldenCorpus.php';
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use DreVisualizations\Precompute\AmiraProfile;
+use DreVisualizations\Precompute\GeneratorPaths;
 use DreVisualizations\Precompute\Runner;
 use DreVisualizations\Precompute\ScopedInput;
 use DreVisualizations\Precompute\SnapshotPublisher;
@@ -391,11 +392,8 @@ function generate(Connection $conn, AmiraProfile $profile, string $module, strin
         static function (string $dir) use ($conn, $profile, $module, $inputs, $scope): array {
             return (new Runner(
                 $conn, GoldenCorpus::SITE_ID, $profile,
-                $dir . '/item-dashboards', $dir . '/communities',
-                $module . '/asset/data/geo/countries.geojson',
-                $dir . '/knowledge-graphs', $dir . '/photo-galleries', $dir . '/featured-collections',
-                $dir . '/item-set-dashboards', $inputs . '/wordclouds',
-                null, null, null, $scope,
+                GeneratorPaths::forGeneration($dir, $module . '/asset/data/geo/countries.geojson', $inputs . '/wordclouds'),
+                sourceScope: $scope,
             ))->run();
         }
     );

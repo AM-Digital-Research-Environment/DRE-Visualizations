@@ -5,6 +5,7 @@ namespace DreVisualizations\Precompute\Aggregators;
 
 use DreVisualizations\Precompute\ForceLayout;
 use DreVisualizations\Precompute\Roles;
+use DreVisualizations\Precompute\Terms;
 
 /**
  * Entity Network: a global, collection-wide co-occurrence graph linking the
@@ -102,8 +103,8 @@ trait EntityGraphTrait
                 if ($title === '') {
                     continue;
                 }
-                $isOrg = ($items[$vrid]['class_term'] ?? '') === 'foaf:Organization';
-                if ($term === 'foaf:member' || Roles::isCredit($term)) {
+                $isOrg = Terms::isOrganisation($items, $vrid);
+                if ($term === Terms::MEMBER || Roles::isCredit($term)) {
                     // A credit can name an organisation (a sponsor, a corporate
                     // author); typed by what it links to, or the lower Person
                     // index would win and draw it as a person.
@@ -115,23 +116,23 @@ trait EntityGraphTrait
                     }
                     // Surface the person's affiliated organizations.
                     foreach ($links[$vrid] ?? [] as [$pterm, $plabel, $org]) {
-                        if ($pterm === 'dcterms:isPartOf' && ($items[$org]['class_term'] ?? '') === 'foaf:Organization') {
+                        if (Terms::isAffiliation($pterm, $items, $org)) {
                             if ($assign($org, self::ET_ORG, $items[$org]['title'] ?? '')) {
                                 $ents[$org] = true;
                             }
                         }
                     }
-                } elseif ($term === 'dcterms:subject') {
+                } elseif ($term === Terms::SUBJECT) {
                     $t = isset($lcsh[$vrid]) ? self::ET_SUBJECT : self::ET_TAG;
                     if ($assign($vrid, $t, $title)) {
                         $ents[$vrid] = true;
                     }
-                } elseif ($term === 'dcterms:spatial' || $term === 'dcterms:provenance') {
+                } elseif ($term === Terms::SPATIAL || $term === Terms::PROVENANCE) {
                     // A current location can be the institution holding the item.
                     if ($assign($vrid, $isOrg ? self::ET_ORG : self::ET_LOCATION, $title)) {
                         $ents[$vrid] = true;
                     }
-                } elseif ($term === 'frapo:isFundedBy') {
+                } elseif ($term === Terms::IS_FUNDED_BY) {
                     if ($assign($vrid, self::ET_ORG, $title)) {
                         $ents[$vrid] = true;
                     }

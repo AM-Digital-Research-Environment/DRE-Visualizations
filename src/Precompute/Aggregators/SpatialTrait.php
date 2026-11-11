@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace DreVisualizations\Precompute\Aggregators;
 
+use DreVisualizations\Precompute\Terms;
+
 /**
  * Spatial Exploration: the collection-wide place index that feeds the
  * cross-cutting Spatial Exploration site-page block (asset/js/spatial-exploration.js).
@@ -48,13 +50,13 @@ trait SpatialTrait
         foreach ($geo as $locId => $g) {
             $rev = $reverseLinks[$locId] ?? [];
             $originItems = [];
-            foreach ($rev['dcterms:spatial'] ?? [] as $iid) {
+            foreach ($rev[Terms::SPATIAL] ?? [] as $iid) {
                 if (!isset($skip[$iid])) {
                     $originItems[$iid] = true;
                 }
             }
             $currentItems = [];
-            foreach ($rev['dcterms:provenance'] ?? [] as $iid) {
+            foreach ($rev[Terms::PROVENANCE] ?? [] as $iid) {
                 if (!isset($skip[$iid])) {
                     $currentItems[$iid] = true;
                 }
@@ -151,11 +153,11 @@ trait SpatialTrait
                 if (!isset($geo[$vrid])) {
                     continue;
                 }
-                if ($term === 'dcterms:spatial' && !isset($seenOrigin[$vrid])) {
+                if ($term === Terms::SPATIAL && !isset($seenOrigin[$vrid])) {
                     $seenOrigin[$vrid] = true;
                     $counts[$vrid] ??= [0, 0];
                     $counts[$vrid][0]++;
-                } elseif ($term === 'dcterms:provenance' && !isset($seenCurrent[$vrid])) {
+                } elseif ($term === Terms::PROVENANCE && !isset($seenCurrent[$vrid])) {
                     $seenCurrent[$vrid] = true;
                     $counts[$vrid] ??= [0, 0];
                     $counts[$vrid][1]++;

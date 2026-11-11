@@ -43,14 +43,14 @@ final class MediaDashboardGenerator extends DashboardGenerator
         // belongs to (dcterms:isPartOf for a monograph, dre:series for a book's
         // or chapter's series statement). Unreconciled containers stay literals
         // — mostly edited volumes held nowhere else here — and are not ranked.
-        if ($v = $this->aggregators->buildTopLinkedOfClass($pubs, $this->links, $this->items, ['dcterms:isPartOf'], ['bibo:Journal'])) {
+        if ($v = $this->aggregators->buildTopLinkedOfClass($pubs, $this->links, $this->items, [Terms::IS_PART_OF], [Terms::CLASS_JOURNAL])) {
             $dashboard['topJournals'] = $v;
         }
-        if ($v = $this->aggregators->buildTopLinkedOfClass($pubs, $this->links, $this->items, ['dcterms:isPartOf', 'dre:series'], ['bibo:Series'])) {
+        if ($v = $this->aggregators->buildTopLinkedOfClass($pubs, $this->links, $this->items, [Terms::IS_PART_OF, Terms::DRE_SERIES], [Terms::CLASS_SERIES])) {
             $dashboard['topSeries'] = $v;
         }
         // Publishers: Organisation links, plus any name not yet reconciled.
-        if ($v = $this->aggregators->buildTopValues($pubs, $this->links, $this->literals, $this->items, 'dcterms:publisher')) {
+        if ($v = $this->aggregators->buildTopValues($pubs, $this->links, $this->literals, $this->items, Terms::PUBLISHER)) {
             $dashboard['topPublishers'] = $v;
         }
         if ($v = $this->aggregators->buildTopAuthors($pubs, $this->links, $this->literals, $this->items)) {
@@ -58,7 +58,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
         }
         // Funding bodies (frapo:isFundedBy → linked Institution / grant
         // authority items — the DFG, the EXC 2052 grant, partner foundations).
-        if ($v = $this->aggregators->buildTopLinked($pubs, $this->links, $this->items, 'frapo:isFundedBy')) {
+        if ($v = $this->aggregators->buildTopLinked($pubs, $this->links, $this->items, Terms::IS_FUNDED_BY)) {
             $dashboard['funders'] = $v;
         }
         // The whole network, not a top slice: every author or editor with at
@@ -88,7 +88,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
         }
         // The publications' place in the shared semantic map, from the offline
         // embeddings build; absent until a build matches this site's revision.
-        $typeOf = fn (int $id): ?string => $this->firstLinkedTitle($id, 'dcterms:type')
+        $typeOf = fn (int $id): ?string => $this->firstLinkedTitle($id, Terms::TYPE)
             ?? ($this->templateLabels[$this->items[$id]['template_id'] ?? 0] ?? null);
         if ($v = $this->similarityPoints($pubs, 'publications', $typeOf, 'Other')) {
             $dashboard['similarity'] = $v;
@@ -100,7 +100,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
         $peopleIds = [];
         foreach ($pubs as $iid) {
             foreach ($this->links[$iid] ?? [] as [$term, , $vrid]) {
-                if ($term === 'bibo:authorList' || $term === 'bibo:editorList') {
+                if ($term === Terms::AUTHOR_LIST || $term === Terms::EDITOR_LIST) {
                     $peopleIds[$vrid] = true;
                 }
             }
@@ -111,9 +111,9 @@ final class MediaDashboardGenerator extends DashboardGenerator
         // flag is a link too — the sync links bibo:status to a "Peer reviewed" /
         // "Not peer reviewed" authority item — counted on the exact title (no
         // substring hit for "Not peer reviewed").
-        $journalCount = $this->aggregators->countLinkedOfClass($pubs, $this->links, $this->items, ['dcterms:isPartOf'], ['bibo:Journal']);
-        $seriesCount = $this->aggregators->countLinkedOfClass($pubs, $this->links, $this->items, ['dcterms:isPartOf', 'dre:series'], ['bibo:Series']);
-        $publisherCount = $this->aggregators->countDistinctValues($pubs, $this->links, $this->literals, $this->items, 'dcterms:publisher');
+        $journalCount = $this->aggregators->countLinkedOfClass($pubs, $this->links, $this->items, [Terms::IS_PART_OF], [Terms::CLASS_JOURNAL]);
+        $seriesCount = $this->aggregators->countLinkedOfClass($pubs, $this->links, $this->items, [Terms::IS_PART_OF, Terms::DRE_SERIES], [Terms::CLASS_SERIES]);
+        $publisherCount = $this->aggregators->countDistinctValues($pubs, $this->links, $this->literals, $this->items, Terms::PUBLISHER);
         $cityCount = count($dashboard['locations'] ?? []);
         $peerReviewed = $this->aggregators->countItemsLinkedTo($pubs, $this->links, $this->items, 'bibo:status', 'Peer reviewed');
         // EPub deposits carry their open-access PDF as attached media (ERef
@@ -195,7 +195,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
         // in-PHP tokeniser over the raw bibo:content captions. Mirrors the
         // Podcasts headline chart.
         $wc = $this->wordCloudInput('youtube')
-            ?? $this->aggregators->buildTranscriptWordCloud($this->loadTextValues($videos, 'bibo:content'));
+            ?? $this->aggregators->buildTranscriptWordCloud($this->loadTextValues($videos, Terms::CONTENT));
         if ($wc) {
             $dashboard['transcriptWordcloud'] = $wc;
         }
@@ -207,7 +207,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
         }
         // The videos' place in the semantic space, coloured by playlist.
         $playlists = array_flip($this->itemSets[$this->profile->itemSet('youtubePlaylists')] ?? []);
-        $playlistOf = fn (int $id): ?string => $this->firstLinkedTitle($id, 'dcterms:isPartOf', $playlists);
+        $playlistOf = fn (int $id): ?string => $this->firstLinkedTitle($id, Terms::IS_PART_OF, $playlists);
         if ($v = $this->similarityPoints($videos, 'youtube', $playlistOf, 'Not in a playlist')) {
             $dashboard['similarity'] = $v;
         }
@@ -303,7 +303,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
             $dashboard['speakerNetwork'] = $v;
         }
         // The episodes' place in the semantic space, coloured by series.
-        $seriesOf = fn (int $id): ?string => $this->firstLinkedTitle($id, 'dcterms:isPartOf');
+        $seriesOf = fn (int $id): ?string => $this->firstLinkedTitle($id, Terms::IS_PART_OF);
         if ($v = $this->similarityPoints($ids, 'podcasts', $seriesOf, 'No series')) {
             $dashboard['similarity'] = $v;
         }
@@ -315,7 +315,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
         $speakerIds = [];
         foreach ($ids as $iid) {
             foreach ($this->links[$iid] ?? [] as [$term, , $vrid]) {
-                if ($term === 'dcterms:isPartOf') {
+                if ($term === Terms::IS_PART_OF) {
                     $seriesIds[$vrid] = true;
                 } elseif ($term === 'marcrel:spk') {
                     $speakerIds[$vrid] = true;
@@ -383,7 +383,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
         $counts = [];
         foreach ($ids as $iid) {
             foreach ($this->links[$iid] ?? [] as [$term, , $vrid]) {
-                if ($term !== 'dcterms:isPartOf') {
+                if ($term !== Terms::IS_PART_OF) {
                     continue;
                 }
                 $title = $this->items[$vrid]['title'] ?? '';
@@ -413,7 +413,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
     {
         $durations = [];
         $transcripts = [];
-        foreach ($this->loadValueRows($ids, ['dcterms:extent', 'bibo:content']) as $r) {
+        foreach ($this->loadValueRows($ids, ['dcterms:extent', Terms::CONTENT]) as $r) {
             $term = (string) $r[1];
             $value = (string) $r[2];
             if ($term === 'dcterms:extent') {
@@ -421,7 +421,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
                 if ($secs > 0) {
                     $durations[] = $secs;
                 }
-            } elseif ($term === 'bibo:content') {
+            } elseif ($term === Terms::CONTENT) {
                 $transcripts[] = $value;
             }
         }

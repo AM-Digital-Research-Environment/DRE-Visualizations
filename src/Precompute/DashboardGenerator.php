@@ -100,16 +100,16 @@ abstract class DashboardGenerator
     }
 
     /** Resource classes the generators group by (the profile pins templates, not classes). */
-    protected const CLASS_SECTION = 'frapo:ResearchGroup';
-    protected const CLASS_ORGANISATION = 'foaf:Organization';
+    protected const CLASS_SECTION = Terms::CLASS_RESEARCH_GROUP;
+    protected const CLASS_ORGANISATION = Terms::CLASS_ORGANIZATION;
     /**
      * Journal records (template "Journal"). Their dcterms:spatial is the
      * journal's country of origin, which the Publications map uses; it is not
      * where a work comes from, so the place views leave journal records out.
      */
-    protected const CLASS_JOURNAL = 'bibo:Journal';
+    protected const CLASS_JOURNAL = Terms::CLASS_JOURNAL;
     /** Book and working-paper series records (template "Series"). */
-    protected const CLASS_SERIES = 'bibo:Series';
+    protected const CLASS_SERIES = Terms::CLASS_SERIES;
 
     /** @var array<string,array<int,array>> class term => items of that class */
     private array $byClass = [];
@@ -136,8 +136,8 @@ abstract class DashboardGenerator
     {
         return array_merge(
             $withMembership
-                ? ['dcterms:creator', 'dcterms:contributor', 'foaf:member', 'bibo:authorList', 'bibo:editorList']
-                : ['dcterms:creator', 'dcterms:contributor', 'bibo:authorList', 'bibo:editorList'],
+                ? [Terms::CREATOR, Terms::CONTRIBUTOR, Terms::MEMBER, Terms::AUTHOR_LIST, Terms::EDITOR_LIST]
+                : [Terms::CREATOR, Terms::CONTRIBUTOR, Terms::AUTHOR_LIST, Terms::EDITOR_LIST],
             $this->marcrelTerms()
         );
     }
@@ -151,7 +151,7 @@ abstract class DashboardGenerator
      */
     protected function institutionCreditTerms(): array
     {
-        return array_merge(['frapo:isFundedBy', 'dcterms:provenance', 'dcterms:publisher', 'bibo:authorList', 'bibo:editorList'],
+        return array_merge([Terms::IS_FUNDED_BY, Terms::PROVENANCE, Terms::PUBLISHER, Terms::AUTHOR_LIST, Terms::EDITOR_LIST],
             $this->marcrelTerms());
     }
 

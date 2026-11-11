@@ -30,20 +30,20 @@ final class KnowledgeGraphs
 
     /** Property term => node category. */
     private const PROP_CAT = [
-        'dcterms:creator' => 'Person', 'dcterms:contributor' => 'Person', 'foaf:member' => 'Person',
+        Terms::CREATOR => 'Person', Terms::CONTRIBUTOR => 'Person', Terms::MEMBER => 'Person',
         // Publications credit their people through bibo: rather than dcterms:, so
         // without these two a publication's graph showed no authors at all and a
         // person's graph never reached the work they wrote. Both stay 'Person' — the
         // edge already carries the property label ("Author", "Editor"), which is
         // where that distinction belongs; a separate category would only split the
         // legend and give editors a non-person colour.
-        'bibo:authorList' => 'Person', 'bibo:editorList' => 'Person',
-        'dcterms:subject' => 'Subject',
-        'dcterms:spatial' => 'Location', 'dcterms:provenance' => 'Location',
-        'dcterms:isPartOf' => 'Project',
+        Terms::AUTHOR_LIST => 'Person', Terms::EDITOR_LIST => 'Person',
+        Terms::SUBJECT => 'Subject',
+        Terms::SPATIAL => 'Location', Terms::PROVENANCE => 'Location',
+        Terms::IS_PART_OF => 'Project',
         'dcterms:format' => 'Genre',
-        'frapo:isFundedBy' => 'Institution',
-        'dcterms:publisher' => 'Institution',
+        Terms::IS_FUNDED_BY => 'Institution',
+        Terms::PUBLISHER => 'Institution',
         'dcterms:relation' => 'Related item', 'dcterms:hasPart' => 'Related item',
         'dcterms:replaces' => 'Related item', 'dcterms:isReplacedBy' => 'Related item',
         'dcterms:hasVersion' => 'Related item', 'dcterms:isVersionOf' => 'Related item',
@@ -59,12 +59,12 @@ final class KnowledgeGraphs
      * showed up alongside each other.
      */
     private const SHAREABLE = [
-        'dcterms:subject', 'dcterms:isPartOf', 'dcterms:spatial',
-        'dcterms:creator', 'dcterms:contributor',
-        'bibo:authorList', 'bibo:editorList',
+        Terms::SUBJECT, Terms::IS_PART_OF, Terms::SPATIAL,
+        Terms::CREATOR, Terms::CONTRIBUTOR,
+        Terms::AUTHOR_LIST, Terms::EDITOR_LIST,
         // Two works in one book series are related the way two articles in one
         // journal are (dcterms:isPartOf, above).
-        'dre:series',
+        Terms::DRE_SERIES,
     ];
 
     /** Priority order for direct relationships when capping. */
@@ -95,12 +95,12 @@ final class KnowledgeGraphs
         $class = (string) ($target['class_term'] ?? '');
         // dcterms:isPartOf is a research item's project, a person's institution,
         // a city's country, an article's journal and a chapter's book.
-        if ($term === 'dcterms:isPartOf' || $term === 'dre:series') {
+        if ($term === Terms::IS_PART_OF || $term === Terms::DRE_SERIES) {
             return match (true) {
-                $class === 'foaf:Organization' => 'Institution',
+                $class === Terms::CLASS_ORGANIZATION => 'Institution',
                 $class === 'dcterms:Location' => 'Location',
-                $class === 'bibo:Journal', $class === 'bibo:Series', str_starts_with($class, 'fabio:') => 'Publication venue',
-                default => $term === 'dre:series' ? 'Publication venue' : 'Project',
+                $class === Terms::CLASS_JOURNAL, $class === Terms::CLASS_SERIES, str_starts_with($class, 'fabio:') => 'Publication venue',
+                default => $term === Terms::DRE_SERIES ? 'Publication venue' : 'Project',
             };
         }
         if (isset(self::PROP_CAT[$term])) {
@@ -111,7 +111,7 @@ final class KnowledgeGraphs
             return 'Location';
         }
         if (str_starts_with($term, 'marcrel:')) {
-            return $class === 'foaf:Organization' ? 'Institution' : 'Contributor';
+            return $class === Terms::CLASS_ORGANIZATION ? 'Institution' : 'Contributor';
         }
         return null;
     }
@@ -190,7 +190,7 @@ final class KnowledgeGraphs
         $current = [];
         $seen = [];
         foreach ($links[$itemId] ?? [] as [$term, $label, $vrid]) {
-            if ($term !== 'dcterms:spatial' && $term !== 'dcterms:provenance') {
+            if ($term !== Terms::SPATIAL && $term !== Terms::PROVENANCE) {
                 continue;
             }
             if (isset($seen[$vrid]) || !isset($geo[$vrid])) {
@@ -199,7 +199,7 @@ final class KnowledgeGraphs
             $seen[$vrid] = true;
             $loc = $geo[$vrid];
             $entry = ['name' => $loc['name'], 'lat' => $loc['lat'], 'lon' => $loc['lon'], 'itemId' => $loc['itemId']];
-            if ($term === 'dcterms:spatial') {
+            if ($term === Terms::SPATIAL) {
                 $origins[] = $entry;
             } else {
                 $current[] = $entry;
@@ -298,9 +298,9 @@ final class KnowledgeGraphs
         }
 
         // ── Reverse lookups: items linking TO this via isPartOf ─────────
-        $isSection = ($item['class_term'] ?? '') === 'frapo:ResearchGroup';
+        $isSection = ($item['class_term'] ?? '') === Terms::CLASS_RESEARCH_GROUP;
         $reverseCount = 0;
-        foreach ($reverseLinks[$itemId]['dcterms:isPartOf'] ?? [] as $rid) {
+        foreach ($reverseLinks[$itemId][Terms::IS_PART_OF] ?? [] as $rid) {
             if ($reverseCount >= self::MAX_REVERSE_NODES) {
                 break;
             }

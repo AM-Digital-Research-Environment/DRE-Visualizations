@@ -114,7 +114,7 @@ final class CollectionGalleryGenerator extends DashboardGenerator
                 $lat = null;
                 $lon = null;
                 foreach ($this->links[$itemId] ?? [] as [$term, , $vrid]) {
-                    if ($term === 'dcterms:spatial') {
+                    if ($term === Terms::SPATIAL) {
                         $place = $this->items[$vrid]['title'] ?? null;
                         if (isset($this->geo[$vrid])) {
                             $lat = $this->geo[$vrid]['lat'];
@@ -124,8 +124,8 @@ final class CollectionGalleryGenerator extends DashboardGenerator
                     }
                 }
                 // No linked place → fall back to a literal dcterms:spatial label.
-                if ($place === null && isset($this->literals[$itemId]['dcterms:spatial'][0])) {
-                    $place = $this->literals[$itemId]['dcterms:spatial'][0];
+                if ($place === null && isset($this->literals[$itemId][Terms::SPATIAL][0])) {
+                    $place = $this->literals[$itemId][Terms::SPATIAL][0];
                 }
 
                 $rec = [
@@ -270,7 +270,7 @@ final class CollectionGalleryGenerator extends DashboardGenerator
     protected function firstCreator(int $itemId): ?string
     {
         foreach ($this->links[$itemId] ?? [] as [$term, , $vrid]) {
-            if (in_array($term, ['marcrel:aut', 'dcterms:creator', 'dcterms:contributor'], true)) {
+            if (in_array($term, ['marcrel:aut', Terms::CREATOR, Terms::CONTRIBUTOR], true)) {
                 $name = $this->items[$vrid]['title'] ?? null;
                 if ($name !== null && $name !== '') {
                     return $name;

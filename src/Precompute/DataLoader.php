@@ -14,9 +14,9 @@ final class DataLoader
      * (publications keep their abstracts in bibo:abstract, everything else in
      * dcterms:abstract — 2.29.0 read the wrong one without noticing).
      */
-    public const LITERAL_TERMS = ['bibo:authorList', 'bibo:editorList', 'dcterms:isPartOf', 'dcterms:publisher',
-        'dcterms:spatial', 'dcterms:extent', 'bibo:content', 'dcterms:abstract', 'bibo:abstract',
-        'dcterms:identifier', 'dcterms:description', 'bibo:doi', 'dre:id'];
+    public const LITERAL_TERMS = [Terms::AUTHOR_LIST, Terms::EDITOR_LIST, Terms::IS_PART_OF, Terms::PUBLISHER,
+        Terms::SPATIAL, 'dcterms:extent', Terms::CONTENT, 'dcterms:abstract', 'bibo:abstract',
+        'dcterms:identifier', 'dcterms:description', 'bibo:doi', Terms::DRE_ID];
     public const DATE_TERMS = ['dcterms:issued', 'dcterms:created', 'dcterms:date', 'fabio:hasDateCollected'];
     /** Literal properties read for structure rather than kept as text. */
     private const STRUCTURAL_TERMS = ['dcterms:title', 'geo:lat', 'geo:long', 'dcterms:temporal'];
@@ -165,7 +165,7 @@ final class DataLoader
         if (!$records) return [];
         $propertyIds = array_fill_keys(array_filter($titleProperties), true);
         foreach ($properties as $propertyId => [$term]) {
-            if (in_array($term, ['dcterms:title', 'dcterms:isPartOf', 'dre:id'], true)) $propertyIds[$propertyId] = true;
+            if (in_array($term, ['dcterms:title', Terms::IS_PART_OF, Terms::DRE_ID], true)) $propertyIds[$propertyId] = true;
         }
         $titled = [];
         foreach ($this->query('SELECT v.resource_id, v.property_id, v.value_resource_id, v.value FROM value v'
@@ -177,7 +177,7 @@ final class DataLoader
             $term = $properties[(int) $r[1]][0];
             if ($r[2] !== null) {
                 // Only a public item of this site can be the collection's project.
-                if ($term === 'dcterms:isPartOf' && isset($items[(int) $r[2]])) $records[$id]['partOf'][] = (int) $r[2];
+                if ($term === Terms::IS_PART_OF && isset($items[(int) $r[2]])) $records[$id]['partOf'][] = (int) $r[2];
                 continue;
             }
             $value = trim((string) $r[3]);
@@ -186,7 +186,7 @@ final class DataLoader
                 $records[$id]['title'] = $value;
                 $titled[$id] = true;
             }
-            if ($term === 'dre:id' && $records[$id]['dreId'] === null) $records[$id]['dreId'] = $value;
+            if ($term === Terms::DRE_ID && $records[$id]['dreId'] === null) $records[$id]['dreId'] = $value;
         }
         foreach ($records as &$record) $record['partOf'] = array_values(array_unique($record['partOf']));
         unset($record);

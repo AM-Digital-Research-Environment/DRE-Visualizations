@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace DreVisualizations\Precompute\Aggregators;
 
 use DreVisualizations\Precompute\Roles;
+use DreVisualizations\Precompute\Terms;
 
 /**
  * Geography: country point-in-polygon indexing, the per-country
@@ -28,9 +29,9 @@ trait GeoChartsTrait
             $origins = [];
             $currents = [];
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:spatial' && isset($geo[$vrid])) {
+                if ($term === Terms::SPATIAL && isset($geo[$vrid])) {
                     $origins[] = $vrid;
-                } elseif ($term === 'dcterms:provenance' && isset($geo[$vrid])) {
+                } elseif ($term === Terms::PROVENANCE && isset($geo[$vrid])) {
                     $currents[] = $vrid;
                 }
             }
@@ -198,9 +199,9 @@ trait GeoChartsTrait
         foreach ($links[$iid] ?? [] as [$term, , $vrid]) {
             if (Roles::isPlaceRole($term)) {
                 $places[] = $vrid;
-            } elseif ($term === 'dcterms:isPartOf' && ($items[$vrid]['class_term'] ?? '') === 'bibo:Journal') {
+            } elseif ($term === Terms::IS_PART_OF && ($items[$vrid]['class_term'] ?? '') === Terms::CLASS_JOURNAL) {
                 foreach ($links[$vrid] ?? [] as [$journalTerm, , $country]) {
-                    if ($journalTerm === 'dcterms:spatial') {
+                    if ($journalTerm === Terms::SPATIAL) {
                         $places[] = $country;
                     }
                 }
@@ -231,7 +232,7 @@ trait GeoChartsTrait
         while (true) {
             $parent = null;
             foreach ($links[$id] ?? [] as [$term, , $vrid]) {
-                if ($term === 'dcterms:isPartOf' && ($items[$vrid]['class_term'] ?? '') === 'dcterms:Location' && !isset($visited[$vrid])) {
+                if ($term === Terms::IS_PART_OF && ($items[$vrid]['class_term'] ?? '') === 'dcterms:Location' && !isset($visited[$vrid])) {
                     $parent = $vrid;
                     break;
                 }
@@ -255,11 +256,11 @@ trait GeoChartsTrait
         $markers = [];
         $seen = [];
         foreach ($links[$personId] ?? [] as [$term, $label, $vrid]) {
-            if ($term !== 'dcterms:isPartOf' || isset($seen[$vrid]) || !isset($geo[$vrid])) {
+            if ($term !== Terms::IS_PART_OF || isset($seen[$vrid]) || !isset($geo[$vrid])) {
                 continue;
             }
             // Only map institution affiliations (not, e.g., a linked place).
-            if (($items[$vrid]['class_term'] ?? '') !== 'foaf:Organization') {
+            if (!Terms::isOrganisation($items, $vrid)) {
                 continue;
             }
             $seen[$vrid] = true;
@@ -283,7 +284,7 @@ trait GeoChartsTrait
         // Project members: PI (dcterms:creator) + team (foaf:member).
         $memberIds = [];
         foreach ($links[$projectId] ?? [] as [$term, $label, $vrid]) {
-            if ($term === 'dcterms:creator' || $term === 'foaf:member') {
+            if ($term === Terms::CREATOR || $term === Terms::MEMBER) {
                 $memberIds[$vrid] = true;
             }
         }
@@ -291,11 +292,11 @@ trait GeoChartsTrait
         $markers = []; // institution id => marker (accumulating member names)
         foreach (array_keys($memberIds) as $pid) {
             foreach ($links[$pid] ?? [] as [$term, $label, $vrid]) {
-                if ($term !== 'dcterms:isPartOf' || !isset($geo[$vrid])) {
+                if ($term !== Terms::IS_PART_OF || !isset($geo[$vrid])) {
                     continue;
                 }
                 // Only institutions, not, e.g., a person's linked place.
-                if (($items[$vrid]['class_term'] ?? '') !== 'foaf:Organization') {
+                if (!Terms::isOrganisation($items, $vrid)) {
                     continue;
                 }
                 if (!isset($markers[$vrid])) {
@@ -435,7 +436,7 @@ trait GeoChartsTrait
         foreach ($itemIds as $iid) {
             $seen = [];
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:spatial' && isset($countryIndex[$vrid])) {
+                if ($term === Terms::SPATIAL && isset($countryIndex[$vrid])) {
                     $country = $countryIndex[$vrid];
                     if (!isset($seen[$country])) {
                         $counts[$country] = ($counts[$country] ?? 0) + 1;

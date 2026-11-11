@@ -291,7 +291,7 @@ final class AmiraProfile
                 if (!is_string($field) || !preg_match('/^[a-z][a-z0-9]*:[A-Za-z][A-Za-z0-9]*$/', $field)) {
                     throw new RuntimeException('AMIRA profile has an invalid embedding corpus text field.');
                 }
-                if ($field === 'bibo:content') {
+                if ($field === Terms::CONTENT) {
                     throw new RuntimeException('AMIRA profile embeds full text; cards use abstracts and descriptions.');
                 }
             }

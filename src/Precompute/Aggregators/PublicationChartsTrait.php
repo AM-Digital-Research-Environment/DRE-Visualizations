@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace DreVisualizations\Precompute\Aggregators;
 
+use DreVisualizations\Precompute\Terms;
+
 /**
  * Publication-specific aggregations: top journals, series, publishers and
  * funders (linked records, plus the literals not yet reconciled), stat-card
@@ -186,7 +188,7 @@ trait PublicationChartsTrait
         foreach ($itemIds as $iid) {
             $seen = [];
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
-                if ($term !== 'bibo:authorList') {
+                if ($term !== Terms::AUTHOR_LIST) {
                     continue;
                 }
                 $title = trim((string) ($items[$vrid]['title'] ?? ''));
@@ -198,7 +200,7 @@ trait PublicationChartsTrait
                 $matched[$title] = true;
                 $itemIdOf[$title] = $vrid;
             }
-            foreach ($literals[$iid]['bibo:authorList'] ?? [] as $name) {
+            foreach ($literals[$iid][Terms::AUTHOR_LIST] ?? [] as $name) {
                 $name = trim((string) $name);
                 if ($name === '' || isset($seen[$name])) {
                     continue;

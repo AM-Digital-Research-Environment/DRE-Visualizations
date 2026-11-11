@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace DreVisualizations\Precompute\Aggregators;
 
 use DreVisualizations\Precompute\Roles;
+use DreVisualizations\Precompute\Terms;
 
 /**
  * Radar breadth profile and the curated Collection-Overview charts (stat
@@ -67,13 +68,13 @@ trait OverviewChartsTrait
                 $years[] = (int) $y;
             }
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:language') {
+                if ($term === Terms::LANGUAGE) {
                     $langs[$vrid] = true;
-                } elseif ($term === 'dcterms:subject') {
+                } elseif ($term === Terms::SUBJECT) {
                     $subs[$vrid] = true;
-                } elseif ($term === 'dcterms:type') {
+                } elseif ($term === Terms::TYPE) {
                     $types[$vrid] = true;
-                } elseif ($term === 'dcterms:spatial') {
+                } elseif ($term === Terms::SPATIAL) {
                     $locs[$vrid] = true;
                 } elseif (Roles::isCredit($term)) {
                     $contribs[$vrid] = true;
@@ -259,7 +260,7 @@ trait OverviewChartsTrait
     private function resolveUniversity(int $pid, array $links, array $items): ?string
     {
         foreach ($links[$pid] ?? [] as [$term, $label, $vrid]) {
-            if ($term === 'frapo:isFundedBy') {
+            if ($term === Terms::IS_FUNDED_BY) {
                 $title = (string) ($items[$vrid]['title'] ?? '');
                 if ($title !== '') {
                     return $this->universityLabel($title);
@@ -289,11 +290,11 @@ trait OverviewChartsTrait
     {
         $points = [];
         foreach ($items as $iid => $info) {
-            if (($info['class_term'] ?? '') !== 'foaf:Organization' || !isset($geo[$iid])) {
+            if (($info['class_term'] ?? '') !== Terms::CLASS_ORGANIZATION || !isset($geo[$iid])) {
                 continue;
             }
             foreach ($links[$iid] ?? [] as [$term, , $vrid]) {
-                if ($term !== 'dcterms:isPartOf' || !isset($authorityKeys[$vrid])) {
+                if ($term !== Terms::IS_PART_OF || !isset($authorityKeys[$vrid])) {
                     continue;
                 }
                 $g = $geo[$iid];

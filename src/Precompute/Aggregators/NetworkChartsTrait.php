@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace DreVisualizations\Precompute\Aggregators;
 
 use DreVisualizations\Precompute\Roles;
+use DreVisualizations\Precompute\Terms;
 
 /**
  * Force-graph / flow builders: subject chord, contributor→project→type
@@ -35,7 +36,7 @@ trait NetworkChartsTrait
     }
 
     /** Build a co-occurrence chord diagram for a given property. */
-    public function buildChord(array $itemIds, array $links, array $items, string $termFilter = 'dcterms:subject', int $maxNodes = 20, int $minCooccurrence = 2): ?array
+    public function buildChord(array $itemIds, array $links, array $items, string $termFilter = Terms::SUBJECT, int $maxNodes = 20, int $minCooccurrence = 2): ?array
     {
         $itemValues = [];
         $valueTitles = [];
@@ -119,10 +120,10 @@ trait NetworkChartsTrait
                 }
                 if (Roles::isCredit($term)) {
                     $itemContributors[] = $vrid;
-                } elseif ($term === 'dcterms:isPartOf' && ($items[$vrid]['template_id'] ?? null) === $this->projectTemplateId()) {
+                } elseif ($term === Terms::IS_PART_OF && ($items[$vrid]['template_id'] ?? null) === $this->projectTemplateId()) {
                     // Only a project: a publication's isPartOf is its journal or book.
                     $itemProject = $vrid;
-                } elseif ($term === 'dcterms:type') {
+                } elseif ($term === Terms::TYPE) {
                     $itemTypes[] = $vrid;
                 } else {
                     continue;
@@ -214,7 +215,7 @@ trait NetworkChartsTrait
                     if (($items[$vrid]['template_id'] ?? null) === $this->personTemplateId()) {
                         $itemPersons[$vrid] = true;
                     }
-                } elseif ($term === 'dcterms:isPartOf') {
+                } elseif ($term === Terms::IS_PART_OF) {
                     if (($items[$vrid]['template_id'] ?? null) === $this->projectTemplateId()) {
                         $itemProject = $vrid;
                     }
@@ -398,7 +399,7 @@ trait NetworkChartsTrait
             }
             $affiliations = [];
             foreach ($links[$pid] ?? [] as [$term, , $vrid]) {
-                if ($term === 'dcterms:isPartOf' && ($items[$vrid]['class_term'] ?? '') === 'foaf:Organization') {
+                if (Terms::isAffiliation($term, $items, $vrid)) {
                     $affiliations[$vrid] = true;
                 }
             }
@@ -463,14 +464,14 @@ trait NetworkChartsTrait
             $institutions = [];
             $projectId = null;
             foreach ($links[$iid] ?? [] as [$term, , $vrid]) {
-                $isOrg = ($items[$vrid]['class_term'] ?? '') === 'foaf:Organization';
-                if ($term === 'dcterms:isPartOf' && ($items[$vrid]['template_id'] ?? null) === $this->projectTemplateId()) {
+                $isOrg = Terms::isOrganisation($items, $vrid);
+                if ($term === Terms::IS_PART_OF && ($items[$vrid]['template_id'] ?? null) === $this->projectTemplateId()) {
                     $projectId = $vrid;
-                } elseif ($isOrg && ($term === 'frapo:isFundedBy' || $term === 'dcterms:provenance' || Roles::isCredit($term))) {
+                } elseif ($isOrg && ($term === Terms::IS_FUNDED_BY || $term === Terms::PROVENANCE || Roles::isCredit($term))) {
                     $institutions[$vrid] = true;
                 } elseif ($this->isPersonContributionTerm($term) && ($items[$vrid]['template_id'] ?? null) === $this->personTemplateId()) {
                     foreach ($links[$vrid] ?? [] as [$pTerm, , $affId]) {
-                        if ($pTerm === 'dcterms:isPartOf' && ($items[$affId]['class_term'] ?? '') === 'foaf:Organization') {
+                        if (Terms::isAffiliation($pTerm, $items, $affId)) {
                             $institutions[$affId] = true;
                         }
                     }
@@ -478,7 +479,7 @@ trait NetworkChartsTrait
             }
             if ($projectId !== null) {
                 foreach ($links[$projectId] ?? [] as [$pTerm, , $fundId]) {
-                    if ($pTerm === 'frapo:isFundedBy' && ($items[$fundId]['class_term'] ?? '') === 'foaf:Organization') {
+                    if ($pTerm === Terms::IS_FUNDED_BY && Terms::isOrganisation($items, $fundId)) {
                         $institutions[$fundId] = true;
                     }
                 }
@@ -529,7 +530,7 @@ trait NetworkChartsTrait
     /** Build person -> institution affiliation network centred on an institution. */
     public function buildAffiliationNetwork(int $instId, string $instTitle, array $items, array $links, array $reverseLinks, int $maxNodes = 30): ?array
     {
-        $affiliated = $reverseLinks[$instId]['dcterms:isPartOf'] ?? [];
+        $affiliated = $reverseLinks[$instId][Terms::IS_PART_OF] ?? [];
         $affiliatedPersons = [];
         foreach ($affiliated as $pid) {
             if (($items[$pid]['template_id'] ?? null) === $this->personTemplateId()) {
@@ -545,7 +546,7 @@ trait NetworkChartsTrait
         foreach ($affiliatedPersons as $pid) {
             $affls = [];
             foreach ($links[$pid] ?? [] as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:isPartOf' && ($items[$vrid]['class_term'] ?? '') === 'foaf:Organization') {
+                if (Terms::isAffiliation($term, $items, $vrid)) {
                     $affls[] = $vrid;
                     $instCounts[$vrid] = ($instCounts[$vrid] ?? 0) + 1;
                 }
@@ -657,7 +658,7 @@ trait NetworkChartsTrait
             $categoryOf[$id] = null;   // breaks an isPartOf cycle
             $found = null;
             foreach ($links[$id] ?? [] as [$term, , $vrid]) {
-                if ($term !== 'dcterms:isPartOf') {
+                if ($term !== Terms::IS_PART_OF) {
                     continue;
                 }
                 $found = $authorityKeys[$vrid] ?? ($depth < 4 ? $resolve($vrid, $depth + 1) : null) ?? $found;
@@ -675,13 +676,13 @@ trait NetworkChartsTrait
             $template = $info['template_id'] ?? null;
             if ($template === $person) {
                 foreach ($links[$iid] ?? [] as [$term, , $vrid]) {
-                    if ($term === 'dcterms:isPartOf' && ($category = $resolve($vrid)) !== null) {
+                    if ($term === Terms::IS_PART_OF && ($category = $resolve($vrid)) !== null) {
                         $out[$iid] = $category === 'amrc' ? 'cluster' : ($out[$iid] ?? 'partner');
                     }
                 }
             } elseif ($template !== null && isset($membership[$template])) {
                 foreach ($links[$iid] ?? [] as [$term, , $vrid]) {
-                    if (($term === 'foaf:member' || $term === 'dcterms:creator')
+                    if (($term === Terms::MEMBER || $term === Terms::CREATOR)
                         && ($items[$vrid]['template_id'] ?? null) === $person) {
                         $out[$vrid] = 'cluster';
                     }
@@ -749,7 +750,7 @@ trait NetworkChartsTrait
             $authorIds = [];
             $editorIds = [];
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
-                if ($term !== 'bibo:authorList' && $term !== 'bibo:editorList') {
+                if ($term !== Terms::AUTHOR_LIST && $term !== Terms::EDITOR_LIST) {
                     continue;
                 }
                 if (($items[$vrid]['template_id'] ?? null) !== $this->personTemplateId()) {
@@ -762,7 +763,7 @@ trait NetworkChartsTrait
                 $aid = $ensure($title);
                 $matched[$aid] = true;
                 $personId[$aid] = $vrid;
-                if ($term === 'bibo:authorList') {
+                if ($term === Terms::AUTHOR_LIST) {
                     $roleMask[$aid] |= 1;
                     $authorIds[$aid] = true;
                 } else {
@@ -770,7 +771,7 @@ trait NetworkChartsTrait
                     $editorIds[$aid] = true;
                 }
             }
-            foreach ($literals[$iid]['bibo:authorList'] ?? [] as $name) {
+            foreach ($literals[$iid][Terms::AUTHOR_LIST] ?? [] as $name) {
                 $name = trim((string) $name);
                 if ($name === '') {
                     continue;
@@ -779,7 +780,7 @@ trait NetworkChartsTrait
                 $roleMask[$aid] |= 1;
                 $authorIds[$aid] = true;
             }
-            foreach ($literals[$iid]['bibo:editorList'] ?? [] as $name) {
+            foreach ($literals[$iid][Terms::EDITOR_LIST] ?? [] as $name) {
                 $name = trim((string) $name);
                 if ($name === '') {
                     continue;

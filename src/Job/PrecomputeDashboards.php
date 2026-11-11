@@ -5,6 +5,7 @@ namespace DreVisualizations\Job;
 
 use DreVisualizations\Module;
 use Omeka\Job\AbstractJob;
+use DreVisualizations\Precompute\GeneratorPaths;
 use DreVisualizations\Precompute\Runner;
 use DreVisualizations\Precompute\SnapshotPublisher;
 use DreVisualizations\Precompute\EmbeddingInputs;
@@ -247,21 +248,18 @@ class PrecomputeDashboards extends AbstractJob
                 $connection,
                 $siteId,
                 $profile,
-                $generationDir . '/item-dashboards',
-                $generationDir . '/communities',
-                $moduleRoot . '/asset/data/geo/countries.geojson',
-                $generationDir . '/knowledge-graphs',
-                $generationDir . '/photo-galleries',
-                $generationDir . '/featured-collections',
-                $generationDir . '/item-set-dashboards',
-                $moduleRoot . '/data/wordclouds',
+                GeneratorPaths::forGeneration(
+                    $generationDir,
+                    $moduleRoot . '/asset/data/geo/countries.geojson',
+                    $moduleRoot . '/data/wordclouds',
+                    $dataDir . '/layout-cache',
+                    $embeddings->currentDirectory(),
+                ),
                 static fn (string $message) => $logger->info($message),
                 $corpusStats,
                 $checkpoint,
                 $sourceScope,
-                $dataDir . '/layout-cache',
                 \Closure::fromCallable($loaded),
-                $embeddings->currentDirectory(),
                 static fn (string $built): ?array => $store->hiddenSince($built)
             );
             $result = $runner->run();

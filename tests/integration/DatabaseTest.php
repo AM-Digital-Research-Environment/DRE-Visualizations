@@ -102,7 +102,7 @@ try {
  $publisher=new SnapshotPublisher($root,1,'test');
  $run=function() use($publisher,$conn,$profile,$module) {
   return $publisher->publish(function($dir) use($conn,$profile,$module) {
-   return (new \DreVisualizations\Precompute\Runner($conn,1,$profile,$dir.'/item-dashboards',$dir.'/communities',$module.'/asset/data/geo/countries.geojson',$dir.'/knowledge-graphs',$dir.'/photo-galleries',$dir.'/featured-collections',$dir.'/item-set-dashboards',$module.'/data/wordclouds'))->run();
+   return (new \DreVisualizations\Precompute\Runner($conn,1,$profile,\DreVisualizations\Precompute\GeneratorPaths::forGeneration($dir,$module.'/asset/data/geo/countries.geojson',$module.'/data/wordclouds')))->run();
   });
  };
  $manifest=$run();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace DreVisualizations\Precompute\Aggregators;
 
 use DreVisualizations\Precompute\Roles;
+use DreVisualizations\Precompute\Terms;
 
 /**
  * Core per-item distributions: the primary aggregateItems pass, the
@@ -60,21 +61,21 @@ trait BasicChartsTrait
                 if ($title === '') {
                     continue;
                 }
-                if ($term === 'dcterms:type') {
+                if ($term === Terms::TYPE) {
                     if (!$hasSyn) {
                         $types[$vrid] ??= ['name' => $title, 'value' => 0, 'itemId' => $vrid];
                         $types[$vrid]['value']++;
                     }
-                } elseif ($term === 'dcterms:language') {
+                } elseif ($term === Terms::LANGUAGE) {
                     $languages[$vrid] ??= ['name' => $title, 'value' => 0, 'itemId' => $vrid];
                     $languages[$vrid]['value']++;
-                } elseif ($term === 'dcterms:subject') {
+                } elseif ($term === Terms::SUBJECT) {
                     $subjects[$vrid] ??= ['name' => $title, 'value' => 0, 'itemId' => $vrid];
                     $subjects[$vrid]['value']++;
                 } elseif (Roles::isCredit($term)) {
                     $contributors[$vrid] ??= ['name' => $title, 'value' => 0, 'itemId' => $vrid];
                     $contributors[$vrid]['value']++;
-                } elseif ($term === 'dcterms:spatial') {
+                } elseif ($term === Terms::SPATIAL) {
                     if (isset($geo[$vrid])) {
                         if (!isset($locations[$vrid])) {
                             $g = $geo[$vrid];
@@ -87,7 +88,7 @@ trait BasicChartsTrait
                         $itTitle = $items[$iid]['title'] ?? ('Item ' . $iid);
                         $locations[$vrid]['items'][] = ['id' => $iid, 'title' => $itTitle];
                     }
-                } elseif ($term === 'dcterms:provenance') {
+                } elseif ($term === Terms::PROVENANCE) {
                     // Current location (where the item is held now). Resolved via
                     // $geo, which is template-agnostic, so an Institution used as a
                     // Current Location is geocoded just like a Location item.
@@ -162,11 +163,11 @@ trait BasicChartsTrait
                 if ($title === '') {
                     continue;
                 }
-                if ($term === 'dcterms:type') {
+                if ($term === Terms::TYPE) {
                     if (!$hasSyn) {
                         $itemTypes[] = $title;
                     }
-                } elseif ($term === 'dcterms:language') {
+                } elseif ($term === Terms::LANGUAGE) {
                     $itemLangs[] = $title;
                 }
             }

@@ -88,7 +88,7 @@ final class OverviewDashboardGenerator extends DashboardGenerator
 
         $isLcsh = function (int $sid): bool {
             foreach ($this->links[$sid] ?? [] as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:type' && $vrid === $this->profile->overview('lcsh')) {
+                if ($term === Terms::TYPE && $vrid === $this->profile->overview('lcsh')) {
                     return true;
                 }
             }
@@ -96,18 +96,18 @@ final class OverviewDashboardGenerator extends DashboardGenerator
         };
 
         $this->generateOverview($this->profile->overview('genre'), 'Genre', $this->itemSets[$this->profile->itemSet('genre')] ?? [], ['dcterms:format'], 'genreOverview', 'genres');
-        $this->generateOverview($this->profile->overview('language'), 'Language', $this->itemSets[$this->profile->itemSet('language')] ?? [], ['dcterms:language'], 'languageOverview', 'topLanguages');
-        $this->generateOverview($this->profile->overview('resourceType'), 'Resource Type', $this->itemSets[$this->profile->itemSet('resourceType')] ?? [], ['dcterms:type'], 'resourceTypeOverview', 'topResourceTypes');
+        $this->generateOverview($this->profile->overview('language'), 'Language', $this->itemSets[$this->profile->itemSet('language')] ?? [], [Terms::LANGUAGE], 'languageOverview', 'topLanguages');
+        $this->generateOverview($this->profile->overview('resourceType'), 'Resource Type', $this->itemSets[$this->profile->itemSet('resourceType')] ?? [], [Terms::TYPE], 'resourceTypeOverview', 'topResourceTypes');
         $this->generateOverview($this->profile->overview('targetAudience'), 'Target Audience', $this->itemSets[$this->profile->itemSet('targetAudience')] ?? [], ['dcterms:audience'], 'targetAudienceOverview', 'topAudiences');
         $this->generateOverview($this->profile->overview('person'), 'Person', $this->itemSets[$this->profile->itemSet('person')] ?? [], $personTerms, 'personOverview', 'topPersons');
         $this->generateOverview($this->profile->overview('institution'), 'Institution', $this->itemSets[$this->profile->itemSet('institution')] ?? [], $instTerms, 'institutionOverview', 'topInstitutions', fn (int $iid) => ($this->items[$iid]['class_term'] ?? '') === self::CLASS_ORGANISATION);
         $this->generateOverview($this->profile->overview('group'), 'Group', $this->itemSets[$this->profile->itemSet('institution')] ?? [], $instTerms, 'groupOverview', 'topGroups', fn (int $iid) => ($this->items[$iid]['class_term'] ?? '') !== self::CLASS_ORGANISATION);
-        $this->generateOverview($this->profile->overview('lcsh'), 'LCSH Subject', $this->itemSets[$this->profile->itemSet('subject')] ?? [], ['dcterms:subject'], 'lcshOverview', 'topSubjects', $isLcsh);
-        $this->generateOverview($this->profile->overview('tag'), 'Tag', $this->itemSets[$this->profile->itemSet('subject')] ?? [], ['dcterms:subject'], 'tagOverview', 'topTags', fn (int $sid) => !$isLcsh($sid));
+        $this->generateOverview($this->profile->overview('lcsh'), 'LCSH Subject', $this->itemSets[$this->profile->itemSet('subject')] ?? [], [Terms::SUBJECT], 'lcshOverview', 'topSubjects', $isLcsh);
+        $this->generateOverview($this->profile->overview('tag'), 'Tag', $this->itemSets[$this->profile->itemSet('subject')] ?? [], [Terms::SUBJECT], 'tagOverview', 'topTags', fn (int $sid) => !$isLcsh($sid));
 
         $projMembers = $this->itemSets[$this->profile->itemSet('project')] ?? [];
         $projExtra = $this->buildProjectsTimelineCharts($projMembers);
-        $this->generateOverview($this->profile->overview('project'), 'Research Project', $projMembers, ['dcterms:isPartOf'], 'projectOverview', 'topProjects', null, $projExtra);
+        $this->generateOverview($this->profile->overview('project'), 'Research Project', $projMembers, [Terms::IS_PART_OF], 'projectOverview', 'topProjects', null, $projExtra);
     }
 
     protected function buildProjectsTimelineCharts(array $projectIds): array
@@ -331,7 +331,7 @@ final class OverviewDashboardGenerator extends DashboardGenerator
         $lcshIds = [];
         foreach ($this->links as $sid => $slinks) {
             foreach ($slinks as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:type' && $vrid === $this->profile->overview('lcsh')) {
+                if ($term === Terms::TYPE && $vrid === $this->profile->overview('lcsh')) {
                     $lcshIds[] = $sid;
                     break;
                 }
@@ -485,7 +485,7 @@ final class OverviewDashboardGenerator extends DashboardGenerator
         // Subjects (capped): the items they classify (dcterms:subject).
         $subjects = [];
         foreach ($this->itemsWhere(fn ($i) => ($i['template_id'] ?? null) === $this->profile->template('authority')) as $sid => $sinfo) {
-            $subjects[$sid] = ['label' => $sinfo['title'], 'itemIds' => $this->linkingItems($sid, ['dcterms:subject'])];
+            $subjects[$sid] = ['label' => $sinfo['title'], 'itemIds' => $this->linkingItems($sid, [Terms::SUBJECT])];
         }
 
         $pickers = [

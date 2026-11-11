@@ -56,7 +56,7 @@ final class ProjectCollections
         }
         foreach (array_keys($projects) as $projectId) {
             if (isset($byProject[$projectId])) continue;
-            $dreId = trim((string) ($literals[$projectId]['dre:id'][0] ?? ''));
+            $dreId = trim((string) ($literals[$projectId][Terms::DRE_ID][0] ?? ''));
             foreach ($byDreId[$dreId] ?? [] as $setId) $byProject[$projectId][$setId] = true;
         }
 
@@ -122,7 +122,7 @@ final class ProjectCollections
         $ids = [];
         foreach ($items as $id => $item) {
             if (($item['template_id'] ?? null) !== $projectTemplateId) continue;
-            $dreId = trim((string) ($literals[(int) $id]['dre:id'][0] ?? ''));
+            $dreId = trim((string) ($literals[(int) $id][Terms::DRE_ID][0] ?? ''));
             if ($dreId !== '' && (!isset($ids[$dreId]) || (int) $id < $ids[$dreId])) $ids[$dreId] = (int) $id;
         }
         return $ids;

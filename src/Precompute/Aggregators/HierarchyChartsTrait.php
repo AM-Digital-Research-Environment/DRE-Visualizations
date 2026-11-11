@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace DreVisualizations\Precompute\Aggregators;
 
+use DreVisualizations\Precompute\Terms;
+
 /**
  * Hierarchical breakdowns: the type→language→subject sunburst and the
  * project→type treemap.
@@ -30,11 +32,11 @@ trait HierarchyChartsTrait
                 if ($title === '') {
                     continue;
                 }
-                if ($term === 'dcterms:type') {
+                if ($term === Terms::TYPE) {
                     $itemTypes[] = $title;
-                } elseif ($term === 'dcterms:language') {
+                } elseif ($term === Terms::LANGUAGE) {
                     $itemLangs[] = $title;
-                } elseif ($term === 'dcterms:subject') {
+                } elseif ($term === Terms::SUBJECT) {
                     $itemSubjects[] = $title;
                 }
             }
@@ -79,7 +81,7 @@ trait HierarchyChartsTrait
         foreach ($itemIds as $iid) {
             $assigned = false;
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:isPartOf' && ($items[$vrid]['template_id'] ?? null) === $this->projectTemplateId()) {
+                if ($term === Terms::IS_PART_OF && ($items[$vrid]['template_id'] ?? null) === $this->projectTemplateId()) {
                     $projectItems[$vrid][] = $iid;
                     $assigned = true;
                     break;
@@ -97,7 +99,7 @@ trait HierarchyChartsTrait
             $types = [];
             foreach ($iids as $iid) {
                 foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
-                    if ($term === 'dcterms:type') {
+                    if ($term === Terms::TYPE) {
                         $title = $items[$vrid]['title'] ?? '';
                         if ($title !== '') {
                             $types[$title] = ($types[$title] ?? 0) + 1;

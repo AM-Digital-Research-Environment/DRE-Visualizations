@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace DreVisualizations\Precompute\Aggregators;
 
+use DreVisualizations\Precompute\Terms;
+
 /**
  * Time-aware charts: stacked timeline, subject / language trends,
  * beeswarm, items-per-project box plot,
@@ -15,7 +17,7 @@ trait TemporalChartsTrait
 {
     // Provided by SupportTrait / Aggregators (or another trait); declared so
     // this trait states what it relies on and PHP checks the signatures.
-    abstract public function buildChord(array $itemIds, array $links, array $items, string $termFilter = 'dcterms:subject', int $maxNodes = 20, int $minCooccurrence = 2): ?array;
+    abstract public function buildChord(array $itemIds, array $links, array $items, string $termFilter = Terms::SUBJECT, int $maxNodes = 20, int $minCooccurrence = 2): ?array;
     abstract private function sortCounts(array &$counts): void;
 
     /**
@@ -47,7 +49,7 @@ trait TemporalChartsTrait
                 $allTypes[$synType] = true;
             } else {
                 foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
-                    if ($term === 'dcterms:type') {
+                    if ($term === Terms::TYPE) {
                         $title = $items[$vrid]['title'] ?? '';
                         if ($title !== '') {
                             $itemTypes[] = $title;
@@ -94,7 +96,7 @@ trait TemporalChartsTrait
                 continue;
             }
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:subject') {
+                if ($term === Terms::SUBJECT) {
                     $title = $items[$vrid]['title'] ?? '';
                     if ($title !== '') {
                         $subjectYear[$title][$year] = ($subjectYear[$title][$year] ?? 0) + 1;
@@ -141,7 +143,7 @@ trait TemporalChartsTrait
                 continue;
             }
             foreach ($links[$iid] ?? [] as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:language') {
+                if ($term === Terms::LANGUAGE) {
                     $title = $items[$vrid]['title'] ?? '';
                     if ($title !== '') {
                         $yearLang[$year][$title] = ($yearLang[$year][$title] ?? 0) + 1;
@@ -243,7 +245,7 @@ trait TemporalChartsTrait
         $buckets = [];
         $years = [];
         foreach ($byYear as $year => $ids) {
-            $chord = $this->buildChord($ids, $links, $items, 'dcterms:subject', $maxNodes, $minCooccurrence);
+            $chord = $this->buildChord($ids, $links, $items, Terms::SUBJECT, $maxNodes, $minCooccurrence);
             if ($chord !== null) {
                 $buckets[] = ['year' => (string) $year, 'nodes' => $chord['nodes'], 'links' => $chord['links']];
                 $years[] = (string) $year;

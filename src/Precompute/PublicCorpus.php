@@ -70,7 +70,7 @@ final class PublicCorpus
                 $seen[$key] = true;
                 $links[$sourceId][] = [$term, (string) ($relation[1] ?? ''), $targetId];
                 $reverseLinks[$targetId][$term][] = $sourceId;
-                if ($term === 'dcterms:isPartOf') {
+                if ($term === Terms::IS_PART_OF) {
                     $childrenOf[$targetId][] = $sourceId;
                 }
             }

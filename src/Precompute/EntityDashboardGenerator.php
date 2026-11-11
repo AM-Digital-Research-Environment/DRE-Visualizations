@@ -21,8 +21,8 @@ final class EntityDashboardGenerator extends DashboardGenerator
         $this->generateLocations();
         $this->generateSubjects();
         $this->generateVenues();
-        $this->generateByItemSet($this->profile->itemSet('resourceType'), 'dcterms:type', 'Resource Types', 'authority', ['types']);
-        $this->generateByItemSet($this->profile->itemSet('language'), 'dcterms:language', 'Languages', 'authority', ['languages'], 'languages-index.json');
+        $this->generateByItemSet($this->profile->itemSet('resourceType'), Terms::TYPE, 'Resource Types', 'authority', ['types']);
+        $this->generateByItemSet($this->profile->itemSet('language'), Terms::LANGUAGE, 'Languages', 'authority', ['languages'], 'languages-index.json');
         $this->generateByItemSet($this->profile->itemSet('genre'), 'dcterms:format', 'Genres', 'genre', [], 'genres-index.json');
         return $this->fileCount;
     }
@@ -121,7 +121,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
             }
             $sectionNames = [];
             foreach ($this->links[$pid] ?? [] as [$term, $label, $vrid]) {
-                if ($term === 'dcterms:isPartOf' && ($this->items[$vrid]['class_term'] ?? '') === self::CLASS_SECTION) {
+                if ($term === Terms::IS_PART_OF && ($this->items[$vrid]['class_term'] ?? '') === self::CLASS_SECTION) {
                     $sectionNames[] = $this->items[$vrid]['title'];
                 }
             }
@@ -188,7 +188,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
             $coauthors = [];
             foreach ($itemIds as $iid) {
                 foreach ($this->links[$iid] ?? [] as [$term, $label, $vrid]) {
-                    if (($term === 'dcterms:creator' || $term === 'dcterms:contributor' || $term === 'bibo:authorList' || $term === 'bibo:editorList' || str_starts_with($term, 'marcrel:')) && $vrid !== $pid) {
+                    if (($term === Terms::CREATOR || $term === Terms::CONTRIBUTOR || $term === Terms::AUTHOR_LIST || $term === Terms::EDITOR_LIST || str_starts_with($term, 'marcrel:')) && $vrid !== $pid) {
                         if (($this->items[$vrid]['template_id'] ?? null) === $this->profile->template('persons')) {
                             $coauthors[$vrid] ??= ['name' => $this->items[$vrid]['title'], 'value' => 0, 'itemId' => $vrid];
                             $coauthors[$vrid]['value']++;
@@ -284,7 +284,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
         $withItems = 0;
         foreach ($locs as $lid => $linfo) {
             $itemIds = array_values(array_filter(
-                $this->linkingItems($lid, ['dcterms:spatial', 'dcterms:provenance']),
+                $this->linkingItems($lid, [Terms::SPATIAL, Terms::PROVENANCE]),
                 fn (int $iid) => ($this->items[$iid]['class_term'] ?? '') !== self::CLASS_JOURNAL
             ));
             $pubIds = $publishedHere[$lid] ?? [];
@@ -324,7 +324,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
         $this->log('=== Subjects/Authority (' . count($subjects) . ') ===');
         $index = [];
         foreach ($subjects as $sid => $sinfo) {
-            $itemIds = $this->linkingItems($sid, ['dcterms:subject']);
+            $itemIds = $this->linkingItems($sid, [Terms::SUBJECT]);
             if (!$itemIds) {
                 continue;
             }
@@ -333,7 +333,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
             $cosubs = [];
             foreach ($itemIds as $iid) {
                 foreach ($this->links[$iid] ?? [] as [$term, $label, $vrid]) {
-                    if ($term === 'dcterms:subject' && $vrid !== $sid) {
+                    if ($term === Terms::SUBJECT && $vrid !== $sid) {
                         $cosubs[$vrid] ??= ['name' => $this->items[$vrid]['title'] ?? '', 'value' => 0, 'itemId' => $vrid];
                         $cosubs[$vrid]['value']++;
                     }
@@ -365,7 +365,7 @@ final class EntityDashboardGenerator extends DashboardGenerator
         $isPublication = array_fill_keys($this->publicationIds(), true);
         foreach ($venues as $vid => $vinfo) {
             $itemIds = array_values(array_filter(
-                $this->linkingItems($vid, ['dcterms:isPartOf', 'dre:series']),
+                $this->linkingItems($vid, [Terms::IS_PART_OF, Terms::DRE_SERIES]),
                 static fn (int $iid) => isset($isPublication[$iid])
             ));
             if (!$itemIds) {
