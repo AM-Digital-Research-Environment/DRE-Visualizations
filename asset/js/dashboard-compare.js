@@ -267,7 +267,7 @@
         }
 
         function renderList(query) {
-            list.innerHTML = '';
+            ns.setChildren(list);
             activeOptions = [];
             var q = (query || '').toLowerCase().trim();
             var matched = q
@@ -574,7 +574,7 @@
         }
 
         function renderType(cfg, entries) {
-            container.innerHTML = '';
+            ns.setChildren(container);
             var leftId = null, rightId = null;
             var leftData = null, rightData = null;
             var leftEntry = null, rightEntry = null;
@@ -626,7 +626,7 @@
             function renderComparison() {
                 if (currentTypeRequest !== typeRequestId || !container.isConnected) return;
                 if (ns.disposeWithin) ns.disposeWithin(content);
-                content.innerHTML = '';
+                ns.setChildren(content);
                 content.setAttribute('aria-busy', 'false');
                 if (!leftId && !rightId) {
                     content.innerHTML = '<div class="rv-no-data">' + escapeHtml(ns.fill(

@@ -19,13 +19,25 @@ const base = (() => {
     return window.RV;
 })();
 
+/** core/base.js and core/async.js in one sandbox, as dashboard-core.js joins them. */
+function asyncCore() {
+    const window = { RV: {} };
+    const context = { window, document: { documentElement: { lang: 'en' }, createElement: element }, navigator: {} };
+    vm.createContext(context);
+    for (const name of ['base.js', 'async.js']) {
+        vm.runInContext(readFileSync(new URL(`../../asset/js/core/${name}`, import.meta.url), 'utf8'), context,
+            { filename: `asset/js/core/${name}` });
+    }
+    return window.RV;
+}
+
 function element() {
     return {
         dataset: {}, children: [], attributes: {}, innerHTML: '', textContent: '',
         classList: { add() {} },
         setAttribute(key, value) { this.attributes[key] = value; },
         appendChild(child) { this.children.push(child); },
-        replaceChildren() { this.children = []; this.innerHTML = ''; },
+        replaceChildren(...nodes) { this.children = nodes; this.innerHTML = ''; },
         addEventListener(event, callback) { this[event] = callback; },
         querySelector() { return null; },
         closest() { return this; },
@@ -35,7 +47,7 @@ function element() {
 async function dashboard({ data, libraryError, builderError } = {}) {
     const content = element(), status = element(), host = element();
     host.dataset = { itemId: 'collection-overview', layout: 'collectionOverview', title: 'Collection overview' };
-    host.querySelector = selector => selector === '.rv-dashboard-content' ? content : status;
+    host.querySelector = selector => ({ '.rv-dashboard-content': content, '.rv-dashboard-status': status })[selector] ?? null;
     const built = [];
     content.querySelector = selector => {
         const key = selector.match(/data-chart="([^"]+)"/)?.[1];
@@ -44,7 +56,8 @@ async function dashboard({ data, libraryError, builderError } = {}) {
     const layout = { order: ['curated', 'second'], wide: [], tall: [] };
     const errors = [];
     let fetches = 0;
-    const ns = {
+    // The real async-state core (core/base.js + core/async.js), under the stubs.
+    const ns = Object.assign(asyncCore(), {
         LAYOUTS: { collectionOverview: layout }, DEFAULT_LAYOUT: { ...layout, order: ['generic'] },
         t: (_key, fallback) => fallback,
         ensureLibs: () => libraryError ? Promise.reject(libraryError) : Promise.resolve(),
@@ -60,7 +73,7 @@ async function dashboard({ data, libraryError, builderError } = {}) {
             built.push(key);
             if (builderError && key === 'curated') throw builderError;
         }])),
-    };
+    });
     vm.runInNewContext(source, {
         window: { RV: ns },
         document: { readyState: 'complete', createElement: element,
@@ -94,6 +107,7 @@ for (const kind of ['data', 'library']) {
         // "Try again" reruns the request in place instead of reloading the page.
         const before = result.fetches();
         notice.children[1].click();
+        assert.equal(notice.children[1].disabled, true, 'a second click cannot start a second run');
         await flush();
         assert.equal(result.fetches(), before + 1);
         assert.equal(result.errors.length, 2);
@@ -104,7 +118,11 @@ for (const kind of ['data', 'library']) {
 test('empty data shows a visible explanation without a misleading retry', async () => {
     const result = await dashboard({ data: { totalItems: 0 } });
     assert.equal(result.host.dataset.state, 'empty');
-    assert.equal(result.content.children[0].children.length, 1);
+    assert.equal(result.host.attributes['aria-busy'], 'false');
+    assert.equal(result.content.children.length, 1);
+    assert.equal(result.content.children[0].textContent, 'Nothing to show');
+    assert.equal(result.content.children[0].children.length, 0, 'no retry button');
+    assert.equal(result.status.textContent, 'Nothing to show');
 });
 
 test('a dashboard without records still draws the panels it carries', async () => {

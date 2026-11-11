@@ -112,7 +112,7 @@
         // typeColor() resolves through the shared entity-type registry by name.
         _types = types;
 
-        container.innerHTML = '';
+        ns.setChildren(container);
 
         /* -- header + description -- */
         var header = el('div', 'dashboard-header');
@@ -628,7 +628,7 @@
         /* ------------------------------------------------------------------ */
 
         function showOverview() {
-            sidebar.innerHTML = '';
+            ns.setChildren(sidebar);
             sidebar.appendChild(el('div', 'deg-side-title', t('degSideTitle', 'Network')));
             var counts = {};
             data.nodes.forEach(function (n) { counts[n.type] = (counts[n.type] || 0) + 1; });
@@ -649,7 +649,7 @@
         function showDetail(index) {
             var info = data.nodes[index];
             if (!info) return;
-            sidebar.innerHTML = '';
+            ns.setChildren(sidebar);
 
             var typeTag = el('div', 'deg-detail-type', types[info.type] || t('degLabel', 'Entity'));
             typeTag.style.color = typeColor(info.type);
@@ -1001,7 +1001,7 @@
         /* ------------------------------------------------------------------ */
 
         function rebuildLegend() {
-            legend.innerHTML = '';
+            ns.setChildren(legend);
             if (colorMode === 'community') {
                 legend.appendChild(el('span', 'deg-legend-note',
                     t('degGroupLegend', 'Each colour is a group of entities that keep appearing together. Grey entities belong to no group.')));

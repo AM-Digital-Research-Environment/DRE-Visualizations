@@ -13,7 +13,7 @@
     var escapeHtml = ns.escapeHtml;
 
     function render(container, data, siteBase) {
-        container.innerHTML = '';
+        ns.setChildren(container);
         var windows = data.windows;
         var active = windows[0];
 
@@ -56,7 +56,7 @@
         container.appendChild(body);
 
         function renderBody() {
-            body.innerHTML = '';
+            ns.setChildren(body);
 
             if (active.topProjects && active.topProjects.length) {
                 var panel = document.createElement('div');

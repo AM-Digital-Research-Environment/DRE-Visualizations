@@ -213,6 +213,8 @@
         fontSize: 12,   // Hanken sits visually smaller than the canvas default at 11
         fontSizeTitle: 14,
         fontSizeEmphasis: 13,
+        // ← --text-2xs (0.6875rem), the smallest type token: no chart text goes below it
+        fontSizeMin: 11,
         labelMaxLen: 30,
         barMaxWidth: 24,
         barMaxWidthWide: 40

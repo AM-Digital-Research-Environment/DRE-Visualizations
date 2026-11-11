@@ -3,7 +3,8 @@
  *
  * Reads chart builders, layouts, labels, and descriptions from
  * the window.RV namespace (populated by the modular JS files)
- * and wires up async + inline dashboard rendering.
+ * and renders every async dashboard (.dashboard-async-container), its
+ * loading, empty, error and partial states through the shared ns.asyncState.
  *
  * Load order (the `dashboard` plan in config/asset-plans.json): the core, then
  * the generated chart bundle (layouts, every chart builder and the registry,
@@ -263,45 +264,11 @@
     /*  Async dashboard (precomputed JSON)                                 */
     /* ------------------------------------------------------------------ */
 
-    function showMessage(container, message, state, retry) {
-        var content = container.querySelector('.rv-dashboard-content') || container;
-        var status = container.querySelector('.rv-dashboard-status');
-        container.setAttribute('aria-busy', 'false');
-        container.dataset.state = state;
-        if (status) status.textContent = message;
-        content.replaceChildren();
-        var notice = document.createElement('div');
-        notice.className = 'rv-no-data rv-dashboard-message';
-        var text = document.createElement('p');
-        text.textContent = message;
-        notice.appendChild(text);
-        if (state === 'error' && typeof retry === 'function') {
-            // "Try again" reruns the request in place (core/libs.js forgets a
-            // failed library load and core/data.js a failed download, so the
-            // rerun really refetches) — the same control every surface offers.
-            var button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'rv-retry-btn';
-            button.textContent = ns.t('retry', 'Try again');
-            button.addEventListener('click', retry);
-            notice.appendChild(button);
-        }
-        content.appendChild(notice);
-    }
-
-    function initAsyncDashboard(container) {
+    function initAsyncDashboard(container, content, state) {
         var itemId = container.dataset.itemId;
         var basePath = container.dataset.basePath || '';
         var siteBase = container.dataset.siteBase || '';
-        var content = container.querySelector('.rv-dashboard-content') || container;
-        var status = container.querySelector('.rv-dashboard-status');
-        var finish = function (message) {
-            container.setAttribute('aria-busy', 'false');
-            if (status) status.textContent = message;
-        };
-        container.setAttribute('aria-busy', 'true');
-        container.dataset.state = 'loading';
-        if (status) status.textContent = ns.t('loading', 'Loading…');
+        state.loading();
         ns.basePath = basePath; // expose for builders that load module assets (e.g. choropleth GeoJSON)
         var directory = /^[a-z0-9-]+$/.test(container.dataset.dashboardDir || '')
             ? container.dataset.dashboardDir : 'item-dashboards';
@@ -310,34 +277,15 @@
             // A dashboard without records can still carry a panel: a research
             // project with no records yet publishes its members' map alone.
             if (!data || (!data.totalItems && !planDashboard(data, container).keys.length)) {
-                var emptyMessage = container.dataset.emptyStatus || ns.t('noData', 'Nothing to show');
-                showMessage(container, emptyMessage, 'empty');
-                finish(emptyMessage);
+                state.empty(container.dataset.emptyStatus || ns.t('noData', 'Nothing to show'), content);
                 return;
             }
             return ns.ensureLibs(ns.chartLibraries ? ns.chartLibraries(data, container) : { echarts: true }).then(function () {
-            content.innerHTML = '';
-            var failures = renderDashboard(content, data, siteBase, true, container);
-            container.dataset.state = failures ? 'partial' : 'ready';
-            finish(failures
-                ? ns.t('visualizationsPartial', 'Some visualisations could not be loaded.')
-                : (container.dataset.readyStatus || ns.t('visualizationsReady', 'Visualisations ready.')));
+                ns.setChildren(content);
+                var failures = renderDashboard(content, data, siteBase, true, container);
+                if (failures) state.partial();
+                else state.ready(container.dataset.readyStatus || ns.t('visualizationsReady', 'Visualisations ready.'));
             });
-        });
-    }
-
-    /* ------------------------------------------------------------------ */
-    /*  Inline dashboard (data-dashboard attribute)                        */
-    /* ------------------------------------------------------------------ */
-
-    function initInlineDashboard(container) {
-        var raw = container.getAttribute('data-dashboard');
-        if (!raw) return;
-        var data;
-        try { data = JSON.parse(raw); } catch (e) { return; }
-        var siteBase = container.dataset.siteBase || '';
-        return ns.ensureLibs(ns.chartLibraries ? ns.chartLibraries(data, container) : { echarts: true }).then(function () {
-            renderDashboard(container.parentElement || container, data, siteBase);
         });
     }
 
@@ -351,18 +299,23 @@
     // the chart-render work off the initial load entirely. A dashboard already in
     // view (a dedicated dashboard page, or libraries loaded eagerly) fires the
     // observer at once and ensureLibs resolves immediately — unchanged there.
-    function mountWhenVisible(container, render) {
+    function mountAsyncDashboard(container) {
+        // The partial renders the live region inside the container and the
+        // replaceable markup in .rv-dashboard-content (statusInside).
+        var content = container.querySelector('.rv-dashboard-content') || container;
+        var state = ns.asyncState(container);
         function run() {
-            Promise.resolve().then(render).catch(function (error) {
+            Promise.resolve().then(function () { return initAsyncDashboard(container, content, state); }).catch(function (error) {
                 console.warn('[DreVisualizations] Dashboard failed', error);
-                showMessage(container, container.dataset.errorStatus
-                    || ns.t('visualizationLoadError', 'The visualisation could not be loaded.'), 'error', retry);
+                // "Try again" reruns the request in place (core/libs.js forgets a
+                // failed library load and core/data.js a failed download, so the
+                // rerun really refetches).
+                state.error(container.dataset.errorStatus
+                    || ns.t('visualizationLoadError', 'The visualisation could not be loaded.'), retry, content);
             });
         }
         function retry() {
-            var content = container.querySelector('.rv-dashboard-content') || container;
-            content.replaceChildren();
-            if (ns.loadingIndicator) content.appendChild(ns.loadingIndicator());
+            state.loading();
             run();
         }
         ns.mountWhenVisible(container, run);
@@ -370,13 +323,7 @@
 
     function init() {
         var async = document.querySelectorAll('.dashboard-async-container');
-        for (var i = 0; i < async.length; i++) {
-            (function (c) { mountWhenVisible(c, function () { return initAsyncDashboard(c); }); })(async[i]);
-        }
-        var inline = document.querySelectorAll('.dashboard-container');
-        for (var j = 0; j < inline.length; j++) {
-            (function (c) { mountWhenVisible(c, function () { return initInlineDashboard(c); }); })(inline[j]);
-        }
+        for (var i = 0; i < async.length; i++) mountAsyncDashboard(async[i]);
     }
 
     if (document.readyState === 'loading') {

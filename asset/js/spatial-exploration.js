@@ -107,7 +107,7 @@
             return (ci != null && ci >= 0 && data.countries[ci]) ? data.countries[ci][0] : '';
         }
 
-        container.innerHTML = '';
+        ns.setChildren(container);
 
         /* -- header + description -- */
         var header = el('div', 'dashboard-header');
@@ -502,7 +502,7 @@
         }
 
         function renderTabs() {
-            tabs.innerHTML = '';
+            ns.setChildren(tabs);
             data.types.forEach(function (t) {
                 if (!(data.pickers[t] && data.pickers[t].length)) return; // hide empty types
                 var btn = el('button', 'rv-spatial-tab', t);
@@ -539,7 +539,7 @@
         function renderList() {
             var focusedId = listEl.contains(document.activeElement)
                 ? document.activeElement.dataset.entityId : null;
-            listEl.innerHTML = '';
+            ns.setChildren(listEl);
             var rows = data.pickers[entityType] || [];
             var q = ns.fold(searchInput.value.trim());
             var shown = 0;
@@ -558,7 +558,7 @@
         }
 
         function renderSelection() {
-            selBox.innerHTML = '';
+            ns.setChildren(selBox);
             if (!selection) {
                 selBox.appendChild(el('p', 'rv-spatial-hint',
                     ns.t('spatialPickHint', 'Pick something from the list to see only its places, or leave it as it is to browse the whole collection.')));
@@ -580,7 +580,7 @@
         }
 
         function renderTopPlaces(places) {
-            topBox.innerHTML = '';
+            ns.setChildren(topBox);
             if (!places.length) return;
             topBox.appendChild(el('div', 'rv-spatial-label', ns.t('spatialTopPlaces', 'Most mentioned places')));
             var ul = el('ul', 'rv-spatial-top-list');

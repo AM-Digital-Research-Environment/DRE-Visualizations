@@ -4798,12 +4798,10 @@ body.photo-lightbox-open {
 /* Keep recovery visible while the separate live region announces its state.
    The error notice (core/async.js ns.errorNotice) is the message plus one
    "Try again" button, a secondary button at the primary-control height. */
-.rv-dashboard-message,
 .rv-async-error {
     flex-direction: column;
     gap: var(--rv-space-4);
 }
-.rv-dashboard-message p,
 .rv-async-error p { margin: 0; }
 .rv-retry-btn {
     min-height: var(--rv-control-lg);

@@ -96,6 +96,13 @@
             ready: function (message) {
                 settle('ready', message || ns.t('visualizationReady', 'Visualisation ready.'));
             },
+            /**
+             * Part of the work failed and the rest is shown (a dashboard with
+             * one broken chart): no retry, the failed parts say so in place.
+             */
+            partial: function (message) {
+                settle('partial', message || ns.t('visualizationsPartial', 'Some visualisations could not be loaded.'));
+            },
             /** Show a quiet message in `target` (default: the container). */
             empty: function (message, target) {
                 ns.setChildren(target || container, [ns.el('p', 'rv-no-data', message)]);

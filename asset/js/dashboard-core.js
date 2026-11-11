@@ -498,6 +498,8 @@
         fontSize: 12,   // Hanken sits visually smaller than the canvas default at 11
         fontSizeTitle: 14,
         fontSizeEmphasis: 13,
+        // ← --text-2xs (0.6875rem), the smallest type token: no chart text goes below it
+        fontSizeMin: 11,
         labelMaxLen: 30,
         barMaxWidth: 24,
         barMaxWidthWide: 40
@@ -1233,6 +1235,13 @@
             },
             ready: function (message) {
                 settle('ready', message || ns.t('visualizationReady', 'Visualisation ready.'));
+            },
+            /**
+             * Part of the work failed and the rest is shown (a dashboard with
+             * one broken chart): no retry, the failed parts say so in place.
+             */
+            partial: function (message) {
+                settle('partial', message || ns.t('visualizationsPartial', 'Some visualisations could not be loaded.'));
             },
             /** Show a quiet message in `target` (default: the container). */
             empty: function (message, target) {

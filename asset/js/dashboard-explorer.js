@@ -37,7 +37,7 @@
     // abstract. Collapsed by default; the toggle swaps its own label. Renders
     // nothing when the project has no abstract.
     function renderAbstract(host, html) {
-        host.innerHTML = '';
+        ns.setChildren(host);
         if (!html) return;
         var btn = document.createElement('button');
         btn.type = 'button';
@@ -127,7 +127,7 @@
         function run() {
         state.loading();
         ns.fetchDataJson('item-dashboards/projects-index.json').then(function (projects) {
-            container.innerHTML = '';
+            ns.setChildren(container);
             state.ready();
 
             var header = document.createElement('div');
@@ -194,7 +194,7 @@
                     return ns.ensureLibs(ns.chartLibraries(data)).then(function () { return data; });
                 }).then(function (data) {
                     if (requestId !== dashboardRequestId) return;
-                    content.innerHTML = '';
+                    ns.setChildren(content);
                     content.setAttribute('aria-busy', 'false');
                     if (!data || !data.totalItems) {
                         var none = ns.t('noProjectData', 'This project has nothing to visualise yet.');
