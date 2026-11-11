@@ -13,6 +13,8 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.51.0] - 2026-11-11
+
 ### Fixed
 
 - **The embeddings-refresh ping records its once-a-minute throttle before it asks GitHub**, not after the download. A look that timed out or failed with an unexpected error used to leave no trace, so every following anonymous `POST …/dre-data/embeddings-refresh` sent another outbound request.
@@ -1151,7 +1153,8 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 - Previous repository state. Earlier history remains available in Git tags and
   commit history.
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.31.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.51.0...HEAD
+[2.51.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.50.0...v2.51.0
 [2.31.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.30.0...v2.31.0
 [2.30.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.29.1...v2.30.0
 [2.29.1]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.29.0...v2.29.1
