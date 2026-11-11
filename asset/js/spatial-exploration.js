@@ -24,7 +24,8 @@
  *     so a page with this block plus a dashboard / entity graph loads MapLibre
  *     exactly once)
  *
- * Data (compact row arrays, see Aggregators::buildSpatialPlaces + Runner):
+ * Data (compact row arrays, see Aggregators::buildSpatialPlaces and
+ * OverviewDashboardGenerator::generateSpatialExploration):
  *   { types: ['Project','Section','Person','Organisation','Subject'],
  *     locations: [[id, name, lat, lng, originCount, currentCount, countryIdx], ...],
  *     countries: [[name, count, [w,s,e,n]], ...],

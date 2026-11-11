@@ -15,6 +15,7 @@ workflow publishes it as the notes of the GitHub release
 
 ### Fixed
 
+- **The embeddings-refresh ping records its once-a-minute throttle before it asks GitHub**, not after the download. A look that timed out or failed with an unexpected error used to leave no trace, so every following anonymous `POST …/dre-data/embeddings-refresh` sent another outbound request.
 - **British spelling in the last American strings.** The announcement after a chart loads reads "Visualisation ready." (it said "Visualization"), the maintenance notice after a withdrawal "Published visualisations withdrawn.", and the snapshot store's errors say "visualisation storage". The module's interface copy is British English, as the shared wording glossary of the DRE theme requires.
 
 ### Added
@@ -27,6 +28,7 @@ workflow publishes it as the notes of the GitHub release
 - **Checks that run code are tests now.** The tooltip-formatter sweep, the registry contracts and the graph contracts moved from `scripts/check-*.mjs` into `tests/js/` (`npm test`), and so did the treemap formatter's hostile-label run from `check-html-safety.mjs`, which keeps the static sink inventory. `npm run check:formatters`, `check:registry` and `check:graph` are gone; `npm run check` runs the same checks through `npm test`.
 - **Rendered assertions instead of substring checks.** `check-accessibility-contracts.mjs` keeps only the source policies (one spinner partial, the touch-target and status styles, map popups). The async-surface markup is now checked on the real partial rendered through PHP (`tests/AsyncSurfaceTest.php`), the loading, ready, empty and error states on `core/async.js` itself (`tests/js/async.test.mjs`), and the chart headings and toolbars on every rendered golden block in the browser suite. The two checks that pinned the dashboard's second state implementation are gone.
 - The PHP harnesses share one assertion helper, `tests/lib/assert.php`, instead of a copy of its own in each.
+- Documentation follows the split of the precompute into generators (`CONTRIBUTING.md` recipes, README, two code comments), `docs/SECURITY_AND_PRIVACY.md` explains why the full-text word counts are served publicly and how they are refreshed, and an `AGENTS.md` (with `CLAUDE.md`) gives coding agents the commands, gotchas and release steps. Neither ships in the release archive.
 - **Releases bump the version by `npm version`, not by hand.** `npm version <patch|minor|major> -m "Release v%s"` writes `package.json` and `package-lock.json`, and its `version` hook (`scripts/sync-version.mjs`, as in DRE-theme) writes `config/module.ini`, `CITATION.cff` and the dated CHANGELOG section from the `[Unreleased]` notes, then npm commits and tags. `docs/RELEASING.md` describes it.
 
 ## [2.50.0] - 2026-11-06

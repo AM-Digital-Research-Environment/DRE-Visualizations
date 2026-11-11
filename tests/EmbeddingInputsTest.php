@@ -52,6 +52,21 @@ check($inputs->status($scope)['matches'] === true, 'the status reports a build f
 
 check($inputs->refresh($scope) === 'throttled', 'a second look within the interval is skipped');
 $clock += EmbeddingInputs::CHECK_EVERY;
+
+// A look that dies on the way (here an uncaught error from the fetcher, as a
+// timeout would) still counts: the throttle is recorded before the request.
+$calls = 0;
+$dying = new EmbeddingInputs($root . '/embedding-inputs', static function () use (&$calls): ?string {
+    $calls++;
+    throw new LogicException('connection dropped');
+}, static fn (): int => $clock);
+try {
+    $dying->refresh($scope);
+} catch (LogicException) {
+}
+check($calls === 1 && $dying->refresh($scope) === 'throttled' && $calls === 1,
+    'a look that failed mid-request is throttled like any other: no second outbound request');
+$clock += EmbeddingInputs::CHECK_EVERY;
 check($inputs->refresh($scope) === 'current', 'the installed build is not downloaded again');
 
 // A build for another revision (made before something became private) is never installed.

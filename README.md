@@ -157,7 +157,7 @@ Collection-wide relationship networks in one tabbed block — **Contributors ↔
 
 A collection-wide **places map**: every geocoded location the research items reference, drawn as **MapLibre GL** bubbles sized by referencing-item count and split into **two separately coloured, toggleable layers** — places of **origin** (`dcterms:spatial`, brand accent) and **current locations** (`dcterms:provenance`, cluster Hellblau), the same colour language as the per-entity dashboard map; the legend doubles as a show/hide toggle. Added as a **site-page block** (Admin > Sites > [site] > Pages), it loads `asset/data/item-dashboards/spatial-exploration.json`. A sidebar entity picker filters the map to a single **project, research section, person, organisation or subject** — the selection is served from a baked entity→places adjacency, so it filters client-side with no extra fetch — a country dropdown (built from the point-in-polygon country index, with per-country zoom bounds) focuses the map, and clicking a bubble opens that location's page. The high-cardinality picker types (people, organisations, subjects) are capped to the top entities by mapped-place count to keep the payload lean.
 
-> Shares the **MapLibre GL** engine through the `spatial` asset plan (mirroring the entity network's `entityGraph` plan, both in `config/asset-plans.json`), so a page carrying this block alongside the Discursive Communities graph and the dashboards loads MapLibre exactly once. Built by `Aggregators\SpatialTrait` + `Runner::generateSpatialExploration()`; rendered by `asset/js/spatial-exploration.js`.
+> Shares the **MapLibre GL** engine through the `spatial` asset plan (mirroring the entity network's `entityGraph` plan, both in `config/asset-plans.json`), so a page carrying this block alongside the Discursive Communities graph and the dashboards loads MapLibre exactly once. Built by `Aggregators\SpatialTrait` + `OverviewDashboardGenerator::generateSpatialExploration()`; rendered by `asset/js/spatial-exploration.js`.
 
 ### Publications
 
@@ -204,7 +204,7 @@ The text word clouds (Podcasts transcripts, Publications abstracts, YouTube capt
 
 - `tools/wordclouds/build_wordclouds.py` reads each corpus's text from the **public REST API** (no VPN/auth), lemmatises it with spaCy (EN / FR / DE / PT models; content-word POS only, plus per-language + domain stop-words), and writes per-corpus, per-language frequencies to guarded `data/wordclouds/<corpus>.php` inputs.
 - The **Build word clouds** GitHub Action (`.github/workflows/wordclouds.yml`, **manual** `workflow_dispatch`) runs the script and commits the regenerated inputs.
-- These are committed **static inputs** — like `geo/countries.geojson`, *not* the git-ignored generated dashboards. The precompute reads them via `Runner::wordCloudInput()` and folds the combined (`all`) frequencies into the dashboard; when a file is absent it **falls back** to the in-PHP tokeniser, so the clouds always render — just unlemmatised until the Action has run.
+- These are committed **static inputs** — like `geo/countries.geojson`, *not* the git-ignored generated dashboards. The precompute reads them via `MediaDashboardGenerator::wordCloudInput()` and folds the combined (`all`) frequencies into the dashboard; when a file is absent it **falls back** to the in-PHP tokeniser, so the clouds always render — just unlemmatised until the Action has run.
 - **Reusable:** add a corpus under `wordcloudCorpora` in `config/amira-profile.json` (item-set key + text property). The Python builder and PHP precompute share that profile, and the per-language buckets feed the word cloud's **language toggle** (shipped in v2.16.0).
 
 ### Semantic Map & Similar Items
@@ -566,8 +566,10 @@ DreVisualizations/
 │       │   └── embed.phtml                          # Bare, theme-following layout for iframes
 │       └── config-form.phtml
 ├── .stylelintrc.json
+├── AGENTS.md                                        # Instructions for coding agents (CLAUDE.md imports it)
 ├── CHANGELOG.md                                     # Version history (Keep a Changelog)
 ├── CITATION.cff
+├── CLAUDE.md
 ├── CONTRIBUTING.md                                  # How to add a visualization (recipes + guardrails)
 ├── eslint.config.mjs
 ├── LICENSE
@@ -595,7 +597,8 @@ adding its builder file to the manifest's `chartSources` once and running
 `npm run check` rejects a stale bundle.
 
 The **in-Omeka regeneration** (the admin "Regenerate" button) is a self-contained PHP
-port of the precompute under `src/Precompute/` (`DataLoader` → `Aggregators` / `KnowledgeGraphs` → `Runner`),
+port of the precompute under `src/Precompute/` (`DataLoader` loads once; `Runner` hands the
+corpus to the `*Generator` classes, which build with `Aggregators` and `KnowledgeGraphs`),
 run by the background job `src/Job/PrecomputeDashboards.php` via the admin
 `src/Controller/Admin/MaintenanceController.php`. The `Aggregators` are dependency-free
 and unit-testable; the job reuses Omeka's `Omeka\Connection`, so no MySQL variables or

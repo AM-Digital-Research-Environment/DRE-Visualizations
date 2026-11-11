@@ -126,7 +126,12 @@ final class EmbeddingInputs
             $state = $this->state();
             $now = ($this->now)();
             if ($now - (int) ($state['checkedAt'] ?? 0) < $minInterval) return 'throttled';
+            // Record the look before going to GitHub: the anonymous
+            // embeddings-refresh ping reaches here, and a request that dies
+            // mid-download (a timeout, an uncaught error) must still count,
+            // or every following ping would send another outbound request.
             $state['checkedAt'] = $now;
+            (new JsonArtifactWriter())->write($this->directory . '/state.json', $state, durable: true);
             try {
                 $result = $this->install($scope, $state);
                 unset($state['error']);

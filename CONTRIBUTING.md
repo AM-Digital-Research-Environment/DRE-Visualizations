@@ -132,7 +132,7 @@ the config invokables, the classes, the templates and the plans disagree.
 | 3 | `config/module.config.php` | The same `'dreXxx' => Site\BlockLayout\Xxx::class` under `block_layouts.invokables` (literal: module config is read before the registry can load). |
 | 4 | `view/common/block-layout/xxx.phtml` | Call `$this->dashboardAssets(['plan' => $plan])` and stamp `'embed-slug' => $slug` through `partials/async-surface` (the dashboard blocks pass `$slug` and `$plan` to `partials/dashboard-async.phtml`). Never a literal slug or a hand-written script tag. |
 | 5 | `config/asset-plans.json` + `asset/js/dashboard-xxx.js` | A plan for the block (stylesheet, the library URLs it publishes, its scripts in load order — groups such as `@core`, `@chartBundle`), ending with the controller IIFE that fetches its JSON and renders via `CHART_MAP`. |
-| 6 | *(if data-driven)* `src/Precompute/{Aggregators,Runner}.php` | New aggregator emitting an index/feed JSON inside the generation staging directory. |
+| 6 | *(if data-driven)* `src/Precompute/Aggregators/*Trait.php` + a generator | New aggregator, called from the generator that owns the artifact (`OverviewDashboardGenerator`, `MediaDashboardGenerator`, …; a new kind of artifact gets its own generator, which `Runner::run()` adds to its list), emitting an index/feed JSON inside the generation staging directory. |
 | 7 | README | Document adding the block (Admin → Sites → [site] → Pages). |
 
 ### Recipe C — add stat cards to a dashboard
@@ -143,14 +143,14 @@ or controller change.
 
 | Step | File | Change |
 |---|---|---|
-| 1 | `src/Precompute/Runner.php` | In the generator, compute the counts and `$dashboard['stats'] = Aggregators::buildStatCards([['key'=>…,'label'=>…,'value'=>…,'subtitle'=>…?], …]);`. The assembler casts values, drops non-positive cards and clears empty subtitles. |
+| 1 | `src/Precompute/*DashboardGenerator.php` | In the generator, compute the counts and `$dashboard['stats'] = Aggregators::buildStatCards([['key'=>…,'label'=>…,'value'=>…,'subtitle'=>…?], …]);`. The assembler casts values, drops non-positive cards and clears empty subtitles. |
 | 2 | `asset/js/dashboard-stat-cards.js` | *(only if a card needs a new glyph)* add the lucide path to `ICONS` under its `key`, or map a synonym in `ALIAS`. Unknown keys fall back to a generic icon. |
 | 3 | `tests/AggregatorsTest.php` | Cover any non-trivial counting you added. (`buildStatCards` itself is already tested.) |
 | 4 | Admin → Regenerate now | Rebuild JSON in-Omeka. |
 
 The renderer (`ns.renderStatCards`, wired into `dashboard.js`) is shared, so the
 grid is consistent everywhere and follows the DRE light/dark theme. The Collection
-Overview is the first consumer (`Runner::buildOverviewStats`).
+Overview is the first consumer (`OverviewDashboardGenerator::buildOverviewStats`).
 
 > **Note on linked vs. literal values.** A property is either a literal string or a
 > link to another item — and the two live in different precompute maps

@@ -151,6 +151,7 @@ const ANNOTATIONS = {
   'scripts/check-css-dead.mjs': 'Fails on a class the stylesheet styles and nothing builds',
   'scripts/check-vendor.mjs': 'asset/vendor against versions.json, npm latest and the tarballs',
   'scripts/sync-version.mjs': 'The npm version hook: module.ini, CITATION.cff, CHANGELOG',
+  'AGENTS.md': 'Instructions for coding agents (CLAUDE.md imports it)',
   'CHANGELOG.md': 'Version history (Keep a Changelog)',
   'CONTRIBUTING.md': 'How to add a visualization (recipes + guardrails)',
   'THIRD_PARTY_NOTICES': 'Vendored libraries and their licences',

@@ -133,7 +133,8 @@ trait SpatialTrait
      * roles is counted once in each. Returned unsorted; callers sort.
      *
      * This is the per-entity equivalent of {@see self::buildSpatialPlaces}'s global
-     * counts, used by the Runner to build each picker entity's place adjacency.
+     * counts, used by OverviewDashboardGenerator to build each picker entity's
+     * place adjacency.
      *
      * @param int[] $itemIds
      * @param array $links [id => [[term, label, valueResourceId], ...]]
