@@ -13,6 +13,8 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.51.1] - 2026-11-11
+
 ### Fixed
 
 - **No half-empty rows in a dashboard.** Layouts pair their half-width charts, but a chart without data drops out per record, and some layouts placed a half-width chart between two wide ones by design, so a chart often sat alone on half a row beside an empty cell: on a subject's page (item 25332) Languages and People linked most often each did. Across the golden dashboards 108 of 173 had at least one such gap, every person, subject and genre page among them. The renderer now pairs the charts that are actually drawn and widens the odd one out of each run (`packWidths` in `dashboard.js`); single-chart embeds stay full width.
@@ -1163,7 +1165,8 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 - Previous repository state. Earlier history remains available in Git tags and
   commit history.
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.51.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.51.1...HEAD
+[2.51.1]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.51.0...v2.51.1
 [2.51.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.50.0...v2.51.0
 [2.31.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.30.0...v2.31.0
 [2.30.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.29.1...v2.30.0
