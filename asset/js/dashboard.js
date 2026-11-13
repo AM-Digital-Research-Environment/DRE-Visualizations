@@ -149,10 +149,14 @@
 
     ns.projectIntro = projectIntro;
 
-    // Panels past the first few are built as they approach the viewport: a
+    // Panels are built as they approach the viewport (renderDashboard): a
     // section dashboard holds ~20 ECharts instances and several WebGL maps, and
     // building them all in one task blocks the page for hundreds of milliseconds.
-    var EAGER_PANELS = 4;
+    // Every panel waits, the first ones included: on a phone the stat cards and
+    // introduction push even the first chart below the fold, and the Publications
+    // dashboard's fourth panel is a MapLibre map some 2,500 px down that used to
+    // load and draw with the page — seconds of main-thread work under PageSpeed's
+    // mobile profile.
 
     function renderDashboard(container, data, siteBase, collapsible, host) {
         if (ns.disposeWithin) ns.disposeWithin(container);
@@ -295,7 +299,7 @@
             }
         }
 
-        var lazy = !chartOnly && plan.keys.length > EAGER_PANELS && typeof window.IntersectionObserver === 'function';
+        var lazy = !chartOnly && typeof window.IntersectionObserver === 'function';
         var observer = lazy ? new window.IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
                 if (!entry.isIntersecting) return;
@@ -346,10 +350,10 @@
             });
         });
 
-        plan.keys.forEach(function (key, index) {
+        plan.keys.forEach(function (key) {
             var el = container.querySelector('[data-chart="' + key + '"]');
             if (!el) return;
-            if (observer && index >= EAGER_PANELS) observer.observe(el);
+            if (observer) observer.observe(el);
             else build(key, el);
         });
         settled = true;

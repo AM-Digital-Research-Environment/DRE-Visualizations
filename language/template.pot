@@ -1428,7 +1428,7 @@ msgstr ""
 msgid "No section"
 msgstr ""
 
-#: view/common/block-layout/partials/dashboard-async.phtml:48
+#: view/common/block-layout/partials/dashboard-async.phtml:50
 #: view/dre-visualizations/embed/block.phtml:38
 msgid "No visualisations are available."
 msgstr ""
@@ -2466,7 +2466,7 @@ msgid "The subjects that appear alongside this one most often."
 msgstr ""
 
 #: config/client-strings.json:visualizationLoadError
-#: view/common/block-layout/partials/dashboard-async.phtml:49
+#: view/common/block-layout/partials/dashboard-async.phtml:51
 #: view/dre-visualizations/embed/block.phtml:39
 msgid "The visualisation could not be loaded."
 msgstr ""
@@ -2679,7 +2679,7 @@ msgid "Visualisations on item pages"
 msgstr ""
 
 #: config/client-strings.json:visualizationsReady
-#: view/common/block-layout/partials/dashboard-async.phtml:47
+#: view/common/block-layout/partials/dashboard-async.phtml:49
 #: view/dre-visualizations/embed/block.phtml:37
 msgid "Visualisations ready."
 msgstr ""

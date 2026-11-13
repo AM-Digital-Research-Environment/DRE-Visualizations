@@ -2082,6 +2082,20 @@ button.rv-chart-tab:focus-visible {
     border-radius: var(--rv-radius);
 }
 
+/* A site-page dashboard (Publications, Collection Overview, Podcasts, YouTube,
+   Collection Dashboard) replaces a 200px skeleton with several thousand pixels
+   of panels. With only 200px reserved, the footer sat inside the first screen
+   and was shoved out of it when the panels arrived: a layout shift of ~0.47 on
+   the Publications page, a quarter of its PageSpeed score. Reserving a screenful
+   keeps the footer below the fold until the dashboard is there. rem, not vh: in
+   an embed, a vh height would feed embed-height.js the frame's own height. The
+   spinner stays near the top, where the reader is looking. */
+.dashboard-async-container--page .rv-async-loading {
+    min-height: 64rem;
+    justify-content: flex-start;
+    padding-top: var(--rv-space-8);
+}
+
 /* Honour reduced-motion: no shimmer sweep, no spin — static sunken panels. */
 @media (prefers-reduced-motion: reduce) {
     .rv-loading {

@@ -59,7 +59,9 @@ function surface(className, data = {}, { statusInside = false } = {}) {
 
 /** partials/dashboard-async.phtml for one artifact. */
 function dashboardBlock(itemId, extra = {}) {
-  return `<div class="resource-vis-block dashboard-block">${surface('dashboard-async-container', {
+  // A site-page dashboard (one with an embed slug) reserves a screenful while loading.
+  const className = 'dashboard-async-container' + (extra['embed-slug'] ? ' dashboard-async-container--page' : '');
+  return `<div class="resource-vis-block dashboard-block">${surface(className, {
     'item-id': itemId,
     ...extra,
     'ready-status': 'Visualisations ready.',

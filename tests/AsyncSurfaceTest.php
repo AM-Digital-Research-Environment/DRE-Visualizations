@@ -119,5 +119,15 @@ checkSame(['collection-overview', 'collectionOverview', 'collection-overview', '
     'the dashboard container names its artifact, layout, embed slug and the three outcome messages');
 check($doc->querySelector('[aria-busy]') === null, 'the dashboard is not aria-busy server-side either');
 checkSame([['plan' => 'dashboard']], $view->assets, 'the dashboard partial asks DashboardAssets for its plan, once');
+// A site-page dashboard reserves a screenful while it loads (the CSS keys on
+// this class), so the footer is not shoved out of view when the panels arrive;
+// a resource-page dashboard, which has no slug and can be short, does not.
+check($container?->matches('.dashboard-async-container--page') === true,
+    'a site-page dashboard is marked to reserve its height while loading');
+$resource = surfaceDocument($view->render(dirname(__DIR__) . '/view/common/block-layout/partials/dashboard-async.phtml', [
+    'itemId' => '42', 'plan' => 'dashboard',
+]))->querySelector('.dashboard-async-container');
+check($resource !== null && !$resource->matches('.dashboard-async-container--page'),
+    'a resource-page dashboard is not');
 
 finish('Async surface passed.');

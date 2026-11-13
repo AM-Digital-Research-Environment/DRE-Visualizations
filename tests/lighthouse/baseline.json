@@ -1,15 +1,15 @@
 {
   "_": "Written by `npm run check:lighthouse -- --update` (scripts/check-lighthouse.mjs), never by hand.",
-  "lighthouse": "13.5.0",
-  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+  "lighthouse": "13.6.0",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.0.0 Safari/537.36",
   "runs": 1,
   "pages": {
     "collection-overview": {
       "performance": 0.66,
       "accessibility": 0.96,
       "best-practices": 1,
-      "script": 738707,
-      "stylesheet": 22796,
+      "script": 746745,
+      "stylesheet": 23815,
       "image": 0,
       "font": 0,
       "requests": 17
@@ -18,18 +18,18 @@
       "performance": 0.59,
       "accessibility": 1,
       "best-practices": 1,
-      "script": 746497,
-      "stylesheet": 22796,
+      "script": 754330,
+      "stylesheet": 23815,
       "image": 0,
       "font": 0,
-      "requests": 22
+      "requests": 18
     },
     "network-explorer": {
       "performance": 0.61,
       "accessibility": 1,
       "best-practices": 1,
-      "script": 447004,
-      "stylesheet": 12381,
+      "script": 453701,
+      "stylesheet": 13400,
       "image": 0,
       "font": 0,
       "requests": 16
@@ -38,8 +38,8 @@
       "performance": 0.65,
       "accessibility": 1,
       "best-practices": 1,
-      "script": 445634,
-      "stylesheet": 12381,
+      "script": 452335,
+      "stylesheet": 13400,
       "image": 0,
       "font": 0,
       "requests": 16
@@ -48,8 +48,8 @@
       "performance": 0.81,
       "accessibility": 1,
       "best-practices": 1,
-      "script": 68590,
-      "stylesheet": 12381,
+      "script": 76631,
+      "stylesheet": 13400,
       "image": 0,
       "font": 0,
       "requests": 11
@@ -58,8 +58,8 @@
       "performance": 0.63,
       "accessibility": 1,
       "best-practices": 1,
-      "script": 333506,
-      "stylesheet": 22796,
+      "script": 334048,
+      "stylesheet": 23815,
       "image": 0,
       "font": 0,
       "requests": 11
@@ -68,8 +68,8 @@
       "performance": 0.59,
       "accessibility": 1,
       "best-practices": 1,
-      "script": 321431,
-      "stylesheet": 22796,
+      "script": 321993,
+      "stylesheet": 23815,
       "image": 0,
       "font": 0,
       "requests": 11

@@ -13,6 +13,20 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+Front end only: no regeneration is needed after upgrading.
+
+### Changed
+
+- **Large networks lay out in a Web Worker.** The Publications collaboration network (about 950 people and 2,600 links) ran its d3-force simulation on the page. Each step cost about 7 ms on a fast laptop and four times that on a mid-range phone. The warm-up blocked the page for up to 3 s, and every animated and dragged frame was a long task. From 120 nodes, the simulation now runs in a worker started from `graph-force.js` itself, so the physics exists only once. The page keeps the painting and the input. The force hooks (`distance`, `linkStrength`, `chargeOf`) are evaluated on the page once per pass and sent to the worker as numbers, and the seeded layout is the same as before. A worker that cannot start or cannot load d3 falls back to the page. Smaller graphs, the item-page knowledge graph among them, still simulate on the page, where the first picture is synchronous. A skeleton covers the stage until the worker's first positions arrive. Measured at a 4× CPU slowdown with the live network: the block on load drops from 2.9 s to 0.2 s, the settle from 11.5 s to 3.8 s, and a drag rises from about 20 to 50 frames a second, with no long tasks.
+- **Graph frames are drawn in batches.** Edges and nodes are traced into one path per distinct stroke or fill, about a dozen draw calls instead of about 5,000. Label widths are measured once instead of on every frame, and label priorities once per frame instead of on every comparison. A full frame of the collaboration network now holds 60 frames a second at a 4× slowdown; before, it took 20–27 ms. Overlapping edges no longer darken each other, so dense clusters read a little lighter.
+- **Hovering and selecting redraw only the neighbourhood.** A focus frame copies a cached, dimmed picture of the graph and draws the focused node, its neighbours and the labels on top. The frame with no focus is cached too, so pointing away from a node is also just a copy. The controller versions the picture (`scene.version`), so a moving graph never shows a stale copy. The tooltip rebuilds and measures itself only when the thing under the pointer changes, not on every pointer move.
+- **A click no longer sets the graph moving.** Pressing a node used to reheat the whole layout even when the press was only a click to select it. The layout now reheats once the pointer has moved 3 px.
+- **Every dashboard panel waits until it nears the viewport**, the first four included. On a phone the stat cards push even the first chart below the fold. The Publications dashboard's fourth panel is a MapLibre map about 2,500 px down, and it used to load and draw with the page, which cost seconds of main-thread work under PageSpeed's mobile profile. The page now makes 18 requests on load instead of 22.
+
+### Fixed
+
+- **The page no longer jumps when a site-page dashboard arrives.** The Publications, Collection Overview, Podcasts, YouTube and Collection Dashboard blocks reserved 200 px while loading, then grew by several thousand. The footer sat inside the first screen and was pushed out of it: a layout shift of 0.47 on the live Publications page, about a quarter of its PageSpeed score. These dashboards (the ones with an embed slug) now reserve 64 rem while loading, with the spinner near the top. Resource-page dashboards, which can be short, are unchanged.
+
 ## [2.52.0] - 2026-11-13
 
 ### Changed

@@ -35,7 +35,9 @@ $this->dashboardAssets(['plan' => $plan ?? 'dashboard']);
 
 <div class="resource-vis-block dashboard-block">
     <?= $this->partial('common/block-layout/partials/async-surface', [
-        'class' => 'dashboard-async-container',
+        // A site-page dashboard (it has an embed slug) is always several screens
+        // tall, so its loading state reserves a screenful; see the CSS.
+        'class' => 'dashboard-async-container' . (empty($slug) ? '' : ' dashboard-async-container--page'),
         'statusInside' => true,
         'data' => [
             'item-id' => (string) $itemId,
