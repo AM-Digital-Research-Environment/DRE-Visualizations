@@ -26,14 +26,18 @@
         // collection-overview.json as the full `section` layout but shows only
         // this trimmed, ordered subset. Summary stat cards render above the grid
         // automatically (data.stats), so they are not listed here.
+        // contentSources leads: it is the one chart that shows every source
+        // (research items, publications, videos, podcast episodes) side by
+        // side, before the section charts that only research items can fill.
         collectionOverview: {
-            order: ['clusterPartners', 'sectionsBar', 'sectionUniversity',
-                    'stackedTimeline', 'heatmap', 'languages', 'types',
+            order: ['contentSources', 'clusterPartners', 'sectionsBar',
+                    'sectionUniversity', 'stackedTimeline', 'heatmap',
+                    'languages', 'types', 'subjects', 'choropleth'],
+            wide:  ['contentSources', 'clusterPartners', 'sectionsBar',
+                    'sectionUniversity', 'stackedTimeline', 'heatmap',
                     'subjects', 'choropleth'],
-            wide:  ['clusterPartners', 'sectionsBar', 'sectionUniversity',
-                    'stackedTimeline', 'heatmap', 'subjects', 'choropleth'],
-            tall:  ['clusterPartners', 'sectionUniversity', 'subjects',
-                    'choropleth']
+            tall:  ['contentSources', 'clusterPartners', 'sectionUniversity',
+                    'subjects', 'choropleth']
         },
         organisation: {
             order: ['selfLocation', 'timeline', 'types', 'templates', 'languages',
@@ -50,18 +54,18 @@
             tall:  ['subjects', 'contributorNetwork', 'locations', 'affiliationMap']
         },
         section: {
-            order: ['selfLocation', 'stackedTimeline', 'languageTimeline',
+            order: ['selfLocation', 'contentSources', 'stackedTimeline', 'languageTimeline',
                     'timeline', 'gantt', 'beeswarm', 'boxplot',
                     'types', 'languages', 'roles', 'heatmap', 'subjects',
                     'subjectTrends', 'sunburst', 'treemap', 'locations',
                     'choropleth', 'chord', 'timeChord', 'contributorNetwork',
                     'contributors', 'projects', 'sankey'],
-            wide:  ['selfLocation', 'stackedTimeline', 'languageTimeline',
+            wide:  ['selfLocation', 'contentSources', 'stackedTimeline', 'languageTimeline',
                     'gantt', 'beeswarm', 'boxplot', 'heatmap',
                     'sankey', 'sunburst', 'treemap', 'subjects', 'subjectTrends',
                     'locations', 'choropleth', 'chord', 'timeChord',
                     'contributorNetwork', 'projects'],
-            tall:  ['selfLocation', 'gantt', 'beeswarm', 'heatmap', 'sankey',
+            tall:  ['selfLocation', 'contentSources', 'gantt', 'beeswarm', 'heatmap', 'sankey',
                     'sunburst', 'treemap', 'subjects', 'subjectTrends',
                     'locations', 'choropleth', 'chord', 'timeChord',
                     'contributorNetwork']

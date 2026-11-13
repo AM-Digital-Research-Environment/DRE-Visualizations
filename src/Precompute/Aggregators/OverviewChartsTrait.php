@@ -8,8 +8,8 @@ use DreVisualizations\Precompute\Terms;
 
 /**
  * Radar breadth profile and the curated Collection-Overview charts (stat
- * cards, research-sections bar, section × university heatmap,
- * cluster-partner geography).
+ * cards, content by source, research-sections bar, section × university
+ * heatmap, cluster-partner geography).
  *
  * Composed into {@see \DreVisualizations\Precompute\Aggregators}; its methods
  * reach shared constants and helpers on that class through `self::`.
@@ -20,6 +20,48 @@ trait OverviewChartsTrait
     // this trait states what it relies on and PHP checks the signatures.
     abstract private function projectTemplateId(): int;
     abstract private function universityLabel(string $title): string;
+    abstract private function sortCounts(array &$counts): void;
+
+    /**
+     * Everything the collection holds, as a two-level treemap: each content
+     * source (research items, publications, videos, podcast episodes) split
+     * into its own natural groups. Each item counts once, under the group
+     * `groupOf` names for it, or under `fallback`. Past `$maxGroups`, a
+     * source's smallest groups fold into one "Other" box so the small sources
+     * keep legible labels. Sources keep the given order; empty ones drop out.
+     *
+     * @param list<array{name:string,itemIds:list<int>,groupOf:array<int,string>,fallback:string}> $sources
+     * @return list<array{name:string,value:int,children:list<array{name:string,value:int}>}>|null
+     */
+    public function buildContentSources(array $sources, int $maxGroups = 12): ?array
+    {
+        $out = [];
+        foreach ($sources as $source) {
+            $counts = [];
+            foreach (array_unique($source['itemIds']) as $iid) {
+                $group = (string) ($source['groupOf'][$iid] ?? '');
+                if ($group === '') {
+                    $group = (string) $source['fallback'];
+                }
+                $counts[$group] = ($counts[$group] ?? 0) + 1;
+            }
+            if (!$counts) {
+                continue;
+            }
+            $this->sortCounts($counts);
+            if (count($counts) > $maxGroups) {
+                $kept = array_slice($counts, 0, $maxGroups - 1, true);
+                $kept['Other'] = ($kept['Other'] ?? 0) + array_sum(array_slice($counts, $maxGroups - 1, null, true));
+                $counts = $kept;
+            }
+            $children = [];
+            foreach ($counts as $group => $n) {
+                $children[] = ['name' => (string) $group, 'value' => $n];
+            }
+            $out[] = ['name' => (string) $source['name'], 'value' => array_sum($counts), 'children' => $children];
+        }
+        return $out ?: null;
+    }
 
     /**
      * Normalise a list of stat-card specs into the render-ready `stats` array

@@ -188,6 +188,21 @@ check($hm['rows'] === ['Book'], 'buildHeatmap drops a type with no language (Map
 check($hm['cols'] === ['English'], 'buildHeatmap keeps only languages paired with a type');
 check($hm['values'] === [[0, 0, 1]], 'buildHeatmap Book × English = 1');
 
+// --- buildContentSources: every source side by side, each record once ---
+$cs = $aggregators->buildContentSources([
+    ['name' => 'Research items', 'itemIds' => [1, 2, 3, 3], 'groupOf' => [1 => 'Knowledges', 2 => 'Knowledges'], 'fallback' => 'No research section'],
+    ['name' => 'Publications', 'itemIds' => [], 'groupOf' => [], 'fallback' => 'No type'],
+    ['name' => 'Podcast episodes', 'itemIds' => [7, 8, 9, 10, 11], 'groupOf' => [7 => 'B', 8 => 'A', 9 => 'C', 10 => 'C', 11 => 'D'], 'fallback' => 'No series'],
+], 3);
+check(array_column($cs, 'name') === ['Research items', 'Podcast episodes'], 'buildContentSources keeps source order and drops an empty source');
+check($cs[0]['value'] === 3 && $cs[0]['children'] === [
+    ['name' => 'Knowledges', 'value' => 2], ['name' => 'No research section', 'value' => 1],
+], 'buildContentSources counts a repeated id once and buckets an ungrouped one under the fallback');
+check($cs[1]['children'] === [
+    ['name' => 'C', 'value' => 2], ['name' => 'A', 'value' => 1], ['name' => 'Other', 'value' => 2],
+], 'buildContentSources folds the groups past the cap into "Other"');
+check($aggregators->buildContentSources([]) === null, 'buildContentSources returns null with nothing to count');
+
 // --- buildStackedTimeline: publications stack under their synthetic type, else "No type" ---
 $stItems = [10 => ['title' => 'Book']];
 $stLinks = [

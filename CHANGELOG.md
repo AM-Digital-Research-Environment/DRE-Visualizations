@@ -13,6 +13,18 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Added
+
+- **What the collection holds**, a treemap that opens the Collection Overview and joins the Collection Dashboard: every record side by side, grouped by source. Research items are split by research section, publications by type, YouTube videos by playlist and podcast episodes by series (`Aggregators::buildContentSources`). The overview has always counted publications, videos and podcast episodes, folded into one resource type each, but its first charts (partners, research sections, section by university) can only show research items. Nothing showed the 803 publications, 142 videos and 43 episodes beside the 3,793 research items, so the block read as an overview of research items alone. The new key is optional, so the snapshot schema is unchanged. **Regenerate now** after updating to draw it.
+
+### Changed
+
+- **The overview's chart subheaders name the sources each chart covers.** The shared wording said "research items" ("The languages recorded across the research items"), even where publications, videos and podcast episodes are counted too. The precompute now writes the subheaders of the Collection Overview and Collection Dashboard from the data (`OverviewDashboardGenerator::overviewDescriptions`). Where a source records nothing for a chart, the subheader says so rather than let the source look forgotten. On the live data, *Items by country* counts research items only, because publications, videos and podcast episodes record no place of origin. Subjects and tags come from research items and publications.
+
+### Fixed
+
+- **Treemap group headers were invisible.** ECharts' `levels[0]` is the series' invisible root, so the header style meant for the first data level never reached it. The header text was also painted in `--surface`, the colour of the strip behind it. The project treemap's project names, and now the source names, show in ink with their counts. Every box shows its count too. A click on a group, or on any box inside it, fills the panel with that group, and the breadcrumb ("All") leads back. The map also fills its panel instead of leaving a quarter of the height empty.
+
 ## [2.53.0] - 2026-11-13
 
 Front end only: no regeneration is needed after upgrading.

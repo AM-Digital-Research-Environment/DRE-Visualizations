@@ -23,7 +23,7 @@ test('the treemap tooltip encodes a malicious label', () => {
       RV: {
         THEME: { fontSize: 12, border: '#000' },
         charts: {},
-        initChart: () => ({ setOption: (value) => { option = value; } }),
+        initChart: () => ({ setOption: (value) => { option = value; }, on: () => {} }),
         truncateLabel: (value) => value,
       },
     },
@@ -35,7 +35,8 @@ test('the treemap tooltip encodes a malicious label', () => {
   context.window.RV.charts.buildTreemap({}, [{ name: 'fixture', value: 1 }]);
   const malicious = '<img src=x onerror="globalThis.__xss=1">';
   const rendered = option.tooltip.formatter({
-    treePathInfo: [{ name: malicious }],
+    // ECharts puts the root (the breadcrumb's "All") first; the tooltip skips it.
+    treePathInfo: [{ name: 'All' }, { name: malicious }],
     value: 1,
   });
   assert.ok(!rendered.includes('<img') && rendered.includes('&lt;img'), 'the treemap tooltip encodes the malicious label');

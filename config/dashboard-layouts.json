@@ -2,6 +2,7 @@
   "$comment": "Generated from asset/js/dashboard-layouts.js by npm run build. Do not edit.",
   "layouts": {
     "collectionOverview": [
+      "contentSources",
       "clusterPartners",
       "sectionsBar",
       "sectionUniversity",
@@ -41,6 +42,7 @@
     ],
     "section": [
       "selfLocation",
+      "contentSources",
       "stackedTimeline",
       "languageTimeline",
       "timeline",

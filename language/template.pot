@@ -160,6 +160,7 @@ msgstr ""
 
 #: config/client-strings.json:contentPlacesAll
 #: config/client-strings.json:langAll
+#: config/client-strings.json:treemapAll
 msgid "All"
 msgstr ""
 
@@ -397,7 +398,7 @@ msgid "Collection Dashboard"
 msgstr ""
 
 #: src/Site/BlockRegistry.php:62
-#: view/common/block-layout/collection-overview.phtml:26
+#: view/common/block-layout/collection-overview.phtml:28
 msgid "Collection overview"
 msgstr ""
 
@@ -708,6 +709,10 @@ msgstr ""
 
 #: src/Controller/Admin/MaintenanceController.php:181
 msgid "Every site you can edit already shows the Visualisations block on item pages."
+msgstr ""
+
+#: config/client-strings.json:chartDescription.contentSources
+msgid "Everything in the collection, grouped by where it comes from: research items by research section, publications by type, YouTube videos by playlist and podcast episodes by series. The size of each box follows the number of records."
 msgstr ""
 
 #: config/client-strings.json:exitFullscreen
@@ -2694,6 +2699,10 @@ msgstr ""
 
 #: config/client-strings.json:compareVs
 msgid "vs"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.contentSources
+msgid "What the collection holds"
 msgstr ""
 
 #: config/client-strings.json:compareWhat

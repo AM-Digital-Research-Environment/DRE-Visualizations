@@ -124,6 +124,46 @@
       {"category":"cooperation","itemId":506,"label":"University of Nairobi","latitude":-1.2921,"longitude":36.8219,"sublabel":"Cooperation partners"}
     ]
   },
+  "contentSources": [
+    {
+      "children": [
+        {"name":"Affiliations","value":43},
+        {"name":"Arts & Aesthetics","value":24},
+        {"name":"Knowledges","value":21},
+        {"name":"No research section","value":19},
+        {"name":"External","value":8},
+        {"name":"Moralities","value":5}
+      ],
+      "name": "Research items",
+      "value": 120
+    },
+    {
+      "children": [
+        {"name":"Journal article","value":20},
+        {"name":"Monograph","value":7},
+        {"name":"Book chapter","value":3}
+      ],
+      "name": "Publications",
+      "value": 30
+    },
+    {
+      "children": [
+        {"name":"Cluster Lectures","value":6},
+        {"name":"Field Stories","value":4},
+        {"name":"No playlist","value":2}
+      ],
+      "name": "YouTube videos",
+      "value": 12
+    },
+    {
+      "children": [
+        {"name":"Africa Multiple Voices","value":6},
+        {"name":"Knowledge Talks","value":4}
+      ],
+      "name": "Podcast episodes",
+      "value": 10
+    }
+  ],
   "contributors": [
     {"itemId":402,"name":"Ouédraogo, Issa","value":29},
     {"itemId":416,"name":"Achieng, Grace","value":23},
@@ -295,6 +335,7 @@
       "value": 3
     }
   ],
+  "descriptions": {"chord":"Subjects that are often assigned to the same item.","choropleth":"Research items and podcast episodes counted by country of origin. The publications and YouTube videos record no place of origin.","contributors":"The people and organisations credited most often across the collection.","heatmap":"Item counts for every combination of resource type and language. Publications, YouTube videos and podcast episodes each count as one type.","languages":"The languages recorded across the research items, publications, YouTube videos and podcast episodes.","stackedTimeline":"Everything in the collection by year, split by resource type. Publications, YouTube videos and podcast episodes each count as one type.","subjects":"The subjects and tags used most often across the research items, publications, YouTube videos and podcast episodes. Controlled subject headings and free-text tags are counted together.","timeline":"Everything in the collection, counted by year.","types":"The mix of resource types across the whole collection. Publications, YouTube videos and podcast episodes each count as one type."},
   "geoFlows": {
     "links": [
       {"from":"Ouagadougou","fromLat":12.3714,"fromLon":-1.5197,"to":"Rhodes University","toLat":-33.3106,"toLon":26.5256,"value":3},

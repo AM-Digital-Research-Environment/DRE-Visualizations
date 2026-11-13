@@ -282,12 +282,151 @@ final class OverviewDashboardGenerator extends DashboardGenerator
         if ($cp = $this->aggregators->clusterPartners($this->items, $this->links, $this->geo, $this->profile->clusterCategoryAuthorities())) {
             $dashboard['clusterPartners'] = $cp;
         }
+        // The one chart that shows every content source side by side; the
+        // section charts above can only ever count research items.
+        $sources = [
+            'research items' => $researchItems,
+            'publications' => $publications,
+            'YouTube videos' => $youtube,
+            'podcast episodes' => $podcasts,
+        ];
+        if ($v = $this->buildContentSourcesChart($sources, $sections)) {
+            $dashboard['contentSources'] = $v;
+        }
+        $dashboard['descriptions'] = $this->overviewDescriptions($sources);
         // amira-style summary stat cards. Country count comes from the choropleth
         // just built above (one entry per distinct country of origin).
         $countries = is_array($dashboard['choropleth'] ?? null) ? count($dashboard['choropleth']) : 0;
         $dashboard['stats'] = $this->buildOverviewStats(count($researchItems), $countries);
         $dashboard['resourceType'] = 'section';
         $this->save('collection-overview', $dashboard);
+    }
+
+    /**
+     * Each source split into its natural groups: research items by research
+     * section (external partner collections under their own row, as in the
+     * section × university heatmap), publications by type, videos by playlist
+     * and podcast episodes by series. An item in several groups counts once,
+     * under the first.
+     *
+     * @param array<string,list<int>> $sources prose name => item ids
+     * @param array<int,array> $sections research-section items, keyed by id
+     */
+    private function buildContentSourcesChart(array $sources, array $sections): ?array
+    {
+        $sectionOf = [];
+        foreach ($sections as $sid => $info) {
+            $name = (string) ($info['title'] ?? '');
+            if ($name === '') {
+                continue;
+            }
+            foreach ($this->childrenOf[$sid] ?? [] as $pid) {
+                foreach ($this->childrenOf[$pid] ?? [] as $iid) {
+                    $sectionOf[$iid] ??= $name;
+                }
+            }
+        }
+        // External collections sit outside the section → project hierarchy;
+        // their set membership wins, as in the entity graph's section overlay.
+        foreach ($this->profile->externalCollections() as $setId => $route) {
+            foreach ($this->itemSets[$setId] ?? [] as $iid) {
+                $sectionOf[$iid] = $route['section'];
+            }
+        }
+        $firstLink = function (array $itemIds, string $term): array {
+            $out = [];
+            foreach ($itemIds as $iid) {
+                foreach ($this->links[$iid] ?? [] as [$t, $label, $vrid]) {
+                    $title = (string) ($this->items[$vrid]['title'] ?? '');
+                    if ($t === $term && $title !== '') {
+                        $out[$iid] = $title;
+                        break;
+                    }
+                }
+            }
+            return $out;
+        };
+        return $this->aggregators->buildContentSources([
+            ['name' => 'Research items', 'itemIds' => $sources['research items'],
+                'groupOf' => $sectionOf, 'fallback' => 'No research section'],
+            ['name' => 'Publications', 'itemIds' => $sources['publications'],
+                'groupOf' => $firstLink($sources['publications'], Terms::TYPE), 'fallback' => 'No type'],
+            ['name' => 'YouTube videos', 'itemIds' => $sources['YouTube videos'],
+                'groupOf' => $firstLink($sources['YouTube videos'], Terms::IS_PART_OF), 'fallback' => 'No playlist'],
+            ['name' => 'Podcast episodes', 'itemIds' => $sources['podcast episodes'],
+                'groupOf' => $firstLink($sources['podcast episodes'], Terms::IS_PART_OF), 'fallback' => 'No series'],
+        ]);
+    }
+
+    /**
+     * Subheaders that say which sources each overview chart covers. The shared
+     * registry wording speaks of research items, which on this dashboard would
+     * hide the publications, videos and podcast episodes counted alongside
+     * them; and where a source records nothing for a chart (no place of origin,
+     * no subjects), the subheader says so rather than let it look forgotten.
+     *
+     * @param array<string,list<int>> $sources prose name => item ids
+     * @return array<string,string>
+     */
+    private function overviewDescriptions(array $sources): array
+    {
+        $sources = array_filter($sources);
+        $join = static function (array $names): string {
+            $last = array_pop($names);
+            return $names ? implode(', ', $names) . ' and ' . $last : (string) $last;
+        };
+        // Split the sources into those with at least one item carrying a link
+        // under $term (and, for places, one that resolves to a country) and the rest.
+        $coverage = function (string $term, ?array $targets = null) use ($sources): array {
+            $with = $without = [];
+            foreach ($sources as $name => $ids) {
+                $found = false;
+                foreach ($ids as $iid) {
+                    foreach ($this->links[$iid] ?? [] as [$t, $label, $vrid]) {
+                        if ($t === $term && ($targets === null || isset($targets[$vrid]))) {
+                            $found = true;
+                            break 2;
+                        }
+                    }
+                }
+                if ($found) {
+                    $with[] = $name;
+                } else {
+                    $without[] = $name;
+                }
+            }
+            return [$with, $without];
+        };
+        $noneNote = static fn (array $without, string $what): string
+            => $without ? ' The ' . $join($without) . ' ' . $what . '.' : '';
+
+        $out = [];
+        $folded = array_values(array_diff(array_keys($sources), ['research items']));
+        $foldedNote = $folded ? ' ' . ucfirst($join($folded)) . ' each count as one type.' : '';
+        $out['stackedTimeline'] = 'Everything in the collection by year, split by resource type.' . $foldedNote;
+        $out['types'] = 'The mix of resource types across the whole collection.' . $foldedNote;
+        $out['heatmap'] = 'Item counts for every combination of resource type and language.' . $foldedNote;
+        $out['timeline'] = 'Everything in the collection, counted by year.';
+
+        [$with, $without] = $coverage(Terms::LANGUAGE);
+        if ($with) {
+            $out['languages'] = 'The languages recorded across the ' . $join($with) . '.'
+                . $noneNote($without, 'record no language');
+        }
+        [$with, $without] = $coverage(Terms::SUBJECT);
+        if ($with) {
+            $out['subjects'] = 'The subjects and tags used most often across the ' . $join($with)
+                . '. Controlled subject headings and free-text tags are counted together.'
+                . $noneNote($without, 'carry no subjects');
+            $out['chord'] = 'Subjects that are often assigned to the same item.';
+        }
+        [$with, $without] = $coverage(Terms::SPATIAL, $this->countryIndex);
+        if ($with) {
+            $out['choropleth'] = ucfirst($join($with)) . ' counted by country of origin.'
+                . $noneNote($without, 'record no place of origin');
+        }
+        $out['contributors'] = 'The people and organisations credited most often across the collection.';
+        return $out;
     }
 
     protected function buildOverviewStats(int $researchItemCount, int $countries): array
