@@ -13,6 +13,8 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.52.0] - 2026-11-13
+
 ### Changed
 
 - **Journals, publishers and book series share one panel on the Publications dashboard.** They were three half-width bar charts beside the most published authors, four look-alike panels in two rows where nothing said which belonged together. They answer one question, where the publications appeared, so one full-width panel, *Where they were published*, now switches between them. Each button gives the size of its list ("Journals (285)", "Publishers (116)", "Book series (88)"). The description, the image and CSV downloads, the data table and the copied embed code follow the chart on screen. The most published authors get their own full-width row. A layout declares such a group with `tabs` (`dashboard-layouts.js`). A group left with one chart is an ordinary panel, and the single-chart embeds of each list are unchanged.
@@ -1170,7 +1172,8 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 - Previous repository state. Earlier history remains available in Git tags and
   commit history.
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.51.1...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.52.0...HEAD
+[2.52.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.51.1...v2.52.0
 [2.51.1]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.51.0...v2.51.1
 [2.51.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.50.0...v2.51.0
 [2.31.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.30.0...v2.31.0
