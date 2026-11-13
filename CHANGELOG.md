@@ -13,6 +13,11 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Changed
+
+- **Journals, publishers and book series share one panel on the Publications dashboard.** They were three half-width bar charts beside the most published authors, four look-alike panels in two rows where nothing said which belonged together. They answer one question, where the publications appeared, so one full-width panel, *Where they were published*, now switches between them. Each button gives the size of its list ("Journals (285)", "Publishers (116)", "Book series (88)"). The description, the image and CSV downloads, the data table and the copied embed code follow the chart on screen. The most published authors get their own full-width row. A layout declares such a group with `tabs` (`dashboard-layouts.js`). A group left with one chart is an ordinary panel, and the single-chart embeds of each list are unchanged.
+- **Bar charts in a full-width panel show longer names.** Journal titles run past a hundred characters and were cut at 30. In a panel at least 700 px wide the labels now get twice the room (400 px, 60 characters). The tooltip still gives the whole name.
+
 ## [2.51.1] - 2026-11-11
 
 ### Fixed

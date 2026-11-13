@@ -34,7 +34,7 @@
         // ECharts networks that d3-force lays out first (ns.layoutNetwork).
         var settled = [c.buildContributorNetwork, c.buildAffiliationNetwork, c.buildCollabNetwork];
         keys = Array.isArray(keys) ? keys.filter(function (key) { return data[key]; })
-            : (ns.planDashboard ? ns.planDashboard(data, host).keys
+            : (ns.planDashboard ? ns.planDashboard(data, host).chartKeys
                 : Object.keys(data).filter(function (key) { return data[key]; }));
         keys.forEach(function (key) {
             var builder = ns.builderFor ? ns.builderFor(data, key) : ns.CHART_MAP[key];
@@ -156,6 +156,7 @@
         'topSeries':           'Book series',
         'topPublishers':       'Publishers',
         'topAuthors':          'Most published authors',
+        'publicationVenues':   'Where they were published',
         'funders':             'Funders',
         'playlists':           'Videos by playlist',
         'duration':            'Episode length',

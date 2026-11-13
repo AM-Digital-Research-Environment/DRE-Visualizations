@@ -5,6 +5,11 @@
  *   order — chart keys in render order
  *   wide  — keys that span the full grid width
  *   tall  — keys that use the taller container (420px)
+ *   tabs  — optional groups ({ label, keys }) of charts that share one panel,
+ *           with a switch between them; the panel sits where the group's
+ *           first chart with data would, always full width, and is titled by
+ *           the registry label `label`. A group left with one chart is an
+ *           ordinary panel.
  *
  * Half-width charts are paired left-to-right; place them consecutively
  * so the 2-column CSS grid fills both columns. Charts without data drop out
@@ -214,12 +219,19 @@
         // map (marcrel:pup → geocoded Locations) over the countries the
         // publications appeared in (the dashboard's `publicationCountries`), retitled by
         // the dashboard's own labels override.
+        // Journals, publishers and book series answer one question (where the
+        // publications appeared) in the same ranked bars, so they share one
+        // full-width panel with a switch (`tabs`) instead of three half-width
+        // panels; the most published authors get their own row below.
         publications: {
             order: ['types', 'languages', 'stackedTimeline', 'locations',
                     'topJournals', 'topPublishers', 'topSeries', 'topAuthors',
                     'funders', 'coAuthorNetwork',
                     'chord', 'subjects', 'abstractWordcloud', 'similarity'],
-            wide:  ['stackedTimeline', 'locations', 'funders', 'coAuthorNetwork',
+            tabs:  [{ label: 'publicationVenues',
+                      keys: ['topJournals', 'topPublishers', 'topSeries'] }],
+            wide:  ['stackedTimeline', 'locations', 'topJournals', 'topPublishers',
+                    'topSeries', 'topAuthors', 'funders', 'coAuthorNetwork',
                     'chord', 'subjects', 'abstractWordcloud', 'similarity'],
             tall:  ['locations', 'coAuthorNetwork', 'chord', 'subjects',
                     'abstractWordcloud', 'similarity']

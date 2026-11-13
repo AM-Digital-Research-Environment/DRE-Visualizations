@@ -2787,11 +2787,16 @@
                 if (!cc || !h3) return;
                 var key = cc.getAttribute('data-chart');
                 if (panel.querySelector('.rv-chart-toolbar .rv-embed-btn')) return;
-                ns.addToChartToolbar(panel, 'embed', ns.makeEmbedButton({
+                // The button reads src and title when clicked, so a tabbed
+                // panel (dashboard.js showTab) rewrites them on a switch.
+                panel._rvEmbed = {
                     src: ns.embedUrl(siteBase, slug, key),
                     title: ns.chartLabel ? ns.chartLabel(key) : ((ns.CHART_LABELS && ns.CHART_LABELS[key]) || key),
-                    height: 520
-                }));
+                    height: 520,
+                    siteBase: siteBase,
+                    slug: slug
+                };
+                ns.addToChartToolbar(panel, 'embed', ns.makeEmbedButton(panel._rvEmbed));
             })(panels[i]);
         }
     };

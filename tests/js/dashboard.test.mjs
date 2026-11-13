@@ -40,6 +40,7 @@ function element() {
         replaceChildren(...nodes) { this.children = nodes; this.innerHTML = ''; },
         addEventListener(event, callback) { this[event] = callback; },
         querySelector() { return null; },
+        querySelectorAll() { return []; },
         closest() { return this; },
     };
 }
@@ -172,6 +173,18 @@ test('half-width charts whose partner has no data still fill their row', () => {
         ['half:timeline', 'half:languages', 'wide:subjects']);
     assert.deepEqual(plan({ resourceType: 'researchItem', timeline: { 2000: 1 }, types: [1], languages: [1] }),
         ['half:timeline', 'half:types', 'wide:languages']);
+});
+
+test('journals, publishers and book series share one full-width tabbed panel', () => {
+    const data = { resourceType: 'publications', types: [1], languages: [1], topJournals: [1],
+        topPublishers: [1], topSeries: [1], topAuthors: [1], funders: [1] };
+    assert.deepEqual(plan(data), ['half:types', 'half:languages', 'wide:topJournals', 'wide:topAuthors', 'wide:funders']);
+    // The panel opens on the first chart with data, and a group left with one
+    // chart is an ordinary panel.
+    assert.deepEqual(plan({ ...data, topJournals: [] }), ['half:types', 'half:languages', 'wide:topPublishers', 'wide:topAuthors', 'wide:funders']);
+    assert.deepEqual(plan({ ...data, topJournals: [], topPublishers: [] }), ['half:types', 'half:languages', 'wide:topSeries', 'wide:topAuthors', 'wide:funders']);
+    // A single-chart embed of one of them still draws it alone.
+    assert.deepEqual(plan(data, { chartOnly: 'topSeries' }), ['wide:topSeries']);
 });
 
 test('a single-chart embed is always full width', () => {

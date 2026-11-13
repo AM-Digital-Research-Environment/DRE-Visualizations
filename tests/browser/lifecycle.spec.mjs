@@ -323,6 +323,37 @@ test.describe('every block boots', () => {
     await expect(page.locator('.rv-chart-heading > [role="toolbar"]').first()).toBeAttached();
     expect(await chartHeadingFindings(page)).toEqual([]);
   });
+
+  test('journals, publishers and book series share one panel with a switch', async ({ page }) => {
+    await stubData(page, goldenData);
+    await openSurface(page, 'publications');
+    const panel = page.locator('.rv-chart-panel-tabbed');
+    await expect(panel).toHaveCount(1);
+    await expect(panel).toHaveClass(/chart-panel-wide/);
+    const tabs = panel.getByRole('group', { name: 'Where they were published' }).getByRole('button');
+    await expect(tabs).toHaveText(['Journals (5)', 'Publishers (8)', 'Book series (2)']);
+    await expect(tabs.first()).toHaveAttribute('aria-pressed', 'true');
+    // The other two no longer get panels of their own.
+    await expect(page.locator('[data-chart="topPublishers"], [data-chart="topSeries"]')).toHaveCount(0);
+
+    // The panel may still be below the fold, built only as it nears the viewport.
+    await panel.scrollIntoViewIfNeeded();
+    const chart = panel.locator('.chart-container');
+    await expect(chart).toHaveAttribute('data-chart', 'topJournals');
+    const categories = () => chart.evaluate((el) => window.echarts.getInstanceByDom(el)?.getOption().yAxis[0].data.length);
+    await expect.poll(categories).toBe(5);
+
+    await tabs.nth(1).click();
+    await expect(tabs.nth(1)).toHaveAttribute('aria-pressed', 'true');
+    await expect(tabs.first()).toHaveAttribute('aria-pressed', 'false');
+    await expect(chart).toHaveAttribute('data-chart', 'topPublishers');
+    await expect(panel.locator('.chart-description')).toHaveText('The publishers that issued the most of these publications.');
+    await expect.poll(categories).toBe(8);
+    // The chart is named after the tab it shows, and the data table lists it.
+    await expect(chart).toHaveAttribute('aria-label', /publishers that issued/);
+    await panel.locator('.rv-data-table-toggle').click();
+    await expect(panel.locator('.rv-data-table tbody tr')).toHaveCount(8);
+  });
 });
 
 /** Every chart heading or toolbar on the page that breaks the contract above. */

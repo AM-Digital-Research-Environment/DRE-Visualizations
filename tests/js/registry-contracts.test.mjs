@@ -92,6 +92,18 @@ function checkLayouts(rv) {
         }
       }
     }
+    // A tab group's charts come from the layout's own order, and its panel
+    // title is a registry label like any chart's.
+    for (const group of layout.tabs || []) {
+      if (!Object.prototype.hasOwnProperty.call(labels, group.label)) {
+        fail(`Layout ${name}.tabs label has no CHART_LABELS entry: ${group.label}`);
+      }
+      for (const key of group.keys || []) {
+        if (!order.has(key)) {
+          fail(`Layout ${name}.tabs contains key not present in order: ${key}`);
+        }
+      }
+    }
   }
 
   for (const key of Object.keys(map)) {

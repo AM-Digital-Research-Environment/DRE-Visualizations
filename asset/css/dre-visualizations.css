@@ -1724,13 +1724,15 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
 
 /* Segmented switches: the word-cloud language toggle (shown only when the
    precomputed input carries more than one language) and the network "Colour
-   by" switch (shown only when the precompute recorded affiliations). Drawn
+   by" switch (shown only when the precompute recorded affiliations), and the
+   switch of a tabbed dashboard panel (Journals, Publishers, Book series). Drawn
    like DRE Search's list/grid view toggle, the theme's own segmented control:
    one outlined group on the panel surface, with the current choice marked by
    an accent underline rather than a filled chip. The button-qualified
    selectors keep the theme's global button mixin out. */
 .rv-word-langs,
-.rv-colour-mode-options {
+.rv-colour-mode-options,
+.rv-chart-tabs {
     display: flex;
     width: fit-content;
     max-width: 100%;
@@ -1744,7 +1746,8 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
 }
 
 button.rv-word-lang,
-button.rv-colour-mode-btn {
+button.rv-colour-mode-btn,
+button.rv-chart-tab {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1764,29 +1767,53 @@ button.rv-colour-mode-btn {
 }
 
 button.rv-word-lang:last-child,
-button.rv-colour-mode-btn:last-child {
+button.rv-colour-mode-btn:last-child,
+button.rv-chart-tab:last-child {
     border-inline-end: 0;
 }
 
 button.rv-word-lang:hover,
 button.rv-colour-mode-btn:hover,
+button.rv-chart-tab:hover,
 button.rv-word-lang[aria-pressed="true"],
-button.rv-colour-mode-btn[aria-pressed="true"] {
+button.rv-colour-mode-btn[aria-pressed="true"],
+button.rv-chart-tab[aria-pressed="true"] {
     background: var(--rv-bg-sunken);
     color: var(--rv-text-strong);
 }
 
 button.rv-word-lang[aria-pressed="true"],
-button.rv-colour-mode-btn[aria-pressed="true"] {
+button.rv-colour-mode-btn[aria-pressed="true"],
+button.rv-chart-tab[aria-pressed="true"] {
     box-shadow: inset 0 -2px var(--rv-accent);
     font-weight: 700;
     cursor: default;
 }
 
 button.rv-word-lang:focus-visible,
-button.rv-colour-mode-btn:focus-visible {
+button.rv-colour-mode-btn:focus-visible,
+button.rv-chart-tab:focus-visible {
     outline: 2px solid var(--rv-focus-color);
     outline-offset: -2px;
+}
+
+/* A tabbed panel's switch (dashboard.js tabsHtml) sits under its title, above
+   the description of the chart it shows. On a phone the buttons share the
+   row instead of overflowing it. */
+.rv-chart-tabs {
+    margin: 0 0 var(--rv-space-2);
+}
+
+@media (max-width: 599px) {
+    .rv-chart-tabs {
+        width: 100%;
+    }
+
+    button.rv-chart-tab {
+        flex: 1 1 0;
+        min-width: 0;
+        padding-inline: var(--rv-space-2);
+    }
 }
 
 /* The "Colour by" row sits with the legend under the graph. */

@@ -54,8 +54,20 @@
                 && data.stackedTimeline.years && data.stackedTimeline.years.length > 0) return false;
             return hasData;
         });
+        // Every chart that may be drawn, a tab switch included (library
+        // selection needs them all), before the tab groups fold into one panel.
+        var chartKeys = keys.slice();
+        var tabs = {};
+        if (!chartOnly) {
+            (layout.tabs || []).forEach(function (group) {
+                var members = group.keys.filter(function (key) { return keys.indexOf(key) >= 0; });
+                if (members.length < 2) return;
+                tabs[members[0]] = { label: group.label, keys: members };
+                keys = keys.filter(function (key) { return members.indexOf(key) <= 0; });
+            });
+        }
         return { layoutKey: layoutKey, layout: layout, chartOnly: chartOnly, keys: keys,
-            wide: packWidths(keys, layout, chartOnly) };
+            chartKeys: chartKeys, tabs: tabs, wide: packWidths(keys, layout, chartOnly, tabs) };
     }
 
     /**
@@ -64,9 +76,10 @@
      * and a half-width chart whose partner dropped out (or that sits between two
      * wide ones) would leave an empty half row. Each run of consecutive
      * half-width charts is closed off in pairs; an odd one out, the run's last,
-     * widens to fill its row.
+     * widens to fill its row. A tabbed panel is always wide: its switch and its
+     * longest list need the room.
      */
-    function packWidths(keys, layout, chartOnly) {
+    function packWidths(keys, layout, chartOnly, tabs) {
         var wide = {};
         var run = [];
         function closeRun() {
@@ -74,7 +87,7 @@
             run = [];
         }
         keys.forEach(function (key) {
-            if (chartOnly || layout.wide.indexOf(key) >= 0) {
+            if (chartOnly || layout.wide.indexOf(key) >= 0 || (tabs && tabs[key])) {
                 closeRun();
                 wide[key] = true;
             } else {
@@ -177,22 +190,52 @@
         var headTitle = (host && host.dataset && host.dataset.title) || ns.t('visualisations', 'Visualisations');
         var headInner = '<h2>' + escapeHtml(headTitle) + '</h2>';
 
+        // The registry's translated title/description, unless the dashboard
+        // overrides them; the raw tables only when dashboard-registry.js has
+        // not loaded.
+        function labelFor(key) {
+            return labelOverrides[key] || (ns.chartLabel ? ns.chartLabel(key)
+                : ((ns.CHART_LABELS && ns.CHART_LABELS[key]) || key));
+        }
+        function descriptionFor(key) {
+            return Object.prototype.hasOwnProperty.call(descOverrides, key)
+                ? descOverrides[key]
+                : (ns.chartDescription ? ns.chartDescription(key)
+                    : ((ns.CHART_DESCRIPTIONS && ns.CHART_DESCRIPTIONS[key]) || ''));
+        }
+
+        /**
+         * The switch of a tabbed panel: one toggle button per chart, named with
+         * its entry count ("Journals (285)") so the reader sees the size of each
+         * list before opening it. The first is pressed.
+         */
+        function tabsHtml(group) {
+            var title = labelFor(group.label);
+            return '<div class="rv-chart-tabs" role="group" aria-label="' + escapeHtml(title) + '">'
+                + group.keys.map(function (key, index) {
+                    var name = ns.fill(ns.t('chartTabCount', '{label} ({count})'), {
+                        label: labelFor(key),
+                        count: ns.formatNumber(ns.toEntries(data[key]).length)
+                    });
+                    return '<button type="button" class="rv-chart-tab" data-tab="' + escapeHtml(key)
+                        + '" aria-pressed="' + (index === 0) + '">' + escapeHtml(name) + '</button>';
+                }).join('')
+                + '</div>';
+        }
+
         var chartsHtml = '<div class="dashboard-charts' + (chartOnly ? ' dashboard-charts--single' : '') + '">';
         plan.keys.forEach(function (key) {
             // A single-chart embed fills the frame: always full-width and tall.
             var wide = plan.wide[key] ? ' chart-panel-wide' : '';
             var tall = (chartOnly || layout.tall.indexOf(key) >= 0) ? ' chart-container-tall' : '';
-            // The registry's translated title/description; the raw tables only
-            // when dashboard-registry.js has not loaded.
-            var label = labelOverrides[key] || (ns.chartLabel ? ns.chartLabel(key)
-                : ((ns.CHART_LABELS && ns.CHART_LABELS[key]) || key));
-            var desc = Object.prototype.hasOwnProperty.call(descOverrides, key)
-                ? descOverrides[key]
-                : (ns.chartDescription ? ns.chartDescription(key)
-                    : ((ns.CHART_DESCRIPTIONS && ns.CHART_DESCRIPTIONS[key]) || ''));
-            chartsHtml += '<div class="chart-panel' + wide + '">'
+            var group = plan.tabs[key];
+            var label = group ? labelFor(group.label) : labelFor(key);
+            var desc = descriptionFor(key);
+            chartsHtml += '<div class="chart-panel' + wide + (group ? ' rv-chart-panel-tabbed' : '') + '">'
                 + '<div class="rv-chart-heading"><h3>' + escapeHtml(label) + '</h3></div>'
-                + (desc ? '<p class="chart-description">' + escapeHtml(desc) + '</p>' : '')
+                + (group ? tabsHtml(group) : '')
+                // A tabbed panel keeps the paragraph, empty or not, for the next tab.
+                + (desc || group ? '<p class="chart-description"' + (desc ? '' : ' hidden') + '>' + escapeHtml(desc) + '</p>' : '')
                 + '<div class="chart-container' + tall + '" data-chart="' + escapeHtml(key) + '"></div>'
                 + '</div>';
         });
@@ -240,6 +283,7 @@
 
         function build(key, el) {
             var builder = builderFor(data, key);
+            el._rvBuilt = true;
             try {
                 if (!builder) throw new Error('No builder registered for ' + key);
                 // Rebuilt from its data on a light/dark switch (ns.buildChart);
@@ -260,6 +304,47 @@
             });
         }, { rootMargin: '400px 0px' }) : null;
         if (observer) container._rvPanelObserver = observer;
+
+        /**
+         * Show another chart of a tabbed panel in the same container. The
+         * builder replaces the ECharts instance (ns.initChart disposes the old
+         * one), and the toolbar's save, CSV and data table act on whichever
+         * instance is live, so they follow the switch. A panel not yet built
+         * (still below the fold) only changes key: the observer builds it.
+         */
+        function showTab(panel, key) {
+            var el = panel.querySelector('[data-chart]');
+            if (!el || el.getAttribute('data-chart') === key) return;
+            el.setAttribute('data-chart', key);
+            panel.querySelectorAll('.rv-chart-tab').forEach(function (button) {
+                button.setAttribute('aria-pressed', String(button.getAttribute('data-tab') === key));
+            });
+            var desc = panel.querySelector('.chart-description');
+            if (desc) {
+                desc.textContent = descriptionFor(key);
+                desc.hidden = !desc.textContent;
+            }
+            // An open data table would still list the previous chart; it
+            // refills from the live chart when opened again.
+            var table = panel.querySelector('.rv-data-table');
+            if (table) table.open = false;
+            // The copied embed code is the chart on screen (core/embed.js).
+            if (panel._rvEmbed) {
+                panel._rvEmbed.src = ns.embedUrl(panel._rvEmbed.siteBase, panel._rvEmbed.slug, key);
+                panel._rvEmbed.title = labelFor(key);
+            }
+            if (!el._rvBuilt) return;
+            // ns.initChart names the chart from the panel's heading and
+            // description, but only a container without a name of its own.
+            el.removeAttribute('aria-label');
+            build(key, el);
+        }
+
+        container.querySelectorAll('.rv-chart-panel-tabbed').forEach(function (panel) {
+            panel.querySelectorAll('.rv-chart-tab').forEach(function (button) {
+                button.addEventListener('click', function () { showTab(panel, button.getAttribute('data-tab')); });
+            });
+        });
 
         plan.keys.forEach(function (key, index) {
             var el = container.querySelector('[data-chart="' + key + '"]');

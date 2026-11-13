@@ -11,6 +11,11 @@
  *   order — chart keys in render order
  *   wide  — keys that span the full grid width
  *   tall  — keys that use the taller container (420px)
+ *   tabs  — optional groups ({ label, keys }) of charts that share one panel,
+ *           with a switch between them; the panel sits where the group's
+ *           first chart with data would, always full width, and is titled by
+ *           the registry label `label`. A group left with one chart is an
+ *           ordinary panel.
  *
  * Half-width charts are paired left-to-right; place them consecutively
  * so the 2-column CSS grid fills both columns. Charts without data drop out
@@ -220,12 +225,19 @@
         // map (marcrel:pup → geocoded Locations) over the countries the
         // publications appeared in (the dashboard's `publicationCountries`), retitled by
         // the dashboard's own labels override.
+        // Journals, publishers and book series answer one question (where the
+        // publications appeared) in the same ranked bars, so they share one
+        // full-width panel with a switch (`tabs`) instead of three half-width
+        // panels; the most published authors get their own row below.
         publications: {
             order: ['types', 'languages', 'stackedTimeline', 'locations',
                     'topJournals', 'topPublishers', 'topSeries', 'topAuthors',
                     'funders', 'coAuthorNetwork',
                     'chord', 'subjects', 'abstractWordcloud', 'similarity'],
-            wide:  ['stackedTimeline', 'locations', 'funders', 'coAuthorNetwork',
+            tabs:  [{ label: 'publicationVenues',
+                      keys: ['topJournals', 'topPublishers', 'topSeries'] }],
+            wide:  ['stackedTimeline', 'locations', 'topJournals', 'topPublishers',
+                    'topSeries', 'topAuthors', 'funders', 'coAuthorNetwork',
                     'chord', 'subjects', 'abstractWordcloud', 'similarity'],
             tall:  ['locations', 'coAuthorNetwork', 'chord', 'subjects',
                     'abstractWordcloud', 'similarity']
@@ -404,6 +416,7 @@
 
     var PAGE_SIZE = 20;
     var PAGE_SIZE_NARROW = 10;   // the chart is 280px tall below 600px (dre-visualizations.css)
+    var ROOMY_WIDTH = 700;       // a container this wide is a full-width panel
 
     /** The smallest whole 1, 2 or 5 × 10ⁿ step at least `raw` (never below 1). */
     function niceStep(raw) {
@@ -432,6 +445,11 @@
         var chart = initChart(el);
         var narrow = window.matchMedia && window.matchMedia('(max-width: 599px)').matches;
         var pageSize = narrow ? PAGE_SIZE_NARROW : PAGE_SIZE;
+        // A full-width panel has room for long names (journal titles run past
+        // a hundred characters), so its labels get twice the width and length.
+        var roomy = !narrow && el.clientWidth >= ROOMY_WIDTH;
+        var labelWidth = narrow ? 130 : (roomy ? 400 : 200);
+        var labelMaxLen = roomy ? THEME.labelMaxLen * 2 : THEME.labelMaxLen;
         var pages = Math.ceil(all.length / pageSize);
         var page = 0;
         // Paged charts share one scale. A bare maximum (32) gets its own label
@@ -459,8 +477,8 @@
                     axisLabel: {
                         // Every bar keeps its label: the page size leaves room.
                         interval: 0,
-                        fontSize: THEME.fontSize, width: narrow ? 130 : 200, overflow: 'truncate',
-                        formatter: function (v) { return truncateLabel(v, THEME.labelMaxLen); }
+                        fontSize: THEME.fontSize, width: labelWidth, overflow: 'truncate',
+                        formatter: function (v) { return truncateLabel(v, labelMaxLen); }
                     }
                 },
                 series: [{
@@ -3647,7 +3665,7 @@
         // ECharts networks that d3-force lays out first (ns.layoutNetwork).
         var settled = [c.buildContributorNetwork, c.buildAffiliationNetwork, c.buildCollabNetwork];
         keys = Array.isArray(keys) ? keys.filter(function (key) { return data[key]; })
-            : (ns.planDashboard ? ns.planDashboard(data, host).keys
+            : (ns.planDashboard ? ns.planDashboard(data, host).chartKeys
                 : Object.keys(data).filter(function (key) { return data[key]; }));
         keys.forEach(function (key) {
             var builder = ns.builderFor ? ns.builderFor(data, key) : ns.CHART_MAP[key];
@@ -3769,6 +3787,7 @@
         'topSeries':           'Book series',
         'topPublishers':       'Publishers',
         'topAuthors':          'Most published authors',
+        'publicationVenues':   'Where they were published',
         'funders':             'Funders',
         'playlists':           'Videos by playlist',
         'duration':            'Episode length',
