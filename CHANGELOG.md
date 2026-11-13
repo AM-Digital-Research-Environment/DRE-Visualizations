@@ -13,6 +13,8 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.54.0] - 2026-11-13
+
 ### Added
 
 - **What the collection holds**, a treemap that opens the Collection Overview and joins the Collection Dashboard: every record side by side, grouped by source. Research items are split by research section, publications by type, YouTube videos by playlist and podcast episodes by series (`Aggregators::buildContentSources`). The overview has always counted publications, videos and podcast episodes, folded into one resource type each, but its first charts (partners, research sections, section by university) can only show research items. Nothing showed the 803 publications, 142 videos and 43 episodes beside the 3,793 research items, so the block read as an overview of research items alone. The new key is optional, so the snapshot schema is unchanged. **Regenerate now** after updating to draw it.
@@ -1201,7 +1203,8 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 - Previous repository state. Earlier history remains available in Git tags and
   commit history.
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.53.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.54.0...HEAD
+[2.54.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.53.0...v2.54.0
 [2.53.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.52.0...v2.53.0
 [2.52.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.51.1...v2.52.0
 [2.51.1]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.51.0...v2.51.1
