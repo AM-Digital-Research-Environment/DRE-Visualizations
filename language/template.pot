@@ -333,7 +333,7 @@ msgid "Clear selection: {name}"
 msgstr ""
 
 #: config/client-strings.json:communitiesHint
-msgid "Click a person to focus their collaborators; the panel that opens links to their record. Toggle a group in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom."
+msgid "Click a person to focus their collaborators; the panel that opens links to their record. Toggle a group in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Zoom with the + and − buttons, a double-click on the background, or Ctrl + scroll."
 msgstr ""
 
 #: config/client-strings.json:kgHint
@@ -2630,8 +2630,16 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
+#: config/client-strings.json:graphGestureMac
+msgid "Use ⌘ + scroll to zoom the graph"
+msgstr ""
+
 #: config/client-strings.json:mapGestureMac
 msgid "Use ⌘ + scroll to zoom the map"
+msgstr ""
+
+#: config/client-strings.json:graphGestureWindows
+msgid "Use Ctrl + scroll to zoom the graph"
 msgstr ""
 
 #: config/client-strings.json:mapGestureWindows

@@ -559,6 +559,39 @@ test.describe('interaction contract', () => {
     expect(order).toEqual({ bars: 1, names: ['save', 'csv', 'embed', 'fullscreen'] });
   });
 
+  test('a network says how to zoom on a plain scroll and zooms from its toolbar buttons', async ({ page }) => {
+    await stubData(page, fullData);
+    await openSurface(page, 'compare');
+    await page.evaluate(async () => {
+      const ns = window.RV;
+      await ns.ensureLibs({ d3: true });
+      const panel = document.createElement('div');
+      panel.className = 'chart-panel';
+      panel.id = 'zoom-panel';
+      panel.innerHTML = '<h3>Network</h3><div class="chart-container" style="width:400px;height:280px"></div>';
+      document.body.prepend(panel);
+      const graph = ns.ForceGraph.create(panel.querySelector('.chart-container'), { nodes: [], categories: [], colorOf: () => '#336699' });
+      graph.setGraph({ nodes: [{ id: '1', name: 'A', category: 0 }, { id: '2', name: 'B', category: 0 }], links: [{ source: '1', target: '2' }] });
+      window.__zoomCalls = [];
+      ns.attachToolbar(panel, {
+        zoomBy: (f) => { window.__zoomCalls.push(f); graph.zoomBy(f); },
+        resetView: () => { window.__zoomCalls.push('reset'); graph.resetView(); },
+      }, { fullscreen: false });
+    });
+    const hint = page.locator('#zoom-panel .rv-graph-wheel-hint');
+    const canvas = page.locator('#zoom-panel .rv-graph-canvas');
+    await expect(hint).toHaveCSS('opacity', '0');
+    await canvas.hover();
+    await page.mouse.wheel(0, 120);
+    await expect(hint).toHaveClass(/rv-graph-wheel-hint-on/);
+    await expect(hint).not.toHaveClass(/rv-graph-wheel-hint-on/, { timeout: 3000 });
+
+    await page.locator('#zoom-panel [data-action="zoom-in"]').click();
+    await page.locator('#zoom-panel [data-action="zoom-out"]').click();
+    await page.locator('#zoom-panel [data-action="zoom-reset"]').click();
+    expect(await page.evaluate(() => window.__zoomCalls)).toEqual([1.5, 1 / 1.5, 'reset']);
+  });
+
   test('a block expands whole with its controls; Escape leaves the innermost surface first', async ({ page }) => {
     await stubData(page, fullData);
     await openSurface(page, 'semantic');

@@ -2522,19 +2522,46 @@
      */
     ns.attachToolbar = function (panel, chart, opts) {
         if (!panel || !chart) return;
-        if (chart._zoomable && typeof chart.dispatchAction === 'function') attachZoom(panel, chart);
+        if ((chart._zoomable && typeof chart.dispatchAction === 'function')
+            || (typeof chart.zoomBy === 'function' && typeof chart.resetView === 'function')) {
+            attachZoom(panel, chart);
+        }
         if (typeof chart.getDataURL === 'function') attachExports(panel, chart);
         if (!opts || opts.fullscreen !== false) ns.attachPanelFullscreen(panel);
     };
 
     /**
-     * Zoom in, zoom out and reset for an ECharts chart whose `dataZoom` pans
-     * and zooms it (the semantic scatters). Ctrl + scroll and dragging still
-     * work; the buttons make zooming discoverable and work without a wheel.
-     * Each step halves or doubles the visible window around its centre.
+     * Zoom in, zoom out and reset for a chart that can zoom. Ctrl + scroll and
+     * dragging still work; the buttons make zooming discoverable and work
+     * without a wheel.
+     *
+     * Two kinds qualify: an ECharts chart whose `dataZoom` pans and zooms it
+     * (the semantic scatters, `_zoomable`), where each step halves or doubles
+     * the visible window around its centre, and an adapter with its own
+     * `zoomBy(factor)` and `resetView()` (the d3-force networks).
      */
     function attachZoom(panel, chart) {
         if (panel.querySelector('.rv-chart-toolbar [data-action="zoom-in"]')) return;
+        var actions = typeof chart.zoomBy === 'function' ? {
+            zoomIn: function () { chart.zoomBy(1.5); },
+            zoomOut: function () { chart.zoomBy(1 / 1.5); },
+            reset: function () { chart.resetView(); }
+        } : dataZoomActions(chart);
+        var buttons = [
+            ['zoom-in', ns.ICONS.zoomIn, ns.t('zoomIn', 'Zoom in'), actions.zoomIn],
+            ['zoom-out', ns.ICONS.zoomOut, ns.t('zoomOut', 'Zoom out'), actions.zoomOut],
+            ['zoom-reset', ns.ICONS.reset, ns.t('zoomReset', 'Show everything again'), actions.reset]
+        ].map(function (config) {
+            var btn = ns.iconButton(config[1], config[2]);
+            btn.className = 'rv-toolbar-btn';
+            btn.setAttribute('data-action', config[0]);
+            btn.addEventListener('click', config[3]);
+            return btn;
+        });
+        ns.addToChartToolbar(panel, 'zoom', buttons);
+    }
+
+    function dataZoomActions(chart) {
         var dom = typeof chart.getDom === 'function' ? chart.getDom() : null;
         var live = function () {
             var current = dom && window.echarts && echarts.getInstanceByDom(dom);
@@ -2550,23 +2577,16 @@
                 target.dispatchAction({ type: 'dataZoom', dataZoomIndex: index, start: mid - half, end: mid + half });
             });
         }
-        var buttons = [
-            ['zoom-in', ns.ICONS.zoomIn, ns.t('zoomIn', 'Zoom in'), function () { step(0.5); }],
-            ['zoom-out', ns.ICONS.zoomOut, ns.t('zoomOut', 'Zoom out'), function () { step(2); }],
-            ['zoom-reset', ns.ICONS.reset, ns.t('zoomReset', 'Show everything again'), function () {
+        return {
+            zoomIn: function () { step(0.5); },
+            zoomOut: function () { step(2); },
+            reset: function () {
                 var target = live();
                 (target.getOption().dataZoom || []).forEach(function (zoom, index) {
                     target.dispatchAction({ type: 'dataZoom', dataZoomIndex: index, start: 0, end: 100 });
                 });
-            }]
-        ].map(function (config) {
-            var btn = ns.iconButton(config[1], config[2]);
-            btn.className = 'rv-toolbar-btn';
-            btn.setAttribute('data-action', config[0]);
-            btn.addEventListener('click', config[3]);
-            return btn;
-        });
-        ns.addToChartToolbar(panel, 'zoom', buttons);
+            }
+        };
     }
 
     function attachExports(panel, chart) {

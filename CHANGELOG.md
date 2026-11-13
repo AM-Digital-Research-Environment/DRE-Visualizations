@@ -16,6 +16,7 @@ workflow publishes it as the notes of the GitHub release
 ### Added
 
 - **What the collection holds**, a treemap that opens the Collection Overview and joins the Collection Dashboard: every record side by side, grouped by source. Research items are split by research section, publications by type, YouTube videos by playlist and podcast episodes by series (`Aggregators::buildContentSources`). The overview has always counted publications, videos and podcast episodes, folded into one resource type each, but its first charts (partners, research sections, section by university) can only show research items. Nothing showed the 803 publications, 142 videos and 43 episodes beside the 3,793 research items, so the block read as an overview of research items alone. The new key is optional, so the snapshot schema is unchanged. **Regenerate now** after updating to draw it.
+- **The collaboration and speaker networks zoom from buttons and say how to zoom with the wheel.** Zoom in, zoom out and *Show everything again* join the panel toolbar, as on the semantic maps (`core/toolbar.js` now takes any chart with `zoomBy` and `resetView`). Zooming used to need Ctrl + scroll, a double-click or the keyboard, and readers did not find any of them. A plain scroll over a d3-force graph still scrolls the page, but now veils the canvas for a moment with "Use Ctrl + scroll to zoom the graph" (⌘ on a Mac), like the cooperative-gesture hint on the maps; the item-page knowledge graph gets the veil too.
 
 ### Changed
 

@@ -1102,6 +1102,37 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     display: none;
 }
 
+/* "Use Ctrl + scroll to zoom": a veil over the canvas while a plain scroll
+   passes through to the page, like MapLibre's cooperative-gesture overlay on
+   the module's maps. pointer-events: none so it never blocks the scroll. */
+.rv-graph-wheel-hint {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--rv-space-4);
+    background: color-mix(in srgb, var(--rv-heading-color) 55%, transparent);
+    color: var(--rv-bg);
+    font-size: var(--rv-text-base);
+    font-weight: 600;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.rv-graph-wheel-hint-on {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rv-graph-wheel-hint {
+        transition: none;
+    }
+}
+
 .rv-kg-tip-cat {
     font-weight: 600;
 }

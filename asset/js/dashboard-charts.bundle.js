@@ -3142,7 +3142,7 @@
             modeSwitch,
             legend.el,
             lineLegend,
-            chrome.buildHint(t('communitiesHint', 'Click a person to focus their collaborators; the panel that opens links to their record. Toggle a group in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Double-click the background or Ctrl + scroll to zoom.'))
+            chrome.buildHint(t('communitiesHint', 'Click a person to focus their collaborators; the panel that opens links to their record. Toggle a group in the legend to isolate it. Drag to rearrange — a dragged node stays where you put it (Alt-click to release). Zoom with the + and − buttons, a double-click on the background, or Ctrl + scroll.'))
         ]);
         graph.onTheme(function () { legend.recolour(); });
 
@@ -3256,6 +3256,9 @@
                 });
                 return rows;
             },
+            // Zoom in, out and reset in the panel toolbar (core/toolbar.js).
+            zoomBy: function (factor) { graph.zoomBy(factor); },
+            resetView: function () { graph.resetView(); },
             resize: function () { graph.resize(); },
             dispose: function () { graph.destroy(); },
             graph: graph

@@ -420,6 +420,20 @@
         status.setAttribute('aria-live', 'polite');
         container.appendChild(status);
 
+        // The wheel hint: a plain scroll over the graph scrolls the page, so say
+        // once, over the canvas, how to zoom instead — MapLibre's cooperative
+        // gestures on the module's maps do the same. aria-hidden: it answers a
+        // mouse gesture, and the canvas label already gives the keyboard route.
+        var mac = /Mac|iPhone|iPad/.test((navigator.userAgentData && navigator.userAgentData.platform)
+            || navigator.platform || '');
+        var wheelHint = ns.el('div', 'rv-graph-wheel-hint');
+        wheelHint.appendChild(ns.el('span', null, mac
+            ? ns.t('graphGestureMac', 'Use ⌘ + scroll to zoom the graph')
+            : ns.t('graphGestureWindows', 'Use Ctrl + scroll to zoom the graph')));
+        wheelHint.setAttribute('aria-hidden', 'true');
+        container.appendChild(wheelHint);
+        var wheelHintTimer = 0;
+
         var gc = ns.GraphCanvas.create(container, canvas);
 
         /* ---- State ---------------------------------------------------- */
@@ -879,11 +893,31 @@
         // hijacking the wheel there is the classic embedded-map trap. Ctrl/⌘+wheel
         // zooms, and in fullscreen there is no page to scroll so the wheel is ours.
         canvas.addEventListener('wheel', function (ev) {
-            if (!container.closest('.rv-fullscreen') && !ev.ctrlKey && !ev.metaKey) return;
+            if (!container.closest('.rv-fullscreen') && !ev.ctrlKey && !ev.metaKey) {
+                // A horizontal trackpad swipe is not an attempt to zoom.
+                if (Math.abs(ev.deltaY) > Math.abs(ev.deltaX)) showWheelHint();
+                return;
+            }
+            hideWheelHint();
             ev.preventDefault();
             var p = localPos(ev);
             if (gc.zoomAt(p.x, p.y, ev.deltaY < 0 ? 1.12 : 1 / 1.12)) requestPaint();
         }, { passive: false });
+
+        function showWheelHint() {
+            wheelHint.classList.add('rv-graph-wheel-hint-on');
+            clearTimeout(wheelHintTimer);
+            wheelHintTimer = setTimeout(hideWheelHint, 1400);
+        }
+        function hideWheelHint() {
+            clearTimeout(wheelHintTimer);
+            wheelHint.classList.remove('rv-graph-wheel-hint-on');
+        }
+
+        /** Zoom about the centre of the stage — the buttons' and the keys' zoom. */
+        function zoomBy(factor) {
+            if (gc.zoomAt(gc.width() / 2, gc.height() / 2, factor)) requestPaint();
+        }
 
         /* ---- Keyboard ------------------------------------------------- */
 
@@ -929,11 +963,9 @@
                 if (focusId && byId[focusId]) { activate(byId[focusId], ev.altKey); ev.preventDefault(); }
                 return;
             } else if (ev.key === '+' || ev.key === '=') {
-                if (gc.zoomAt(gc.width() / 2, gc.height() / 2, 1.25)) requestPaint();
-                ev.preventDefault(); return;
+                zoomBy(1.25); ev.preventDefault(); return;
             } else if (ev.key === '-' || ev.key === '_') {
-                if (gc.zoomAt(gc.width() / 2, gc.height() / 2, 1 / 1.25)) requestPaint();
-                ev.preventDefault(); return;
+                zoomBy(1 / 1.25); ev.preventDefault(); return;
             } else if (ev.key === '0') {
                 gc.fit(visibleNodes()); requestPaint(); ev.preventDefault(); return;
             } else if (ev.key === 'Escape') {
@@ -994,6 +1026,7 @@
             destroyed = true;
             if (untrack) untrack();
             if (engine) engine.destroy();
+            clearTimeout(wheelHintTimer);
             if (observer) observer.disconnect();
             else window.removeEventListener('resize', resize);
             if (ratioQuery) ratioQuery.removeEventListener('change', onRatioChange);
@@ -1016,6 +1049,7 @@
             destroy: destroy,
             repaint: invalidate,
             resetView: function () { gc.fit(visibleNodes()); requestPaint(); },
+            zoomBy: zoomBy,
             categoriesInUse: function () {
                 var used = {};
                 pass.nodes.forEach(function (n) { used[n.category] = true; });
