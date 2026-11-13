@@ -1064,6 +1064,14 @@ details.rv-collapsible[open] > .rv-collapsible__head .rv-collapsible__chevron {
     cursor: grab;
 }
 
+/* A large graph lays out in a worker; the skeleton covers the stage until its
+   first positions arrive. Out of flow, like the canvas, so it cannot size it. */
+.rv-graph-stage > .rv-graph-loading {
+    position: absolute;
+    inset: 0;
+    min-height: 0;
+}
+
 .rv-graph-canvas:focus-visible {
     outline: 2px solid transparent;
     box-shadow: var(--rv-focus-ring);

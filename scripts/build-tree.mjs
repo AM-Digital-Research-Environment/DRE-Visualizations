@@ -134,7 +134,7 @@ const ANNOTATIONS = {
   'asset/js/entity-graph.js': 'Entity Network: MapLibre renderer + controller',
   'asset/js/graph-canvas.js': 'Reusable: view transform, canvas painter, hit tests',
   'asset/js/graph-chrome.js': 'Reusable: graph toolbar, legend, fullscreen',
-  'asset/js/graph-force.js': 'Reusable: d3-force simulation + pointer/keyboard interaction',
+  'asset/js/graph-force.js': 'Reusable: d3-force simulation (a worker from 120 nodes) + pointer/keyboard interaction',
   'asset/js/item-location-map.js': 'MapLibre origin / current-location panel',
   'asset/js/item-set-content-map.js': 'Photo Browsing: the "By content" full-text map',
   'asset/js/item-set-content-extras.js': 'Photo Browsing: the Words and Places views of a full-text export',

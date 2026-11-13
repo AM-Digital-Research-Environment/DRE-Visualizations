@@ -152,6 +152,75 @@ test.describe('lifecycle', () => {
     expect(errors).toEqual([]);
   });
 
+  // Golden networks are small, so the worker path (graph-force.js from
+  // WORKER_MIN_NODES) only runs here: a co-author-sized network lays out off the
+  // page, answers the keyboard, and takes its worker with it when disposed; a
+  // page that cannot start a worker, or whose worker cannot load d3, still gets
+  // the graph, laid out on the page.
+  const MODES = {
+    worker: ['in a worker', { started: 1, terminated: 1 }],
+    blocked: ['on the page when workers are blocked', { started: 0, terminated: 0 }],
+    broken: ['on the page when the worker cannot load d3', { started: 1, terminated: 1 }],
+  };
+  for (const [mode, [title, expected]] of Object.entries(MODES)) {
+    const blocked = mode === 'blocked';
+    test(`a large co-occurrence network lays out ${title}`, async ({ page }) => {
+      const errors = [];
+      page.on('pageerror', (error) => errors.push(error.message));
+      await page.addInitScript((block) => {
+        const Real = window.Worker;
+        window.__workers = { started: 0, terminated: 0 };
+        window.Worker = function (url) {
+          if (block) throw new Error('Workers are blocked here');
+          window.__workers.started++;
+          const worker = new Real(url);
+          const terminate = worker.terminate.bind(worker);
+          worker.terminate = () => { window.__workers.terminated++; terminate(); };
+          return worker;
+        };
+      }, blocked);
+      await stubData(page, fullData);
+      await openSurface(page, 'compare');
+      await page.evaluate(async (broken) => {
+        const ns = window.RV;
+        await ns.ensureLibs({ d3: true });
+        // The page has d3; the worker is pointed at a script that does not exist.
+        if (broken) window.RV_LIBS.d3 = ['/asset/vendor/missing-d3.js'];
+        const nodes = [], links = [];
+        for (let i = 0; i < 300; i++) {
+          nodes.push({ name: `Person ${i}`, value: 1 + (i % 7), community: i % 6, rank: (i % 13) / 13, matched: true });
+          if (i % 50) links.push({ source: `Person ${i - 1}`, target: `Person ${i}`, value: 1 + (i % 3), relation: 'coauthor' });
+          if (i > 7) links.push({ source: `Person ${i}`, target: `Person ${(i * 7) % i}`, value: 1, relation: 'mixed' });
+        }
+        const host = document.createElement('div');
+        host.style.cssText = 'width:800px;height:520px';
+        document.querySelector('#ownership').appendChild(host);
+        window.__chart = ns.charts.buildCommunities(host, { nodes, links, communities: [] }, '/s/test');
+      }, mode === 'broken');
+      const canvas = page.locator('#ownership canvas.rv-graph-canvas');
+      await expect(page.locator('#ownership .rv-graph-loading')).toHaveCount(0);
+      // Something is drawn: the first organised picture reached the canvas.
+      await expect.poll(() => canvas.evaluate((c) => {
+        const data = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+        let painted = 0;
+        for (let i = 3; i < data.length; i += 4) if (data[i]) painted++;
+        return painted;
+      })).toBeGreaterThan(1000);
+      // The keyboard walk reaches a node, and Enter selects it into the card.
+      await canvas.focus();
+      await canvas.press('ArrowRight');
+      await expect(page.locator('#ownership .rv-graph-status')).toContainText('Person');
+      await canvas.press('Enter');
+      await expect(page.locator('#ownership .rv-kg-card')).toBeVisible();
+      const workers = await page.evaluate(() => {
+        window.RV.disposeWithin(document.querySelector('#ownership'));
+        return window.__workers;
+      });
+      expect(workers).toEqual(expected);
+      expect(errors).toEqual([]);
+    });
+  }
+
   test('an empty dashboard loads no heavy library; a pie chart loads only ECharts', async ({ page }) => {
     let empty = true;
     const requests = await stubData(page, (path) => (path.endsWith('/test.json')

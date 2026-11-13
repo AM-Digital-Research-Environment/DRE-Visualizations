@@ -201,104 +201,163 @@
 
         /* ---- Painting -------------------------------------------------- */
 
+        /**
+         * Edges, batched: one path per distinct stroke (colour, width, opacity,
+         * dash) instead of one stroke() per edge. The co-author network has ~2,600
+         * edges and only a handful of distinct strokes, and per-edge state changes
+         * and strokes were most of the cost of a frame. Within one path overlapping
+         * edges no longer darken each other, which reads as a calmer hairball.
+         * Emphasised strokes are drawn last, so the focus sits on top of the rest.
+         *
+         * `o.onlyFocus` draws just the emphasised edges — the overlay painted over
+         * the cached, dimmed graph (see paint()).
+         */
         function drawEdges(c, scene, o) {
             var THEME = ns.THEME;
             var fset = scene.focusSet;
-            var k = view.k;
-            c.lineCap = 'round';
-            scene.links.forEach(function (l) {
+            var k = view.k, vx = view.x, vy = view.y;
+            var widthScale = clamp(k, 0.75, 1.6);
+            var groups = {};
+            var order = [];
+            var links = scene.links;
+            for (var i = 0; i < links.length; i++) {
+                var l = links[i];
                 var inFocus = !fset || (fset[l.source.id] && fset[l.target.id]);
                 var hovered = (l === scene.hoverLink);
+                if (o.onlyFocus && !hovered && !inFocus) continue;
                 var alpha = inFocus ? l.alpha : l.alpha * 0.07;
-                if (alpha < 0.012) return;
-                var x1 = screenX(l.source), y1 = screenY(l.source);
-                var x2 = screenX(l.target), y2 = screenY(l.target);
-                // A slight arc separates the several statements that can join one
-                // pair, and keeps a dense hub from collapsing into a single blob.
-                var dx = x2 - x1, dy = y2 - y1;
-                var cx = (x1 + x2) / 2 - dy * 0.075, cy = (y1 + y2) / 2 + dx * 0.075;
-                c.globalAlpha = alpha;
+                if (alpha < 0.012) continue;
                 // An optional per-link colour carries an edge ATTRIBUTE the reader
                 // needs to tell apart — a co-authorship from an author–editor tie,
                 // say. Emphasis still wins over it: a hovered or in-focus edge goes
                 // accent, because "which edges belong to this node" is the more
                 // urgent question the moment there is a focus at all.
-                var own = scene.linkColorOf ? scene.linkColorOf(l) : null;
-                c.strokeStyle = (hovered || (fset && inFocus)) ? THEME.accent
-                    : (own || (l.weak ? THEME.grid : THEME.textMuted));
-                c.lineWidth = (hovered ? l.width + 1.4 : (fset && inFocus ? l.width + 0.8 : l.width))
-                    * clamp(k, 0.75, 1.6);
-                if (l.weak) c.setLineDash([4 * k, 3 * k]); else c.setLineDash([]);
-                c.beginPath();
-                c.moveTo(x1, y1);
-                c.quadraticCurveTo(cx, cy, x2, y2);
-                c.stroke();
+                var emphasis = hovered ? 2 : (fset && inFocus ? 1 : 0);
+                var own = emphasis ? null : (scene.linkColorOf ? scene.linkColorOf(l) : null);
+                var stroke = emphasis ? THEME.accent : (own || (l.weak ? THEME.grid : THEME.textMuted));
+                var width = (hovered ? l.width + 1.4 : (emphasis ? l.width + 0.8 : l.width)) * widthScale;
+                var key = stroke + '|' + emphasis + '|' + width + '|' + alpha + '|' + (l.weak ? 1 : 0);
+                var g = groups[key];
+                if (!g) {
+                    g = groups[key] = { emphasis: emphasis, stroke: stroke, width: width, alpha: alpha, weak: l.weak, path: new Path2D() };
+                    order.push(g);
+                }
+                var x1 = l.source.x * k + vx, y1 = l.source.y * k + vy;
+                var x2 = l.target.x * k + vx, y2 = l.target.y * k + vy;
+                // A slight arc separates the several statements that can join one
+                // pair, and keeps a dense hub from collapsing into a single blob.
+                var dx = x2 - x1, dy = y2 - y1;
+                g.path.moveTo(x1, y1);
+                g.path.quadraticCurveTo((x1 + x2) / 2 - dy * 0.075, (y1 + y2) / 2 + dx * 0.075, x2, y2);
+            }
+            order.sort(function (a, b) { return a.emphasis - b.emphasis; });
+            c.lineCap = 'round';
+            order.forEach(function (g) {
+                c.globalAlpha = g.alpha;
+                c.strokeStyle = g.stroke;
+                c.lineWidth = g.width;
+                c.setLineDash(g.weak ? [4 * k, 3 * k] : []);
+                c.stroke(g.path);
             });
             c.setLineDash([]);
             c.globalAlpha = 1;
         }
 
+        /**
+         * Nodes, batched like the edges: one path per fill/outline/opacity, filled
+         * then outlined, so ~950 discs cost a dozen draw calls rather than ~1,900.
+         * The collision force keeps discs from overlapping, so painting them by
+         * group rather than one by one does not change the picture. The rings that
+         * mark a pinned, selected or focused node are few and drawn after, one by one.
+         */
         function drawNodes(c, scene, o) {
             var THEME = ns.THEME;
             var fset = scene.focusSet;
-            var k = view.k;
-            scene.nodes.forEach(function (n) {
+            var k = view.k, vx = view.x, vy = view.y;
+            var TAU = Math.PI * 2;
+            var groups = {};
+            var order = [];
+            var marked = [];
+            var nodes = scene.nodes;
+            for (var i = 0; i < nodes.length; i++) {
+                var n = nodes[i];
+                if (o.onlyFocus && fset && !fset[n.id]) continue;
                 var r = Math.max(1.6, n.r * k);
-                var x = screenX(n), y = screenY(n);
-                if (x < -r - 40 || y < -r - 40 || x > o.w + r + 40 || y > o.h + r + 40) return;
+                var x = n.x * k + vx, y = n.y * k + vy;
+                if (x < -r - 40 || y < -r - 40 || x > o.w + r + 40 || y > o.h + r + 40) continue;
                 var dim = fset && !fset[n.id];
                 // Small nodes sit a touch back from the primary ones.
                 var recessive = !n.isCenter && n.size <= 16;
-                c.globalAlpha = dim ? 0.12 : (recessive ? 0.88 : 1);
-
-                c.beginPath();
-                c.arc(x, y, r, 0, Math.PI * 2);
-                c.fillStyle = scene.colorOf(n.category);
-                c.fill();
+                var alpha = dim ? 0.12 : (recessive ? 0.88 : 1);
+                var fill = scene.colorOf(n.category);
 
                 var halo = (n.isCenter || !scene.showHalos) ? null : scene.haloOf(n);
+                var stroke, width;
                 if (n.isCenter) {
-                    c.strokeStyle = THEME.text;
-                    c.lineWidth = Math.max(2, 3 * Math.min(k, 1.4));
+                    stroke = THEME.text;
+                    width = Math.max(2, 3 * Math.min(k, 1.4));
                 } else if (halo) {
-                    c.strokeStyle = halo;
-                    c.lineWidth = Math.max(1.5, 3 * Math.min(k, 1.2));
+                    stroke = halo;
+                    width = Math.max(1.5, 3 * Math.min(k, 1.2));
                 } else {
-                    c.strokeStyle = THEME.border;
-                    c.lineWidth = 1;
+                    stroke = THEME.border;
+                    width = 1;
                 }
-                c.stroke();
-
-                // A pinned node keeps where the reader dragged it; the outer ring is
-                // what says so without adding a second glyph to read.
-                if (n.pinned) {
-                    c.beginPath();
-                    c.arc(x, y, r + 3.5, 0, Math.PI * 2);
-                    c.strokeStyle = THEME.accent;
-                    c.lineWidth = 1.25;
-                    c.stroke();
+                var key = fill + '|' + stroke + '|' + width + '|' + alpha;
+                var g = groups[key];
+                if (!g) {
+                    g = groups[key] = { fill: fill, stroke: stroke, width: width, alpha: alpha, path: new Path2D() };
+                    order.push(g);
                 }
-                // A selected node is the reader's anchor and stays marked while they
-                // read its card, so it gets a solid ring — distinct from the dashed
-                // keyboard-focus ring, which is transient.
-                if (n.id === scene.selectedId) {
-                    c.beginPath();
-                    c.arc(x, y, r + 6, 0, Math.PI * 2);
-                    c.strokeStyle = THEME.accent;
-                    c.lineWidth = 2.5;
-                    c.stroke();
+                g.path.moveTo(x + r, y);
+                g.path.arc(x, y, r, 0, TAU);
+                if (n.pinned || n.id === scene.selectedId || n.id === scene.focusId) {
+                    marked.push({ n: n, x: x, y: y, r: r, alpha: alpha });
                 }
-                if (n.id === scene.focusId) {
-                    c.beginPath();
-                    c.arc(x, y, r + (n.id === scene.selectedId ? 10 : 6), 0, Math.PI * 2);
-                    c.strokeStyle = THEME.accent;
-                    c.lineWidth = 2;
-                    c.setLineDash([3, 2]);
-                    c.stroke();
-                    c.setLineDash([]);
-                }
-                c.globalAlpha = 1;
+            }
+            order.forEach(function (g) {
+                c.globalAlpha = g.alpha;
+                c.fillStyle = g.fill;
+                c.fill(g.path);
+                c.strokeStyle = g.stroke;
+                c.lineWidth = g.width;
+                c.stroke(g.path);
             });
+            marked.forEach(function (m) { drawRings(c, scene, m.n, m.x, m.y, m.r, m.alpha); });
+            c.globalAlpha = 1;
+        }
+
+        function drawRings(c, scene, n, x, y, r, alpha) {
+            var THEME = ns.THEME;
+            c.globalAlpha = alpha;
+            // A pinned node keeps where the reader dragged it; the outer ring is
+            // what says so without adding a second glyph to read.
+            if (n.pinned) {
+                c.beginPath();
+                c.arc(x, y, r + 3.5, 0, Math.PI * 2);
+                c.strokeStyle = THEME.accent;
+                c.lineWidth = 1.25;
+                c.stroke();
+            }
+            // A selected node is the reader's anchor and stays marked while they
+            // read its card, so it gets a solid ring — distinct from the dashed
+            // keyboard-focus ring, which is transient.
+            if (n.id === scene.selectedId) {
+                c.beginPath();
+                c.arc(x, y, r + 6, 0, Math.PI * 2);
+                c.strokeStyle = THEME.accent;
+                c.lineWidth = 2.5;
+                c.stroke();
+            }
+            if (n.id === scene.focusId) {
+                c.beginPath();
+                c.arc(x, y, r + (n.id === scene.selectedId ? 10 : 6), 0, Math.PI * 2);
+                c.strokeStyle = THEME.accent;
+                c.lineWidth = 2;
+                c.setLineDash([3, 2]);
+                c.stroke();
+                c.setLineDash([]);
+            }
         }
 
         function labelPriority(n, scene) {
@@ -329,11 +388,13 @@
             var k = view.k;
             var boxes = [];
             var budget = everything ? scene.nodes.length : LABEL_BUDGET;
-            var ordered = scene.nodes.slice().sort(function (a, b) {
-                return labelPriority(b, scene) - labelPriority(a, scene);
-            });
+            // Priorities computed once per node, not once per comparison.
+            var ordered = scene.nodes.slice();
+            for (var p = 0; p < ordered.length; p++) ordered[p]._labelRank = labelPriority(ordered[p], scene);
+            ordered.sort(function (a, b) { return b._labelRank - a._labelRank; });
             c.textBaseline = 'middle';
             c.lineJoin = 'round';
+            var font = null;
 
             for (var i = 0; i < ordered.length && boxes.length < budget; i++) {
                 var n = ordered[i];
@@ -347,10 +408,21 @@
                 if (scene.focusSet && !scene.focusSet[n.id] && !o.allLabels) continue;
 
                 var size = n.isCenter ? THEME.fontSizeTitle : THEME.fontSize;
-                c.font = (n.isCenter ? '700 ' : '') + size + 'px ' + THEME.fontFamily;
-                var text = ns.truncateLabel(n.name, n.isCenter ? 48 : THEME.labelMaxLen);
+                var nodeFont = (n.isCenter ? '700 ' : '') + size + 'px ' + THEME.fontFamily;
+                // Setting a font parses it; only do so when it changes.
+                if (nodeFont !== font) { c.font = nodeFont; font = nodeFont; }
+                // A label's text and width only change with its font (the theme)
+                // and the truncation length, so they are measured once, not on
+                // every frame of a settling or dragged graph.
+                var maxLen = n.isCenter ? 48 : THEME.labelMaxLen;
+                var lbl = n._label;
+                if (!lbl || lbl.font !== nodeFont || lbl.name !== n.name || lbl.maxLen !== maxLen) {
+                    var t = ns.truncateLabel(n.name, maxLen);
+                    lbl = n._label = { font: nodeFont, name: n.name, maxLen: maxLen, text: t, width: c.measureText(t).width };
+                }
+                var text = lbl.text;
                 var lx = screenX(n) + Math.max(1.6, n.r * k) + 5, ly = screenY(n);
-                var box = [lx - 2, ly - size * 0.66, lx + c.measureText(text).width + 2, ly + size * 0.66];
+                var box = [lx - 2, ly - size * 0.66, lx + lbl.width + 2, ly + size * 0.66];
                 if (box[2] < 0 || box[0] > o.w || box[3] < 0 || box[1] > o.h) continue;
                 if (!forced && overlaps(box, boxes)) continue;
                 boxes.push(box);
@@ -471,9 +543,90 @@
             c.restore();
         }
 
+        /*
+         * The dimmed graph behind a focus, cached. Hovering or selecting a node
+         * dims everything but its neighbourhood; redrawing all of it for every
+         * hover cost as much as a full frame. A focus frame is therefore two
+         * layers: the whole graph dimmed, drawn into an offscreen canvas, then only
+         * the neighbourhood and the labels on top. The dimmed layer is kept while
+         * the picture under it stays the same (scene version, view and size); the
+         * controller bumps scene.version whenever positions, colours, visibility or
+         * rings change, so a moving graph redraws it and never reads a stale copy.
+         */
+        var dimmed = { canvas: null, key: null };
+        // The whole frame with no focus, kept the same way, so pointing away from
+        // a node is a copy too. Only stored once the same frame is asked for twice
+        // running: a graph that is still moving would pay for a copy every frame.
+        var plain = { canvas: null, key: null, last: null };
+
+        function stateKey(scene) {
+            return [scene.version, view.x, view.y, view.k, W, H, dpr,
+                scene.showHalos ? 1 : 0, scene.labelsAll ? 1 : 0, scene.edgeLabels ? 1 : 0].join('|');
+        }
+
+        function layer(cache) {
+            if (!cache.canvas) cache.canvas = document.createElement('canvas');
+            if (cache.canvas.width !== canvas.width || cache.canvas.height !== canvas.height) {
+                cache.canvas.width = canvas.width;
+                cache.canvas.height = canvas.height;
+            }
+            return cache.canvas.getContext('2d');
+        }
+
+        /** Replace the live canvas with a cached layer, in device pixels. */
+        function blit(src) {
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(src, 0, 0);
+            ctx.restore();
+        }
+
         function paint(scene) {
             if (!W || !H) return;
-            render(ctx, scene, { w: W, h: H, scale: dpr, bg: null, allLabels: false, legend: false });
+            var o = { w: W, h: H, scale: dpr, bg: null, allLabels: false, legend: false };
+            if (scene.version == null) {
+                render(ctx, scene, o);
+                return;
+            }
+            var key = stateKey(scene);
+            if (!scene.focusSet) {
+                if (scene.hoverLink) {
+                    render(ctx, scene, o);
+                } else if (plain.key === key) {
+                    blit(plain.canvas);
+                } else {
+                    render(ctx, scene, o);
+                    if (plain.last === key) {
+                        var pc = layer(plain);
+                        pc.clearRect(0, 0, plain.canvas.width, plain.canvas.height);
+                        pc.drawImage(canvas, 0, 0);
+                        plain.key = key;
+                    }
+                }
+                plain.last = key;
+                return;
+            }
+            if (dimmed.key !== key) {
+                var dc = layer(dimmed);
+                dc.clearRect(0, 0, dimmed.canvas.width, dimmed.canvas.height);
+                // An empty focus set dims every node and edge; no labels, no hover.
+                var base = Object.assign({}, scene, { focusSet: {}, hoverLink: null, hoverId: null, focusId: null, selectedId: null });
+                dc.save();
+                dc.scale(dpr, dpr);
+                drawEdges(dc, base, o);
+                drawNodes(dc, base, o);
+                dc.restore();
+                dimmed.key = key;
+            }
+            blit(dimmed.canvas);
+            ctx.save();
+            ctx.scale(dpr, dpr);
+            var overlay = { w: W, h: H, scale: dpr, bg: null, allLabels: false, legend: false, onlyFocus: true };
+            drawEdges(ctx, scene, overlay);
+            drawNodes(ctx, scene, overlay);
+            drawEdgeLabels(ctx, scene, overlay, drawLabels(ctx, scene, overlay));
+            ctx.restore();
         }
 
         /** PNG at 2× on the export background, with every label that fits + legend. */

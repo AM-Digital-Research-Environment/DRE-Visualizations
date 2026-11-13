@@ -404,7 +404,7 @@ DreVisualizations/
 │   │   ├── entity-graph.js                          # Entity Network: MapLibre renderer + controller
 │   │   ├── graph-canvas.js                          # Reusable: view transform, canvas painter, hit tests
 │   │   ├── graph-chrome.js                          # Reusable: graph toolbar, legend, fullscreen
-│   │   ├── graph-force.js                           # Reusable: d3-force simulation + pointer/keyboard interaction
+│   │   ├── graph-force.js                           # Reusable: d3-force simulation (a worker from 120 nodes) + pointer/keyboard interaction
 │   │   ├── item-location-map.js                     # MapLibre origin / current-location panel
 │   │   ├── item-set-content-extras.js               # Photo Browsing: the Words and Places views of a full-text export
 │   │   ├── item-set-content-map.js                  # Photo Browsing: the "By content" full-text map
