@@ -227,11 +227,12 @@
         // publications appeared) in the same ranked bars, so they share one
         // full-width panel with a switch (`tabs`) instead of three half-width
         // panels; the most published authors get their own row below.
+        // Funders close the dashboard, after the content-level charts.
         publications: {
             order: ['types', 'languages', 'stackedTimeline', 'locations',
                     'topJournals', 'topPublishers', 'topSeries', 'topAuthors',
-                    'funders', 'coAuthorNetwork',
-                    'chord', 'subjects', 'abstractWordcloud', 'similarity'],
+                    'coAuthorNetwork', 'chord', 'subjects',
+                    'abstractWordcloud', 'similarity', 'funders'],
             tabs:  [{ label: 'publicationVenues',
                       keys: ['topJournals', 'topPublishers', 'topSeries'] }],
             wide:  ['stackedTimeline', 'locations', 'topJournals', 'topPublishers',

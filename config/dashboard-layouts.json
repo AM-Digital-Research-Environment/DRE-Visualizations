@@ -277,12 +277,12 @@
       "topPublishers",
       "topSeries",
       "topAuthors",
-      "funders",
       "coAuthorNetwork",
       "chord",
       "subjects",
       "abstractWordcloud",
-      "similarity"
+      "similarity",
+      "funders"
     ],
     "youtube": [
       "transcriptWordcloud",

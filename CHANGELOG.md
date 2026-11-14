@@ -13,6 +13,10 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Changed
+
+- **Funders now close the Publications dashboard.** The panel moved from between the most published authors and the co-author network to the very bottom of the `publications` layout, after the similarity map.
+
 ## [2.54.0] - 2026-11-13
 
 ### Added
