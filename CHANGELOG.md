@@ -13,6 +13,8 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.54.1] - 2026-11-14
+
 ### Changed
 
 - **Funders now close the Publications dashboard.** The panel moved from between the most published authors and the co-author network to the very bottom of the `publications` layout, after the similarity map.
@@ -1207,7 +1209,8 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 - Previous repository state. Earlier history remains available in Git tags and
   commit history.
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.54.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.54.1...HEAD
+[2.54.1]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.54.0...v2.54.1
 [2.54.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.53.0...v2.54.0
 [2.53.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.52.0...v2.53.0
 [2.52.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.51.1...v2.52.0
