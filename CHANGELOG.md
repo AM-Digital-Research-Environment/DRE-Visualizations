@@ -13,6 +13,8 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.55.1] - 2026-11-16
+
 ### Fixed
 
 - The Collection Overview's Lighthouse performance fell from 0.74 to 0.52 in 2.54.0. It failed the budget (floor 0.61) on every release since. The new *What the collection holds* panel opens the overview, and its 230-character description became the page's largest text. It is drawn only once the scripts and data have loaded, so largest contentful paint moved from 0.8 s to 5.7 s. The description is now one shorter sentence.
@@ -1223,7 +1225,8 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 - Previous repository state. Earlier history remains available in Git tags and
   commit history.
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.1...HEAD
+[2.55.1]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.0...v2.55.1
 [2.55.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.54.1...v2.55.0
 [2.54.1]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.54.0...v2.54.1
 [2.54.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.53.0...v2.54.0
