@@ -13,6 +13,8 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.55.0] - 2026-11-16
+
 ### Added
 
 - **Where the co-authors are**, a map on the Publications dashboard after the *Collaboration network* (issue #43). Each circle is a geocoded institution the linked authors and editors are affiliated with (`dcterms:isPartOf` → Organisation with `geo:lat` / `geo:long`), sized by its people on a square-root scale and coloured as the University of Bayreuth, an Africa Multiple Research Centre, another cluster partner or another institution, from the cluster category authorities. Lines join Bayreuth, the institution most of the people work at, to every institution it shares publications with, weighted by those publications. A publication joins two institutions only through two different people credited on it, so one author affiliated with Bayreuth and elsewhere is not a collaboration on their own. A click on a circle lists its people. The description says that affiliations are the ones the person records hold today, not those at the time of publication, and the legend says how many of the linked people and publications the map places. On the current data that is 660 of 988 linked people and 800 of 813 publications, after MongoDB2OmekaS#34 completed the affiliations. The map has *Save as image*, *Download data (CSV)*, a data table and a single-chart embed (`/dre-embed/publications/coAuthorMap`), which no dashboard map offered before (`Aggregators::buildCoAuthorInstitutionMap`, `dashboard-charts-coauthor-map.js`; `ns.initMap` takes `exportable` to keep the drawing buffer). The new key is optional, so the snapshot schema is unchanged. **Regenerate now** after updating to draw it.
@@ -1217,7 +1219,8 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 - Previous repository state. Earlier history remains available in Git tags and
   commit history.
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.54.1...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.0...HEAD
+[2.55.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.54.1...v2.55.0
 [2.54.1]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.54.0...v2.54.1
 [2.54.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.53.0...v2.54.0
 [2.53.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.52.0...v2.53.0
