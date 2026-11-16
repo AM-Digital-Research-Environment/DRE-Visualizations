@@ -227,18 +227,20 @@
         // publications appeared) in the same ranked bars, so they share one
         // full-width panel with a switch (`tabs`) instead of three half-width
         // panels; the most published authors get their own row below.
+        // The co-authors' institutions map follows the collaboration network: the
+        // same people, placed by where they work.
         // Funders close the dashboard, after the content-level charts.
         publications: {
             order: ['types', 'languages', 'stackedTimeline', 'locations',
                     'topJournals', 'topPublishers', 'topSeries', 'topAuthors',
-                    'coAuthorNetwork', 'chord', 'subjects',
+                    'coAuthorNetwork', 'coAuthorMap', 'chord', 'subjects',
                     'abstractWordcloud', 'similarity', 'funders'],
             tabs:  [{ label: 'publicationVenues',
                       keys: ['topJournals', 'topPublishers', 'topSeries'] }],
             wide:  ['stackedTimeline', 'locations', 'topJournals', 'topPublishers',
                     'topSeries', 'topAuthors', 'funders', 'coAuthorNetwork',
-                    'chord', 'subjects', 'abstractWordcloud', 'similarity'],
-            tall:  ['locations', 'coAuthorNetwork', 'chord', 'subjects',
+                    'coAuthorMap', 'chord', 'subjects', 'abstractWordcloud', 'similarity'],
+            tall:  ['locations', 'coAuthorNetwork', 'coAuthorMap', 'chord', 'subjects',
                     'abstractWordcloud', 'similarity']
         },
         // Cluster YouTube channel (youtube.json). Videos carry no resource type

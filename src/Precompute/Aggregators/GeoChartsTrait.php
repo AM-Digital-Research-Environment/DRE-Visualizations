@@ -20,6 +20,8 @@ trait GeoChartsTrait
     // this trait states what it relies on and PHP checks the signatures.
     abstract private function sortByValueDesc(array $rows): array;
     abstract private function sortCounts(array &$counts): void;
+    abstract private function personTemplateId(): int;
+    abstract private function clusterCategoryOf(int $id, array $links, array $authorityKeys, array &$memo, int $depth = 0): ?string;
 
     /** Build geographic flow data: origin -> current location arcs. */
     public function buildGeoFlows(array $itemIds, array $links, array $items, array $geo): ?array
@@ -313,6 +315,141 @@ trait GeoChartsTrait
             }
         }
         return $markers ? array_values($markers) : null;
+    }
+
+    /**
+     * Where the authors and editors of a set of publications work: one row per
+     * geocoded institution a credited Person is affiliated with (dcterms:isPartOf
+     * → foaf:Organization with coordinates, as in buildProjectAffiliationMap),
+     * with its people, its publications and the publications it shares with the
+     * hub, the institution with the most people (the University of Bayreuth on
+     * AMIRA).
+     *
+     * Two institutions share a publication only through two different people
+     * credited on it: one author affiliated with the hub and with Lagos does not
+     * make a hub–Lagos collaboration on their own. Affiliations are the ones the
+     * person records hold now, not those at the time of publication.
+     *
+     * `category` is 'hub', 'amrc' (an Africa Multiple Research Centre), 'partner'
+     * (any other cluster partner category) or 'other', resolved through the
+     * institution's isPartOf chain like personAffiliations(). `coverage` counts
+     * the linked people and the publications, and how many of each the map
+     * places, so the chart can say what it leaves out.
+     *
+     * @param list<int> $itemIds
+     * @param array<int,string> $authorityKeys authority item id => category key
+     * @return array{hub:int,institutions:list<array>,coverage:array<string,int>}|null
+     */
+    public function buildCoAuthorInstitutionMap(array $itemIds, array $links, array $items, array $geo, array $authorityKeys): ?array
+    {
+        $person = $this->personTemplateId();
+        $affiliationsOf = [];   // person id => list of geocoded institution ids, memoised
+        $institutionsOf = function (int $pid) use (&$affiliationsOf, $links, $items, $geo): array {
+            if (!isset($affiliationsOf[$pid])) {
+                $found = [];
+                foreach ($links[$pid] ?? [] as [$term, , $vrid]) {
+                    if ($term === Terms::IS_PART_OF && isset($geo[$vrid]) && Terms::isOrganisation($items, $vrid)) {
+                        $found[$vrid] = true;
+                    }
+                }
+                $affiliationsOf[$pid] = array_keys($found);
+            }
+            return $affiliationsOf[$pid];
+        };
+
+        $people = [];           // institution id => [person id => true]
+        $pubs = [];             // institution id => [publication id => true]
+        $pairs = [];            // "a,b" (a < b) => [publication id => true]
+        $linkedPeople = [];
+        $mappedPeople = [];
+        $mappedPubs = 0;
+        foreach ($itemIds as $iid) {
+            $credited = [];
+            foreach ($links[$iid] ?? [] as [$term, , $vrid]) {
+                if (($term === Terms::AUTHOR_LIST || $term === Terms::EDITOR_LIST)
+                    && ($items[$vrid]['template_id'] ?? null) === $person) {
+                    $credited[$vrid] = $institutionsOf($vrid);
+                }
+            }
+            if (!$credited) {
+                continue;
+            }
+            $mapped = false;
+            foreach ($credited as $pid => $insts) {
+                $linkedPeople[$pid] = true;
+                foreach ($insts as $inst) {
+                    $people[$inst][$pid] = true;
+                    $pubs[$inst][$iid] = true;
+                    $mappedPeople[$pid] = true;
+                    $mapped = true;
+                }
+            }
+            $mappedPubs += $mapped ? 1 : 0;
+            // Institution pairs joined by two different people on this publication.
+            $pids = array_keys($credited);
+            $n = count($pids);
+            for ($i = 0; $i < $n; $i++) {
+                for ($j = $i + 1; $j < $n; $j++) {
+                    foreach ($credited[$pids[$i]] as $a) {
+                        foreach ($credited[$pids[$j]] as $b) {
+                            if ($a !== $b) {
+                                $pairs[min($a, $b) . ',' . max($a, $b)][$iid] = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (!$people) {
+            return null;
+        }
+
+        // The hub: most people, then most publications, then the lowest id.
+        $ids = array_keys($people);
+        usort($ids, static fn (int $a, int $b): int =>
+            [count($people[$b]), count($pubs[$b]), $a] <=> [count($people[$a]), count($pubs[$a]), $b]);
+        $hub = $ids[0];
+        $joint = [];
+        foreach ($pairs as $key => $shared) {
+            [$a, $b] = array_map('intval', explode(',', $key));
+            if ($a === $hub || $b === $hub) {
+                $joint[$a === $hub ? $b : $a] = count($shared);
+            }
+        }
+
+        $memo = [];
+        $rows = [];
+        foreach ($ids as $inst) {
+            $category = 'other';
+            if ($inst === $hub) {
+                $category = 'hub';
+            } elseif (($key = $this->clusterCategoryOf($inst, $links, $authorityKeys, $memo)) !== null) {
+                $category = $key === 'amrc' ? 'amrc' : 'partner';
+            }
+            $names = [];
+            foreach (array_keys($people[$inst]) as $pid) {
+                $names[] = ['id' => $pid, 'name' => (string) ($items[$pid]['title'] ?? ('Item ' . $pid))];
+            }
+            usort($names, static fn (array $a, array $b): int => strnatcasecmp($a['name'], $b['name']) ?: $a['id'] <=> $b['id']);
+            $g = $geo[$inst];
+            $rows[] = [
+                'itemId' => $inst, 'name' => $g['name'], 'lat' => $g['lat'], 'lon' => $g['lon'],
+                'category' => $category,
+                'authors' => count($people[$inst]),
+                'publications' => count($pubs[$inst]),
+                'joint' => $joint[$inst] ?? 0,
+                'people' => $names,
+            ];
+        }
+
+        return [
+            'hub' => $hub,
+            'institutions' => $rows,
+            'coverage' => [
+                'people' => count($linkedPeople), 'mappedPeople' => count($mappedPeople),
+                'publications' => count($itemIds), 'mappedPublications' => $mappedPubs,
+            ],
+        ];
     }
 
     /** Even-odd ray-casting test across all rings of a polygon (handles holes). */

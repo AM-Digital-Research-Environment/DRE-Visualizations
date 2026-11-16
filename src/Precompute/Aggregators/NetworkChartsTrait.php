@@ -651,23 +651,7 @@ trait NetworkChartsTrait
     public function personAffiliations(array $items, array $links, array $authorityKeys, array $membershipTemplates): array
     {
         $categoryOf = [];   // institution id => category key | null, memoised
-        $resolve = function (int $id, int $depth = 0) use (&$resolve, &$categoryOf, $links, $authorityKeys): ?string {
-            if (array_key_exists($id, $categoryOf)) {
-                return $categoryOf[$id];
-            }
-            $categoryOf[$id] = null;   // breaks an isPartOf cycle
-            $found = null;
-            foreach ($links[$id] ?? [] as [$term, , $vrid]) {
-                if ($term !== Terms::IS_PART_OF) {
-                    continue;
-                }
-                $found = $authorityKeys[$vrid] ?? ($depth < 4 ? $resolve($vrid, $depth + 1) : null) ?? $found;
-                if ($found === 'amrc') {
-                    break;
-                }
-            }
-            return $categoryOf[$id] = $found;
-        };
+        $resolve = fn (int $id): ?string => $this->clusterCategoryOf($id, $links, $authorityKeys, $categoryOf);
 
         $out = [];
         $person = $this->personTemplateId();
@@ -691,6 +675,36 @@ trait NetworkChartsTrait
         }
         ksort($out);
         return $out;
+    }
+
+    /**
+     * The cluster category of an institution: the key of the category authority
+     * it, or an institution up to four levels above it, is dcterms:isPartOf
+     * ('amrc' wins over any other key), or null. $memo caches the answer per id
+     * across calls and breaks an isPartOf cycle.
+     *
+     * @param array<int,string> $authorityKeys
+     * @param array<int,?string> $memo
+     */
+    private function clusterCategoryOf(int $id, array $links, array $authorityKeys, array &$memo, int $depth = 0): ?string
+    {
+        if (array_key_exists($id, $memo)) {
+            return $memo[$id];
+        }
+        $memo[$id] = null;
+        $found = null;
+        foreach ($links[$id] ?? [] as [$term, , $vrid]) {
+            if ($term !== Terms::IS_PART_OF) {
+                continue;
+            }
+            $found = $authorityKeys[$vrid]
+                ?? ($depth < 4 ? $this->clusterCategoryOf($vrid, $links, $authorityKeys, $memo, $depth + 1) : null)
+                ?? $found;
+            if ($found === 'amrc') {
+                break;
+            }
+        }
+        return $memo[$id] = $found;
     }
 
     /**

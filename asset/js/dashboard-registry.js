@@ -29,7 +29,7 @@
     ns.chartLibraries = function (data, host, keys) {
         data = data || {};
         var result = {};
-        var maps = [c.buildMiniMap, c.buildMap, c.buildChoropleth, c.buildClusterMap, c.buildAffiliationMap];
+        var maps = [c.buildMiniMap, c.buildMap, c.buildChoropleth, c.buildClusterMap, c.buildAffiliationMap, c.buildCoAuthorMap];
         var force = [c.buildCommunities];
         // ECharts networks that d3-force lays out first (ns.layoutNetwork).
         var settled = [c.buildContributorNetwork, c.buildAffiliationNetwork, c.buildCollabNetwork];
@@ -91,6 +91,7 @@
         'contributorNetwork':  c.buildContributorNetwork,
         'affiliationNetwork':  c.buildAffiliationNetwork,
         'affiliationMap':      c.buildAffiliationMap,
+        'coAuthorMap':         c.buildCoAuthorMap,
         'roles':               c.buildBarChart,
         'genres':              c.buildBarChart,
         'topLanguages':        c.buildBarChart,
@@ -133,6 +134,7 @@
         'contributorNetwork':  'Contributor network',
         'affiliationNetwork':  'Affiliation network',
         'affiliationMap':      'Where affiliated institutions are',
+        'coAuthorMap':         'Where the co-authors are',
         'roles':               'Contributor roles',
         'genres':              'Genres',
         'topLanguages':        'Languages',
@@ -222,6 +224,7 @@
         'contributorNetwork':  'People are linked to the projects they contributed to.',
         'affiliationNetwork':  'People are linked to the institutions they are affiliated with.',
         'affiliationMap':      'Affiliated institutions whose location is known.',
+        'coAuthorMap':         'The institutions the authors and editors are affiliated with today, linked to the one most of them work at by the publications they share.',
         'roles':               'The roles people are credited in: author, collector, photographer, and so on.',
         'genres':              'The genres assigned most often across the research items.',
         'topLanguages':        'Languages ranked by the number of research items recorded in them.',

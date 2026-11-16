@@ -278,6 +278,7 @@
       "topSeries",
       "topAuthors",
       "coAuthorNetwork",
+      "coAuthorMap",
       "chord",
       "subjects",
       "abstractWordcloud",

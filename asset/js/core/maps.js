@@ -119,7 +119,9 @@
      *   center, zoom  — initial camera (default [0, 15] / 1.5);
      *   nav           — false to skip the navigation control (ns.navControl);
      *   globe         — false to skip the GlobeControl (default on when the
-     *                   vendored MapLibre provides it).
+     *                   vendored MapLibre provides it);
+     *   exportable    — true to keep the drawing buffer, so ns.mapPng can read
+     *                   the canvas back (a map whose toolbar saves an image).
      * Callers still wire theme rebuilds themselves via ns.trackMap(map, rebuild),
      * and must return when it gives null (no WebGL; see ns.createMap).
      */
@@ -131,7 +133,8 @@
             center: opts.center || [0, 15],
             zoom: opts.zoom != null ? opts.zoom : 1.5,
             attributionControl: ns.getMapAttributionOptions(),
-            cooperativeGestures: true
+            cooperativeGestures: true,
+            canvasContextAttributes: opts.exportable ? { preserveDrawingBuffer: true } : undefined
         });
         if (!map) return null;
         // MapLibre names every canvas region "Map"; two maps on one page would
@@ -232,7 +235,11 @@
         legend.className = 'rv-map-legend' + (extraClass ? ' ' + extraClass : '');
         // eslint-disable-next-line no-unsanitized/property -- callers pass legend markup built with ns.escapeHtml
         legend.innerHTML = innerHtml;
-        panel.appendChild(legend);
+        // A map with a data table mounts that disclosure first (the toolbar
+        // runs before the map loads); the key belongs with the map, above it.
+        var table = panel.querySelector(':scope > .rv-data-table');
+        if (table) panel.insertBefore(legend, table);
+        else panel.appendChild(legend);
         return legend;
     };
 

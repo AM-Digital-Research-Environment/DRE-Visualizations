@@ -19,6 +19,131 @@
     {"name":"kinship","value":31}
   ],
   "builders": {"languages":"buildPieChart"},
+  "coAuthorMap": {
+    "coverage": {"mappedPeople":19,"mappedPublications":29,"people":22,"publications":30},
+    "hub": 502,
+    "institutions": [
+      {
+        "authors": 5,
+        "category": "hub",
+        "itemId": 502,
+        "joint": 0,
+        "lat": 12.3714,
+        "lon": -1.5197,
+        "name": "University Joseph Ki-Zerbo",
+        "people": [
+          {"id":421,"name":"Diallo, Fatoumata"},
+          {"id":405,"name":"Okonkwo, Chinedu"},
+          {"id":410,"name":"Oliveira, Rafael"},
+          {"id":402,"name":"Ouédraogo, Issa"},
+          {"id":409,"name":"Schmidt, Jonas"}
+        ],
+        "publications": 10
+      },
+      {
+        "authors": 4,
+        "category": "amrc",
+        "itemId": 504,
+        "joint": 2,
+        "lat": -33.3106,
+        "lon": 26.5256,
+        "name": "Rhodes University",
+        "people": [
+          {"id":400,"name":"Adeyemi, Folake"},
+          {"id":408,"name":"Dlamini, Thandiwe"},
+          {"id":404,"name":"Müller, Katharina"},
+          {"id":403,"name":"Santos, Ana Clara"}
+        ],
+        "publications": 6
+      },
+      {
+        "authors": 3,
+        "category": "amrc",
+        "itemId": 501,
+        "joint": 3,
+        "lat": 6.5244,
+        "lon": 3.3792,
+        "name": "University of Lagos African Cluster Centre (LACC)",
+        "people": [
+          {"id":422,"name":"Abubakar, Hauwa"},
+          {"id":416,"name":"Achieng, Grace"},
+          {"id":401,"name":"Bakari, Amina"}
+        ],
+        "publications": 12
+      },
+      {
+        "authors": 3,
+        "category": "partner",
+        "itemId": 503,
+        "joint": 4,
+        "lat": -12.9777,
+        "lon": -38.5016,
+        "name": "Universidade Federal da Bahia",
+        "people": [
+          {"id":400,"name":"Adeyemi, Folake"},
+          {"id":404,"name":"Müller, Katharina"},
+          {"id":423,"name":"Njoroge, Peter"}
+        ],
+        "publications": 9
+      },
+      {
+        "authors": 2,
+        "category": "partner",
+        "itemId": 508,
+        "joint": 2,
+        "lat": -12.9714,
+        "lon": -38.5124,
+        "name": "CEAO Centro de Estudos Afro-Orientais",
+        "people": [
+          {"id":416,"name":"Achieng, Grace"},
+          {"id":418,"name":"Ferreira, Luíza"}
+        ],
+        "publications": 9
+      },
+      {
+        "authors": 2,
+        "category": "partner",
+        "itemId": 506,
+        "joint": 2,
+        "lat": -1.2921,
+        "lon": 36.8219,
+        "name": "University of Nairobi",
+        "people": [
+          {"id":412,"name":"Traoré, Aïssata"},
+          {"id":414,"name":"Weber, Lena"}
+        ],
+        "publications": 8
+      },
+      {
+        "authors": 2,
+        "category": "other",
+        "itemId": 500,
+        "joint": 1,
+        "lat": 49.9456,
+        "lon": 11.5713,
+        "name": "University of Bayreuth",
+        "people": [
+          {"id":419,"name":"Hoffmann, Felix"},
+          {"id":424,"name":"Item 424"}
+        ],
+        "publications": 6
+      },
+      {
+        "authors": 2,
+        "category": "amrc",
+        "itemId": 505,
+        "joint": 2,
+        "lat": 0.5143,
+        "lon": 35.2698,
+        "name": "Moi University",
+        "people": [
+          {"id":417,"name":"Kaboré, Paul"},
+          {"id":412,"name":"Traoré, Aïssata"}
+        ],
+        "publications": 5
+      }
+    ]
+  },
   "coAuthorNetwork": {
     "communities": [
       {"anchor":"Mwangi, Wanjiru","id":1,"size":10},
@@ -259,12 +384,12 @@
     {"itemId":404,"name":"Müller, Katharina","value":1}
   ],
   "currentLocations": [],
-  "descriptions": {"abstractWordcloud":"The words that come up most often across the publication abstracts. Words are reduced to their base form, and everyday words such as \"the\" and \"of\" are left out.","chord":"Keywords that are often assigned to the same publication.","coAuthorNetwork":"Authors and editors are linked when they appear on the same publication. The chart shows everyone with at least one collaborator. Circle size follows how well connected a person is across the network. Circle colour marks groups who publish together more often than with others, or, if you switch the colouring, whether a person belongs to the Africa Multiple cluster or a partner institution. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.","funders":"The funding bodies credited on these publications. Click a bar to open a funder's page. On a touch screen, the first tap shows the count and a second tap opens the page.","languages":"The languages the publications are written in.","locations":"Countries are shaded by the number of publications that appeared there: an article counts for the country its journal comes from, a book or chapter for the country of its place of publication. The bubbles mark those places of publication, sized by the number of publications issued there. Click a country or a bubble to list its publications.","similarity":"Each dot is a publication. Publications about similar topics appear close to each other, even when they are in different languages. Colours show the type of publication. Pale dots are publications with little or no abstract, so their position is less reliable. Click a dot to open the publication. To zoom, use the buttons above the chart or hold Ctrl and scroll. Drag to move around.","stackedTimeline":"Publications issued each year, split by type.","subjects":"The keywords assigned to these publications most often.","topAuthors":"The authors credited on the most publications.","topJournals":"The journals these publications appear in most often. Click a bar to open the journal's page. On a touch screen, the first tap shows the count and a second tap opens the page.","topPublishers":"The publishers that issued the most of these publications.","topSeries":"The book and working-paper series these publications belong to most often.","types":"The mix of publication types: article, book, chapter, thesis, and so on."},
+  "descriptions": {"abstractWordcloud":"The words that come up most often across the publication abstracts. Words are reduced to their base form, and everyday words such as \"the\" and \"of\" are left out.","chord":"Keywords that are often assigned to the same publication.","coAuthorMap":"Each circle is an institution that authors and editors of these publications are affiliated with, sized by the number of those people. The colour shows whether it is University Joseph Ki-Zerbo, where most of them work, an Africa Multiple Research Centre, another cluster partner or another institution. A line joins University Joseph Ki-Zerbo to every institution it shares publications with, thicker for more of them. A publication counts only when two different people on it bring the two institutions, so one person with two affiliations is not a collaboration. Affiliations are the ones recorded today, not those at the time of publication, and people without a recorded affiliation are not on the map. Click a circle to list its people.","coAuthorNetwork":"Authors and editors are linked when they appear on the same publication. The chart shows everyone with at least one collaborator. Circle size follows how well connected a person is across the network. Circle colour marks groups who publish together more often than with others, or, if you switch the colouring, whether a person belongs to the Africa Multiple cluster or a partner institution. The colour of a line shows the relationship: co-authorship, author and editor, or co-editorship.","funders":"The funding bodies credited on these publications. Click a bar to open a funder's page. On a touch screen, the first tap shows the count and a second tap opens the page.","languages":"The languages the publications are written in.","locations":"Countries are shaded by the number of publications that appeared there: an article counts for the country its journal comes from, a book or chapter for the country of its place of publication. The bubbles mark those places of publication, sized by the number of publications issued there. Click a country or a bubble to list its publications.","similarity":"Each dot is a publication. Publications about similar topics appear close to each other, even when they are in different languages. Colours show the type of publication. Pale dots are publications with little or no abstract, so their position is less reliable. Click a dot to open the publication. To zoom, use the buttons above the chart or hold Ctrl and scroll. Drag to move around.","stackedTimeline":"Publications issued each year, split by type.","subjects":"The keywords assigned to these publications most often.","topAuthors":"The authors credited on the most publications.","topJournals":"The journals these publications appear in most often. Click a bar to open the journal's page. On a touch screen, the first tap shows the count and a second tap opens the page.","topPublishers":"The publishers that issued the most of these publications.","topSeries":"The book and working-paper series these publications belong to most often.","types":"The mix of publication types: article, book, chapter, thesis, and so on."},
   "funders": [
     {"itemId":507,"name":"Deutsche Forschungsgemeinschaft","value":16},
     {"itemId":500,"name":"University of Bayreuth","value":10}
   ],
-  "labels": {"abstractWordcloud":"Words in the abstracts","chord":"Keywords that appear together","coAuthorNetwork":"Collaboration network","funders":"Funders","locations":"Where the publications appeared","similarity":"Publications by similarity","stackedTimeline":"Publications by year and type","subjects":"Keywords","topJournals":"Journals","topPublishers":"Publishers","topSeries":"Book series","types":"Publication types"},
+  "labels": {"abstractWordcloud":"Words in the abstracts","chord":"Keywords that appear together","coAuthorMap":"Where the co-authors are","coAuthorNetwork":"Collaboration network","funders":"Funders","locations":"Where the publications appeared","similarity":"Publications by similarity","stackedTimeline":"Publications by year and type","subjects":"Keywords","topJournals":"Journals","topPublishers":"Publishers","topSeries":"Book series","types":"Publication types"},
   "languages": [
     {"itemId":810,"name":"English","value":10},
     {"itemId":811,"name":"French","value":10},

@@ -637,6 +637,68 @@ $afNet = $aggregators->buildCoAuthorNetwork([800, 801], [800 => [['bibo:authorLi
 $afOf = array_column($afNet['nodes'] ?? [], 'affiliation', 'name');
 check(($afOf['Centre person'] ?? null) === 'cluster' && !isset($afOf['Unaffiliated']), 'coAuthorNetwork: nodes carry the affiliation they have');
 
+// --- buildCoAuthorInstitutionMap: where the authors work, joined by different people ---
+$org = 'foaf:Organization';
+$caItems = [
+    1 => ['title' => 'Africa Multiple Research Centres', 'template_id' => 6],
+    2 => ['title' => 'Cooperation partners', 'template_id' => 6],
+    50 => ['title' => 'University of Bayreuth', 'template_id' => 2, 'class_term' => $org],
+    51 => ['title' => 'University of Lagos', 'template_id' => 2, 'class_term' => $org],
+    52 => ['title' => 'Partner university', 'template_id' => 2, 'class_term' => $org],
+    53 => ['title' => 'A place', 'template_id' => 3, 'class_term' => 'dcterms:Location'],
+    54 => ['title' => 'Ungeocoded institute', 'template_id' => 2, 'class_term' => $org],
+    60 => ['title' => 'Weber, Lena', 'template_id' => 4],
+    61 => ['title' => 'Adeyemi, Folake', 'template_id' => 4],
+    62 => ['title' => 'Both, Bayreuth and Lagos', 'template_id' => 4],
+    63 => ['title' => 'Lagos, Only', 'template_id' => 4],
+    64 => ['title' => 'Partner, Person', 'template_id' => 4],
+    65 => ['title' => 'Unaffiliated, Person', 'template_id' => 4],
+    66 => ['title' => 'Ungeocoded, Person', 'template_id' => 4],
+];
+$caGeo = [
+    50 => ['name' => 'University of Bayreuth', 'lat' => 49.9, 'lon' => 11.6, 'itemId' => 50],
+    51 => ['name' => 'University of Lagos', 'lat' => 6.5, 'lon' => 3.4, 'itemId' => 51],
+    52 => ['name' => 'Partner university', 'lat' => -1.3, 'lon' => 36.8, 'itemId' => 52],
+    53 => ['name' => 'A place', 'lat' => 0.0, 'lon' => 0.0, 'itemId' => 53],
+];
+$isPart = fn (int $id): array => ['dcterms:isPartOf', 'Part of', $id];
+$author = fn (int $id): array => ['bibo:authorList', 'Author', $id];
+$caLinks = [
+    51 => [$isPart(1)],
+    52 => [$isPart(2)],
+    60 => [$isPart(50)],
+    61 => [$isPart(50), $isPart(53)],   // a place is not an affiliation
+    62 => [$isPart(50), $isPart(51)],
+    63 => [$isPart(51)],
+    64 => [$isPart(52)],
+    66 => [$isPart(54)],
+    900 => [$author(62)],                       // one person, two institutions: no collaboration
+    901 => [$author(60), $author(63)],          // Bayreuth–Lagos
+    902 => [$author(61), ['bibo:editorList', 'Editor', 62]],  // Bayreuth–Lagos through 62's Lagos
+    903 => [$author(64), $author(65)],
+    904 => [$author(65), $author(66)],          // nobody mapped
+    905 => [],                                  // literal authors only
+];
+$ca = $aggregators->buildCoAuthorInstitutionMap([900, 901, 902, 903, 904, 905], $caLinks, $caItems, $caGeo, [1 => 'amrc', 2 => 'cooperation']);
+$caRows = array_column($ca['institutions'] ?? [], null, 'itemId');
+check(($ca['hub'] ?? null) === 50 && array_keys($caRows) === [50, 51, 52],
+    'coAuthorInstitutionMap: the institution with the most people is the hub; rows by people, places and ungeocoded institutes left out');
+check(array_column($ca['institutions'], 'category') === ['hub', 'amrc', 'partner'],
+    'coAuthorInstitutionMap: categories come from the cluster authorities');
+check($caRows[50]['authors'] === 3 && $caRows[50]['publications'] === 3 && $caRows[51]['authors'] === 2,
+    'coAuthorInstitutionMap: people and publications per institution');
+check($caRows[51]['joint'] === 2 && $caRows[52]['joint'] === 0 && $caRows[50]['joint'] === 0,
+    'coAuthorInstitutionMap: publications shared with the hub need two different people');
+check(array_column($caRows[50]['people'], 'name') === ['Adeyemi, Folake', 'Both, Bayreuth and Lagos', 'Weber, Lena'],
+    'coAuthorInstitutionMap: people listed by name');
+check($ca['coverage'] === ['people' => 7, 'mappedPeople' => 5, 'publications' => 6, 'mappedPublications' => 4],
+    'coAuthorInstitutionMap: coverage counts what the map leaves out');
+$caAlone = $aggregators->buildCoAuthorInstitutionMap([900], $caLinks, $caItems, $caGeo, []);
+check(array_column($caAlone['institutions'] ?? [], 'joint') === [0, 0],
+    'coAuthorInstitutionMap: one person with two affiliations is no collaboration');
+check($aggregators->buildCoAuthorInstitutionMap([904, 905], $caLinks, $caItems, $caGeo, []) === null,
+    'coAuthorInstitutionMap: null when no author has a geocoded affiliation');
+
 // --- louvainMultiLevel merges what one local-moving pass leaves apart ---
 // A ring of 12 triangles: one pass stops at the triangles, but pairing
 // neighbouring triangles scores higher modularity, and only the collapse step

@@ -365,6 +365,7 @@ DreVisualizations/
 │   │   ├── dashboard-charts-chord.js                # Chord diagram (co-occurrence)
 │   │   ├── dashboard-charts-choropleth.js           # Country choropleth (MapLibre fill)
 │   │   ├── dashboard-charts-cluster-map.js          # AMRCs & partners map (category legend)
+│   │   ├── dashboard-charts-coauthor-map.js         # Map of the co-authors’ institutions (Publications)
 │   │   ├── dashboard-charts-communities.js          # Community force graph (co-author / speaker networks)
 │   │   ├── dashboard-charts-contributor-network.js  # Contributor + affiliation networks
 │   │   ├── dashboard-charts-gantt.js                # Gantt chart (project timelines)

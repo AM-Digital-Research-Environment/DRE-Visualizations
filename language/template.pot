@@ -23,6 +23,10 @@ msgstr ""
 msgid "{count} or more"
 msgstr ""
 
+#: config/client-strings.json:coAuthorMapJoint
+msgid "{count} with {hub}"
+msgstr ""
+
 #: config/client-strings.json:contentDecade
 msgid "{decade}s"
 msgstr ""
@@ -37,6 +41,10 @@ msgstr ""
 
 #: config/client-strings.json:chartTabCount
 msgid "{label} ({count})"
+msgstr ""
+
+#: config/client-strings.json:coAuthorMapCoverage
+msgid "{mapped} of {people} linked authors and editors have a mapped affiliation; {mappedPublications} of {publications} publications have at least one of them."
 msgstr ""
 
 #: config/client-strings.json:contentShareOfDecade
@@ -150,6 +158,10 @@ msgstr ""
 msgid "Africa Multiple cluster"
 msgstr ""
 
+#: config/client-strings.json:coAuthorMapAmrc
+msgid "Africa Multiple Research Centre"
+msgstr ""
+
 #: config/client-strings.json:chartLabel.clusterPartners
 msgid "Africa Multiple Research Centres (AMRCs) and partners"
 msgstr ""
@@ -195,6 +207,10 @@ msgstr ""
 
 #: src/Site/BlockRegistry.php:196
 msgid "Analytics for the cluster YouTube channel: videos by year, the language mix and how it shifts over time, the channel's playlists, and any credited speakers. No configuration needed."
+msgstr ""
+
+#: config/client-strings.json:coAuthorMapMore
+msgid "and {count} more"
 msgstr ""
 
 #: config/client-strings.json:degAnyWeight
@@ -247,8 +263,20 @@ msgstr ""
 msgid "author & editor"
 msgstr ""
 
+#: config/client-strings.json:authorOrEditorOne
+msgid "author or editor"
+msgstr ""
+
 #: config/client-strings.json:relMixed
 msgid "Author–editor"
+msgstr ""
+
+#: config/client-strings.json:authorOrEditorOther
+msgid "authors and editors"
+msgstr ""
+
+#: config/client-strings.json:authorsAndEditors
+msgid "Authors and editors"
 msgstr ""
 
 #: config/client-strings.json:chartDescription.coAuthorNetwork
@@ -964,6 +992,7 @@ msgid "institution"
 msgstr ""
 
 #: config/client-strings.json:compareTypeInstitution
+#: config/client-strings.json:institution
 msgid "Institution"
 msgstr ""
 
@@ -1176,6 +1205,10 @@ msgstr ""
 msgid "Last page"
 msgstr ""
 
+#: config/client-strings.json:latitude
+msgid "Latitude"
+msgstr ""
+
 #: config/client-strings.json:kgMaxCommonalityHelp
 msgid "Leave out subjects, places and the like that almost every record shares, since they say little about this one"
 msgstr ""
@@ -1243,6 +1276,10 @@ msgstr ""
 
 #: config/client-strings.json:locations
 msgid "Locations"
+msgstr ""
+
+#: config/client-strings.json:longitude
+msgid "Longitude"
 msgstr ""
 
 #: config/client-strings.json:mapTitle
@@ -1603,6 +1640,14 @@ msgstr ""
 msgid "Other"
 msgstr ""
 
+#: config/client-strings.json:coAuthorMapPartner
+msgid "Other cluster partner"
+msgstr ""
+
+#: config/client-strings.json:coAuthorMapOther
+msgid "Other institution"
+msgstr ""
+
 #: config/client-strings.json:pages
 msgid "Pages"
 msgstr ""
@@ -1831,6 +1876,7 @@ msgstr ""
 msgid "publications"
 msgstr ""
 
+#: config/client-strings.json:publications
 #: src/Site/BlockRegistry.php:151
 #: src/Site/BlockRegistry.php:155
 msgid "Publications"
@@ -1842,6 +1888,11 @@ msgstr ""
 
 #: config/client-strings.json:publicationsPerCountry
 msgid "Publications per country"
+msgstr ""
+
+#: config/client-strings.json:coAuthorMapJointHeader
+#: config/client-strings.json:coAuthorMapLines
+msgid "Publications shared with {hub}"
 msgstr ""
 
 #: view/dre-visualizations/admin/maintenance/index.phtml:57
@@ -2394,6 +2445,10 @@ msgstr ""
 msgid "The image-heavy item set to display as a photo gallery. Ignored when a Featured collection or a Project is selected above."
 msgstr ""
 
+#: config/client-strings.json:chartDescription.coAuthorMap
+msgid "The institutions the authors and editors are affiliated with today, linked to the one most of them work at by the publications they share."
+msgstr ""
+
 #: config/client-strings.json:chartDescription.topJournals
 msgid "The journals these publications appear in most often."
 msgstr ""
@@ -2734,8 +2789,16 @@ msgstr ""
 msgid "Where affiliated institutions are"
 msgstr ""
 
+#: config/client-strings.json:coAuthorMapHub
+msgid "Where most of the authors and editors work"
+msgstr ""
+
 #: config/client-strings.json:chartDescription.locations
 msgid "Where research items come from and where they are held today, with lines linking the two."
+msgstr ""
+
+#: config/client-strings.json:chartLabel.coAuthorMap
+msgid "Where the co-authors are"
 msgstr ""
 
 #: config/client-strings.json:chartLabel.publicationVenues

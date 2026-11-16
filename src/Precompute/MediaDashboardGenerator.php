@@ -70,6 +70,12 @@ final class MediaDashboardGenerator extends DashboardGenerator
         if ($v = $this->aggregators->buildCoAuthorNetwork($pubs, $this->links, $this->literals, $this->items, 1, PHP_INT_MAX, $affiliations)) {
             $dashboard['coAuthorNetwork'] = $v;
         }
+        // Where the co-authors work: their geocoded institutions, the hub's
+        // joint publications with each counted between different people.
+        if ($v = $this->aggregators->buildCoAuthorInstitutionMap($pubs, $this->links, $this->items, $this->geo,
+            $this->profile->clusterCategoryAuthorities())) {
+            $dashboard['coAuthorMap'] = $v;
+        }
         if ($v = $this->aggregators->buildChord($pubs, $this->links, $this->items)) {
             $dashboard['chord'] = $v;
         }
@@ -149,6 +155,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'topPublishers' => 'Publishers',
             'funders' => 'Funders',
             'coAuthorNetwork' => 'Collaboration network',
+            'coAuthorMap' => 'Where the co-authors are',
             'chord' => 'Keywords that appear together',
             'subjects' => 'Keywords',
             'abstractWordcloud' => 'Words in the abstracts',
@@ -170,6 +177,13 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'abstractWordcloud' => 'The words that come up most often across the publication abstracts. Words are reduced to their base form, and everyday words such as "the" and "of" are left out.',
             'similarity' => 'Each dot is a publication. Publications about similar topics appear close to each other, even when they are in different languages. Colours show the type of publication. Pale dots are publications with little or no abstract, so their position is less reliable. Click a dot to open the publication. To zoom, use the buttons above the chart or hold Ctrl and scroll. Drag to move around.',
         ];
+
+        // Named after the hub the data chose (the institution with the most of
+        // these people: the University of Bayreuth on AMIRA).
+        if (isset($dashboard['coAuthorMap'])) {
+            $hub = $dashboard['coAuthorMap']['institutions'][0]['name'];
+            $dashboard['descriptions']['coAuthorMap'] = 'Each circle is an institution that authors and editors of these publications are affiliated with, sized by the number of those people. The colour shows whether it is ' . $hub . ', where most of them work, an Africa Multiple Research Centre, another cluster partner or another institution. A line joins ' . $hub . ' to every institution it shares publications with, thicker for more of them. A publication counts only when two different people on it bring the two institutions, so one person with two affiliations is not a collaboration. Affiliations are the ones recorded today, not those at the time of publication, and people without a recorded affiliation are not on the map. Click a circle to list its people.';
+        }
 
         $dashboard['resourceType'] = 'publications';
         $this->save('publications', $dashboard);
