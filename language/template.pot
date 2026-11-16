@@ -739,10 +739,6 @@ msgstr ""
 msgid "Every site you can edit already shows the Visualisations block on item pages."
 msgstr ""
 
-#: config/client-strings.json:chartDescription.contentSources
-msgid "Everything in the collection, grouped by where it comes from: research items by research section, publications by type, YouTube videos by playlist and podcast episodes by series. The size of each box follows the number of records."
-msgstr ""
-
 #: config/client-strings.json:exitFullscreen
 msgid "Exit fullscreen"
 msgstr ""
@@ -1961,6 +1957,10 @@ msgstr ""
 #: config/client-strings.json:semanticMapTitle
 #: src/Site/BlockRegistry.php:166
 msgid "Records by similarity"
+msgstr ""
+
+#: config/client-strings.json:chartDescription.contentSources
+msgid "Records by source: research items by section, publications by type, videos by playlist, episodes by series."
 msgstr ""
 
 #: config/client-strings.json:chartDescription.templates

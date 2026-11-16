@@ -13,6 +13,10 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Fixed
+
+- The Collection Overview's Lighthouse performance fell from 0.74 to 0.52 in 2.54.0. It failed the budget (floor 0.61) on every release since. The new *What the collection holds* panel opens the overview, and its 230-character description became the page's largest text. It is drawn only once the scripts and data have loaded, so largest contentful paint moved from 0.8 s to 5.7 s. The description is now one shorter sentence.
+
 ## [2.55.0] - 2026-11-16
 
 ### Added
