@@ -13,14 +13,16 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
-## [2.55.2] - 2026-11-24
-
 ### Fixed
 
 - **A failed clean-up no longer deletes the snapshot it follows** (#45). Removing old generations ran inside the publication's error handling, after `current.json` already named the new one, so a file the web user could not delete made the publisher remove the generation it had just published. Every block then went blank, and the store still reported the snapshot as current, so no refresh followed. Old generations are now removed after publication, best effort: a failure is logged as a warning and costs disk space only. The same clean-up now also removes the staging directory a run leaves when it dies mid-generation (memory limit, killed worker), which nothing removed before.
 - **Deleted records leave the semantic map and Similar Items at the next refresh** (#46). Deleting a record, or taking it off the site, does not change the publication revision, so the installed semantic build stayed "current" and was copied into the snapshot as it was: the record's title, id and neighbour links stayed public until the next semantic build, while the dashboards had already dropped it. A current build that names a record no longer in the public corpus is now served from a filtered copy, as a carried build already was.
 - **The item-page knowledge graph draws each record once** (#47). A record linked from the centre was a direct node, and the later passes added it again when it also shared a subject, creator or place with the centre (as *Shared Item*), was part of the centre (*Linked Item*) or referenced it: a research item's own project appeared twice, in two categories, with its edges split between the two. Every pass now reuses the node already drawn. **Regenerate now** after updating to redraw the graphs.
 - **Project timelines show the right dates west of Greenwich** (#48). The Gantt chart's dates are calendar days, which parse as UTC midnight, but the chart read them in the visitor's time zone: in Brazil or the Americas a project starting on 1 January 2021 read "Dec 2020" on an axis starting a year early. The bars, the axis and the tooltip now all read the dates in UTC.
+
+## [2.55.2] - 2026-11-24
+
+Tagged but not published: the release workflow stopped on golden test files that the knowledge-graph fix had not regenerated. Its changes ship in 2.55.3.
 
 ## [2.55.1] - 2026-11-16
 
