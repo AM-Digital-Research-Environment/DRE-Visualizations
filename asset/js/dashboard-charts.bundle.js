@@ -882,11 +882,15 @@
         var names = projects.map(function (p) { return p.name; });
         var minYear = 9999, maxYear = 0;
 
+        // The dates are calendar days ("2021-01-01"), which parse as UTC
+        // midnight. Every reading below is in UTC too: in the visitor's own
+        // zone, west of Greenwich, that midnight is still the previous day, and
+        // a project starting in January read "Dec 2020" on a year-early axis.
         var barData = projects.map(function (p, i) {
             var start = new Date(p.start).getTime();
             var end = new Date(p.end).getTime();
-            var sy = new Date(p.start).getFullYear();
-            var ey = new Date(p.end).getFullYear();
+            var sy = new Date(p.start).getUTCFullYear();
+            var ey = new Date(p.end).getUTCFullYear();
             if (sy < minYear) minYear = sy;
             if (ey > maxYear) maxYear = ey;
             return {
@@ -896,11 +900,13 @@
         });
 
         chart.setOption({
+            // The time axis labels its ticks in UTC, like the bars.
+            useUTC: true,
             tooltip: {
                 confine: true,
                 formatter: function (params) {
                     var v = params.value;
-                    var dateOptions = { year: 'numeric', month: 'short' };
+                    var dateOptions = { year: 'numeric', month: 'short', timeZone: 'UTC' };
                     var s = ns.formatDate(v[1], dateOptions);
                     var e = ns.formatDate(v[2], dateOptions);
                     return '<strong>' + echarts.format.encodeHTML(params.name) + '</strong><br/>' + s + ' \u2192 ' + e;
@@ -911,8 +917,8 @@
             grid: { left: 8, right: 30, top: 10, bottom: 30 },
             xAxis: {
                 type: 'time',
-                min: new Date(minYear, 0, 1).getTime(),
-                max: new Date(maxYear + 1, 0, 1).getTime(),
+                min: Date.UTC(minYear, 0, 1),
+                max: Date.UTC(maxYear + 1, 0, 1),
                 axisLabel: { fontSize: THEME.fontSize }
             },
             yAxis: {
