@@ -306,5 +306,5 @@
     {"category":7,"community":0,"id":"item_1087","itemId":1087,"name":"Harvest city (88)","sharedCount":1,"strength":2.69,"symbolSize":16},
     {"category":7,"community":0,"id":"item_2114","itemId":2114,"name":"Brazil and ritual: City heritage ritual","sharedCount":1,"strength":2.69,"symbolSize":16}
   ],
-  "stats": {"candidateSearchTruncated":false,"candidatesExamined":108,"communityCount":7,"maxFreqPct":10.2,"maxPostingSample":256,"maxStrength":12.81}
+  "stats": {"candidateSearchTruncated":false,"candidatesExamined":107,"communityCount":7,"maxFreqPct":10.2,"maxPostingSample":256,"maxStrength":12.81}
 }
