@@ -13,6 +13,8 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.55.2] - 2026-11-24
+
 ### Fixed
 
 - **A failed clean-up no longer deletes the snapshot it follows** (#45). Removing old generations ran inside the publication's error handling, after `current.json` already named the new one, so a file the web user could not delete made the publisher remove the generation it had just published. Every block then went blank, and the store still reported the snapshot as current, so no refresh followed. Old generations are now removed after publication, best effort: a failure is logged as a warning and costs disk space only. The same clean-up now also removes the staging directory a run leaves when it dies mid-generation (memory limit, killed worker), which nothing removed before.
@@ -1232,7 +1234,8 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 - Previous repository state. Earlier history remains available in Git tags and
   commit history.
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.1...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.2...HEAD
+[2.55.2]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.1...v2.55.2
 [2.55.1]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.0...v2.55.1
 [2.55.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.54.1...v2.55.0
 [2.54.1]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.54.0...v2.54.1
