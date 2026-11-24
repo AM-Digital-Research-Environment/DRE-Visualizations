@@ -166,6 +166,41 @@ try {
     $generationDirs = array_filter(glob($root . '/generations/*') ?: [], 'is_dir');
     check(count($generationDirs) === 2, 'only current and previous generations are retained');
     check(is_dir($root . '/' . $latest['basePath']), 'pruning never removes the current generation');
+
+    // A run that died before its own cleanup (fatal error, killed worker)
+    // leaves its staging directory; the next publication clears it.
+    (new JsonArtifactWriter())->write($root . '/generations/.staging-20260101T000000Z-abandoned0000/network-explorer.json', []);
+
+    // The previous generation becomes unremovable: a read-only file stops
+    // unlink on Windows, a read-only directory on Linux. Run as root, neither
+    // holds, and only the invariants that matter in every case are checked.
+    $stuck = null;
+    foreach (array_filter(glob($root . '/generations/*') ?: [], 'is_dir') as $dir) {
+        if (basename($dir) !== $latest['generationId']) $stuck = $dir;
+    }
+    // Retention goes by mtime; generations made in one second would tie.
+    touch($root . '/' . $latest['basePath'], time() - 60);
+    touch($stuck, time() - 120);
+    chmod($stuck . '/network-explorer.json', 0444);
+    chmod($stuck, 0555);
+    try {
+        $afterStuck = $publisher->publish(static fn (string $dir): array => snapshotFixture($dir, 4));
+        $published = true;
+    } catch (Throwable $e) {
+        $published = false;
+    } finally {
+        chmod($stuck, 0755);
+        chmod($stuck . '/network-explorer.json', 0644);
+    }
+    check($published, 'a generation that cannot be pruned does not fail the publication');
+    $current = json_decode((string) file_get_contents($root . '/current.json'), true);
+    check(is_dir($root . '/' . ($current['basePath'] ?? 'missing')),
+        'a failed prune never removes the generation current.json names');
+    if ($published && is_dir($stuck)) {
+        check(($afterStuck['pruneErrors'] ?? []) !== [], 'the failed removal is reported to the caller');
+        check(!array_key_exists('pruneErrors', $current), 'the report is not written into the manifest');
+    }
+    check(glob($root . '/generations/.staging-*') === [], 'an abandoned staging directory is cleared');
 } finally {
     removeFixtureTree($root);
 }

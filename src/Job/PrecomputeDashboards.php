@@ -274,6 +274,9 @@ class PrecomputeDashboards extends AbstractJob
             'artifacts' => $manifest['artifactCounts']['total'],
             'source_counts' => $manifest['sourceCounts'],
         ]);
+        foreach ($manifest['pruneErrors'] ?? [] as $error) {
+            $logger->warn('DreVisualizations: an old snapshot generation could not be removed: ' . $error);
+        }
     }
 
     /**

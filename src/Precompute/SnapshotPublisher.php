@@ -136,18 +136,26 @@ final class SnapshotPublisher
                 }
                 $this->artifacts->write($this->dataDir . '/current.json', $manifest, durable: true);
             }, $this->writeWaitSeconds);
-            $this->prune($generationsDir, $generationId);
-            return $manifest;
         } catch (\Throwable $e) {
             if (is_dir($stagingDir)) {
                 SafeFilesystem::removeTree($stagingDir, $generationsDir, '.staging-');
             }
             if (is_dir($publishedDir)) SafeFilesystem::removeTree($publishedDir, $generationsDir);
+            flock($lock, LOCK_UN);
+            fclose($lock);
             throw $e;
+        }
+
+        // Published: from here on nothing may remove $publishedDir, which
+        // current.json now names. Cleanup is best effort and reported, never
+        // thrown, so a file the web user cannot unlink costs disk space only.
+        try {
+            $pruneErrors = $this->prune($generationsDir, $generationId);
         } finally {
             flock($lock, LOCK_UN);
             fclose($lock);
         }
+        return $pruneErrors === [] ? $manifest : $manifest + ['pruneErrors' => $pruneErrors];
     }
 
     /** @return array{total:int,groups:array<string,int>} */
@@ -287,11 +295,30 @@ final class SnapshotPublisher
         // network-explorer.json may intentionally be [] when no graph qualifies.
     }
 
-    private function prune(string $generationsDir, string $currentId): void
+    /**
+     * Keep the current and previous generations; remove older ones and the
+     * staging directories of runs that died before their own cleanup (a fatal
+     * error or a killed worker skips the catch in publish()). Runs under the
+     * generation lock, after this run's own staging directory was renamed, so
+     * any staging directory left belongs to a run that is no longer alive.
+     *
+     * @return list<string> the removals that failed
+     */
+    private function prune(string $generationsDir, string $currentId): array
     {
+        $errors = [];
+        $remove = static function (string $path, ?string $prefix = null) use ($generationsDir, &$errors): void {
+            try {
+                SafeFilesystem::removeTree($path, $generationsDir, $prefix);
+            } catch (\Throwable $e) {
+                $errors[] = $e->getMessage();
+            }
+        };
         $generations = [];
         foreach (new FilesystemIterator($generationsDir, FilesystemIterator::SKIP_DOTS) as $entry) {
-            if (!$entry->isDir() || str_starts_with($entry->getFilename(), '.staging-')) {
+            if (!$entry->isDir()) continue;
+            if (str_starts_with($entry->getFilename(), '.staging-')) {
+                $remove($entry->getPathname(), '.staging-');
                 continue;
             }
             $generations[] = ['id' => $entry->getFilename(), 'mtime' => $entry->getMTime()];
@@ -302,8 +329,9 @@ final class SnapshotPublisher
             return ($b['mtime'] <=> $a['mtime']) ?: strcmp($b['id'], $a['id']);
         });
         foreach (array_slice($generations, self::RETAINED_GENERATIONS) as $generation) {
-            SafeFilesystem::removeTree($generationsDir . '/' . $generation['id'], $generationsDir);
+            $remove($generationsDir . '/' . $generation['id']);
         }
+        return $errors;
     }
 
     private function generationId(): string

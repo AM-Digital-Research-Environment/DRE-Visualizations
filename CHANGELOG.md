@@ -13,6 +13,10 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Fixed
+
+- **A failed clean-up no longer deletes the snapshot it follows** (#45). Removing old generations ran inside the publication's error handling, after `current.json` already named the new one, so a file the web user could not delete made the publisher remove the generation it had just published. Every block then went blank, and the store still reported the snapshot as current, so no refresh followed. Old generations are now removed after publication, best effort: a failure is logged as a warning and costs disk space only. The same clean-up now also removes the staging directory a run leaves when it dies mid-generation (memory limit, killed worker), which nothing removed before.
+
 ## [2.55.1] - 2026-11-16
 
 ### Fixed
