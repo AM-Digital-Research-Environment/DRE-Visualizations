@@ -46,7 +46,9 @@ final class SemanticCarry
             }
             $dropped = false;
             $filtered = self::filter($current, static function (mixed $id) use ($public, &$dropped): bool {
-                return $public($id) || !($dropped = true);
+                if ($public($id)) return true;
+                $dropped = true;
+                return false;
             });
             if (!$dropped) return ['dir' => $installed, 'state' => 'current'];
             self::write($carriedDir, $filtered, $scope);
