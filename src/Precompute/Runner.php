@@ -51,6 +51,8 @@ final class Runner
                 $this->hiddenSince ?? static fn (): ?array => null, static fn (int $id): bool => isset($data->items[$id]));
         if ($semantic['state'] === 'carried' && $this->logFn) {
             ($this->logFn)('Semantic map kept from an earlier build, without the records made private since');
+        } elseif ($semantic['state'] === 'current' && $semantic['dir'] !== $installed && $this->logFn) {
+            ($this->logFn)('Semantic map served without the records deleted or taken off the site since its build');
         }
         $paths = $this->paths
             ->withLayoutCacheDir($this->paths->layoutCacheDir ?? dirname($this->paths->outputDir, 3) . '/layout-cache')

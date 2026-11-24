@@ -69,8 +69,19 @@ check($similar['items'][10] === [['id' => 20, 'score' => 0.8]] && $similar['item
 $report = ScopedInput::read($carriedDir . '/report.php', $now);
 check($report['recommendations']['crossLanguageExamples'] === [['source' => 10, 'target' => 20]], 'report examples drop them too');
 
-check(SemanticCarry::resolve($installed, $carriedDir, $built, $hidden, $public) === ['dir' => $installed, 'state' => 'current'],
-    'a build for the current revision is read as it is');
+check(SemanticCarry::resolve($installed, $carriedDir, $built, $hidden, static fn (): bool => true) === ['dir' => $installed, 'state' => 'current'],
+    'a build for the current revision that names only public records is read as it is');
+// Deleting a record or taking it off the site leaves the revision unchanged,
+// so the build stays current, but record 12 must not stay public through it.
+check(SemanticCarry::resolve($installed, $carriedDir, $built, $hidden, $public) === ['dir' => $carriedDir, 'state' => 'current'],
+    'a current build that names a record outside the corpus is served from a filtered copy');
+$map = ScopedInput::read($carriedDir . '/map.php', $built);
+check($map !== null && array_column($map['items'], 'id') === [10, 11, 20] && !isset($map['carriedFrom']),
+    'the filtered copy drops only the record outside the corpus, and stays scoped to the build');
+$similar = ScopedInput::read($carriedDir . '/similar.php', $built);
+check(!isset($similar['catalog'][12]) && $similar['items'][20] === [],
+    'its title and its place in neighbour lists go too');
+check(!str_contains((string) file_get_contents($carriedDir . '/similar.php'), 'Title 12'), 'no title of the removed record is left');
 check(SemanticCarry::resolve($installed, $carriedDir, $now, static fn (): ?array => null, $public) === ['dir' => $installed, 'state' => 'none'],
     'without a known history the build is not carried (its readers then ignore it)');
 check(SemanticCarry::resolve($installed, $carriedDir, ['profile' => 'other'] + $now, $hidden, $public)['state'] === 'none',

@@ -20,8 +20,11 @@ final class SemanticCarry
 
     /**
      * The directory to read the semantic inputs from: $installed itself when
-     * its build matches $scope, a directory of carried copies when it can be
-     * carried, or $installed unchanged (which the readers then ignore).
+     * its build matches $scope and names only records still in the corpus;
+     * $carriedDir holding a filtered copy when it matches but names records
+     * deleted or taken off the site since (state still 'current'); carried
+     * copies when an older build can be carried; or $installed unchanged
+     * (which the readers then ignore).
      *
      * @param callable(string):?array $hiddenSince revision => hidden resource ids, null when it cannot be carried
      * @param callable(int):bool $isPublic whether a record is in the current public corpus
@@ -30,7 +33,25 @@ final class SemanticCarry
     public static function resolve(?string $installed, string $carriedDir, array $scope, callable $hiddenSince, callable $isPublic): array
     {
         if ($installed === null) return ['dir' => null, 'state' => 'none'];
-        if (ScopedInput::read($installed . '/report.php', $scope) !== null) return ['dir' => $installed, 'state' => 'current'];
+        $public = static fn (mixed $id): bool => is_numeric($id) && $isPublic((int) $id);
+        if (ScopedInput::read($installed . '/report.php', $scope) !== null) {
+            // A build for this revision can still name records deleted or taken
+            // off the site since: neither changes the revision. Serve it as it
+            // is only when every record it names is still in the corpus.
+            $current = [];
+            foreach (self::FILES as $name) {
+                $current[$name] = ScopedInput::read($installed . '/' . $name . '.php', $scope);
+                // An incomplete build: read as before, file by file.
+                if ($current[$name] === null) return ['dir' => $installed, 'state' => 'current'];
+            }
+            $dropped = false;
+            $filtered = self::filter($current, static function (mixed $id) use ($public, &$dropped): bool {
+                return $public($id) || !($dropped = true);
+            });
+            if (!$dropped) return ['dir' => $installed, 'state' => 'current'];
+            self::write($carriedDir, $filtered, $scope);
+            return ['dir' => $carriedDir, 'state' => 'current'];
+        }
 
         $older = [];
         foreach (self::FILES as $name) {
@@ -45,16 +66,32 @@ final class SemanticCarry
         if ($hidden === null) return ['dir' => $installed, 'state' => 'none'];
 
         $hidden = array_flip($hidden);
-        $keep = static fn (mixed $id): bool => is_numeric($id) && !isset($hidden[(int) $id]) && $isPublic((int) $id);
-        $carried = [
-            'map' => self::map($older['map'], $keep),
-            'similar' => self::similar($older['similar'], $keep),
-            'report' => self::report($older['report'], $keep),
+        $keep = static fn (mixed $id): bool => !isset($hidden[(int) $id]) && $public($id);
+        self::write($carriedDir, self::filter($older, $keep), $scope, $revision);
+        return ['dir' => $carriedDir, 'state' => 'carried'];
+    }
+
+    /**
+     * @param array{map:array,similar:array,report:array} $inputs
+     * @param callable(mixed):bool $keep
+     * @return array{map:array,similar:array,report:array}
+     */
+    private static function filter(array $inputs, callable $keep): array
+    {
+        return [
+            'map' => self::map($inputs['map'], $keep),
+            'similar' => self::similar($inputs['similar'], $keep),
+            'report' => self::report($inputs['report'], $keep),
         ];
+    }
+
+    /** Write the filtered inputs as envelopes for $scope, atomically per file. */
+    private static function write(string $carriedDir, array $inputs, array $scope, ?string $carriedFrom = null): void
+    {
         (new JsonArtifactWriter())->ensureDirectory($carriedDir);
-        foreach ($carried as $name => $payload) {
+        foreach ($inputs as $name => $payload) {
             $payload['scope'] = $scope;
-            $payload['carriedFrom'] = $revision;
+            if ($carriedFrom !== null) $payload['carriedFrom'] = $carriedFrom;
             $raw = ScopedInput::PREFIX . json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
             $tmp = $carriedDir . '/.' . $name . '-' . bin2hex(random_bytes(6));
             if (file_put_contents($tmp, $raw) !== strlen($raw) || !rename($tmp, $carriedDir . '/' . $name . '.php')) {
@@ -62,7 +99,6 @@ final class SemanticCarry
                 throw new \RuntimeException('Unable to write the carried semantic inputs.');
             }
         }
-        return ['dir' => $carriedDir, 'state' => 'carried'];
     }
 
     /** An input for $scope's site and profile but another revision; null otherwise. */
