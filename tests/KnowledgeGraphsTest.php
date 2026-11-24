@@ -291,6 +291,42 @@ foreach ($again as $n) {
 check($againOf === $commOf, 'community assignment is reproducible');
 
 /* ------------------------------------------------------------------ */
+/*  One record, one node                                               */
+/* ------------------------------------------------------------------ */
+
+// Research item 1 is part of project 20, and both carry subject 30: the
+// project is a direct target AND shares a resource with the centre.
+$oneItems = [
+    1 => ['title' => 'Research item', 'class_label' => 'Text', 'class_term' => 'bibo:Document'],
+    20 => ['title' => 'Project X', 'class_label' => 'Project', 'class_term' => 'foaf:Project'],
+    30 => ['title' => 'Subject S'],
+];
+$oneLinks = [
+    1 => [['dcterms:isPartOf', 'Is Part Of', 20], ['dcterms:subject', 'Subject', 30]],
+    20 => [['dcterms:subject', 'Subject', 30]],
+];
+$oneReverse = [20 => ['dcterms:isPartOf' => [1]], 30 => ['dcterms:subject' => [1, 20]]];
+[$oneIdf, $oneFreq] = KnowledgeGraphs::computeResourceStats($oneLinks, 3);
+$oneGraph = KnowledgeGraphs::buildGraph(1, $oneItems, $oneLinks, $oneReverse,
+    KnowledgeGraphs::buildShareableReverse($oneReverse), $oneIdf, $oneFreq);
+$projectNodes = array_values(array_filter($oneGraph['nodes'], static fn (array $n): bool => ($n['itemId'] ?? null) === 20));
+check(count($projectNodes) === 1 && $projectNodes[0]['id'] === 'resource_20',
+    'a direct target that also shares a resource with the centre is one node, not a second "shared item"');
+check(findEdge($oneGraph['edges'], 'resource_20', 'resource_30') !== null,
+    'what it shares is still drawn, as a statement between the two neighbours');
+
+// The centre is project 20 here, and research item 1 both is part of it and
+// is named on it directly: the isPartOf statement joins the direct node.
+$partGraph = KnowledgeGraphs::buildGraph(20, $oneItems,
+    [20 => [['dcterms:hasPart', 'Has Part', 1]], 1 => [['dcterms:isPartOf', 'Is Part Of', 20]]],
+    [20 => ['dcterms:isPartOf' => [1]]], [], [], []);
+$partNodes = array_values(array_filter($partGraph['nodes'], static fn (array $n): bool => ($n['itemId'] ?? null) === 1));
+check(count($partNodes) === 1, 'an item linked both ways is one node');
+check(findEdge($partGraph['edges'], 'resource_1', 'item_20') !== null
+    && count(array_filter($partGraph['edges'], static fn (array $e): bool => in_array('item_1', [$e['source'], $e['target']], true))) === 0,
+    'its isPartOf statement joins the node already drawn');
+
+/* ------------------------------------------------------------------ */
 /*  buildItemMap                                                       */
 /* ------------------------------------------------------------------ */
 

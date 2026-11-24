@@ -234,6 +234,10 @@ final class KnowledgeGraphs
         $catMap = [$centerCat => 0];
         $seen = [];
         $centerLinked = []; // vrid => node-id for shareable direct resources
+        // Item id => the one node that shows it. Direct targets are `resource_`
+        // nodes and the later passes add `item_` ones, so without this a project
+        // the centre is part of, and also shares a subject with, is drawn twice.
+        $nodeOf = [$itemId => 'item_' . $itemId];
 
         $ensureCat = function (string $name) use (&$catMap, &$categories): int {
             if (!isset($catMap[$name])) {
@@ -277,6 +281,7 @@ final class KnowledgeGraphs
                     continue;
                 }
                 $seen[$nid] = true;
+                $nodeOf[$vrid] ??= $nid;
                 $node = [
                     'id' => $nid, 'name' => $items[$vrid]['title'] ?? ('Resource ' . $vrid),
                     'category' => $ensureCat($cat), 'symbolSize' => 22, 'itemId' => $vrid,
@@ -307,9 +312,10 @@ final class KnowledgeGraphs
             if ($rid === $itemId) {
                 continue;
             }
-            $rnid = 'item_' . $rid;
-            if (!isset($seen[$rnid])) {
-                $seen[$rnid] = true;
+            // Already drawn as a direct target: the isPartOf edge joins that node.
+            $rnid = $nodeOf[$rid] ?? 'item_' . $rid;
+            if (!isset($nodeOf[$rid])) {
+                $nodeOf[$rid] = $rnid;
                 $nodes[] = [
                     'id' => $rnid, 'name' => $items[$rid]['title'] ?? ('Item ' . $rid),
                     'category' => $ensureCat($isSection ? 'Project' : 'Linked Item'),
@@ -339,11 +345,11 @@ final class KnowledgeGraphs
                     if ($refCount >= self::MAX_REVERSE_ITEMS) {
                         break;
                     }
-                    $rnid = 'item_' . $rid;
-                    if (isset($seen[$rnid])) {
+                    if (isset($nodeOf[$rid])) {
                         continue;
                     }
-                    $seen[$rnid] = true;
+                    $rnid = 'item_' . $rid;
+                    $nodeOf[$rid] = $rnid;
                     $nodes[] = [
                         'id' => $rnid, 'name' => $items[$rid]['title'] ?? ('Item ' . $rid),
                         'category' => $refCat, 'symbolSize' => 16, 'itemId' => $rid,
@@ -367,7 +373,10 @@ final class KnowledgeGraphs
         usort($rankedResources, static fn ($a, $b) => (($idf[$b] ?? 0) <=> ($idf[$a] ?? 0)) ?: ($a <=> $b));
         foreach ($rankedResources as $vrid) {
             foreach (array_keys($reverse[$vrid] ?? []) as $sid) {
-                if ($sid === $itemId || isset($discovered[$sid])) {
+                // A direct target is not "discovered" again; addCrossEdges still
+                // draws what it shares with the centre's other neighbours.
+                if ($sid === $itemId || isset($discovered[$sid])
+                    || str_starts_with($nodeOf[$sid] ?? '', 'resource_')) {
                     continue;
                 }
                 if ($visits >= 2048) { $truncated = true; break 2; }
@@ -415,8 +424,8 @@ final class KnowledgeGraphs
             if ($strength > $maxStrength) {
                 $maxStrength = $strength;
             }
-            if (!isset($seen[$snid])) {
-                $seen[$snid] = true;
+            if (!isset($nodeOf[$sid])) {
+                $nodeOf[$sid] = $snid;
                 if ($siCat === null) {
                     $siCat = $ensureCat('Shared Item');
                 }
