@@ -9,8 +9,9 @@
  *     cloud (the lemmatised word-cloud inputs), rendered with a language toggle.
  *
  * Entries flagged `generic` (the words of scholarly prose in the abstract
- * cloud: "article", "study") start hidden, behind a "Show common academic
- * words" checkbox.
+ * and full-text clouds: "article", "study") start hidden, behind a "Show
+ * common academic words" checkbox. Entries with `docs` (the full-text cloud,
+ * whose values are weights) name in the tooltip how many texts use the word.
  *
  * Falls back to a bar chart if the echarts-wordcloud extension is unavailable.
  * Registers into window.RV.charts for the dashboard orchestrator.
@@ -91,7 +92,14 @@
             return {
                 tooltip: {
                     confine: true,
-                    formatter: function (p) { return echarts.format.encodeHTML(p.name) + ': ' + p.value; }
+                    // A full-text cloud's value is a weight, not a count: it
+                    // says instead how many texts use the word (`docs`).
+                    formatter: function (p) {
+                        var docs = p.data && p.data.docs;
+                        return echarts.format.encodeHTML(p.name) + ': ' + (docs
+                            ? ns.fill(ns.t('usedInTexts', 'used in {count} texts'), { count: docs })
+                            : p.value);
+                    }
                 },
                 // clear() drops initChart's description, so restate the panel's.
                 aria: { enabled: true, label: { description: el.getAttribute('aria-label') || undefined } },
@@ -112,7 +120,7 @@
                         color: function () { return COLORS[Math.floor(Math.random() * COLORS.length)]; }
                     },
                     emphasis: { textStyle: { fontWeight: 'bold', shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.3)' } },
-                    data: slice.map(function (e) { return { name: e.name, value: e.value, itemId: e.itemId }; })
+                    data: slice.map(function (e) { return { name: e.name, value: e.value, itemId: e.itemId, docs: e.docs }; })
                 }]
             };
         }

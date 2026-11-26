@@ -32,7 +32,10 @@ Output shape (per corpus)::
     }
 
 Reusable: add an entry to ``wordcloudCorpora`` in ``config/amira-profile.json``
-(item-set key + text property) and it is picked up automatically. On the PHP
+(item-set key + text property) and it is picked up automatically. An entry with
+``"weighting": "document"`` (the publications' full texts) weighs every item the
+same instead of summing counts, cuts bibliographies and drops PDF boilerplate;
+its entries also carry ``docs``, the number of items using the word. On the PHP
 side, read it via ``Runner::wordCloudInput``
 (which returns {languages, byLang}); the front-end word-cloud builder renders the
 language toggle from `languages`.
@@ -89,6 +92,7 @@ def load_corpora() -> list[dict]:
         item_set_key = corpus.get("itemSetKey")
         field = corpus.get("field")
         item_set = item_sets.get(item_set_key) if isinstance(item_set_key, str) else None
+        weighting = corpus.get("weighting", "frequency")
         if (
             not isinstance(corpus_id, str)
             or not re.fullmatch(r"[a-z][a-z0-9-]*", corpus_id)
@@ -97,9 +101,10 @@ def load_corpora() -> list[dict]:
             or item_set < 1
             or not isinstance(field, str)
             or not re.fullmatch(r"[a-z][a-z0-9]*:[A-Za-z][A-Za-z0-9]*", field)
+            or weighting not in ("frequency", "document")
         ):
             raise ValueError(f"Invalid word-cloud corpus configuration: {corpus!r}")
-        resolved.append({"id": corpus_id, "item_set": item_set, "field": field})
+        resolved.append({"id": corpus_id, "item_set": item_set, "field": field, "weighting": weighting})
         seen.add(corpus_id)
     return resolved
 
@@ -161,6 +166,26 @@ EXTRA_STOP = {
     "una", "uno", "pero", "esta", "este", "esto",
 }
 
+# Full texts only (weighting "document"): the boilerplate of a PDF's text
+# layer, mirroring MediaChartsTrait::documentStopWords() on the PHP side.
+DOCUMENT_STOP = set(
+    "doi https http www org com net html pdf vol pp ibid eds edn isbn issn retrieved accessed "
+    "available online downloaded journal journals press copyright licence license licensed creative "
+    "commons rights reserved published publisher publishing wiley crossref onlinelibrary springer "
+    "elsevier taylor francis routledge tandfonline jstor figure fig table appendix page pages editor "
+    "editors edited cit referências university universität université universidade universidad "
+    "bayreuth cluster excellence".split()
+)
+
+# A line that is only a bibliography heading; mirrors
+# MediaChartsTrait::withoutReferences().
+REFERENCES_RE = re.compile(
+    r"^[ \t]*(?:\d+\.?[ \t]*)?(?:references(?: cited)?|bibliography|works cited|literature cited|"
+    r"sources(?: and references)?|literatur(?:verzeichnis)?|quellen(?:verzeichnis)?|bibliographie|"
+    r"références(?: bibliographiques)?|referências(?: bibliográficas)?|bibliografia)[ \t]*:?[ \t]*$",
+    re.I | re.M,
+)
+
 CUE_RE = re.compile(r"\[[^\]]*\]")                          # [music], [applause]
 SPEAKER_RE = re.compile(r"\bspeakers?\s*\d+\s*:?", re.I)    # "Speaker 1:" / "Speaker 2"
 TAG_RE = re.compile(r"<[^>]+>")                             # strip HTML in abstracts
@@ -171,6 +196,14 @@ def clean(text: str) -> str:
     text = TAG_RE.sub(" ", text)
     text = CUE_RE.sub(" ", text)
     return SPEAKER_RE.sub(" ", text)
+
+
+def without_references(text: str) -> str:
+    """Cut a full text at its last bibliography heading, when it is in the second half."""
+    last = None
+    for last in REFERENCES_RE.finditer(text):
+        pass
+    return text[: last.start()] if last and last.start() > len(text) / 2 else text
 
 
 def fetch_json(url: str, attempts: int = 4):
@@ -228,13 +261,13 @@ def detect_lang(text: str) -> str:
     return code if code in SUPPORTED else ""
 
 
-def lemmatise(text: str, nlp) -> list[str]:
+def lemmatise(text: str, nlp, extra_stop: set[str] = frozenset()) -> list[str]:
     out: list[str] = []
     for tok in nlp(text[: nlp.max_length]):
         if tok.pos_ not in KEEP_POS or not tok.is_alpha or tok.is_stop:
             continue
         lemma = tok.lemma_.lower().strip()
-        if len(lemma) < MIN_LEN or lemma in EXTRA_STOP or nlp.vocab[lemma].is_stop:
+        if len(lemma) < MIN_LEN or lemma in EXTRA_STOP or lemma in extra_stop or nlp.vocab[lemma].is_stop:
             continue
         out.append(lemma)
     return out
@@ -242,6 +275,22 @@ def lemmatise(text: str, nlp) -> list[str]:
 
 def top(counter: Counter) -> list[dict]:
     return [{"name": w, "value": c} for w, c in counter.most_common(TOP_N) if c >= MIN_COUNT]
+
+
+def top_by_document(weights: Counter, docs: Counter) -> list[dict]:
+    """Weighting "document": each text spread a weight of one over its words.
+
+    The value is the sum of a word's shares x1000, rounded; ``docs`` is the
+    number of texts using it, shown in the tooltip. A word in one text only is
+    dropped. Mirrors MediaChartsTrait::buildDocumentWordCloud().
+    """
+    rows = [
+        {"name": w, "value": round(v * 1000), "docs": docs[w]}
+        for w, v in weights.items()
+        if docs[w] >= MIN_COUNT and round(v * 1000) > 0
+    ]
+    rows.sort(key=lambda r: (-r["value"], -r["docs"], r["name"]))
+    return rows[:TOP_N]
 
 
 def main() -> int:
@@ -255,9 +304,11 @@ def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for corpus in CORPORA:
         cid, field, item_set = corpus["id"], corpus["field"], corpus["item_set"]
+        per_document = corpus["weighting"] == "document"
         print(f"== {cid}: fetching item set {item_set} …")
         items = fetch_items(item_set, scope)
         counts = {c: Counter() for c in SUPPORTED}
+        docs = {c: Counter() for c in SUPPORTED}
         lang_items = {c: 0 for c in SUPPORTED}
         skipped = 0
         for it in items:
@@ -271,7 +322,17 @@ def main() -> int:
             if code not in SUPPORTED:
                 skipped += 1  # language we don't have a model for
                 continue
-            counts[code].update(lemmatise(text, models[code]))
+            if per_document:
+                lemmas = Counter(lemmatise(without_references(text), models[code], DOCUMENT_STOP))
+                total = sum(lemmas.values())
+                if not total:
+                    skipped += 1
+                    continue
+                for lemma, n in lemmas.items():
+                    counts[code][lemma] += n / total
+                docs[code].update(lemmas.keys())
+            else:
+                counts[code].update(lemmatise(text, models[code]))
             lang_items[code] += 1
 
         present = sorted((c for c in SUPPORTED if counts[c]), key=lambda c: -lang_items[c])
@@ -284,7 +345,8 @@ def main() -> int:
             "models": MODELS,
             "languages": present,
             "items": {"total": len(items), "skipped": skipped, **{c: lang_items[c] for c in present}},
-            "byLang": {c: top(counts[c]) for c in present},
+            "weighting": corpus["weighting"],
+            "byLang": {c: (top_by_document(counts[c], docs[c]) if per_document else top(counts[c])) for c in present},
         }
         # Preserve the previous timestamp when the semantic payload did not
         # change. This keeps scheduled/manual regeneration idempotent and stops

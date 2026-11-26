@@ -2543,6 +2543,10 @@ msgstr ""
 msgid "The words that come up most often across the episode transcripts."
 msgstr ""
 
+#: config/client-strings.json:chartDescription.fulltextWordcloud
+msgid "The words that come up most often across the full texts of the publications, each publication weighing the same."
+msgstr ""
+
 #: config/client-strings.json:chartDescription.abstractWordcloud
 msgid "The words that come up most often across the publication abstracts."
 msgstr ""
@@ -2709,6 +2713,10 @@ msgstr ""
 msgid "Use two fingers to move the map"
 msgstr ""
 
+#: config/client-strings.json:usedInTexts
+msgid "used in {count} texts"
+msgstr ""
+
 #: config/client-strings.json:value
 msgid "Value"
 msgstr ""
@@ -2855,6 +2863,10 @@ msgstr ""
 
 #: config/client-strings.json:chartLabel.abstractWordcloud
 msgid "Words in the abstracts"
+msgstr ""
+
+#: config/client-strings.json:chartLabel.fulltextWordcloud
+msgid "Words in the full texts"
 msgstr ""
 
 #: config/client-strings.json:chartLabel.transcriptWordcloud

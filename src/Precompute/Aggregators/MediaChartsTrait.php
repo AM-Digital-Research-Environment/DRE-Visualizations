@@ -84,31 +84,13 @@ trait MediaChartsTrait
             return null;
         }
         $stop = $this->transcriptStopWords() + $this->languageStopWords($lang);
-        $lemmas = $this->transcriptLemmaMap();
         $counts = [];
         foreach ($texts as $text) {
             if (!is_string($text) || $text === '') {
                 continue;
             }
-            $t = mb_strtolower($text, 'UTF-8');
-            // Drop bracketed audio cues and the "Speaker 1 / Speaker 2:" diarisation
-            // labels (with or without the trailing colon). The bare word "speaker"
-            // is stop-worded and digits never tokenise, but this also keeps the
-            // label from being counted as a unit.
-            $t = (string) preg_replace('/\[[^\]]*\]/u', ' ', $t);
-            $t = (string) preg_replace('/\bspeakers?\s*\d+\s*:?/u', ' ', $t);
-            // Tokenise on any non-letter (Unicode-aware, so accented French letters
-            // survive). Apostrophes split too, shedding French elisions (l', d', qu').
-            $tokens = preg_split('/[^\p{L}]+/u', $t, -1, PREG_SPLIT_NO_EMPTY);
-            if (!$tokens) {
-                continue;
-            }
-            foreach ($tokens as $tok) {
-                $tok = $lemmas[$tok] ?? $tok;
-                if (mb_strlen($tok, 'UTF-8') < 3 || isset($stop[$tok])) {
-                    continue;
-                }
-                $counts[$tok] = ($counts[$tok] ?? 0) + 1;
+            foreach ($this->wordCounts($text, $stop) as $tok => $n) {
+                $counts[$tok] = ($counts[$tok] ?? 0) + $n;
             }
         }
         if (!$counts) {
@@ -129,6 +111,119 @@ trait MediaChartsTrait
     }
 
     /**
+     * A text's word counts: lower-cased, bracketed audio cues and "Speaker N"
+     * labels dropped, tokenised on any non-letter, the curated form map
+     * applied, tokens under three characters and $stop words left out.
+     *
+     * @param array<string,bool> $stop
+     * @return array<string,int>
+     */
+    private function wordCounts(string $text, array $stop): array
+    {
+        $lemmas = $this->transcriptLemmaMap();
+        $t = mb_strtolower($text, 'UTF-8');
+        // Drop bracketed audio cues and the "Speaker 1 / Speaker 2:" diarisation
+        // labels (with or without the trailing colon). The bare word "speaker"
+        // is stop-worded and digits never tokenise, but this also keeps the
+        // label from being counted as a unit.
+        $t = (string) preg_replace('/\[[^\]]*\]/u', ' ', $t);
+        $t = (string) preg_replace('/\bspeakers?\s*\d+\s*:?/u', ' ', $t);
+        // Tokenise on any non-letter (Unicode-aware, so accented French letters
+        // survive). Apostrophes split too, shedding French elisions (l', d', qu').
+        $counts = [];
+        foreach (preg_split('/[^\p{L}]+/u', $t, -1, PREG_SPLIT_NO_EMPTY) ?: [] as $tok) {
+            $tok = $lemmas[$tok] ?? $tok;
+            if (mb_strlen($tok, 'UTF-8') < 3 || isset($stop[$tok])) {
+                continue;
+            }
+            $counts[$tok] = ($counts[$tok] ?? 0) + 1;
+        }
+        return $counts;
+    }
+
+    /**
+     * A word cloud over whole documents (the publications' full texts) in
+     * which every document weighs the same: each spreads a weight of one over
+     * its own words, and a word's value is the sum of those shares (x1000,
+     * rounded). Summed raw counts let one 900,000-character book outweigh
+     * fifty articles; counting the documents a word occurs in surfaces only
+     * the words every text uses ("time", "way", "part"). The shares keep what
+     * the documents are about. Each entry also carries `docs`, the number of
+     * documents that use the word, which the tooltip shows; a word in a single
+     * document is dropped. Bibliographies are cut ({@see withoutReferences()})
+     * and the boilerplate of PDFs is stopped ({@see documentStopWords()}).
+     *
+     * @param list<string> $texts one per document
+     * @return list<array{name:string,value:int,docs:int}>|null
+     */
+    public function buildDocumentWordCloud(array $texts, int $topN = 150, ?string $lang = null): ?array
+    {
+        $stop = $this->transcriptStopWords() + $this->languageStopWords($lang) + $this->documentStopWords();
+        $weights = $docs = [];
+        foreach ($texts as $text) {
+            if (!is_string($text) || $text === '') {
+                continue;
+            }
+            $counts = $this->wordCounts($this->withoutReferences($text), $stop);
+            $total = array_sum($counts);
+            if ($total === 0) {
+                continue;
+            }
+            foreach ($counts as $tok => $n) {
+                $weights[$tok] = ($weights[$tok] ?? 0.0) + $n / $total;
+                $docs[$tok] = ($docs[$tok] ?? 0) + 1;
+            }
+        }
+        $out = [];
+        foreach ($weights as $tok => $weight) {
+            $value = (int) round($weight * 1000);
+            if ($docs[$tok] >= 2 && $value > 0) {
+                $out[] = ['name' => (string) $tok, 'value' => $value, 'docs' => $docs[$tok]];
+            }
+        }
+        usort($out, static fn (array $a, array $b): int => ($b['value'] <=> $a['value'])
+            ?: ($b['docs'] <=> $a['docs']) ?: strcmp($a['name'], $b['name']));
+        return array_slice($out, 0, $topN) ?: null;
+    }
+
+    /**
+     * A full text without its bibliography: everything from the last line that
+     * is only a references heading ("References", "Bibliography",
+     * "Literaturverzeichnis", "Références bibliographiques", …) is cut, when
+     * that line falls in the text's second half. Cited authors, journal names
+     * and publishers otherwise fill the cloud. A heading in the first half is
+     * a table of contents or a review's title, and is left alone.
+     */
+    private function withoutReferences(string $text): string
+    {
+        $heading = '/^[ \t]*(?:\d+\.?[ \t]*)?(?:references(?: cited)?|bibliography|works cited|literature cited|'
+            . 'sources(?: and references)?|literatur(?:verzeichnis)?|quellen(?:verzeichnis)?|bibliographie|'
+            . 'références(?: bibliographiques)?|referências(?: bibliográficas)?|bibliografia)[ \t]*:?[ \t]*$/imu';
+        if (!preg_match_all($heading, $text, $matches, PREG_OFFSET_CAPTURE)) {
+            return $text;
+        }
+        $last = end($matches[0]);
+        $offset = (int) $last[1];
+        return $offset > strlen($text) / 2 ? substr($text, 0, $offset) : $text;
+    }
+
+    /**
+     * The boilerplate of a PDF's text layer: DOIs and links, running heads,
+     * licences and publishers' notices. None of it says what a work is about.
+     *
+     * @return array<string,bool>
+     */
+    private function documentStopWords(): array
+    {
+        return array_fill_keys(explode(' ', 'doi https http www org com net html pdf vol pp ibid eds edn isbn issn '
+            . 'retrieved accessed available online downloaded journal journals press copyright licence license '
+            . 'licensed creative commons rights reserved published publisher publishing wiley crossref '
+            . 'onlinelibrary springer elsevier taylor francis routledge tandfonline jstor figure fig table '
+            . 'appendix page pages editor editors edited cit referências university universität université '
+            . 'universidade universidad bayreuth cluster excellence'), true);
+    }
+
+    /**
      * The transcript word cloud split by language: each text is assigned the
      * language whose function words it uses most ({@see detectTextLanguage()}),
      * and each language gets its own cloud, so a few German abstracts no longer
@@ -142,29 +237,41 @@ trait MediaChartsTrait
      * stay in each cloud flagged `generic`, for the viewer to show or hide, and
      * each cloud keeps that many more words so hiding them still leaves $topN.
      *
+     * With $perDocument, $texts are whole documents (one per record) and each
+     * language's cloud weighs them equally ({@see buildDocumentWordCloud()}).
+     *
      * @param list<string> $texts
      * @return array{languages:list<string>,byLang:array<string,list<array{name:string,value:int,generic?:true}>>}|list<array{name:string,value:int}>|null
      */
-    public function buildMultilingualWordCloud(array $texts, int $topN = 150, bool $markAcademic = false): ?array
+    public function buildMultilingualWordCloud(array $texts, int $topN = 150, bool $markAcademic = false, bool $perDocument = false): ?array
     {
         $buckets = [];
         foreach ($texts as $text) {
-            if (is_string($text) && ($lang = $this->detectTextLanguage($text)) !== null) {
+            if (!is_string($text)) {
+                continue;
+            }
+            // A full text's language shows in its opening pages; reading a
+            // whole book for it only costs time.
+            $lang = $this->detectTextLanguage($perDocument ? mb_substr($text, 0, 20000, 'UTF-8') : $text);
+            if ($lang !== null) {
                 $buckets[$lang][] = $text;
             }
         }
         // Spanish is told apart only so it is not misfiled as Portuguese or
         // French; the toggle offers the four languages the corpora are in.
         unset($buckets['es']);
+        $cloudOf = $perDocument
+            ? fn (array $bucket, int $n, ?string $lang = null): ?array => $this->buildDocumentWordCloud($bucket, $n, $lang)
+            : fn (array $bucket, int $n, ?string $lang = null): ?array => $this->buildTranscriptWordCloud($bucket, $n, $lang);
         if (!$buckets) {
-            return $this->buildTranscriptWordCloud($texts, $topN);
+            return $cloudOf($texts, $topN);
         }
         $order = array_flip(['en', 'fr', 'de', 'pt']);
         uksort($buckets, static fn ($a, $b) => (count($buckets[$b]) <=> count($buckets[$a])) ?: ($order[$a] <=> $order[$b]));
         $byLang = [];
         foreach ($buckets as $lang => $bucket) {
             $generic = $markAcademic ? $this->academicWords($lang) : [];
-            $cloud = $this->buildTranscriptWordCloud($bucket, $topN + count($generic), $lang);
+            $cloud = $cloudOf($bucket, $topN + count($generic), $lang);
             if (!$cloud) {
                 continue;
             }
@@ -177,6 +284,29 @@ trait MediaChartsTrait
             $byLang[$lang] = $cloud;
         }
         return $byLang ? ['languages' => array_keys($byLang), 'byLang' => $byLang] : null;
+    }
+
+    /**
+     * Flag the words of scholarly prose ({@see academicWords()}) `generic` in
+     * a per-language cloud, for the viewer to show or hide. The in-PHP builder
+     * flags them as it goes; the lemmatised inputs of the wordclouds Action
+     * carry no flag, so the publication clouds pass through here either way.
+     * A flat cloud (no language known) is returned as it is.
+     */
+    public function markAcademicWords(array $cloud): array
+    {
+        if (!isset($cloud['byLang']) || !is_array($cloud['byLang'])) {
+            return $cloud;
+        }
+        foreach ($cloud['byLang'] as $lang => $list) {
+            $generic = $this->academicWords((string) $lang);
+            foreach ($list as $i => $entry) {
+                if (isset($generic[$entry['name'] ?? ''])) {
+                    $cloud['byLang'][$lang][$i]['generic'] = true;
+                }
+            }
+        }
+        return $cloud;
     }
 
     /**
@@ -340,7 +470,7 @@ trait MediaChartsTrait
             . 'quelles quelque quelques quels qui quoi sans sauf selon ses seulement sien sienne soit son '
             . 'sont sous souvent sur surtout tandis tant tellement tels tes toi ton tous tout toute toutes '
             . 'très trop une vers voici voilà vos votre vous ainsi fois '
-            . 'est les des aux pas ont même déjà cette ces ils elles nous vous';
+            . 'est les des aux pas ont même déjà cette ces ils elles nous vous voir dire non contre exemple etc';
 
         // German and Portuguese function words, for the abstracts in those
         // languages. Words that are also English content words ("war", "man")
@@ -351,11 +481,13 @@ trait MediaChartsTrait
             . 'für gibt hat haben hier ich ihr ihre ihrem ihren ihrer immer insbesondere ist jedoch kann können mit '
             . 'mehr neue neuen neuer nach nicht noch nur oder ohne sein seine seinen seiner seit sich sie '
             . 'sind sondern sowie sowohl über und uns unter vom von vor was welche welcher welches wenn werden '
-            . 'wie wir wird wurde wurden zum zur zwei zwischen';
+            . 'wie wir wird wurde wurden zum zur zwei zwischen waren hatte hatten viele vielen während selbst kein '
+            . 'keine keinen oft sehr bereits eigene eigenen erste ersten zudem somit jede jeder jedem sei wäre vgl abb';
 
         $pt = 'além aos ainda até bem cada com como das depois disso dos ela elas ele eles entre essa esse esta '
             . 'este está estão foi isso mais mas muito não nas nos num numa onde para pela pelas pelo '
-            . 'pelos podemos por qual quais quando sem ser seu seus sido sobre sua suas são também tem têm ter uma';
+            . 'pelos podemos por qual quais quando sem ser seu seus sido sobre sua suas são também tem têm ter uma '
+            . 'era eram foram mesmo mesma apenas assim alguns algumas outro outra outros outras exemplo sendo aqui';
 
         return array_fill_keys(
             array_filter(preg_split('/\s+/', $en . ' ' . $meta . ' ' . $fr . ' ' . $de . ' ' . $pt) ?: []),

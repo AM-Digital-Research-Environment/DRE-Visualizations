@@ -13,6 +13,14 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Added
+
+- **A word cloud of the publications' full texts.** The publications dashboard gains *Words in the full texts*, beside *Words in the abstracts*, with the same language switch. It reads the public `bibo:content` of the publications whose text is open on the site (EPub's open-access PDFs: 178 of 814 today), and the panel says how many. Every publication weighs the same: each spreads a weight of one over its own words. Summed counts let one 900,000-character book outweigh fifty articles, and counting the texts a word appears in surfaced only the words every text uses ("time", "way", "part"); the shares keep what the texts are about. Bibliographies and PDF boilerplate (DOIs, licences, publishers, affiliations) are left out, and the tooltip names how many texts use a word. It is built in PHP at each refresh; the lemmatised version comes from the **Build word clouds** Action (new `publications-fulltext` corpus, `"weighting": "document"` in the profile), which can run only once this release is deployed.
+
+### Fixed
+
+- **The abstracts cloud offers its "common academic words" switch again.** The words of scholarly prose ("article", "study", "paper") were flagged only by the in-PHP fallback, so the lemmatised input the site actually uses carried no flag and showed them unconditionally. Both publication clouds are now flagged after loading, whatever built them.
+
 ## [2.56.0] - 2026-11-26
 
 ### Changed

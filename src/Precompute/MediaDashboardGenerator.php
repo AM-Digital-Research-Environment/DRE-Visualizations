@@ -90,7 +90,18 @@ final class MediaDashboardGenerator extends DashboardGenerator
         $absWc = $this->wordCloudInput('publications')
             ?? $this->aggregators->buildMultilingualWordCloud($this->loadTextValues($pubs, 'bibo:abstract'), markAcademic: true);
         if ($absWc) {
-            $dashboard['abstractWordcloud'] = $absWc;
+            $dashboard['abstractWordcloud'] = $this->aggregators->markAcademicWords($absWc);
+        }
+        // Full-text word cloud — the public bibo:content of the publications
+        // whose text is open (the PDF's text layer), one document per
+        // publication, each weighing the same (Aggregators::buildDocumentWordCloud).
+        // The lemmatised input (data/wordclouds/publications-fulltext.php)
+        // wins when the wordclouds Action has built it.
+        $openTexts = $this->loadTextByItem($pubs, Terms::CONTENT);
+        $fullWc = $this->wordCloudInput('publications-fulltext')
+            ?? $this->aggregators->buildMultilingualWordCloud(array_values($openTexts), markAcademic: true, perDocument: true);
+        if ($fullWc) {
+            $dashboard['fulltextWordcloud'] = $this->aggregators->markAcademicWords($fullWc);
         }
         // The publications' place in the shared semantic map, from the offline
         // embeddings build; absent until a build matches this site's revision.
@@ -159,6 +170,7 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'chord' => 'Keywords that appear together',
             'subjects' => 'Keywords',
             'abstractWordcloud' => 'Words in the abstracts',
+            'fulltextWordcloud' => 'Words in the full texts',
             'similarity' => 'Publications by similarity',
         ];
         $dashboard['descriptions'] = [
@@ -177,6 +189,11 @@ final class MediaDashboardGenerator extends DashboardGenerator
             'abstractWordcloud' => 'The words that come up most often across the publication abstracts. Words are reduced to their base form, and everyday words such as "the" and "of" are left out.',
             'similarity' => 'Each dot is a publication. Publications about similar topics appear close to each other, even when they are in different languages. Colours show the type of publication. Pale dots are publications with little or no abstract, so their position is less reliable. Click a dot to open the publication. To zoom, use the buttons above the chart or hold Ctrl and scroll. Drag to move around.',
         ];
+
+        // Its coverage, stated: only open-access full texts are on the site.
+        if (isset($dashboard['fulltextWordcloud'])) {
+            $dashboard['descriptions']['fulltextWordcloud'] = sprintf('The words that come up most often in the full texts of the %d publications whose text is openly available here, out of %d. Each publication weighs the same, so a long book counts no more than a short article; a larger word is one these texts give more of their length to. Bibliographies, page furniture such as DOIs and licences, and everyday words are left out. Hover over a word to see how many texts use it. Open-access publications are over-represented.', count($openTexts), count($pubs));
+        }
 
         // Named after the hub the data chose (the institution with the most of
         // these people: the University of Bayreuth on AMIRA).
@@ -548,6 +565,21 @@ final class MediaDashboardGenerator extends DashboardGenerator
             }
         }
         return null;
+    }
+
+    /**
+     * Each record's text in $term, its values joined: one document per record.
+     *
+     * @return array<int,string> record id => text, records without one absent
+     */
+    protected function loadTextByItem(array $ids, string $term): array
+    {
+        $texts = [];
+        foreach ($this->loadValueRows($ids, [$term]) as [$id, , $value]) {
+            $texts[$id] = isset($texts[$id]) ? $texts[$id] . "
+" . $value : (string) $value;
+        }
+        return $texts;
     }
 
     protected function loadTextValues(array $ids, string $term): array

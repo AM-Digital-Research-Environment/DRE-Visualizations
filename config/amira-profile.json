@@ -134,6 +134,7 @@
   "wordcloudCorpora": [
     { "id": "podcasts", "itemSetKey": "podcasts", "field": "bibo:content" },
     { "id": "publications", "itemSetKey": "publications", "field": "bibo:abstract" },
+    { "id": "publications-fulltext", "itemSetKey": "publications", "field": "bibo:content", "weighting": "document" },
     { "id": "youtube", "itemSetKey": "youtube", "field": "bibo:content" }
   ],
   "embeddingCorpora": [

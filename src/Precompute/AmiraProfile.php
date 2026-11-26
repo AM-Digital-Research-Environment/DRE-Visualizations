@@ -106,13 +106,19 @@ final class AmiraProfile
         ) ?: [];
     }
 
-    /** @return list<array{id:string,itemSet:int,field:string}> */
+    /**
+     * The word-cloud corpora. `weighting` is 'frequency' (summed counts, the
+     * default) or 'document' (every record weighs the same: full texts).
+     *
+     * @return list<array{id:string,itemSet:int,field:string,weighting:string}>
+     */
     public function wordcloudCorpora(): array
     {
         return array_map(fn (array $corpus): array => [
             'id' => $corpus['id'],
             'itemSet' => $this->itemSet($corpus['itemSetKey']),
             'field' => $corpus['field'],
+            'weighting' => $corpus['weighting'] ?? 'frequency',
         ], $this->data['wordcloudCorpora']);
     }
 
@@ -261,7 +267,8 @@ final class AmiraProfile
             if (!is_string($id) || !preg_match('/^[a-z][a-z0-9-]*$/', $id)
                 || isset($corpusIds[$id])
                 || !is_string($itemSetKey) || !isset($this->data['itemSets'][$itemSetKey])
-                || !is_string($field) || !preg_match('/^[a-z][a-z0-9]*:[A-Za-z][A-Za-z0-9]*$/', $field)) {
+                || !is_string($field) || !preg_match('/^[a-z][a-z0-9]*:[A-Za-z][A-Za-z0-9]*$/', $field)
+                || !in_array($corpus['weighting'] ?? 'frequency', ['frequency', 'document'], true)) {
                 throw new RuntimeException('AMIRA profile has an invalid word-cloud corpus.');
             }
             $this->itemSet($itemSetKey);

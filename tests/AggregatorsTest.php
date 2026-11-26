@@ -781,6 +781,43 @@ check($aggregators->buildMultilingualWordCloud(['archive memory archive memory']
     ['name' => 'archive', 'value' => 2], ['name' => 'memory', 'value' => 2],
 ], 'abstract cloud falls back to one mixed cloud when no language can be told');
 
+// Full texts: every document weighs the same, bibliographies and PDF
+// boilerplate are left out.
+$book = str_repeat('The colonial archive and the colonial city. ', 200);
+$documentCloud = $aggregators->buildDocumentWordCloud([
+    $book . "\nmemory\n",
+    'The memory of the city and its memory of the colonial past. See https://doi.org/10.1/x in the journal.'
+        . "\nReferences\nArchive, Smith. Archive press.",
+    'Memory, the city and the archive.',
+]);
+$documentWords = array_column($documentCloud ?? [], null, 'name');
+check(($documentWords['memory']['docs'] ?? null) === 3 && ($documentWords['city']['docs'] ?? null) === 3,
+    'document cloud counts how many texts use each word');
+check(($documentWords['memory']['value'] ?? 0) > ($documentWords['colonial']['value'] ?? PHP_INT_MAX),
+    'document cloud weighs a 200-sentence book no more than a one-line text');
+check(($documentWords['archive']['docs'] ?? null) === 2,
+    'document cloud cuts a bibliography in the second half of a text');
+check(array_intersect(['doi', 'https', 'journal'], array_keys($documentWords)) === [],
+    'document cloud stops PDF boilerplate');
+$singleDocument = $aggregators->buildDocumentWordCloud(['Mayotte Mayotte Mayotte memory', 'memory city']);
+check(array_column($singleDocument ?? [], 'name') === ['memory'],
+    'document cloud drops a word only one text uses');
+$fullTextCloud = $aggregators->buildMultilingualWordCloud([
+    'The article is a study of the memory of the city, and of the memory of its archive.',
+    'The memory of the city in the archive, with the article and the study of it.',
+    'Die Erinnerung an die Stadt und das Archiv der Stadt, mit der Erinnerung.',
+    'Das Archiv und die Erinnerung der Stadt, mit dem Kapitel über die Stadt.',
+], 150, true, true);
+check(($fullTextCloud['languages'] ?? null) === ['en', 'de']
+    && isset($fullTextCloud['byLang']['en'][0]['docs'])
+    && (array_column($fullTextCloud['byLang']['en'], 'generic', 'name')['article'] ?? null) === true,
+    'full-text cloud buckets documents by language, with document counts and academic flags');
+$flagged = $aggregators->markAcademicWords(['languages' => ['de'], 'byLang' => ['de' => [
+    ['name' => 'kapitel', 'value' => 3], ['name' => 'stadt', 'value' => 2]]]]);
+check(($flagged['byLang']['de'][0]['generic'] ?? null) === true && !isset($flagged['byLang']['de'][1]['generic'])
+    && $aggregators->markAcademicWords([['name' => 'study', 'value' => 1]]) === [['name' => 'study', 'value' => 1]],
+    'academic words are flagged in a lemmatised per-language input, and a flat cloud is left alone');
+
 // --- knowledge graph (IDF-ranked shared-item discovery) ---
 $kgItems = [
     1 => ['title' => 'Center', 'class_label' => 'Article', 'class_term' => 'fabio:JournalArticle', 'template_id' => 11],

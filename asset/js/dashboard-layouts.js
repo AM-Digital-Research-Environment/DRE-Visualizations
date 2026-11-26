@@ -234,14 +234,14 @@
             order: ['types', 'languages', 'stackedTimeline', 'locations',
                     'topJournals', 'topPublishers', 'topSeries', 'topAuthors',
                     'coAuthorNetwork', 'coAuthorMap', 'chord', 'subjects',
-                    'abstractWordcloud', 'similarity', 'funders'],
+                    'abstractWordcloud', 'fulltextWordcloud', 'similarity', 'funders'],
             tabs:  [{ label: 'publicationVenues',
                       keys: ['topJournals', 'topPublishers', 'topSeries'] }],
             wide:  ['stackedTimeline', 'locations', 'topJournals', 'topPublishers',
                     'topSeries', 'topAuthors', 'funders', 'coAuthorNetwork',
-                    'coAuthorMap', 'chord', 'subjects', 'abstractWordcloud', 'similarity'],
+                    'coAuthorMap', 'chord', 'subjects', 'abstractWordcloud', 'fulltextWordcloud', 'similarity'],
             tall:  ['locations', 'coAuthorNetwork', 'coAuthorMap', 'chord', 'subjects',
-                    'abstractWordcloud', 'similarity']
+                    'abstractWordcloud', 'fulltextWordcloud', 'similarity']
         },
         // Cluster YouTube channel (youtube.json). Videos carry no resource type
         // or geography, so the layout shows uploads over time, the language mix,

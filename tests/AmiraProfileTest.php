@@ -20,7 +20,11 @@ check(($corpora[0] ?? null) === [
     'id' => 'podcasts',
     'itemSet' => $profile->itemSet('podcasts'),
     'field' => 'bibo:content',
+    'weighting' => 'frequency',
 ], 'word-cloud corpora resolve the shared item-set key');
+$fulltextCorpus = array_values(array_filter($corpora, fn (array $c): bool => $c['id'] === 'publications-fulltext'))[0] ?? null;
+check(($fulltextCorpus['weighting'] ?? null) === 'document' && $fulltextCorpus['field'] === 'bibo:content',
+    'the full-text corpus weighs every publication the same');
 $embeddingCorpora = $profile->embeddingCorpora();
 check(count($embeddingCorpora) === 6
     && ($embeddingCorpora[0] ?? null) === [
@@ -56,6 +60,7 @@ $invalidCases = [
     'unsupported schema version' => static function (array &$data): void { $data['schemaVersion'] = 99; },
     'non-positive required id' => static function (array &$data): void { $data['itemSets']['youtube'] = 0; },
     'unknown corpus item-set key' => static function (array &$data): void { $data['wordcloudCorpora'][0]['itemSetKey'] = 'missing'; },
+    'unknown word-cloud weighting' => static function (array &$data): void { $data['wordcloudCorpora'][0]['weighting'] = 'tfidf'; },
     'duplicate corpus id' => static function (array &$data): void { $data['wordcloudCorpora'][1]['id'] = $data['wordcloudCorpora'][0]['id']; },
     'embedding corpus with both selectors' => static function (array &$data): void { $data['embeddingCorpora'][0]['templateKey'] = 'projects'; },
     'embedding corpus with no text fields' => static function (array &$data): void { $data['embeddingCorpora'][0]['textFields'] = []; },

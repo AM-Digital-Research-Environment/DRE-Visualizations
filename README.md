@@ -170,7 +170,8 @@ A bibliographic analytics view over the cluster **Publications** item set (artic
 - **funders** (`frapo:isFundedBy` — the DFG, the EXC 2052 grant, partner foundations), clickable through to each funder's page;
 - a **collaboration network** — authors and editors who appear together on a publication, with each edge coloured by the relationship (**co-authorship**, **author–editor**, or **co-editorship**) and people matched to a Person record drawn solid (click-through) versus external names muted. Up to 120 people are shown: ranked by PageRank over the whole network, chosen by growing outwards from the top-ranked person through the best-ranked collaborator of someone already shown, and grouped by multi-level Louvain over the people shown. Linked authors that are not Person records (institutes credited as authors) are left out;
 - a **keyword** word cloud and **keyword co-occurrence** chord over `dcterms:subject`, plus Languages as a pie;
-- an **abstract word cloud** — the most frequent words across the publication abstracts (`bibo:abstract`), lemmatised (see [Word clouds](#word-clouds-lemmatised) below).
+- an **abstract word cloud** — the most frequent words across the publication abstracts (`bibo:abstract`), lemmatised (see [Word clouds](#word-clouds-lemmatised) below);
+- a **full-text word cloud** — the words of the publications whose full text is open on the site (the public `bibo:content` of EPub's open-access PDFs, about a fifth of the publications; the panel says how many). Every publication weighs the same: each spreads a weight of one over its own words, so a long book counts no more than a short article. Bibliographies (from the last references heading in a text's second half) and PDF boilerplate (DOIs, licences, publishers' names, affiliations) are left out, and the tooltip names how many texts use a word. Both publication clouds flag common academic words ("article", "study") for the viewer to show or hide.
 
 Authors/editors matched to Person records and subjects matched to Authority/LCSH records are clickable through to their pages. (The **By Resource Template** chart still appears on person and organisation dashboards, and a person's authored publications surface on their own dashboard.)
 
@@ -200,12 +201,12 @@ Podcasts carry no `dcterms:type` of their own, so (like YouTube videos) they don
 
 ### Word clouds (lemmatised)
 
-The text word clouds (Podcasts transcripts, Publications abstracts, YouTube captions) are **lemmatised** so word forms collapse to their base (knowledge/knowledges, study/studies). Proper lemmatisation needs spaCy, which PHP can't do, so it runs as a small **CI step** rather than in-Omeka:
+The text word clouds (Podcasts transcripts, Publications abstracts and full texts, YouTube captions) are **lemmatised** so word forms collapse to their base (knowledge/knowledges, study/studies). Proper lemmatisation needs spaCy, which PHP can't do, so it runs as a small **CI step** rather than in-Omeka:
 
 - `tools/wordclouds/build_wordclouds.py` reads each corpus's text from the **public REST API** (no VPN/auth), lemmatises it with spaCy (EN / FR / DE / PT models; content-word POS only, plus per-language + domain stop-words), and writes per-corpus, per-language frequencies to guarded `data/wordclouds/<corpus>.php` inputs.
-- The **Build word clouds** GitHub Action (`.github/workflows/wordclouds.yml`, **manual** `workflow_dispatch`) runs the script and commits the regenerated inputs.
+- The **Build word clouds** GitHub Action (`.github/workflows/wordclouds.yml`, **manual** `workflow_dispatch`) runs the script and commits the regenerated inputs. It refuses to run unless the site's installed profile is the repository's (`/dre-data/source.json`), so a new corpus can be built only once the release that adds it is deployed.
 - These are committed **static inputs** — like `geo/countries.geojson`, *not* the git-ignored generated dashboards. The precompute reads them via `MediaDashboardGenerator::wordCloudInput()` and folds the combined (`all`) frequencies into the dashboard; when a file is absent it **falls back** to the in-PHP tokeniser, so the clouds always render — just unlemmatised until the Action has run.
-- **Reusable:** add a corpus under `wordcloudCorpora` in `config/amira-profile.json` (item-set key + text property). The Python builder and PHP precompute share that profile, and the per-language buckets feed the word cloud's **language toggle** (shipped in v2.16.0).
+- **Reusable:** add a corpus under `wordcloudCorpora` in `config/amira-profile.json` (item-set key + text property, and `"weighting": "document"` for full texts, which weighs every record the same). The Python builder and PHP precompute share that profile, and the per-language buckets feed the word cloud's **language toggle** (shipped in v2.16.0).
 
 ### Semantic Map & Similar Items
 

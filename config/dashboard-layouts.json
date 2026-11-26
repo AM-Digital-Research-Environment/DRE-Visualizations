@@ -282,6 +282,7 @@
       "chord",
       "subjects",
       "abstractWordcloud",
+      "fulltextWordcloud",
       "similarity",
       "funders"
     ],
