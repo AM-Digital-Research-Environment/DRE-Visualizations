@@ -13,6 +13,8 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.56.0] - 2026-11-26
+
 ### Changed
 
 - **The ILAM project page shows the collection, not 1,000 covers.** A research project's page draws every image of its collections as a photo wall, with a timeline of photos; for ILAM those images are the cover scans of its journal's articles, so the page listed hundreds of identical-looking thumbnails. A project whose item set is a featured collection (the set names the project in `dcterms:isPartOf`) now shows that collection's gallery instead, as on its collection page: the articles grouped by journal issue, a timeline of issues, and the full-text *By content* and *Words* views. Other projects are unchanged, and any failure to read the set falls back to the project's own gallery.
@@ -1246,7 +1248,8 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 - Previous repository state. Earlier history remains available in Git tags and
   commit history.
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.4...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.56.0...HEAD
+[2.56.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.4...v2.56.0
 [2.55.4]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.3...v2.55.4
 [2.55.3]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.2...v2.55.3
 [2.55.2]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.1...v2.55.2

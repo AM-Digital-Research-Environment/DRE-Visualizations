@@ -14,8 +14,8 @@ authors:
     family-names: Madore
     orcid: "https://orcid.org/0000-0003-0959-2092"
     affiliation: "University of Bayreuth"
-version: "2.55.4"
-date-released: 2026-11-24
+version: "2.56.0"
+date-released: 2026-11-26
 license: GPL-3.0-or-later
 repository-code: "https://github.com/AM-Digital-Research-Environment/DRE-Visualizations"
 url: "https://github.com/AM-Digital-Research-Environment/DRE-Visualizations"
