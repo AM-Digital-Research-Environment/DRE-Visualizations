@@ -389,7 +389,7 @@
     {"itemId":507,"name":"Deutsche Forschungsgemeinschaft","value":16},
     {"itemId":500,"name":"University of Bayreuth","value":10}
   ],
-  "labels": {"abstractWordcloud":"Words in the abstracts","chord":"Keywords that appear together","coAuthorMap":"Where the co-authors are","coAuthorNetwork":"Collaboration network","funders":"Funders","locations":"Where the publications appeared","similarity":"Publications by similarity","stackedTimeline":"Publications by year and type","subjects":"Keywords","topJournals":"Journals","topPublishers":"Publishers","topSeries":"Book series","types":"Publication types"},
+  "labels": {"abstractWordcloud":"Words in the abstracts","chord":"Keywords that appear together","coAuthorMap":"Where the co-authors are","coAuthorNetwork":"Collaboration network","fulltextWordcloud":"Words in the full texts","funders":"Funders","locations":"Where the publications appeared","similarity":"Publications by similarity","stackedTimeline":"Publications by year and type","subjects":"Keywords","topJournals":"Journals","topPublishers":"Publishers","topSeries":"Book series","types":"Publication types"},
   "languages": [
     {"itemId":810,"name":"English","value":10},
     {"itemId":811,"name":"French","value":10},
