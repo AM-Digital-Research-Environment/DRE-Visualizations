@@ -13,6 +13,8 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+## [2.57.0] - 2026-11-26
+
 ### Added
 
 - **A word cloud of the publications' full texts.** The publications dashboard gains *Words in the full texts*, beside *Words in the abstracts*, with the same language switch. It reads the public `bibo:content` of the publications whose text is open on the site (EPub's open-access PDFs: 178 of 814 today), and the panel says how many. Every publication weighs the same: each spreads a weight of one over its own words. Summed counts let one 900,000-character book outweigh fifty articles, and counting the texts a word appears in surfaced only the words every text uses ("time", "way", "part"); the shares keep what the texts are about. Bibliographies and PDF boilerplate (DOIs, licences, publishers, affiliations) are left out, and the tooltip names how many texts use a word. It is built in PHP at each refresh; the lemmatised version comes from the **Build word clouds** Action (new `publications-fulltext` corpus, `"weighting": "document"` in the profile), which can run only once this release is deployed.
@@ -1256,7 +1258,8 @@ Install DRESearch 1.21.0 and the DRE theme 2.30.2 alongside this module, then ru
 - Previous repository state. Earlier history remains available in Git tags and
   commit history.
 
-[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.56.0...HEAD
+[Unreleased]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.57.0...HEAD
+[2.57.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.56.0...v2.57.0
 [2.56.0]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.4...v2.56.0
 [2.55.4]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.3...v2.55.4
 [2.55.3]: https://github.com/AM-Digital-Research-Environment/DRE-Visualizations/compare/v2.55.2...v2.55.3
