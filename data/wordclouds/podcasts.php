@@ -1,8 +1,13 @@
 <?php http_response_code(404); exit; ?>
 {
   "corpus": "podcasts",
-  "generated_utc": "2026-07-03T14:33:01Z",
+  "generated_utc": "2026-11-26T09:21:10Z",
   "source": "https://data.africamultiple.uni-bayreuth.de",
+  "scope": {
+    "siteId": 1,
+    "revision": "3208dca31b7f504479c672b4a039c60d",
+    "profile": "99e91435f161b4f189839ebc0848509f7b367a6055a45c45609c26269c02d517"
+  },
   "models": {
     "en": "en_core_web_sm",
     "fr": "fr_core_news_sm",
@@ -19,6 +24,7 @@
     "en": 40,
     "fr": 3
   },
+  "weighting": "frequency",
   "byLang": {
     "en": [
       {

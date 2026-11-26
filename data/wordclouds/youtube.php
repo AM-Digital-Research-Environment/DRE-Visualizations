@@ -1,8 +1,13 @@
 <?php http_response_code(404); exit; ?>
 {
   "corpus": "youtube",
-  "generated_utc": "2026-07-03T14:34:00Z",
+  "generated_utc": "2026-11-26T09:26:54Z",
   "source": "https://data.africamultiple.uni-bayreuth.de",
+  "scope": {
+    "siteId": 1,
+    "revision": "3208dca31b7f504479c672b4a039c60d",
+    "profile": "99e91435f161b4f189839ebc0848509f7b367a6055a45c45609c26269c02d517"
+  },
   "models": {
     "en": "en_core_web_sm",
     "fr": "fr_core_news_sm",
@@ -16,282 +21,295 @@
     "pt"
   ],
   "items": {
-    "total": 140,
-    "skipped": 51,
-    "en": 55,
-    "fr": 21,
+    "total": 142,
+    "skipped": 35,
+    "en": 66,
+    "fr": 28,
     "de": 8,
     "pt": 5
   },
+  "weighting": "frequency",
   "byLang": {
     "en": [
       {
         "name": "people",
-        "value": 1173
+        "value": 1233
       },
       {
         "name": "african",
-        "value": 1130
+        "value": 1214
       },
       {
         "name": "africa",
-        "value": 840
+        "value": 907
       },
       {
         "name": "film",
-        "value": 748
-      },
-      {
-        "name": "time",
-        "value": 745
+        "value": 857
       },
       {
         "name": "way",
-        "value": 719
+        "value": 807
+      },
+      {
+        "name": "time",
+        "value": 804
       },
       {
         "name": "question",
-        "value": 708
-      },
-      {
-        "name": "woman",
-        "value": 529
+        "value": 744
       },
       {
         "name": "different",
-        "value": 496
+        "value": 543
       },
       {
         "name": "study",
-        "value": 496
+        "value": 540
       },
       {
-        "name": "work",
-        "value": 480
-      },
-      {
-        "name": "black",
-        "value": 479
-      },
-      {
-        "name": "university",
-        "value": 471
+        "name": "woman",
+        "value": 536
       },
       {
         "name": "year",
-        "value": 455
+        "value": 509
+      },
+      {
+        "name": "university",
+        "value": 500
       },
       {
         "name": "story",
-        "value": 450
+        "value": 493
+      },
+      {
+        "name": "work",
+        "value": 493
+      },
+      {
+        "name": "black",
+        "value": 486
       },
       {
         "name": "world",
-        "value": 386
+        "value": 475
       },
       {
         "name": "good",
-        "value": 376
+        "value": 395
+      },
+      {
+        "name": "heat",
+        "value": 374
       },
       {
         "name": "idea",
-        "value": 326
-      },
-      {
-        "name": "important",
-        "value": 322
-      },
-      {
-        "name": "life",
-        "value": 316
-      },
-      {
-        "name": "course",
-        "value": 312
-      },
-      {
-        "name": "right",
-        "value": 309
-      },
-      {
-        "name": "south",
-        "value": 307
+        "value": 368
       },
       {
         "name": "space",
-        "value": 306
+        "value": 365
       },
       {
-        "name": "knowledge",
-        "value": 294
+        "name": "course",
+        "value": 354
       },
       {
-        "name": "history",
-        "value": 291
+        "name": "life",
+        "value": 351
       },
       {
-        "name": "research",
-        "value": 285
+        "name": "important",
+        "value": 338
+      },
+      {
+        "name": "south",
+        "value": 326
       },
       {
         "name": "example",
-        "value": 282
-      },
-      {
-        "name": "place",
-        "value": 277
+        "value": 325
       },
       {
         "name": "new",
-        "value": 271
+        "value": 325
+      },
+      {
+        "name": "research",
+        "value": 322
+      },
+      {
+        "name": "knowledge",
+        "value": 321
+      },
+      {
+        "name": "right",
+        "value": 317
+      },
+      {
+        "name": "history",
+        "value": 302
+      },
+      {
+        "name": "place",
+        "value": 291
       },
       {
         "name": "country",
-        "value": 270
-      },
-      {
-        "name": "book",
-        "value": 266
-      },
-      {
-        "name": "term",
-        "value": 263
+        "value": 290
       },
       {
         "name": "professor",
-        "value": 244
+        "value": 274
       },
       {
-        "name": "issue",
-        "value": 241
+        "name": "book",
+        "value": 272
       },
       {
-        "name": "school",
-        "value": 239
-      },
-      {
-        "name": "language",
-        "value": 233
-      },
-      {
-        "name": "colonial",
-        "value": 230
-      },
-      {
-        "name": "global",
-        "value": 226
+        "name": "term",
+        "value": 268
       },
       {
         "name": "project",
-        "value": 222
+        "value": 255
+      },
+      {
+        "name": "language",
+        "value": 253
+      },
+      {
+        "name": "issue",
+        "value": 245
+      },
+      {
+        "name": "school",
+        "value": 242
+      },
+      {
+        "name": "colonial",
+        "value": 242
+      },
+      {
+        "name": "global",
+        "value": 242
       },
       {
         "name": "community",
-        "value": 219
+        "value": 240
       },
       {
-        "name": "education",
-        "value": 219
-      },
-      {
-        "name": "development",
-        "value": 217
-      },
-      {
-        "name": "little",
-        "value": 201
-      },
-      {
-        "name": "interesting",
-        "value": 198
-      },
-      {
-        "name": "social",
-        "value": 197
+        "name": "word",
+        "value": 231
       },
       {
         "name": "point",
-        "value": 193
+        "value": 225
+      },
+      {
+        "name": "development",
+        "value": 222
+      },
+      {
+        "name": "education",
+        "value": 222
+      },
+      {
+        "name": "social",
+        "value": 211
+      },
+      {
+        "name": "little",
+        "value": 206
+      },
+      {
+        "name": "interesting",
+        "value": 204
+      },
+      {
+        "name": "body",
+        "value": 204
+      },
+      {
+        "name": "experience",
+        "value": 203
+      },
+      {
+        "name": "political",
+        "value": 197
+      },
+      {
+        "name": "day",
+        "value": 196
+      },
+      {
+        "name": "great",
+        "value": 192
       },
       {
         "name": "society",
         "value": 192
       },
       {
-        "name": "day",
+        "name": "moment",
         "value": 191
       },
       {
-        "name": "germany",
-        "value": 184
-      },
-      {
-        "name": "political",
-        "value": 183
-      },
-      {
-        "name": "word",
-        "value": 181
-      },
-      {
-        "name": "great",
-        "value": 179
-      },
-      {
         "name": "actor",
-        "value": 179
-      },
-      {
-        "name": "body",
-        "value": 177
-      },
-      {
-        "name": "able",
-        "value": 175
-      },
-      {
-        "name": "big",
-        "value": 174
-      },
-      {
-        "name": "person",
-        "value": 174
-      },
-      {
-        "name": "international",
-        "value": 173
-      },
-      {
-        "name": "student",
-        "value": 173
-      },
-      {
-        "name": "german",
-        "value": 173
-      },
-      {
-        "name": "experience",
-        "value": 170
-      },
-      {
-        "name": "young",
-        "value": 168
-      },
-      {
-        "name": "culture",
-        "value": 168
-      },
-      {
-        "name": "level",
-        "value": 167
+        "value": 190
       },
       {
         "name": "center",
-        "value": 162
+        "value": 187
+      },
+      {
+        "name": "big",
+        "value": 185
+      },
+      {
+        "name": "germany",
+        "value": 185
+      },
+      {
+        "name": "german",
+        "value": 184
+      },
+      {
+        "name": "international",
+        "value": 183
+      },
+      {
+        "name": "level",
+        "value": 183
+      },
+      {
+        "name": "person",
+        "value": 181
       },
       {
         "name": "man",
-        "value": 161
+        "value": 177
+      },
+      {
+        "name": "culture",
+        "value": 176
+      },
+      {
+        "name": "able",
+        "value": 176
+      },
+      {
+        "name": "young",
+        "value": 175
+      },
+      {
+        "name": "literature",
+        "value": 175
+      },
+      {
+        "name": "student",
+        "value": 174
       },
       {
         "name": "gender",
@@ -299,126 +317,190 @@
       },
       {
         "name": "system",
-        "value": 151
+        "value": 159
+      },
+      {
+        "name": "multiple",
+        "value": 157
+      },
+      {
+        "name": "future",
+        "value": 155
+      },
+      {
+        "name": "end",
+        "value": 155
+      },
+      {
+        "name": "role",
+        "value": 155
+      },
+      {
+        "name": "state",
+        "value": 154
       },
       {
         "name": "organization",
-        "value": 151
+        "value": 154
       },
       {
         "name": "family",
-        "value": 148
+        "value": 152
       },
       {
-        "name": "moment",
-        "value": 147
+        "name": "fact",
+        "value": 152
+      },
+      {
+        "name": "academic",
+        "value": 151
       },
       {
         "name": "feminist",
         "value": 147
       },
       {
-        "name": "state",
+        "name": "art",
         "value": 146
-      },
-      {
-        "name": "literature",
-        "value": 146
-      },
-      {
-        "name": "academic",
-        "value": 146
-      },
-      {
-        "name": "role",
-        "value": 140
-      },
-      {
-        "name": "fact",
-        "value": 138
-      },
-      {
-        "name": "foreign",
-        "value": 134
-      },
-      {
-        "name": "intellectual",
-        "value": 130
-      },
-      {
-        "name": "child",
-        "value": 129
-      },
-      {
-        "name": "relationship",
-        "value": 129
-      },
-      {
-        "name": "future",
-        "value": 128
       },
       {
         "name": "cinema",
-        "value": 128
+        "value": 145
       },
       {
-        "name": "problem",
-        "value": 127
-      },
-      {
-        "name": "continent",
-        "value": 127
-      },
-      {
-        "name": "east",
-        "value": 127
-      },
-      {
-        "name": "end",
-        "value": 124
-      },
-      {
-        "name": "context",
-        "value": 124
-      },
-      {
-        "name": "multiple",
-        "value": 124
-      },
-      {
-        "name": "power",
-        "value": 124
-      },
-      {
-        "name": "happy",
-        "value": 120
+        "name": "foreign",
+        "value": 144
       },
       {
         "name": "sense",
-        "value": 120
+        "value": 139
+      },
+      {
+        "name": "concept",
+        "value": 139
+      },
+      {
+        "name": "intellectual",
+        "value": 138
+      },
+      {
+        "name": "problem",
+        "value": 137
+      },
+      {
+        "name": "power",
+        "value": 137
+      },
+      {
+        "name": "relation",
+        "value": 137
+      },
+      {
+        "name": "process",
+        "value": 136
+      },
+      {
+        "name": "continent",
+        "value": 135
+      },
+      {
+        "name": "relationship",
+        "value": 132
       },
       {
         "name": "long",
-        "value": 119
+        "value": 132
       },
       {
-        "name": "girl",
-        "value": 117
+        "name": "context",
+        "value": 132
+      },
+      {
+        "name": "child",
+        "value": 131
+      },
+      {
+        "name": "east",
+        "value": 130
       },
       {
         "name": "character",
-        "value": 115
+        "value": 129
       },
       {
-        "name": "certain",
-        "value": 115
+        "name": "happy",
+        "value": 128
+      },
+      {
+        "name": "perspective",
+        "value": 128
+      },
+      {
+        "name": "thought",
+        "value": 125
+      },
+      {
+        "name": "human",
+        "value": 122
       },
       {
         "name": "scholar",
-        "value": 115
+        "value": 121
+      },
+      {
+        "name": "movie",
+        "value": 120
+      },
+      {
+        "name": "girl",
+        "value": 120
+      },
+      {
+        "name": "difficult",
+        "value": 119
+      },
+      {
+        "name": "second",
+        "value": 118
+      },
+      {
+        "name": "certain",
+        "value": 118
+      },
+      {
+        "name": "cultural",
+        "value": 118
       },
       {
         "name": "white",
+        "value": 117
+      },
+      {
+        "name": "case",
+        "value": 117
+      },
+      {
+        "name": "group",
+        "value": 116
+      },
+      {
+        "name": "sure",
+        "value": 116
+      },
+      {
+        "name": "practice",
+        "value": 116
+      },
+      {
+        "name": "production",
+        "value": 115
+      },
+      {
+        "name": "field",
+        "value": 114
+      },
+      {
+        "name": "local",
         "value": 114
       },
       {
@@ -426,143 +508,163 @@
         "value": 114
       },
       {
-        "name": "sure",
-        "value": 114
-      },
-      {
-        "name": "perspective",
-        "value": 114
-      },
-      {
-        "name": "thought",
-        "value": 114
-      },
-      {
-        "name": "difficult",
+        "name": "particular",
         "value": 113
       },
       {
-        "name": "group",
-        "value": 110
-      },
-      {
-        "name": "movie",
-        "value": 110
-      },
-      {
-        "name": "process",
-        "value": 109
-      },
-      {
         "name": "voice",
-        "value": 109
+        "value": 112
       },
       {
-        "name": "particular",
-        "value": 108
-      },
-      {
-        "name": "second",
-        "value": 107
-      },
-      {
-        "name": "human",
-        "value": 107
-      },
-      {
-        "name": "racism",
-        "value": 105
-      },
-      {
-        "name": "cultural",
-        "value": 104
-      },
-      {
-        "name": "local",
-        "value": 102
+        "name": "approach",
+        "value": 110
       },
       {
         "name": "discussion",
-        "value": 102
+        "value": 109
       },
       {
-        "name": "field",
-        "value": 100
+        "name": "racism",
+        "value": 109
+      },
+      {
+        "name": "artist",
+        "value": 106
+      },
+      {
+        "name": "order",
+        "value": 106
+      },
+      {
+        "name": "rhythm",
+        "value": 106
       },
       {
         "name": "english",
-        "value": 100
-      },
-      {
-        "name": "practice",
-        "value": 100
-      },
-      {
-        "name": "production",
-        "value": 99
-      },
-      {
-        "name": "ghana",
-        "value": 99
-      },
-      {
-        "name": "area",
-        "value": 98
-      },
-      {
-        "name": "colleague",
-        "value": 98
-      },
-      {
-        "name": "father",
-        "value": 97
+        "value": 104
       },
       {
         "name": "change",
-        "value": 97
+        "value": 103
       },
       {
-        "name": "religious",
-        "value": 96
+        "name": "novel",
+        "value": 103
       },
       {
-        "name": "western",
-        "value": 96
-      },
-      {
-        "name": "case",
-        "value": 94
-      },
-      {
-        "name": "audience",
-        "value": 94
-      },
-      {
-        "name": "program",
-        "value": 94
-      },
-      {
-        "name": "condition",
-        "value": 93
-      },
-      {
-        "name": "art",
-        "value": 92
-      },
-      {
-        "name": "director",
-        "value": 92
+        "name": "colleague",
+        "value": 102
       },
       {
         "name": "mother",
-        "value": 92
+        "value": 102
       },
       {
-        "name": "relation",
-        "value": 92
+        "name": "audience",
+        "value": 101
+      },
+      {
+        "name": "director",
+        "value": 100
+      },
+      {
+        "name": "area",
+        "value": 100
+      },
+      {
+        "name": "song",
+        "value": 100
+      },
+      {
+        "name": "movement",
+        "value": 100
+      },
+      {
+        "name": "ghana",
+        "value": 100
+      },
+      {
+        "name": "religious",
+        "value": 99
+      },
+      {
+        "name": "father",
+        "value": 98
       },
       {
         "name": "old",
+        "value": 98
+      },
+      {
+        "name": "money",
+        "value": 98
+      },
+      {
+        "name": "war",
+        "value": 98
+      },
+      {
+        "name": "french",
+        "value": 98
+      },
+      {
+        "name": "western",
+        "value": 97
+      },
+      {
+        "name": "program",
+        "value": 97
+      },
+      {
+        "name": "writing",
+        "value": 96
+      },
+      {
+        "name": "critical",
+        "value": 96
+      },
+      {
+        "name": "short",
+        "value": 95
+      },
+      {
+        "name": "situation",
+        "value": 95
+      },
+      {
+        "name": "traditional",
+        "value": 95
+      },
+      {
+        "name": "form",
+        "value": 95
+      },
+      {
+        "name": "condition",
+        "value": 95
+      },
+      {
+        "name": "possible",
+        "value": 94
+      },
+      {
+        "name": "main",
+        "value": 93
+      },
+      {
+        "name": "hand",
+        "value": 92
+      },
+      {
+        "name": "national",
+        "value": 92
+      },
+      {
+        "name": "opportunity",
+        "value": 91
+      },
+      {
+        "name": "violence",
         "value": 91
       },
       {
@@ -570,75 +672,51 @@
         "value": 91
       },
       {
-        "name": "critical",
-        "value": 91
-      },
-      {
-        "name": "short",
-        "value": 90
-      },
-      {
-        "name": "hand",
-        "value": 90
-      },
-      {
-        "name": "novel",
-        "value": 90
-      },
-      {
-        "name": "money",
+        "name": "value",
         "value": 89
       },
       {
-        "name": "traditional",
-        "value": 89
+        "name": "event",
+        "value": 88
       },
       {
-        "name": "approach",
-        "value": 89
-      },
-      {
-        "name": "war",
-        "value": 89
-      },
-      {
-        "name": "french",
-        "value": 89
-      },
-      {
-        "name": "national",
+        "name": "medium",
         "value": 87
       },
       {
-        "name": "possible",
+        "name": "europe",
+        "value": 87
+      },
+      {
+        "name": "writer",
+        "value": 87
+      },
+      {
+        "name": "member",
+        "value": 87
+      },
+      {
+        "name": "beginning",
         "value": 86
       },
       {
-        "name": "value",
+        "name": "high",
         "value": 86
-      },
-      {
-        "name": "violence",
-        "value": 85
-      },
-      {
-        "name": "order",
-        "value": 85
-      },
-      {
-        "name": "city",
-        "value": 84
-      },
-      {
-        "name": "situation",
-        "value": 84
-      },
-      {
-        "name": "concept",
-        "value": 84
       },
       {
         "name": "identity",
+        "value": 86
+      },
+      {
+        "name": "city",
+        "value": 85
+      },
+      {
+        "name": "text",
+        "value": 85
+      },
+      {
+        "name": "theory",
         "value": 84
       },
       {
@@ -646,15 +724,23 @@
         "value": 84
       },
       {
-        "name": "writer",
+        "name": "kenya",
         "value": 83
       },
       {
-        "name": "song",
+        "name": "reason",
         "value": 83
       },
       {
-        "name": "opportunity",
+        "name": "public",
+        "value": 83
+      },
+      {
+        "name": "impact",
+        "value": 82
+      },
+      {
+        "name": "past",
         "value": 81
       },
       {
@@ -662,51 +748,51 @@
         "value": 81
       },
       {
-        "name": "high",
+        "name": "academy",
         "value": 81
-      },
-      {
-        "name": "theory",
-        "value": 80
       },
       {
         "name": "number",
         "value": 80
       },
       {
-        "name": "main",
+        "name": "guy",
         "value": 80
       },
       {
-        "name": "medium",
+        "name": "government",
         "value": 79
       },
       {
-        "name": "kenya",
+        "name": "strong",
         "value": 79
       },
       {
-        "name": "artist",
-        "value": 79
-      },
-      {
-        "name": "academy",
+        "name": "struggle",
         "value": 79
       },
       {
         "name": "geography",
+        "value": 79
+      },
+      {
+        "name": "house",
         "value": 78
       },
       {
-        "name": "government",
+        "name": "politic",
+        "value": 78
+      },
+      {
+        "name": "reality",
         "value": 77
       },
       {
-        "name": "impact",
+        "name": "beautiful",
         "value": 77
       },
       {
-        "name": "past",
+        "name": "religion",
         "value": 77
       },
       {
@@ -714,210 +800,138 @@
         "value": 77
       },
       {
-        "name": "politic",
+        "name": "indian",
         "value": 77
       },
       {
-        "name": "europe",
+        "name": "small",
         "value": 76
       },
       {
-        "name": "public",
+        "name": "real",
         "value": 76
-      },
-      {
-        "name": "religion",
-        "value": 76
-      },
-      {
-        "name": "beautiful",
-        "value": 75
-      },
-      {
-        "name": "member",
-        "value": 75
-      },
-      {
-        "name": "guy",
-        "value": 74
       },
       {
         "name": "care",
-        "value": 74
+        "value": 76
+      },
+      {
+        "name": "poem",
+        "value": 76
       },
       {
         "name": "slide",
-        "value": 74
-      },
-      {
-        "name": "text",
-        "value": 73
-      },
-      {
-        "name": "faith",
-        "value": 73
-      },
-      {
-        "name": "event",
-        "value": 73
-      },
-      {
-        "name": "struggle",
-        "value": 73
-      },
-      {
-        "name": "writing",
-        "value": 72
-      },
-      {
-        "name": "reading",
-        "value": 72
-      },
-      {
-        "name": "strong",
-        "value": 72
-      },
-      {
-        "name": "room",
-        "value": 72
-      },
-      {
-        "name": "learning",
-        "value": 72
-      },
-      {
-        "name": "india",
-        "value": 72
-      },
-      {
-        "name": "journalist",
-        "value": 72
-      },
-      {
-        "name": "clear",
-        "value": 71
-      },
-      {
-        "name": "career",
-        "value": 70
-      },
-      {
-        "name": "topic",
-        "value": 70
-      },
-      {
-        "name": "beginning",
-        "value": 70
+        "value": 76
       },
       {
         "name": "connection",
-        "value": 70
+        "value": 75
       },
       {
-        "name": "interview",
-        "value": 70
-      },
-      {
-        "name": "house",
-        "value": 70
-      },
-      {
-        "name": "true",
-        "value": 70
+        "name": "friend",
+        "value": 75
       }
     ],
     "fr": [
       {
         "name": "film",
-        "value": 437
+        "value": 514
       },
       {
         "name": "question",
-        "value": 237
+        "value": 244
       },
       {
         "name": "histoire",
-        "value": 214
+        "value": 223
       },
       {
         "name": "heure",
-        "value": 187
+        "value": 192
       },
       {
         "name": "fois",
-        "value": 139
-      },
-      {
-        "name": "femme",
-        "value": 126
+        "value": 146
       },
       {
         "name": "temps",
-        "value": 123
+        "value": 134
+      },
+      {
+        "name": "femme",
+        "value": 129
       },
       {
         "name": "africain",
+        "value": 126
+      },
+      {
+        "name": "personnage",
+        "value": 124
+      },
+      {
+        "name": "moment",
+        "value": 123
+      },
+      {
+        "name": "jeune",
         "value": 122
       },
       {
         "name": "grand",
-        "value": 115
+        "value": 121
+      },
+      {
+        "name": "monde",
+        "value": 113
       },
       {
         "name": "langue",
         "value": 112
       },
       {
-        "name": "personnage",
-        "value": 107
-      },
-      {
         "name": "théâtre",
         "value": 107
       },
       {
-        "name": "moment",
+        "name": "homme",
         "value": 106
       },
       {
         "name": "cinéma",
-        "value": 102
+        "value": 104
       },
       {
-        "name": "homme",
-        "value": 102
+        "name": "petit",
+        "value": 103
       },
       {
         "name": "texte",
         "value": 100
       },
       {
-        "name": "jeune",
+        "name": "travail",
+        "value": 99
+      },
+      {
+        "name": "part",
+        "value": 98
+      },
+      {
+        "name": "afrique",
         "value": 97
       },
       {
-        "name": "monde",
-        "value": 97
-      },
-      {
-        "name": "petit",
-        "value": 93
+        "name": "année",
+        "value": 96
       },
       {
         "name": "roman",
         "value": 93
       },
       {
-        "name": "part",
-        "value": 92
-      },
-      {
-        "name": "travail",
-        "value": 91
-      },
-      {
         "name": "livre",
-        "value": 91
+        "value": 92
       },
       {
         "name": "enfant",
@@ -928,51 +942,55 @@
         "value": 91
       },
       {
-        "name": "afrique",
+        "name": "vie",
         "value": 89
       },
       {
-        "name": "vie",
-        "value": 81
-      },
-      {
-        "name": "année",
-        "value": 79
+        "name": "pays",
+        "value": 88
       },
       {
         "name": "français",
-        "value": 77
-      },
-      {
-        "name": "pays",
-        "value": 75
+        "value": 79
       },
       {
         "name": "fin",
-        "value": 74
+        "value": 76
+      },
+      {
+        "name": "cas",
+        "value": 75
+      },
+      {
+        "name": "mot",
+        "value": 73
       },
       {
         "name": "mémoire",
         "value": 71
       },
       {
-        "name": "mot",
+        "name": "point",
         "value": 71
       },
       {
-        "name": "cas",
-        "value": 69
-      },
-      {
         "name": "train",
-        "value": 65
+        "value": 70
       },
       {
         "name": "côté",
-        "value": 64
+        "value": 68
       },
       {
         "name": "jour",
+        "value": 66
+      },
+      {
+        "name": "mois",
+        "value": 63
+      },
+      {
+        "name": "dernier",
         "value": 63
       },
       {
@@ -980,31 +998,63 @@
         "value": 62
       },
       {
+        "name": "nom",
+        "value": 61
+      },
+      {
         "name": "intéressant",
         "value": 60
       },
       {
-        "name": "point",
+        "name": "coup",
+        "value": 59
+      },
+      {
+        "name": "important",
+        "value": 59
+      },
+      {
+        "name": "burkina",
         "value": 58
       },
       {
-        "name": "dernier",
+        "name": "société",
         "value": 57
       },
       {
-        "name": "coup",
+        "name": "projet",
+        "value": 57
+      },
+      {
+        "name": "mort",
+        "value": 56
+      },
+      {
+        "name": "festival",
         "value": 55
       },
       {
-        "name": "mois",
+        "name": "manière",
         "value": 54
+      },
+      {
+        "name": "sorte",
+        "value": 53
+      },
+      {
+        "name": "politique",
+        "value": 52
       },
       {
         "name": "écriture",
         "value": 52
       },
       {
-        "name": "sorte",
+        "name": "école",
+        "value": 51
+      },
+      {
+        "name": "partie",
         "value": 51
       },
       {
@@ -1012,7 +1062,7 @@
         "value": 50
       },
       {
-        "name": "nom",
+        "name": "argent",
         "value": 50
       },
       {
@@ -1020,15 +1070,15 @@
         "value": 50
       },
       {
-        "name": "manière",
-        "value": 50
+        "name": "rapport",
+        "value": 49
       },
       {
-        "name": "important",
-        "value": 50
+        "name": "tête",
+        "value": 48
       },
       {
-        "name": "politique",
+        "name": "problème",
         "value": 48
       },
       {
@@ -1036,19 +1086,15 @@
         "value": 48
       },
       {
-        "name": "festival",
+        "name": "ville",
         "value": 47
       },
       {
-        "name": "société",
+        "name": "île",
         "value": 47
       },
       {
-        "name": "problème",
-        "value": 46
-      },
-      {
-        "name": "rapport",
+        "name": "situation",
         "value": 46
       },
       {
@@ -1056,23 +1102,15 @@
         "value": 45
       },
       {
-        "name": "projet",
-        "value": 45
-      },
-      {
         "name": "shakespeare",
         "value": 45
       },
       {
-        "name": "île",
+        "name": "acteur",
         "value": 45
       },
       {
-        "name": "école",
-        "value": 44
-      },
-      {
-        "name": "tête",
+        "name": "place",
         "value": 44
       },
       {
@@ -1080,12 +1118,12 @@
         "value": 43
       },
       {
-        "name": "mort",
+        "name": "droit",
         "value": 43
       },
       {
-        "name": "droit",
-        "value": 43
+        "name": "état",
+        "value": 42
       },
       {
         "name": "photo",
@@ -1096,12 +1134,48 @@
         "value": 42
       },
       {
+        "name": "écrir",
+        "value": 41
+      },
+      {
+        "name": "départ",
+        "value": 41
+      },
+      {
+        "name": "impression",
+        "value": 41
+      },
+      {
+        "name": "ami",
+        "value": 41
+      },
+      {
         "name": "humain",
         "value": 41
       },
       {
         "name": "terroriste",
         "value": 41
+      },
+      {
+        "name": "allemand",
+        "value": 40
+      },
+      {
+        "name": "long",
+        "value": 40
+      },
+      {
+        "name": "prix",
+        "value": 40
+      },
+      {
+        "name": "corps",
+        "value": 40
+      },
+      {
+        "name": "début",
+        "value": 40
       },
       {
         "name": "écrivain",
@@ -1112,35 +1186,15 @@
         "value": 40
       },
       {
-        "name": "écrir",
+        "name": "niveau",
         "value": 39
       },
       {
-        "name": "état",
-        "value": 39
-      },
-      {
-        "name": "allemand",
-        "value": 39
-      },
-      {
-        "name": "impression",
-        "value": 39
-      },
-      {
-        "name": "burkina",
+        "name": "difficile",
         "value": 39
       },
       {
         "name": "noir",
-        "value": 38
-      },
-      {
-        "name": "corps",
-        "value": 38
-      },
-      {
-        "name": "place",
         "value": 38
       },
       {
@@ -1152,19 +1206,43 @@
         "value": 38
       },
       {
-        "name": "partie",
-        "value": 37
+        "name": "sens",
+        "value": 38
+      },
+      {
+        "name": "sujet",
+        "value": 38
+      },
+      {
+        "name": "discours",
+        "value": 38
       },
       {
         "name": "compte",
+        "value": 38
+      },
+      {
+        "name": "pouvoir",
         "value": 37
       },
       {
-        "name": "niveau",
+        "name": "travers",
+        "value": 37
+      },
+      {
+        "name": "france",
+        "value": 37
+      },
+      {
+        "name": "général",
         "value": 36
       },
       {
-        "name": "début",
+        "name": "frère",
+        "value": 36
+      },
+      {
+        "name": "famille",
         "value": 36
       },
       {
@@ -1172,19 +1250,15 @@
         "value": 36
       },
       {
+        "name": "public",
+        "value": 36
+      },
+      {
         "name": "esclave",
         "value": 36
       },
       {
-        "name": "sens",
-        "value": 36
-      },
-      {
-        "name": "discours",
-        "value": 36
-      },
-      {
-        "name": "ville",
+        "name": "population",
         "value": 35
       },
       {
@@ -1192,15 +1266,7 @@
         "value": 35
       },
       {
-        "name": "pouvoir",
-        "value": 35
-      },
-      {
-        "name": "départ",
-        "value": 34
-      },
-      {
-        "name": "argent",
+        "name": "village",
         "value": 34
       },
       {
@@ -1208,39 +1274,35 @@
         "value": 34
       },
       {
-        "name": "travers",
+        "name": "voix",
         "value": 34
       },
       {
-        "name": "frère",
-        "value": 33
-      },
-      {
-        "name": "prix",
-        "value": 33
+        "name": "côte",
+        "value": 34
       },
       {
         "name": "lien",
         "value": 33
       },
       {
-        "name": "général",
-        "value": 32
+        "name": "suite",
+        "value": 33
       },
       {
-        "name": "village",
-        "value": 32
+        "name": "contexte",
+        "value": 33
       },
       {
-        "name": "long",
-        "value": 32
+        "name": "social",
+        "value": 33
       },
       {
-        "name": "famille",
-        "value": 32
+        "name": "espèce",
+        "value": 33
       },
       {
-        "name": "voix",
+        "name": "production",
         "value": 32
       },
       {
@@ -1248,11 +1310,11 @@
         "value": 32
       },
       {
-        "name": "sujet",
+        "name": "historique",
         "value": 32
       },
       {
-        "name": "historique",
+        "name": "récit",
         "value": 32
       },
       {
@@ -1260,19 +1322,27 @@
         "value": 32
       },
       {
+        "name": "face",
+        "value": 32
+      },
+      {
         "name": "fiction",
         "value": 31
       },
       {
-        "name": "suite",
+        "name": "scène",
         "value": 31
       },
       {
-        "name": "contexte",
+        "name": "culture",
         "value": 31
       },
       {
-        "name": "côte",
+        "name": "ensembl",
+        "value": 31
+      },
+      {
+        "name": "dieu",
         "value": 31
       },
       {
@@ -1280,23 +1350,23 @@
         "value": 31
       },
       {
-        "name": "difficile",
-        "value": 31
-      },
-      {
         "name": "katanga",
         "value": 31
       },
       {
-        "name": "acteur",
+        "name": "scénario",
         "value": 31
+      },
+      {
+        "name": "monsieur",
+        "value": 30
       },
       {
         "name": "étude",
         "value": 30
       },
       {
-        "name": "public",
+        "name": "mal",
         "value": 30
       },
       {
@@ -1308,12 +1378,20 @@
         "value": 30
       },
       {
-        "name": "france",
+        "name": "vue",
         "value": 30
       },
       {
-        "name": "face",
+        "name": "silence",
         "value": 30
+      },
+      {
+        "name": "semaine",
+        "value": 29
+      },
+      {
+        "name": "lieu",
+        "value": 29
       },
       {
         "name": "combat",
@@ -1336,15 +1414,27 @@
         "value": 29
       },
       {
-        "name": "scénario",
-        "value": 29
+        "name": "ancien",
+        "value": 28
       },
       {
-        "name": "espèce",
-        "value": 29
+        "name": "pied",
+        "value": 28
       },
       {
-        "name": "lieu",
+        "name": "soir",
+        "value": 28
+      },
+      {
+        "name": "intérieur",
+        "value": 28
+      },
+      {
+        "name": "eau",
+        "value": 28
+      },
+      {
+        "name": "forme",
         "value": 28
       },
       {
@@ -1352,31 +1442,23 @@
         "value": 28
       },
       {
-        "name": "dieu",
-        "value": 28
-      },
-      {
         "name": "fond",
         "value": 28
       },
       {
-        "name": "récit",
-        "value": 28
-      },
-      {
-        "name": "silence",
-        "value": 28
-      },
-      {
-        "name": "population",
+        "name": "raison",
         "value": 27
       },
       {
-        "name": "semaine",
+        "name": "université",
         "value": 27
       },
       {
-        "name": "scène",
+        "name": "propre",
+        "value": 27
+      },
+      {
+        "name": "caméra",
         "value": 27
       },
       {
@@ -1384,19 +1466,19 @@
         "value": 27
       },
       {
+        "name": "communauté",
+        "value": 27
+      },
+      {
         "name": "lire",
         "value": 27
       },
       {
-        "name": "pied",
+        "name": "salle",
         "value": 27
       },
       {
-        "name": "culture",
-        "value": 27
-      },
-      {
-        "name": "ami",
+        "name": "type",
         "value": 27
       },
       {
@@ -1408,19 +1490,19 @@
         "value": 27
       },
       {
-        "name": "raison",
-        "value": 26
+        "name": "oeil",
+        "value": 27
       },
       {
-        "name": "intérieur",
-        "value": 26
-      },
-      {
-        "name": "mal",
+        "name": "rue",
         "value": 26
       },
       {
         "name": "blanc",
+        "value": 26
+      },
+      {
+        "name": "ensemble",
         "value": 26
       },
       {
@@ -1432,7 +1514,7 @@
         "value": 26
       },
       {
-        "name": "vue",
+        "name": "débat",
         "value": 26
       },
       {
@@ -1440,15 +1522,11 @@
         "value": 26
       },
       {
-        "name": "oeil",
+        "name": "région",
         "value": 26
       },
       {
-        "name": "propre",
-        "value": 25
-      },
-      {
-        "name": "production",
+        "name": "zone",
         "value": 25
       },
       {
@@ -1456,7 +1534,7 @@
         "value": 25
       },
       {
-        "name": "forme",
+        "name": "centre",
         "value": 25
       },
       {
@@ -1468,15 +1546,31 @@
         "value": 25
       },
       {
+        "name": "titre",
+        "value": 25
+      },
+      {
         "name": "marché",
         "value": 25
       },
       {
-        "name": "débat",
+        "name": "plan",
         "value": 25
       },
       {
-        "name": "monsieur",
+        "name": "série",
+        "value": 25
+      },
+      {
+        "name": "violence",
+        "value": 25
+      },
+      {
+        "name": "élément",
+        "value": 24
+      },
+      {
+        "name": "matin",
         "value": 24
       },
       {
@@ -1484,7 +1578,15 @@
         "value": 24
       },
       {
-        "name": "eau",
+        "name": "voyage",
+        "value": 24
+      },
+      {
+        "name": "équipe",
+        "value": 24
+      },
+      {
+        "name": "attention",
         "value": 24
       },
       {
@@ -1492,27 +1594,15 @@
         "value": 24
       },
       {
-        "name": "université",
-        "value": 23
+        "name": "génération",
+        "value": 24
       },
       {
-        "name": "caméra",
-        "value": 23
-      },
-      {
-        "name": "salle",
-        "value": 23
+        "name": "thématique",
+        "value": 24
       },
       {
         "name": "rituel",
-        "value": 23
-      },
-      {
-        "name": "centre",
-        "value": 23
-      },
-      {
-        "name": "titre",
         "value": 23
       },
       {
@@ -1520,15 +1610,15 @@
         "value": 23
       },
       {
-        "name": "plan",
-        "value": 23
-      },
-      {
         "name": "esclavage",
         "value": 23
       },
       {
-        "name": "génération",
+        "name": "jeu",
+        "value": 23
+      },
+      {
+        "name": "terrain",
         "value": 23
       },
       {
@@ -1542,90 +1632,6 @@
       {
         "name": "guinée",
         "value": 22
-      },
-      {
-        "name": "ancien",
-        "value": 22
-      },
-      {
-        "name": "conscience",
-        "value": 22
-      },
-      {
-        "name": "paris",
-        "value": 22
-      },
-      {
-        "name": "œuvre",
-        "value": 22
-      },
-      {
-        "name": "rencontre",
-        "value": 22
-      },
-      {
-        "name": "olympio",
-        "value": 22
-      },
-      {
-        "name": "région",
-        "value": 22
-      },
-      {
-        "name": "gravité",
-        "value": 22
-      },
-      {
-        "name": "producteur",
-        "value": 22
-      },
-      {
-        "name": "plaisir",
-        "value": 21
-      },
-      {
-        "name": "rue",
-        "value": 21
-      },
-      {
-        "name": "communauté",
-        "value": 21
-      },
-      {
-        "name": "arbre",
-        "value": 21
-      },
-      {
-        "name": "situation",
-        "value": 21
-      },
-      {
-        "name": "lecteur",
-        "value": 21
-      },
-      {
-        "name": "auteur",
-        "value": 21
-      },
-      {
-        "name": "terrain",
-        "value": 21
-      },
-      {
-        "name": "musique",
-        "value": 21
-      },
-      {
-        "name": "royaume",
-        "value": 21
-      },
-      {
-        "name": "violence",
-        "value": 21
-      },
-      {
-        "name": "portugais",
-        "value": 20
       }
     ],
     "de": [
