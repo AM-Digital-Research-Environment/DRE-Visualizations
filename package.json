@@ -38,7 +38,7 @@
     "url": "git+https://github.com/AM-Digital-Research-Environment/DRE-Visualizations.git"
   },
   "devDependencies": {
-    "@axe-core/playwright": "4.14.0",
+    "@axe-core/playwright": "4.14.1",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.65.1",
     "esbuild": "0.28.2",
