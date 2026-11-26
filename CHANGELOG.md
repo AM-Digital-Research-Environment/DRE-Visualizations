@@ -13,6 +13,10 @@ workflow publishes it as the notes of the GitHub release
 
 ## [Unreleased]
 
+### Changed
+
+- **The ILAM project page shows the collection, not 1,000 covers.** A research project's page draws every image of its collections as a photo wall, with a timeline of photos; for ILAM those images are the cover scans of its journal's articles, so the page listed hundreds of identical-looking thumbnails. A project whose item set is a featured collection (the set names the project in `dcterms:isPartOf`) now shows that collection's gallery instead, as on its collection page: the articles grouped by journal issue, a timeline of issues, and the full-text *By content* and *Words* views. Other projects are unchanged, and any failure to read the set falls back to the project's own gallery.
+
 ## [2.55.4] - 2026-11-24
 
 ### Fixed

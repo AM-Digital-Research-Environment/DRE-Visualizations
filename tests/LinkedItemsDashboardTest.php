@@ -22,6 +22,45 @@ namespace Laminas\View\Renderer {
             };
         }
         public function setting(string $key, mixed $default = null): mixed { return 1; }
+        /** Item set id => the item ids its dcterms:isPartOf links; a missing set fails to read. */
+        public array $partOf = [];
+        public int $apiReads = 0;
+        public function api(): object
+        {
+            return new class($this) {
+                public function __construct(private PhpRenderer $view) {}
+                public function read(string $resource, int $id): object
+                {
+                    ++$this->view->apiReads;
+                    if ($resource !== 'item_sets' || !isset($this->view->partOf[$id])) {
+                        throw new \RuntimeException('Not found');
+                    }
+                    $targets = $this->view->partOf[$id];
+                    return new class($targets) {
+                        public function __construct(private array $targets) {}
+                        public function getContent(): object
+                        {
+                            return new class($this->targets) {
+                                public function __construct(private array $targets) {}
+                                public function value(string $term, array $options): array
+                                {
+                                    return array_map(static fn (int $id): object => new class($id) {
+                                        public function __construct(private int $id) {}
+                                        public function valueResource(): object
+                                        {
+                                            return new class($this->id) {
+                                                public function __construct(private int $id) {}
+                                                public function id(): int { return $this->id; }
+                                            };
+                                        }
+                                    }, $this->targets);
+                                }
+                            };
+                        }
+                    };
+                }
+            };
+        }
     }
 }
 namespace Omeka\Api\Representation {
@@ -80,6 +119,25 @@ namespace {
         file_put_contents($published . '/photo-galleries/project-32328.json', json_encode(['total' => 1, 'photos' => [$photo]]));
         verify($block->render($view, $item) === 'dashboard:32328' && $view->last['dashboard'] === true
             && ($view->last['gallery']['photos'][0]['id'] ?? null) === 5, 'A project shows its gallery under its dashboard.');
+        verify($view->last['featured'] === null, 'A project no featured collection names keeps its own gallery.');
+
+        // A project whose collection is a featured one (ILAM's item set names
+        // it in dcterms:isPartOf) shows that collection's issue gallery instead.
+        $ilam = \DreVisualizations\FeaturedCollections\Registry::bySlug('international-library-of-african-music-ilam');
+        verify($ilam !== null && $ilam['itemSetId'] !== null, 'The profile has the ILAM featured collection.');
+        $view->partOf = [$ilam['itemSetId'] => [32328]];
+        verify($block->render($view, $item) === 'dashboard:32328' && $view->last['featured'] === null
+            && ($view->last['gallery']['photos'][0]['id'] ?? null) === 5, 'Without a published collection gallery the project keeps its own.');
+        $article = ['id' => 9, 'title' => 'Article', 'storage' => 'def', 'ext' => 'jpg', 'volume' => 1, 'issue' => 2];
+        file_put_contents($published . '/photo-galleries/collection-' . $ilam['slug'] . '.json', json_encode(['total' => 1, 'photos' => [$article]]));
+        verify($block->render($view, $item) === 'dashboard:32328' && ($view->last['featured']['slug'] ?? null) === $ilam['slug']
+            && ($view->last['gallery']['photos'][0]['id'] ?? null) === 9, 'The project of a featured collection shows the collection gallery.');
+        $view->partOf = [$ilam['itemSetId'] => [99999]];
+        verify($block->render($view, $item) === 'dashboard:32328' && $view->last['featured'] === null
+            && ($view->last['gallery']['photos'][0]['id'] ?? null) === 5, 'A set that names another project changes nothing.');
+        $view->partOf = [];
+        verify($block->render($view, $item) === 'dashboard:32328' && $view->last['featured'] === null,
+            'An unreadable item set falls back to the project gallery.');
         rename($published . '/item-dashboards/32328.json', $published . '/item-dashboards/32328.tmp');
         verify($block->render($view, $item) === 'dashboard:32328' && $view->last['dashboard'] === false
             && $view->last['gallery'] !== null, 'A project gallery shows without a dashboard.');
@@ -111,6 +169,7 @@ namespace {
             $published . '/item-dashboards/32328.json',
             $published . '/item-dashboards/32328.tmp',
             $published . '/photo-galleries/project-32328.json',
+            $published . '/photo-galleries/collection-international-library-of-african-music-ilam.json',
             $root . '/item-dashboards/32328.json',
         ] as $file) {
             if (is_file($file)) {

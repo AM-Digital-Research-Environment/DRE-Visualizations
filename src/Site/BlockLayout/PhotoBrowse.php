@@ -144,17 +144,48 @@ class PhotoBrowse extends AbstractDreBlockLayout
             $galleryKey = $rawSet > 0 ? (string) $rawSet : null;
         }
 
-        $grouping = $entry ? $entry['grouping'] : 'photo';
-        $prefix = $entry ? ($entry['identifierPrefix'] ?? null) : null;
-        $partner = $entry ? ($entry['partner'] ?? null) : null;
+        $defaultView = $block->dataValue('default_view', 'masonry');
+        if (!in_array($defaultView, self::VIEWS, true)) {
+            $defaultView = 'masonry';
+        }
+        $precomputed = $galleryKey !== null ? ContentMap::gallery($galleryKey) : null;
         // Heading: only the editor's explicit heading. Featured-collection pages
         // already carry a Page Title block with the collection name, so the
         // gallery does not repeat it (it shows the partner credit + counts).
         $heading = (string) $block->dataValue('heading', '');
 
+        if ($entry !== null) {
+            $vars = ['defaultView' => $defaultView] + self::featuredGalleryVars($entry, $precomputed, $heading);
+        } else {
+            $vars = [
+                'galleryKey'       => $galleryKey,
+                'heading'          => $heading,
+                'defaultView'      => $defaultView,
+                'precomputed'      => $precomputed,
+                'identifierPrefix' => null,
+                'grouping'         => 'photo',
+                'partner'          => null,
+                'allowedViews'     => ['masonry' => true, 'map' => true, 'timeline' => true],
+                'contentMap'       => null,
+                'contentWords'     => null,
+            ] + BlockRegistry::viewVars(self::SLUG);
+        }
+        return $view->partial($templateViewScript ?? BlockRegistry::template(self::SLUG), $vars);
+    }
+
+    /**
+     * The template variables of a featured collection's gallery, for a page
+     * block that names it and for the project page of the project its item set
+     * belongs to ({@see Registry::forProject()}). $precomputed is the published
+     * photo-galleries/collection-<slug>.json.
+     *
+     * @param array{total:int,photos:array}|null $precomputed
+     */
+    public static function featuredGalleryVars(array $entry, ?array $precomputed, string $heading): array
+    {
         // Allowed views: the registry can opt a collection out of map/timeline.
-        $allowedViews = $entry ? $entry['views'] : ['masonry' => true, 'map' => true, 'timeline' => true];
-        if ($grouping === 'issue') {
+        $allowedViews = $entry['views'];
+        if ($entry['grouping'] === 'issue') {
             // Issue collections (ILAM) keep the masonry issue grid as the default
             // and gain a chronological timeline of issues (each cover placed by
             // its year, click opens the table of contents). Map stays off — a
@@ -165,27 +196,21 @@ class PhotoBrowse extends AbstractDreBlockLayout
                 'timeline' => $allowedViews['timeline'] ?? true,
             ];
         }
-
-        $defaultView = $block->dataValue('default_view', 'masonry');
-        if (!in_array($defaultView, self::VIEWS, true)) {
-            $defaultView = 'masonry';
-        }
-
-        return $view->partial($templateViewScript ?? BlockRegistry::template(self::SLUG), [
-            'galleryKey'      => $galleryKey,
+        return [
+            'galleryKey'      => 'collection-' . $entry['slug'],
             'heading'         => $heading,
-            'defaultView'     => $defaultView,
-            'precomputed'     => $galleryKey !== null ? ContentMap::gallery($galleryKey) : null,
-            'identifierPrefix' => $prefix,
-            'grouping'        => $grouping,
-            'partner'         => $partner,
+            'defaultView'     => 'masonry',
+            'precomputed'     => $precomputed,
+            'identifierPrefix' => $entry['identifierPrefix'] ?? null,
+            'grouping'        => $entry['grouping'],
+            'partner'         => $entry['partner'] ?? null,
             'allowedViews'    => $allowedViews,
             // The "By content" view: a committed full-text map, when the
             // collection has one (FeaturedCollections\ContentMap).
-            'contentMap'      => $entry ? ContentMap::load($entry['slug']) : null,
+            'contentMap'      => ContentMap::load($entry['slug']),
             // Its Words view: the committed word counts, when there are any.
-            'contentWords'    => $entry ? ContentMap::wordsAsset($entry['slug']) : null,
-        ] + BlockRegistry::viewVars(self::SLUG));
+            'contentWords'    => ContentMap::wordsAsset($entry['slug']),
+        ] + BlockRegistry::viewVars(self::SLUG);
     }
 
     /**

@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace DreVisualizations\Site\ResourcePageBlockLayout;
 
 use DreVisualizations\FeaturedCollections\ContentMap;
+use DreVisualizations\FeaturedCollections\Registry;
 use DreVisualizations\Site\PublishedData;
 use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
@@ -26,6 +27,19 @@ class LinkedItemsDashboard extends AbstractDreResourcePageBlockLayout
         $gallery = PublishedData::onCanonicalSite($view)
             ? ContentMap::gallery('project-' . $resource->id(), $this->dataDir)
             : null;
+        // A project whose collection is a featured one (ILAM) shows that
+        // collection's gallery instead: its articles grouped by journal issue,
+        // with the full-text views, rather than every cover as a photo.
+        $featured = null;
+        if ($gallery !== null && $gallery['photos']) {
+            $featured = $this->featuredEntry($view, (int) $resource->id());
+            $collection = $featured === null ? null : ContentMap::gallery('collection-' . $featured['slug'], $this->dataDir);
+            if ($collection !== null && $collection['photos']) {
+                $gallery = $collection;
+            } else {
+                $featured = null;
+            }
+        }
         if (!$dashboard && ($gallery === null || !$gallery['photos'])) {
             return '';
         }
@@ -34,6 +48,31 @@ class LinkedItemsDashboard extends AbstractDreResourcePageBlockLayout
             'resource' => $resource,
             'dashboard' => $dashboard,
             'gallery' => $gallery && $gallery['photos'] ? $gallery : null,
+            'featured' => $featured,
         ]);
+    }
+
+    /**
+     * The featured collection whose item set names this project in
+     * dcterms:isPartOf, or null. A set the viewer may not read (a private
+     * one) or any read failure falls back to the project's own gallery.
+     */
+    private function featuredEntry(PhpRenderer $view, int $projectId): ?array
+    {
+        try {
+            return Registry::forProject($projectId, static function (int $setId) use ($view): array {
+                $set = $view->api()->read('item_sets', $setId)->getContent();
+                $ids = [];
+                foreach ($set->value('dcterms:isPartOf', ['all' => true]) as $value) {
+                    $target = $value->valueResource();
+                    if ($target !== null) {
+                        $ids[] = (int) $target->id();
+                    }
+                }
+                return $ids;
+            });
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }

@@ -76,6 +76,33 @@ final class Registry
         ));
     }
 
+    /**
+     * The featured collection a research project's page should show instead
+     * of its generic photo gallery: the whole-set entry (no sub-collection
+     * prefix, producer filter or link-out) whose item set names the project in
+     * dcterms:isPartOf. ILAM's 1,000-odd article covers are its project's
+     * "images"; on the project page they belong in the collection's issue
+     * grid, with its full-text views, not in a photo wall.
+     *
+     * $partOf(itemSetId) returns the item ids that set's dcterms:isPartOf
+     * links; the caller reads them (the API at render time, an array in tests).
+     *
+     * @param callable(int):list<int> $partOf
+     */
+    public static function forProject(int $projectId, callable $partOf, ?AmiraProfile $profile = null): ?array
+    {
+        foreach (self::all($profile) as $entry) {
+            if ($entry['itemSetId'] === null || $entry['identifierPrefix'] !== null
+                || $entry['producerId'] !== null || $entry['externalUrl'] !== null) {
+                continue;
+            }
+            if (in_array($projectId, $partOf($entry['itemSetId']), true)) {
+                return $entry;
+            }
+        }
+        return null;
+    }
+
     /** `slug => title`, for a block's editor dropdown. */
     public static function selectOptions(): array
     {

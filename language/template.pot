@@ -311,6 +311,10 @@ msgstr ""
 msgid "Browse"
 msgstr ""
 
+#: view/common/resource-page-block-layout/linked-items-dashboard.phtml:33
+msgid "Browse the collection"
+msgstr ""
+
 #: view/dre-visualizations/admin/maintenance/index.phtml:119
 #: view/dre-visualizations/config-form.phtml:91
 msgid "Build semantic embeddings → Run workflow"
@@ -965,7 +969,7 @@ msgstr ""
 msgid "How widely project sizes vary within each research section: the smallest and largest project, the middle value, and the quarter marks in between."
 msgstr ""
 
-#: view/common/resource-page-block-layout/linked-items-dashboard.phtml:31
+#: view/common/resource-page-block-layout/linked-items-dashboard.phtml:34
 msgid "Images"
 msgstr ""
 
@@ -1818,7 +1822,7 @@ msgstr ""
 msgid "Project"
 msgstr ""
 
-#: src/Site/BlockLayout/PhotoBrowse.php:231
+#: src/Site/BlockLayout/PhotoBrowse.php:256
 msgid "Project %s"
 msgstr ""
 

@@ -9,12 +9,14 @@
  * when the site has a Project explorer page, a link to the project there
  * (data-explorer-url; dashboard.js shows it for projects only). A project with
  * images then shows them in the Photo Browsing gallery, drawn from all of its
- * collections.
+ * collections; a project whose collection is a featured one (ILAM) shows that
+ * collection's gallery instead (issue grid, By content, Words).
  *
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \Omeka\Api\Representation\ItemRepresentation $resource
  * @var bool $dashboard           whether the item has a published dashboard
- * @var array|null $gallery       the project's published gallery
+ * @var array|null $gallery       the project's published gallery, or its featured collection's
+ * @var array|null $featured      the featured-collection entry ({@see \DreVisualizations\FeaturedCollections\Registry::forProject()})
  */
 
 use DreVisualizations\Site\BlockLayout\PhotoBrowse;
@@ -27,6 +29,7 @@ use DreVisualizations\Site\BlockLayout\PhotoBrowse;
 ]) ?>
 <?php endif; ?>
 <?php if ($gallery !== null): ?>
-<?= $this->partial('common/block-layout/photo-browse',
-    PhotoBrowse::projectGalleryVars((int) $resource->id(), $gallery, $this->translate('Images'))) ?>
+<?= $this->partial('common/block-layout/photo-browse', ($featured ?? null) !== null
+    ? PhotoBrowse::featuredGalleryVars($featured, $gallery, $this->translate('Browse the collection'))
+    : PhotoBrowse::projectGalleryVars((int) $resource->id(), $gallery, $this->translate('Images'))) ?>
 <?php endif; ?>
