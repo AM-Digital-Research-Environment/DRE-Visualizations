@@ -428,7 +428,7 @@ DreVisualizations/
 │   ├── module.config.php                            # Block layouts, routes, controllers, helpers
 │   └── module.ini                                   # Module metadata; the version drives the asset ?v= cache-bust
 ├── data/
-│   └── wordclouds/                                  # 3 files — lemmatised frequencies from the Build word clouds Action — committed INPUT
+│   └── wordclouds/                                  # 4 files — lemmatised frequencies from the Build word clouds Action — committed INPUT
 ├── docs/                                            # 7 files — administration, architecture, releasing, roadmap, security, embeddings
 ├── language/
 │   └── template.pot
